@@ -1,0 +1,24 @@
+// --[ GlRenderer3D ]-----------------------------------------------------------
+
+POSSIBLE OPTIMIZATIONS:
+- Don't set the matrix uniforms when calling translate, scale, rotate, etc. 
+  Instead, update matrix uniform with a sort of "updateModelViewMatrix" 
+  function.
+  - Pros:
+    - setUniformMatrix4fv calls taken to the minimum.
+  - Cons:
+    - User of the renderer must call "updateModelViewMatrix" before drawing in 
+      order for changes to the model-view matrix to take effect.     
+- Use matrix uniform indices instead of names.
+  - Pros:
+    - Eliminates potential lookup costs.
+  - Cons: ? 
+  - Requirements: change GlShader to support this.
+
+// --[ GlShader ]---------------------------------------------------------------
+
+POSSIBLE OPTIMIZATIONS:
+- Allow user to set uniforms directly via uniform location instead of name. 
+  - Pros: 
+    - Eliminates potential lookup costs.
+  - Cons: ?

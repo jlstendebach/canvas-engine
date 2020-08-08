@@ -1,0 +1,43 @@
+// --[ math ]-------------------------------------------------------------------
+src/math/rect.js
+src/math/Vec2.js
+src/math/vec2-field.js
+src/math/Vec3.js
+
+// --[ utils ]------------------------------------------------------------------
+src/utils/Profiler.js
+src/utils/timer.js
+
+// --[ events ]-----------------------------------------------------------------
+src/events/canvas-events.js
+src/events/event-emitter.js
+src/events/keyboard.js
+src/events/mouse-events.js
+src/events/mouse-event-processor.js
+
+// --[ views ]------------------------------------------------------------------
+// views -> utils
+src/views/utils/Color.js
+
+// views 
+src/views/View.js
+src/views/Canvas.js
+src/views/LabelView.js
+src/views/vec2-field-view.js
+
+// views -> shapes
+src/views/shapes/ShapeView.js
+src/views/shapes/CircleView.js
+src/views/shapes/LineView.js
+src/views/shapes/LineStringView.js
+src/views/shapes/PolygonView.js
+src/views/shapes/RectangleView.js
+src/views/shapes/ShapeGroupView.js
+src/views/shapes/VectorView.js
+
+// views -> charts
+src/views/charts/BarChartView.js
+src/views/charts/PieChartView.js
+
+// -----------------------------------------------------------------------------
+src/App.js
