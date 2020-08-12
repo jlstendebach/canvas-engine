@@ -21,6 +21,7 @@ src/views/utils/Color.js
 
 // views 
 src/views/View.js
+src/views/SceneView.js
 src/views/Canvas.js
 src/views/LabelView.js
 src/views/vec2-field-view.js

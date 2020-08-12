@@ -41,6 +41,8 @@ class View {
     v.removeFromParent();
     v.parent = this;
     this.views.push(v); 
+    
+    return v;
   }
 
   removeView(v) {
@@ -49,6 +51,8 @@ class View {
       v.parent = null;
       this.views.splice(index, 1);
     }
+    
+    return v;
   }
 
   getViews() { 

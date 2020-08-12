@@ -102,7 +102,7 @@ class Canvas {
   getView() { return this.view; }
 
   addView(view) {
-    this.view.addView(view);
+    return this.view.addView(view);
   }
 
   draw() {

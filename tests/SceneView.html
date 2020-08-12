@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" >
+  <!--[ HEAD ]===============================================================-->
+  <head>
+    <!--[ libs ]--------------------------------------------------------------->
+    <meta charset="utf-8"/>    
+    <script src="lib/engine.2020.08.11.js"></script>
+    
+    <!--[ style ]-------------------------------------------------------------->
+    <style>
+      #main-canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  
+  <!--[ BODY ]===============================================================-->
+  <body style="padding:0; margin:0; border:0;">
+    <canvas id="main-canvas" style="width:100vw; height:100vh;">
+      Your browser does not support HTML5 canvas.
+    </canvas>
+    <div id="output-div">
+    </div>
+  
+    <!--[ JS ]===============================================================-->
+    <script>
+      window.addEventListener("load", function() {
+        window.removeEventListener("load", this);
+
+        function createRect(scene) {
+          let rect = new RectangleView(100, 100);
+          rect.setPickable(false);
+          rect.setX(Math.random()*5000);
+          rect.setY(Math.random()*5000);
+          rect.setFillStyle("#FF0000");
+          rect.setStrokeStyle("#000000");
+          rect.setStrokeWidth(1);
+          scene.addView(rect);
+        }
+        
+        function centerOn(scene, target) {
+          scene.translate.x = target.getX()*scene.scale;
+          scene.translate.y = target.getY()*scene.scale;
+          scene.translate.rotate(scene.rotate);
+          scene.translate.x -= scene.size.x/2;
+          scene.translate.y -= scene.size.y/2;
+        }
+        
+        let canvas = new Canvas("main-canvas");
+        canvas.setFillStyle("black");
+        
+        let scene = canvas.addView(new SceneView());
+        scene.position.x = 50;
+        scene.position.y = 50;
+        scene.size.x = canvas.getWidth() - 100;
+        scene.size.y = canvas.getHeight() - 100;
+        scene.clip = true;
+        scene.addEventListener(MouseDragEvent.name, function(t, e) {
+          scene.translate.x -= e.dx;
+          scene.translate.y -= e.dy;
+        });
+        
+        
+        for (let i = 0; i < 500; ++i) {
+          createRect(scene);
+        }
+
+        let player = scene.addView(new CircleView());
+        const speed = 10;
+        player.setRadius(20);
+        player.setPickable(false);
+        player.setFillStyle("blue");
+        player.velocity = new Vec2();
+        
+        Keyboard.addEventListener("KeyDownEvent", function(t, e) {
+          if (e.code === "KeyW") {
+            player.velocity.y = -speed;
+            
+          } else if (e.code === "KeyS") {
+            player.velocity.y = speed;
+          
+          } else if (e.code === "KeyA") {
+            player.velocity.x = -speed;
+            
+          } else if (e.code === "KeyD") {
+            player.velocity.x = speed;
+
+          } else if (e.code === "Numpad8") { // up
+            scene.scale += 0.01;
+            
+          } else if (e.code === "Numpad5") { // down
+            scene.scale -= 0.01;
+
+          } else if (e.code === "Numpad4") { // left
+            scene.rotate -= Math.PI/180;
+
+          } else if (e.code === "Numpad6") { // right
+            scene.rotate += Math.PI/180;
+          }
+          
+        });
+        Keyboard.addEventListener("KeyUpEvent", function(t, e) {
+          if (e.code === "KeyW") {
+            player.velocity.y = 0; 
+            
+          } else if (e.code === "KeyS") {
+            player.velocity.y = 0; 
+          
+          } else if (e.code === "KeyA") {
+            player.velocity.x = 0; 
+            
+          } else if (e.code === "KeyD") {
+            player.velocity.x = 0;           
+          }
+        });
+        
+        // ------------------------------
+        function draw() {
+          player.position.add(player.velocity);
+          centerOn(scene, player);          
+        
+          canvas.draw();
+          window.requestAnimationFrame(draw);
+        }
+        window.requestAnimationFrame(draw);
+        
+      });
+    </script>  
+  </body>
+
+</html>
