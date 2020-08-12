@@ -4,7 +4,7 @@
   <head>
     <!--[ libs ]--------------------------------------------------------------->
     <meta charset="utf-8"/>    
-    <script src="lib/engine.2020.08.11.js"></script>
+    <script src="lib/engine.2020.08.12.js"></script>
     
     <!--[ style ]-------------------------------------------------------------->
     <style>
@@ -27,98 +27,98 @@
       window.addEventListener("load", function() {
         window.removeEventListener("load", this);
 
-        function createRect(scene) {
+        function createRect(scene, x, y) {
           let rect = new RectangleView(100, 100);
-          rect.setPickable(false);
-          rect.setX(Math.random()*5000);
-          rect.setY(Math.random()*5000);
+          x = x || Math.random()*5000;
+          y = y || Math.random()*5000;
+          rect.setPickable(true);
+          rect.setX(x);
+          rect.setY(y);
           rect.setFillStyle("#FF0000");
           rect.setStrokeStyle("#000000");
           rect.setStrokeWidth(1);
+          rect.addEventListener(MouseDownEvent.name, function(t, e) {
+            rect.setFillStyle("purple");
+          });
           scene.addView(rect);
-        }
-        
-        function centerOn(scene, target) {
-          scene.translate.x = target.getX()*scene.scale;
-          scene.translate.y = target.getY()*scene.scale;
-          scene.translate.rotate(scene.rotate);
-          scene.translate.x -= scene.size.x/2;
-          scene.translate.y -= scene.size.y/2;
         }
         
         let canvas = new Canvas("main-canvas");
         canvas.setFillStyle("black");
         
         let scene = canvas.addView(new SceneView());
-        scene.position.x = 50;
-        scene.position.y = 50;
-        scene.size.x = canvas.getWidth() - 100;
-        scene.size.y = canvas.getHeight() - 100;
+        scene.position.x = 0;
+        scene.position.y = 0;
+        scene.size.x = canvas.getWidth() - 0;
+        scene.size.y = canvas.getHeight() - 0;
         scene.clip = true;
-        scene.addEventListener(MouseDragEvent.name, function(t, e) {
-          scene.translate.x -= e.dx;
-          scene.translate.y -= e.dy;
+        for (let i = 0; i < 500; ++i) { createRect(scene); }
+        scene.addEventListener(MouseDownEvent.name, (t,e) => {
+          let point = scene.localToChild(e.x, e.y);
+          createRect(scene, point.x, point.y);
         });
-        
-        
-        for (let i = 0; i < 500; ++i) {
-          createRect(scene);
-        }
 
         let player = scene.addView(new CircleView());
         const speed = 10;
         player.setRadius(20);
         player.setPickable(false);
         player.setFillStyle("blue");
-        player.velocity = new Vec2();
-        
-        Keyboard.addEventListener("KeyDownEvent", function(t, e) {
-          if (e.code === "KeyW") {
-            player.velocity.y = -speed;
-            
-          } else if (e.code === "KeyS") {
-            player.velocity.y = speed;
-          
-          } else if (e.code === "KeyA") {
-            player.velocity.x = -speed;
-            
-          } else if (e.code === "KeyD") {
-            player.velocity.x = speed;
 
-          } else if (e.code === "Numpad8") { // up
-            scene.scale += 0.01;
-            
-          } else if (e.code === "Numpad5") { // down
-            scene.scale -= 0.01;
+        let dot = canvas.addView(new CircleView());
+        dot.setPickable(false);
+        dot.setFillStyle("lime");
+        dot.setStrokeStyle(null);
+        dot.setRadius(3);
 
-          } else if (e.code === "Numpad4") { // left
-            scene.rotate -= Math.PI/180;
-
-          } else if (e.code === "Numpad6") { // right
-            scene.rotate += Math.PI/180;
-          }
-          
-        });
-        Keyboard.addEventListener("KeyUpEvent", function(t, e) {
-          if (e.code === "KeyW") {
-            player.velocity.y = 0; 
-            
-          } else if (e.code === "KeyS") {
-            player.velocity.y = 0; 
-          
-          } else if (e.code === "KeyA") {
-            player.velocity.x = 0; 
-            
-          } else if (e.code === "KeyD") {
-            player.velocity.x = 0;           
-          }
-        });
         
         // ------------------------------
         function draw() {
-          player.position.add(player.velocity);
-          centerOn(scene, player);          
+          // Zoom, rotate
+          if (Keyboard.isKeyDown("KeyR")) { // up
+            scene.scale += 0.01;
+          }
+          if (Keyboard.isKeyDown("KeyF")) { // down
+            scene.scale = Math.max(0.01, scene.scale - 0.01);
+          }
+          if (Keyboard.isKeyDown("KeyE")) { // rotate left
+            scene.rotate(-Math.PI/180);
+          }
+          if (Keyboard.isKeyDown("KeyQ")) { // rotate right
+            scene.rotate(Math.PI/180);
+          }          
+
+          // Translate
+          let up    = new Vec2( 0, -1).rotate(-scene.rotation);
+          let down  = new Vec2( 0,  1).rotate(-scene.rotation);
+          let left  = new Vec2(-1,  0).rotate(-scene.rotation);
+          let right = new Vec2( 1,  0).rotate(-scene.rotation);
+          let total = new Vec2();
+          
+          if (Keyboard.isKeyDown("KeyW")) { // up
+            total.add(up);
+          }
+          if (Keyboard.isKeyDown("KeyS")) { // down
+            total.add(down);
+          }
+          if (Keyboard.isKeyDown("KeyA")) { // left
+            total.add(left);
+          }
+          if (Keyboard.isKeyDown("KeyD")) { // right
+            total.add(right);
+          }
+          total.setMag(speed);                    
+          player.position.add(total);
+          scene.centerOn(player.getX(), player.getY());
         
+        
+          // Point conversion
+          let converted = scene.childToLocal(player.getX(), player.getY());
+          dot.setX(converted.x);
+          dot.setY(converted.y);
+          
+          
+        
+          // Draw
           canvas.draw();
           window.requestAnimationFrame(draw);
         }
