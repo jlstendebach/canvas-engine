@@ -15,30 +15,31 @@ src/events/keyboard.js
 src/events/mouse-events.js
 src/events/mouse-event-processor.js
 
-// --[ views ]------------------------------------------------------------------
-// views -> utils
-src/views/utils/Color.js
+// --[ graphics ]---------------------------------------------------------------
+src/graphics/utils/Color.js
 
-// views 
-src/views/View.js
-src/views/SceneView.js
-src/views/Canvas.js
-src/views/LabelView.js
-src/views/vec2-field-view.js
+// graphics -> views
+src/graphics/views/View.js
+src/graphics/views/SceneView.js
+src/graphics/views/LabelView.js
+src/graphics/views/vec2-field-view.js
 
-// views -> shapes
-src/views/shapes/ShapeView.js
-src/views/shapes/CircleView.js
-src/views/shapes/LineView.js
-src/views/shapes/LineStringView.js
-src/views/shapes/PolygonView.js
-src/views/shapes/RectangleView.js
-src/views/shapes/ShapeGroupView.js
-src/views/shapes/VectorView.js
+// Canvas makes use of View, so needs to be included after it. 
+src/graphics/Canvas.js 
 
-// views -> charts
-src/views/charts/BarChartView.js
-src/views/charts/PieChartView.js
+// graphics -> views -> shapes
+src/graphics/views/shapes/ShapeView.js
+src/graphics/views/shapes/CircleView.js
+src/graphics/views/shapes/LineView.js
+src/graphics/views/shapes/LineStringView.js
+src/graphics/views/shapes/PolygonView.js
+src/graphics/views/shapes/RectangleView.js
+src/graphics/views/shapes/ShapeGroupView.js
+src/graphics/views/shapes/VectorView.js
+
+// graphics -> views -> charts
+src/graphics/views/charts/BarChartView.js
+src/graphics/views/charts/PieChartView.js
 
 // -----------------------------------------------------------------------------
 src/App.js

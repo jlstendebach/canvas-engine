@@ -4,7 +4,7 @@
   <head>
     <!--[ libs ]--------------------------------------------------------------->
     <meta charset="utf-8"/>    
-    <script src="lib/engine.2020.08.12.js"></script>
+    <script src="lib/engine.2020.08.16.js"></script>
     
     <!--[ style ]-------------------------------------------------------------->
     <style>
@@ -69,16 +69,20 @@
         dot.setFillStyle("lime");
         dot.setStrokeStyle(null);
         dot.setRadius(3);
+        
+        let zoom = 0;
 
         
         // ------------------------------
         function draw() {
           // Zoom, rotate
           if (Keyboard.isKeyDown("KeyR")) { // up
-            scene.scale += 0.01;
+            zoom += 0.01;
+            scene.scale = Math.exp(zoom);
           }
           if (Keyboard.isKeyDown("KeyF")) { // down
-            scene.scale = Math.max(0.01, scene.scale - 0.01);
+            zoom -= 0.01;
+            scene.scale = Math.exp(zoom);
           }
           if (Keyboard.isKeyDown("KeyE")) { // rotate left
             scene.rotate(-Math.PI/180);
@@ -109,6 +113,13 @@
           total.setMag(speed);                    
           player.position.add(total);
           scene.centerOn(player.getX(), player.getY());
+          
+          console.log(
+            "scale: "+scene.scale.toFixed(2), 
+            "pow: "+Math.pow(10, scene.scale).toFixed(2),
+            "zoom: "+zoom.toFixed(2),
+            "percent: "+(100*scene.getScaledWidth()/scene.getWidth()).toFixed(2)+"%"
+          );
         
         
           // Point conversion
