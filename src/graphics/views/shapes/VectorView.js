@@ -57,8 +57,8 @@ export class VectorView extends View {
 
         const p1 = new Vec2(this.getEndX(), this.getEndY());
         const p2 = Vec2.add(p1, inverse).add(normal);
-        const p3 = Vec2.add(p1, Vec2.scale(inverse, arrowMidScale));
-        const p4 = Vec2.subtract(p2, normal).subtract(normal);
+        const p3 = Vec2.add(p1, Vec2.mult(inverse, arrowMidScale));
+        const p4 = Vec2.sub(p2, normal).sub(normal);
 
         context.beginPath();
         context.moveTo(p1.x, p1.y);
@@ -73,7 +73,7 @@ export class VectorView extends View {
 
     drawLine(context, arrowHeight) {
         const newMag = this.vector.mag() - arrowHeight;
-        const scaled = Vec2.copy(this.vector).setMag(newMag);
+        const scaled = this.vector.copy().setMag(newMag);
 
         context.beginPath();
         context.moveTo(this.getX(), this.getY());

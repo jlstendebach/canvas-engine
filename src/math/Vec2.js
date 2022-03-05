@@ -86,7 +86,7 @@ export class Vec2 {
 
 	static rejection(u, v) { // rejection of u from v 
 		let proj = this.projection(u, v);
-		return this.subtract(u, proj);
+		return this.sub(u, proj);
 	}
 
 	static random(mag = 1) {
