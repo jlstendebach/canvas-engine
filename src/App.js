@@ -14,10 +14,8 @@ export class App {
     // --[ initalizers ]--------------------------------------------------------
 
     // --[ app control ]--------------------------------------------------------
-    start(interval) {
-        const self = this;
-        const callback = function () { self.loop(); };
-        this.interval = window.setInterval(callback, interval);
+    start() {
+        window.requestAnimationFrame(this.loop.bind(this));
     }
 
     stop() {
@@ -58,6 +56,8 @@ export class App {
         this.profilerDraw.start();
         this.draw();
         this.profilerDraw.mark();
+
+        window.requestAnimationFrame(this.loop.bind(this));
     }
 
 }
