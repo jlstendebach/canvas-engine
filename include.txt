@@ -1,12 +1,10 @@
 // --[ math ]-------------------------------------------------------------------
-src/math/rect.js
-src/math/Vec2.js
-src/math/vec2-field.js
-src/math/Vec3.js
+- src/math/Vec2.js
+- src/math/Vec3.js
 
 // --[ utils ]------------------------------------------------------------------
-src/utils/Profiler.js
-src/utils/timer.js
+- src/utils/Profiler.js
+- src/utils/Timer.js
 
 // --[ events ]-----------------------------------------------------------------
 src/events/canvas-events.js
