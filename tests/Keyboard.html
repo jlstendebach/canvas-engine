@@ -1,52 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-  <!--[ HEAD ]===============================================================-->
-  <head>
-    <!--[ libs ]--------------------------------------------------------------->
-    <meta charset="utf-8"/>    
-    <script src="lib/engine.2020.07.15.js"></script>
-    
-    <!--[ style ]-------------------------------------------------------------->
-    <style>
-      #main-canvas {
-        border: 1px solid black;
-      }
-    </style>
-  </head>
-  
-  <!--[ BODY ]===============================================================-->
-  <body>
-    <canvas id="main-canvas" width="640" height="480">
-      Your browser does not support HTML5 canvas.
-    </canvas>
-    <div id="output-div">
-    </div>
-  
-    <!--[ JS ]===============================================================-->
-    <script>
+    <!--[ HEAD ]=============================================================-->
+    <head>
+        <!--[ libs ]----------------------------------------------------------->
+        <meta charset="utf-8" />
 
-      window.addEventListener("load", function() {
-        window.removeEventListener("load", this);
-        
-        
-        Keyboard.addEventListener("KeyDownEvent", (t, e) => {
-          console.log(t, e);
-        });
-        Keyboard.addEventListener("KeyUpEvent", (t, e) => {
-          console.log(t, e);
-        });
-        
-        
-        window.setInterval(
-          function() {
-            if (Keyboard.isKeyDown("ShiftLeft") && Keyboard.isKeyDown("Digit1")) {
-              console.log("down");
+        <!--[ style ]---------------------------------------------------------->
+        <style>
+            #main-canvas {
+                border: 1px solid black;
             }
-          }, 
-          100
-        );
-      });
-    </script>  
-  </body>
+        </style>
+    </head>
+
+    <!--[ BODY ]=============================================================-->
+    <body>
+        <canvas id="main-canvas" width="640" height="480">
+            Your browser does not support HTML5 canvas.
+        </canvas>
+        <div id="output-div">
+        </div>
+
+        <!--[ JS ]===========================================================-->
+        <script type="module">
+            import { Keyboard } from "../src/Engine.js"
+
+            window.addEventListener("load", function () {
+                window.removeEventListener("load", this);
+
+                Keyboard.addEventListener("KeyDownEvent", (t, e) => {
+                    console.log(t, e);
+                });
+                Keyboard.addEventListener("KeyUpEvent", (t, e) => {
+                    console.log(t, e);
+                });
+
+                window.setInterval(
+                    function () {
+                        if (Keyboard.isKeyDown("ShiftLeft") && Keyboard.isKeyDown("Digit1")) {
+                            console.log("down");
+                        }
+                    },
+                    100
+                );
+            });
+        </script>
+    </body>
 
 </html>

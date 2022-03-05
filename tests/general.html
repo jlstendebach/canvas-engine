@@ -12,19 +12,22 @@
 
 	<!--[ BODY ]=============================================================-->
 	<body>
-		<div id="output-div">
-		</div>
-
+		<canvas id="canvas">
+		</canvas>
+		
 		<!--[ JS ]===========================================================-->
-        <script type="module" src="../src/utils/Utils.js"></script>
-		<script>
+		<script type="module">
+            import { Timer, Profiler, MouseEventProcessor } from "../src/Engine.js";
+            
 			window.addEventListener("load", function () {
 				window.removeEventListener("load", this);
 
                 let timer = new Timer();
-                timer.start()
+                timer.start();
                 
                 let profiler = new Profiler(10);
+
+                let mouseEventProcessor = new MouseEventProcessor();
 			});
 		</script>
 	</body>

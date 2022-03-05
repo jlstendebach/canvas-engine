@@ -1,4 +1,4 @@
-class Timer {
+export class Timer {
 	constructor() {
 		this.startTime = performance.now();
 	}

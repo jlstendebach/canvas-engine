@@ -1,63 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
-  <!--[ HEAD ]===============================================================-->
-  <head>
-    <!--[ libs ]--------------------------------------------------------------->
-    <meta charset="utf-8"/>    
-    <script src="lib/engine.2020.07.19.js"></script>
-    
-    <!--[ style ]-------------------------------------------------------------->
-    <style>
-      #main-canvas {
-        border: 1px solid black;
-      }
-    </style>
-  </head>
-  
-  <!--[ BODY ]===============================================================-->
-  <body>
-    <canvas id="main-canvas" width="640" height="480">
-      Your browser does not support HTML5 canvas.
-    </canvas>
-    <div id="output-div">
-    </div>
-  
-    <!--[ JS ]===============================================================-->
-    <script>
-      window.addEventListener("load", function() {
-        window.removeEventListener("load", this);
-        
-        let canvas = new Canvas("main-canvas");
+    <html lang="en">
+    <!--[ HEAD ]=============================================================-->
+    <head>
+        <!--[ libs ]----------------------------------------------------------->
+        <meta charset="utf-8" />
 
-        let poly = new PolygonView();
-        poly.setX(150);
-        poly.setY(150);
-        poly.addPoint(new Vec2(0, -100));
-        poly.addPoint( 50,   50);
-        poly.addPoint(-50,   50);
-        poly.setFillStyle("red");
-        poly.setStrokeStyle(null);
-        canvas.addView(poly);
+        <!--[ style ]---------------------------------------------------------->
+        <style>
+            #main-canvas {
+                border: 1px solid black;
+            }
+        </style>
+    </head>
 
-        let circle = new CircleView();
-        circle.setX(poly.getX());
-        circle.setY(poly.getY());
-        circle.setRadius(5);
-        circle.setFillStyle("black");
-        circle.setStrokeStyle(null);
-        circle.addEventListener("MouseDragEvent", function(t,e) {
-          poly.setX(e.x);
-          poly.setY(e.y);
-          circle.setX(e.x);
-          circle.setY(e.y);
-          canvas.draw();
-        });
-        canvas.addView(circle);
-        
-        canvas.draw();
-        
-      });
-    </script>  
-  </body>
+    <!--[ BODY ]=============================================================-->
+    <body>
+        <canvas id="main-canvas" width="640" height="480">
+            Your browser does not support HTML5 canvas.
+        </canvas>
+        <div id="output-div">
+        </div>
+
+        <!--[ JS ]===========================================================-->
+        <script type="module">
+            import {
+                Canvas,
+                PolygonView,
+                CircleView,
+                Vec2
+            } from "../src/Engine.js"
+
+            window.addEventListener("load", function () {
+                window.removeEventListener("load", this);
+
+                let canvas = new Canvas("main-canvas");
+
+                let poly = new PolygonView();
+                poly.setX(150);
+                poly.setY(150);
+                poly.addPoint(new Vec2(0, -100));
+                poly.addPoint(50, 50);
+                poly.addPoint(-50, 50);
+                poly.setFillStyle("red");
+                poly.setStrokeStyle(null);
+                canvas.addView(poly);
+
+                let circle = new CircleView();
+                circle.setX(poly.getX());
+                circle.setY(poly.getY());
+                circle.setRadius(5);
+                circle.setFillStyle("black");
+                circle.setStrokeStyle(null);
+                circle.addEventListener("MouseDragEvent", function (t, e) {
+                    poly.setX(e.x);
+                    poly.setY(e.y);
+                    circle.setX(e.x);
+                    circle.setY(e.y);
+                    canvas.draw();
+                });
+                canvas.addView(circle);
+
+                canvas.draw();
+
+            });
+        </script>
+    </body>
 
 </html>

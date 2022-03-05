@@ -1,4 +1,4 @@
-export default class Profiler {
+export class Profiler {
 	constructor(sampleCount) {
 		this.lastTime = Profiler.currentTime();
 		this.accumTime = -1;
