@@ -96,7 +96,7 @@ export class Vec2 {
 	static random(mag = 1) {
 		return new Vec2(1, 0)
 			.rotate(Math.random() * 2 * Math.PI)
-			.setMag(mag);
+			.setLength(mag);
 	}
 
 	// --[ in-place operations ]--------------------------------------------------
@@ -143,7 +143,7 @@ export class Vec2 {
 	}
 
 	normalize() {
-		return this.setMag(1);
+		return this.setLength(1);
 	}
 
 	rotate(radians) {
