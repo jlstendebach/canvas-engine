@@ -9,6 +9,10 @@ export class Vec2 {
 	static fromAngle(radians) {
 		return new Vec2(Math.cos(radians), Math.sin(radians));
 	}
+    static fromArray(array, offset=0) {
+        return Vec2(array[offset], array[offset+1])
+    }
+
 
 	static add(u, v) { return new Vec2(u.x + v.x, u.y + v.y); }
 	static sub(u, v) { return new Vec2(u.x - v.x, u.y - v.y); }
@@ -21,7 +25,7 @@ export class Vec2 {
 	static normal(v) { return new Vec2(-v.y, v.x); }
 	static unitNormal(v) { return Vec2.normal(v).normalize(); }
 
-	static interpolate(u, v, a) {
+	static lerp(u, v, a) {
 		return new Vec2(u.x + (v.x - u.x) * a, u.y + (v.y - u.y) * a);
 	}
 
@@ -38,7 +42,7 @@ export class Vec2 {
 		return Math.sqrt((u.x - v.x) ** 2 + (u.y - v.y) ** 2);
 	}
 
-	static distSquared(u, v) {
+	static distSq(u, v) {
 		return (u.x - v.x) ** 2 + (u.y - v.y) ** 2;
 	}
 
@@ -132,7 +136,7 @@ export class Vec2 {
 		return this;
 	}
 
-	interpolate(v, a) {
+	lerp(v, a) {
 		this.x += (v.x - this.x) * a;
 		this.y += (v.y - this.y) * a;
 		return this;
@@ -143,39 +147,35 @@ export class Vec2 {
 	}
 
 	rotate(radians) {
-		let newX = this.x * Math.cos(radians) - this.y * Math.sin(radians);
-		let newY = this.x * Math.sin(radians) + this.y * Math.cos(radians);
-		this.x = newX;
-		this.y = newY;
-		return this;
+		const cos = Math.cos(radians);
+		const sin = Math.sin(radians);
+        return this.set(
+            this.x * cos - this.y * sin,
+            this.x * sin + this.y * cos
+        )
 	}
 
-	limit(mag) {
-		if (this.mag() > mag) {
-			this.setMag(mag);
+	limitLength(length) {
+		if (this.length() > length) {
+			this.setLength(length);
 		}
 		return this;
 	}
 
-	clamp(minMag, maxMag) {
-		let curMag = this.mag();
-		if (curMag !== 0) {
-			if (curMag < minMag) {
-				this.setMag(minMag);
+	clampLength(min, max) {
+		let length = this.length();
+        if (length < min) {
+            this.setLength(min);
 
-			} else if (curMag > maxMag) {
-				this.setMag(maxMag);
-			}
-		}
+        } else if (length > max) {
+            this.setLength(max);
+        }
 		return this;
 	}
 
-	setMag(mag) {
-		if (!this.isZero()) {
-			this.mult(mag / this.mag());
-		}
-		return this;
-	}
+    setLength(length) {
+        return this.mult(length / (this.length() || 1))
+    }
 
 	zero() {
 		this.x = 0;
@@ -187,13 +187,17 @@ export class Vec2 {
 		return new Vec2(this.x, this.y);
 	}
 
-	mag() {
-		return Math.sqrt(this.magSquared());
-	}
+    equals(v) {
+        return this.x === v.x && this.y === v.y
+    }
 
-	magSquared() {
+    length() {
+		return Math.sqrt(this.lengthSq());
+    }
+
+    lengthSq() {
 		return this.x ** 2 + this.y ** 2;
-	}
+    }
 
 	dot(v) {
 		return this.x * v.x + this.y * v.y;
@@ -202,5 +206,9 @@ export class Vec2 {
 	isZero() {
 		return (this.x === 0 && this.y === 0);
 	}
+
+    toArray() {
+        return [this.x, this.y];
+    }
 
 }
