@@ -39,10 +39,10 @@ export class Vec2Field {
         var xa = new_x - x1;
         var ya = new_y - y1;
 
-        var v1 = Vec2.interpolate(v11, v12, ya);
-        var v2 = Vec2.interpolate(v21, v22, ya);
+        var v1 = Vec2.lerp(v11, v12, ya);
+        var v2 = Vec2.lerp(v21, v22, ya);
 
-        return Vec2.interpolate(v1, v2, xa);
+        return Vec2.lerp(v1, v2, xa);
     }
 
     setVector(x, y, vec) { this.field[x][y] = vec; }
