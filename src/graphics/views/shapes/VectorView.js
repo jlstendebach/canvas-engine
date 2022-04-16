@@ -49,11 +49,11 @@ export class VectorView extends View {
     drawArrow(context) {
         const arrowMidScale = 0.8;
 
-        const arrowHeight = Math.min(this.vector.mag(), this.arrowHeight);
+        const arrowHeight = Math.min(this.vector.length(), this.arrowHeight);
         const arrowWidth = this.arrowWidth * (arrowHeight / this.arrowHeight);
 
-        const normal = Vec2.normal(this.vector).setMag(arrowWidth / 2);
-        const inverse = Vec2.invert(this.vector).setMag(arrowHeight);
+        const normal = Vec2.normal(this.vector).setLength(arrowWidth / 2);
+        const inverse = Vec2.invert(this.vector).setLength(arrowHeight);
 
         const p1 = new Vec2(this.getEndX(), this.getEndY());
         const p2 = Vec2.add(p1, inverse).add(normal);
@@ -72,8 +72,8 @@ export class VectorView extends View {
     }
 
     drawLine(context, arrowHeight) {
-        const newMag = this.vector.mag() - arrowHeight;
-        const scaled = this.vector.copy().setMag(newMag);
+        const newMag = this.vector.length() - arrowHeight;
+        const scaled = this.vector.copy().setLength(newMag);
 
         context.beginPath();
         context.moveTo(this.getX(), this.getY());
