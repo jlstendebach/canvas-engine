@@ -7,6 +7,7 @@ import {
     MouseMoveEvent,
     MouseUpInsideEvent,
     MouseUpOutsideEvent,
+    MouseWheelEvent,
 } from "../../events/Events.js"
 
 export class View {
@@ -161,6 +162,10 @@ export class View {
 
     onMouseExit(event) {
         this.emitEvent(MouseExitEvent.name, event);
+    }
+
+    onMouseWheel(event) {
+        this.emitEvent(MouseWheelEvent.name, event);
     }
 }
 

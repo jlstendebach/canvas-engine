@@ -4,7 +4,8 @@ import {
     CanvasResizeEvent, 
     MouseEvent,    
     MouseEventProcessor,
-    MouseMoveEvent 
+    MouseMoveEvent,
+    MouseWheelEvent,
 } from "../events/Events.js";
 
 import { Vec2 } from "../math/Math.js";
@@ -155,7 +156,6 @@ export class Canvas {
     hookEvents() {
         let self = this;
 
-
         /****************************/
         /* ---- Window Resized ---- */
         /****************************/
@@ -171,7 +171,7 @@ export class Canvas {
             let e = new MouseEvent(
                 coords.x / self.scale, // x
                 coords.y / self.scale, // y
-                event.which
+                event.button
             );
             self.mouseProcessor.onMouseDown(self.view, e);
         });
@@ -184,7 +184,7 @@ export class Canvas {
             let e = new MouseEvent(
                 coords.x / self.scale, // x
                 coords.y / self.scale, // y
-                event.which
+                event.button
             );
             self.mouseProcessor.onMouseUp(self.view, e);
         });
@@ -197,7 +197,7 @@ export class Canvas {
             let e = new MouseEvent(
                 coords.x / self.scale, // x
                 coords.y / self.scale, // y
-                event.which
+                event.button
             );
             self.mouseProcessor.onMouseUp(self.view, e);
         });
@@ -212,9 +212,23 @@ export class Canvas {
                 coords.y / self.scale, // y
                 event.movementX / self.scale, // dx
                 event.movementY / self.scale,  // dy
-                event.which
+                event.button
             );
             self.mouseProcessor.onMouseMove(self.view, e);
+        });
+
+        /*************************/
+        /* ---- Mouse Wheel ---- */
+        /*************************/
+        this.canvas.addEventListener("wheel", function (event) {
+            let coords = self.windowToCanvasCoords(event.clientX, event.clientY);
+            let e = new MouseWheelEvent(
+                coords.x / self.scale, // x
+                coords.y / self.scale, // y
+                event.button,
+                event.deltaY * -0.01
+            );
+            self.mouseProcessor.onMouseWheel(self.view, e);
         });
 
         /**************************/
