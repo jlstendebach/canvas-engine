@@ -1,11 +1,4 @@
 export class MouseEvent {
-    // event.which values: https://www.w3schools.com/jsref/event_which.asp
-    static LEFT = 0;
-    static MIDDLE = 1;
-    static RIGHT = 2;
-    static BACK = 3;
-    static FORWARD = 4;
-
     constructor(x, y, button, target = null) {
         this.x = x;
         this.y = y;
@@ -46,8 +39,8 @@ export class MouseDragEvent extends MouseEvent {
 
 // --[ MouseMoveEvent ]---------------------------------------------------------
 export class MouseMoveEvent extends MouseEvent {
-    constructor(x, y, dx, dy, button, target) {
-        super(x, y, button, target);
+    constructor(x, y, dx, dy, target) {
+        super(x, y, null, target);
         this.dx = dx;
         this.dy = dy;
     }
