@@ -2,6 +2,7 @@ import { View } from "./views/View.js";
 
 import { 
     CanvasResizeEvent, 
+    MouseButton,
     MouseEvent,    
     MouseEventProcessor,
     MouseMoveEvent,
@@ -171,7 +172,7 @@ export class Canvas {
             let e = new MouseEvent(
                 coords.x / self.scale, // x
                 coords.y / self.scale, // y
-                event.button
+                MouseButton.fromIndex(event.button),
             );
             self.mouseProcessor.onMouseDown(self.view, e);
         });
@@ -184,7 +185,7 @@ export class Canvas {
             let e = new MouseEvent(
                 coords.x / self.scale, // x
                 coords.y / self.scale, // y
-                event.button
+                MouseButton.fromIndex(event.button),
             );
             self.mouseProcessor.onMouseUp(self.view, e);
         });
@@ -197,7 +198,7 @@ export class Canvas {
             let e = new MouseEvent(
                 coords.x / self.scale, // x
                 coords.y / self.scale, // y
-                event.button
+                MouseButton.fromIndex(event.button),
             );
             self.mouseProcessor.onMouseUp(self.view, e);
         });
@@ -212,7 +213,7 @@ export class Canvas {
                 coords.y / self.scale, // y
                 event.movementX / self.scale, // dx
                 event.movementY / self.scale,  // dy
-                event.button
+                MouseButton.fromIndex(event.button),
             );
             self.mouseProcessor.onMouseMove(self.view, e);
         });
@@ -225,7 +226,7 @@ export class Canvas {
             let e = new MouseWheelEvent(
                 coords.x / self.scale, // x
                 coords.y / self.scale, // y
-                event.button,
+                MouseButton.fromIndex(event.button),
                 event.deltaY * -0.01
             );
             self.mouseProcessor.onMouseWheel(self.view, e);

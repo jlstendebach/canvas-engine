@@ -1,3 +1,7 @@
+import {
+    MouseButton
+} from "./MouseButton.js"
+
 import { 
     MouseDownEvent,
     MouseDragEvent,
@@ -12,7 +16,13 @@ import {
 
 export class MouseEventProcessor {
     constructor() {
-        this.mouseDownView = null;
+        this.mouseDownViews = [];
+        this.mouseDownViews[MouseButton.LEFT] = null;
+        this.mouseDownViews[MouseButton.RIGHT] = null;
+        this.mouseDownViews[MouseButton.MIDDLE] = null;
+        this.mouseDownViews[MouseButton.MOUSE4] = null;
+        this.mouseDownViews[MouseButton.MOUSE5] = null;
+        this.mouseDragButton = null;
         this.mouseOverView = null;
     }
 
@@ -38,7 +48,10 @@ export class MouseEventProcessor {
 
         // Otherwise, the event happened in this view. This should happen on the 
         // last step of recursion.
-        this.mouseDownView = view;
+        this.mouseDownViews[event.button] = view;
+        if (this.mouseDragButton === null) {
+            this.mouseDragButton = event.button;
+        }
 
         /********************
          *  MouseDownEvent  *
@@ -70,7 +83,8 @@ export class MouseEventProcessor {
 
         // Otherwise, the event happened in this view. This should happen on the
         // last step of recursion.
-        if (view === this.mouseDownView) {
+        let mouseDownView = this.mouseDownViews[event.button];
+        if (view === mouseDownView) {
             // If the current view is the mouseDownView, then the user pressed 
             // the button down and released it inside the view. Trigger a 
             // MouseUpInsideEvent on the current view.
@@ -82,7 +96,7 @@ export class MouseEventProcessor {
                 event.x, event.y, event.button, view
             ));
 
-        } else if (this.mouseDownView !== null) { // mouse up outside
+        } else if (mouseDownView !== null) { // mouse up outside
             // If the current view is NOT the mouseDownView, then the user 
             // pressed the button down in the mouseDownView, but released it in 
             // the current view. Trigger a MouseUpOutsideEvent on the 
@@ -91,32 +105,35 @@ export class MouseEventProcessor {
             /*************************
              *  MouseUpOutsideEvent  *
              ************************/
-            this.mouseDownView.onMouseUpOutside(new MouseUpOutsideEvent(
+            mouseDownView.onMouseUpOutside(new MouseUpOutsideEvent(
                 event.x, event.y, event.button, view
             ));
         }
 
         // Reset mouseDownView.
-        this.mouseDownView = null;
+        this.mouseDownViews[event.button] = null;
+        if (this.mouseDragButton === event.button) {
+            this.mouseDragButton = null;
+        }
 
         return view;
     }
 
     onMouseMove(view, event) {
-        if (this.mouseDownView !== null) {
-            // If the mouseDownView already exists, then the user is dragging 
-            // the mouse. Trigger a MouseDragEvent on the mouseDownView.
+        if (this.mouseDragButton !== null) {
+            // If the mouseDownView already exists, then the user is  
+            // dragging the mouse. Trigger a MouseDragEvent on the 
+            // mouseDownView.
 
             /********************
              *  MouseDragEvent  *
              ********************/
-            this.mouseDownView.onMouseDrag(new MouseDragEvent(
-                event.x,
-                event.y,
-                event.dx,
-                event.dy,
-                event.button,
-                this.mouseDownView
+             let mouseDragView = this.mouseDownViews[this.mouseDragButton];
+             mouseDragView.onMouseDrag(new MouseDragEvent(
+                event.x, event.y,
+                event.dx, event.dy,
+                this.mouseDragButton,
+                mouseDragView
             ));
 
         } else {
@@ -135,7 +152,9 @@ export class MouseEventProcessor {
                 return this.onMouseMove(
                     subview,
                     new MouseMoveEvent(
-                        translatedX, translatedY, event.dx, event.dy, event.button
+                        translatedX, translatedY, 
+                        event.dx, event.dy, 
+                        event.button
                     )
                 );
             }
@@ -153,7 +172,10 @@ export class MouseEventProcessor {
                      *  MouseExitEvent  *
                      *******************/
                     this.mouseOverView.onMouseExit(new MouseExitEvent(
-                        event.x, event.y, event.dx, event.dy, event.button, this.mouseOverView
+                        event.x, event.y, 
+                        event.dx, event.dy, 
+                        event.button,
+                        this.mouseOverView
                     ));
                 }
 
@@ -165,7 +187,10 @@ export class MouseEventProcessor {
                  *  MouseEnterEvent  *
                  *********************/
                 view.onMouseEnter(new MouseEnterEvent(
-                    event.x, event.y, event.dx, event.dy, event.button, view
+                    event.x, event.y, 
+                    event.dx, event.dy, 
+                    event.button,
+                    view
                 ));
 
                 // Change the mouseOverView to the current view. 
@@ -176,7 +201,10 @@ export class MouseEventProcessor {
              *  MouseMoveEvent  *
              ********************/
             view.onMouseMove(new MouseMoveEvent(
-                event.x, event.y, event.dx, event.dy, event.button, view
+                event.x, event.y, 
+                event.dx, event.dy, 
+                event.button,
+                view
             ));
 
             return view;
@@ -198,7 +226,11 @@ export class MouseEventProcessor {
             // Recursively dive into the subview.
             return this.onMouseWheel(
                 subview,
-                new MouseWheelEvent(translatedX, translatedY, event.button, event.amount)
+                new MouseWheelEvent(
+                    translatedX, translatedY, 
+                    event.button,
+                    event.amount
+                )
             );
         }
 
@@ -207,7 +239,12 @@ export class MouseEventProcessor {
         /*********************
          *  MouseWheelEvent  *
          *********************/
-        view.onMouseWheel(new MouseWheelEvent(event.x, event.y, event.button, event.amount, view));
+        view.onMouseWheel(new MouseWheelEvent(
+            event.x, event.y, 
+            event.button,
+            event.amount, 
+            view
+        ));
 
         // Return the view that the event happened in.
         return view;
