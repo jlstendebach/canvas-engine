@@ -123,7 +123,6 @@ export class Canvas {
 
         // Save the state of the context to be restored later.
         this.context.save();
-        this.context.translate(0.5, 0.5)
 
         this.context.scale(this.scale, this.scale);
         this.context.fillStyle = this.fillStyle;
