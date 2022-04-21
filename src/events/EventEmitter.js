@@ -1,10 +1,7 @@
 export class EventListener {
 	constructor(callback, owner = null) {
-		this.callback = callback;
+		this.callback = (owner === null) ? callback : callback.bind(owner);
 		this.owner = owner;
-		if (owner !== null) {
-			this.callback.bind(owner);
-		}
 	}
 
 	onEvent(type, event) {
