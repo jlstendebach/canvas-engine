@@ -1,12 +1,6 @@
 import { 
     EventEmitter,
-    MouseDownEvent,
-    MouseDragEvent,
-    MouseEnterEvent,
-    MouseExitEvent,
-    MouseMoveEvent,
-    MouseUpInsideEvent,
-    MouseUpOutsideEvent,
+    MouseEvent,
     MouseWheelEvent,
 } from "../../events/Events.js"
 
@@ -137,31 +131,35 @@ export class View {
 
     // --[ mouse events ]-------------------------------------------------------
     onMouseDown(event) {
-        this.emitEvent(MouseDownEvent.name, event);
+        this.emitEvent(event.type, event);
+    }
+
+    onMouseUp(event) {
+        this.emitEvent(event.type, event);
     }
 
     onMouseUpInside(event) {
-        this.emitEvent(MouseUpInsideEvent.name, event);
+        this.emitEvent(event.type, event);
     }
 
     onMouseUpOutside(event) {
-        this.emitEvent(MouseUpOutsideEvent.name, event);
+        this.emitEvent(event.type, event);
     }
 
     onMouseDrag(event) {
-        this.emitEvent(MouseDragEvent.name, event);
+        this.emitEvent(event.type, event);
     }
 
     onMouseMove(event) {
-        this.emitEvent(MouseMoveEvent.name, event);
+        this.emitEvent(event.type, event);
     }
 
     onMouseEnter(event) {
-        this.emitEvent(MouseEnterEvent.name, event);
+        this.emitEvent(event.type, event);
     }
 
     onMouseExit(event) {
-        this.emitEvent(MouseExitEvent.name, event);
+        this.emitEvent(event.type, event);
     }
 
     onMouseWheel(event) {

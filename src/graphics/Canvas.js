@@ -5,7 +5,6 @@ import {
     MouseButton,
     MouseEvent,    
     MouseEventProcessor,
-    MouseMoveEvent,
     MouseWheelEvent,
 } from "../events/Events.js";
 
@@ -34,24 +33,29 @@ export class Canvas {
     }
 
 
-    // --[ size ]-----------------------------------------------------------------
-    setWidth(w) {
-        if (this.canvas.width !== w) {
+    // --[ size ]---------------------------------------------------------------
+    setSize(w, h) {
+        if (this.canvas.width !== w || this.canvas.height !== h) {
             // Create the event to emit.
             const event = new CanvasResizeEvent(
                 this,               // canvas
                 this.canvas.width,  // old width
                 this.canvas.height, // old height
                 w,                  // new width
-                this.canvas.height  // new height
+                h                   // new height
             );
 
-            // Set the width of the canvas.
+            // Set the size of the canvas.
             this.canvas.width = w;
+            this.canvas.height = h;
 
             // Inform listeners of the event.
             this.emitEvent(CanvasResizeEvent.name, event);
         }
+    }
+    
+    setWidth(w) {
+        this.setSize(w, this.getHeight());
     }
 
     getWidth() {
@@ -59,22 +63,7 @@ export class Canvas {
     }
 
     setHeight(h) {
-        if (this.canvas.height !== h) {
-            // Create the event to emit.
-            const event = new CanvasResizeEvent(
-                this,               // canvas
-                this.canvas.width,  // old width
-                this.canvas.height, // old height
-                this.canvas.width,  // new width
-                h                   // new height
-            );
-
-            // Set the width of the canvas.
-            this.canvas.height = h;
-
-            // Inform listeners of the event.
-            this.emitEvent(CanvasResizeEvent.name, event);
-        }
+        this.setSize(this.getWidth(), h);
     }
 
     getHeight() {
@@ -154,82 +143,54 @@ export class Canvas {
 
 
     hookEvents() {
-        let self = this;
-
         /****************************/
         /* ---- Window Resized ---- */
         /****************************/
         window.addEventListener("resize", function () {
-            self.onWindowResized();
-        });
+            this.onWindowResized();
+        }.bind(this));
 
         /************************/
         /* ---- Mouse Down ---- */
         /************************/
         this.canvas.addEventListener("mousedown", function (event) {
-            let coords = self.windowToCanvasCoords(event.clientX, event.clientY);
-            let e = new MouseEvent(
-                coords.x / self.scale, // x
-                coords.y / self.scale, // y
-                MouseButton.fromIndex(event.button),
-            );
-            self.mouseProcessor.onMouseDown(self.view, e);
-        });
+            this.mouseProcessor.onMouseDown(this.createMouseEvent(MouseEvent.DOWN, event));
+        }.bind(this));
 
         /**********************/
         /* ---- Mouse Up ---- */
         /**********************/
         this.canvas.addEventListener("mouseup", function (event) {
-            let coords = self.windowToCanvasCoords(event.clientX, event.clientY);
-            let e = new MouseEvent(
-                coords.x / self.scale, // x
-                coords.y / self.scale, // y
-                MouseButton.fromIndex(event.button),
-            );
-            self.mouseProcessor.onMouseUp(self.view, e);
-        });
+            this.mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
+        }.bind(this));
 
         /***********************/
         /* ---- Mouse Out ---- */
         /***********************/
         this.canvas.addEventListener("mouseout", function (event) {
-            let coords = self.windowToCanvasCoords(event.clientX, event.clientY);
-            let e = new MouseEvent(
-                coords.x / self.scale, // x
-                coords.y / self.scale, // y
-                MouseButton.fromIndex(event.button),
-            );
-            self.mouseProcessor.onMouseUp(self.view, e);
-        });
+            this.mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
+        }.bind(this));
 
         /************************/
         /* ---- Mouse Move ---- */
         /************************/
         this.canvas.addEventListener("mousemove", function (event) {
-            let coords = self.windowToCanvasCoords(event.clientX, event.clientY);
-            let e = new MouseMoveEvent(
-                coords.x / self.scale, // x
-                coords.y / self.scale, // y
-                event.movementX / self.scale, // dx
-                event.movementY / self.scale,  // dy
-                MouseButton.fromIndex(event.button),
-            );
-            self.mouseProcessor.onMouseMove(self.view, e);
-        });
+            this.mouseProcessor.onMouseMove(this.createMouseEvent(MouseEvent.MOVE, event));
+        }.bind(this));
 
         /*************************/
         /* ---- Mouse Wheel ---- */
         /*************************/
         this.canvas.addEventListener("wheel", function (event) {
-            let coords = self.windowToCanvasCoords(event.clientX, event.clientY);
+            let coords = this.windowToCanvasCoords(event.clientX, event.clientY);
             let e = new MouseWheelEvent(
-                coords.x / self.scale, // x
-                coords.y / self.scale, // y
-                MouseButton.fromIndex(event.button),
-                event.deltaY * -0.01
+                coords.x / this.scale, // x
+                coords.y / this.scale, // y
+                event.deltaY * -0.01,
+                this.view
             );
-            self.mouseProcessor.onMouseWheel(self.view, e);
-        });
+            this.mouseProcessor.onMouseWheel(e);
+        }.bind(this));
 
         /**************************/
         /* ---- Context Menu ---- */
@@ -276,8 +237,21 @@ export class Canvas {
         width -= (paddingLeft + paddingRight);
         height -= (paddingTop + paddingBottom);
 
-        this.setWidth(width);
-        this.setHeight(height);
+        this.setSize(width, height);
+    }
+
+    createMouseEvent(type, event) {
+        let coords = this.windowToCanvasCoords(event.clientX, event.clientY);
+        return new MouseEvent(
+            type,                                // type
+            coords.x / this.scale,               // x
+            coords.y / this.scale,               // y
+            event.movementX / this.scale,        // dx
+            event.movementY / this.scale,        // dy            
+            MouseButton.fromIndex(event.button), // button
+            event.buttons,                       // buttons
+            this.view                            // target
+        );
     }
 
 }
