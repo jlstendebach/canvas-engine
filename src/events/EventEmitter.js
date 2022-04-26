@@ -15,8 +15,8 @@ export class EventEmitter {
 	}
 
 	add(type, callback, owner = null) {
-		var listenerList = this.listeners[type];
-		if (typeof listenerList === "undefined") {
+		let listenerList = this.listeners[type];
+		if (listenerList === undefined) {
 			listenerList = [];
 			this.listeners[type] = listenerList;
 		}
@@ -25,9 +25,9 @@ export class EventEmitter {
 	}
 
 	remove(type, callback, owner = null) {
-		var listenerList = this.listeners[type];
-		if (typeof listenerList !== "undefined") {
-			for (var i = 0; i < listenerList.length; i++) {
+		let listenerList = this.listeners[type];
+		if (listenerList !== undefined) {
+			for (let i = 0; i < listenerList.length; i++) {
 				if (listenerList[i].callback === callback && listenerList[i].owner === owner) {
 					listenerList.splice(i, 1);
 					return;
@@ -37,9 +37,9 @@ export class EventEmitter {
 	}
 
 	emit(type, event) {
-		var listenerList = this.listeners[type];
-		if (typeof listenerList !== "undefined") {
-			for (var i = 0; i < listenerList.length; i++) {
+		let listenerList = this.listeners[type];
+		if (listenerList !== undefined) {
+			for (let i = 0; i < listenerList.length; i++) {
 				listenerList[i].onEvent(type, event);
 			}
 		}

@@ -1,22 +1,16 @@
+import { Vec2 } from "../Engine.js";
 import {
     MouseButton
 } from "./MouseButton.js"
 
 import { 
-    MouseDownEvent,
-    MouseDragEvent,
-    MouseEnterEvent,
     MouseEvent,
-    MouseExitEvent,
-    MouseMoveEvent,
-    MouseUpInsideEvent,
-    MouseUpOutsideEvent,
     MouseWheelEvent,
 } from "./MouseEvents.js"
 
 export class MouseEventProcessor {
     constructor() {
-        this.mouseDownViews = [];
+        this.mouseDownViews = {};
         this.mouseDownViews[MouseButton.LEFT] = null;
         this.mouseDownViews[MouseButton.RIGHT] = null;
         this.mouseDownViews[MouseButton.MIDDLE] = null;
@@ -27,226 +21,186 @@ export class MouseEventProcessor {
     }
 
     // --[ events ]-------------------------------------------------------------
-    onMouseDown(view, event) {
-        // The event passed in is assumed to be within view. As such, translate 
-        // the event to have coordinates local the view for checking again 
-        // subviews.
-        let translatedX = event.x - view.getX();
-        let translatedY = event.y - view.getY();
+    onMouseDown(event) {
+        let target = this.findView(event);
+        let position = this.getRelativeXY(event, target);
 
-        // Find the subview at the translated coordinates. Subview should be 
-        // null if no subview was found.
-        var subview = view.pickView(translatedX, translatedY);
+        /***************/
+        /* onMouseDown */
+        /***************/
+        event = event.copy();
+        event.type = MouseEvent.DOWN;
+        event.x = position.x;
+        event.y = position.y;
+        event.target = target;
+        event.related = null;
+        event.target.onMouseDown(event);
 
-        if (subview !== null) { // If a subview was found,
-            // Recursively dive into the subview.
-            return this.onMouseDown(
-                subview,
-                new MouseEvent(translatedX, translatedY, event.button)
-            );
-        }
-
-        // Otherwise, the event happened in this view. This should happen on the 
-        // last step of recursion.
-        this.mouseDownViews[event.button] = view;
-        if (this.mouseDragButton === null) {
+        // Store the view and button to respond to other mouse events later.
+        this.mouseDownViews[event.button] = target;
+        if (this.mouseDragButton == null) {
             this.mouseDragButton = event.button;
         }
-
-        /********************
-         *  MouseDownEvent  *
-         ********************/
-        view.onMouseDown(new MouseDownEvent(event.x, event.y, event.button, view));
-
-        // Return the view that the event happened in.
-        return view;
     }
 
-    onMouseUp(view, event) {
-        // The event passed in is assumed to be within view. As such, translate 
-        // the event to have coordinates local the view for checking again 
-        // subviews.
-        let translatedX = event.x - view.getX();
-        let translatedY = event.y - view.getY();
-
-        // Find the subview at the translated coordinates. Subview should be 
-        // null if no subview was found.
-        var subview = view.pickView(translatedX, translatedY);
-
-        if (subview !== null) { // If a subview was found,
-            // Recursively dive into the subview.
-            return this.onMouseUp(
-                subview,
-                new MouseEvent(translatedX, translatedY, event.button)
-            );
-        }
-
-        // Otherwise, the event happened in this view. This should happen on the
-        // last step of recursion.
+    onMouseUp(event) {
         let mouseDownView = this.mouseDownViews[event.button];
-        if (view === mouseDownView) {
-            // If the current view is the mouseDownView, then the user pressed 
-            // the button down and released it inside the view. Trigger a 
-            // MouseUpInsideEvent on the current view.
+        if (mouseDownView != null) {
+            let related = this.findView(event);
+            let position = this.getRelativeXY(event, mouseDownView);
 
-            /************************
-             *  MouseUpInsideEvent  *
-             ************************/
-            view.onMouseUpInside(new MouseUpInsideEvent(
-                event.x, event.y, event.button, view
-            ));
-
-        } else if (mouseDownView !== null) { // mouse up outside
-            // If the current view is NOT the mouseDownView, then the user 
-            // pressed the button down in the mouseDownView, but released it in 
-            // the current view. Trigger a MouseUpOutsideEvent on the 
-            // mouseDownView.
-
-            /*************************
-             *  MouseUpOutsideEvent  *
-             ************************/
-            mouseDownView.onMouseUpOutside(new MouseUpOutsideEvent(
-                event.x, event.y, event.button, view
-            ));
+            /*************/
+            /* onMouseUp */
+            /*************/
+            event = event.copy();
+            event.type = MouseEvent.UP;
+            event.x = position.x;
+            event.y = position.y;
+            event.target = mouseDownView;
+            event.related = related;
+            event.target.onMouseUp(event);
         }
 
-        // Reset mouseDownView.
+        // Reset the mouseDownView so we don't respond to mouse up events.
         this.mouseDownViews[event.button] = null;
         if (this.mouseDragButton === event.button) {
             this.mouseDragButton = null;
         }
-
-        return view;
     }
 
-    onMouseMove(view, event) {
-        if (this.mouseDragButton !== null) {
-            // If the mouseDownView already exists, then the user is  
-            // dragging the mouse. Trigger a MouseDragEvent on the 
-            // mouseDownView.
+    onMouseMove(event) {
+        let mouseDragView = this.mouseDownViews[this.mouseDragButton];
+        if (mouseDragView != null) {
+            let related = this.findView(event);
+            let position = this.getRelativeXY(event, mouseDragView);
 
-            /********************
-             *  MouseDragEvent  *
-             ********************/
-             let mouseDragView = this.mouseDownViews[this.mouseDragButton];
-             mouseDragView.onMouseDrag(new MouseDragEvent(
-                event.x, event.y,
-                event.dx, event.dy,
-                this.mouseDragButton,
-                mouseDragView
-            ));
+            /***************/
+            /* onMouseDrag */
+            /***************/
+            let dragEvent = event.copy();
+            dragEvent.type = MouseEvent.DRAG;
+            dragEvent.x = position.x;
+            dragEvent.y = position.y;
+            dragEvent.button = this.mouseDragButton;
+            dragEvent.target = mouseDragView;
+            dragEvent.related = related;            
+            dragEvent.target.onMouseDrag(dragEvent);    
+
+        } 
+
+        let view = this.findView(event);
+        if (this.mouseOverView == view) {
+            if (view != mouseDragView) {
+                let position = this.getRelativeXY(event, view);
+
+                /***************/
+                /* onMouseMove */
+                /***************/
+                let moveEvent = event.copy();
+                moveEvent.type = MouseEvent.MOVE;
+                moveEvent.x = position.x;
+                moveEvent.y = position.y;
+                moveEvent.target = view;
+                moveEvent.related = null;
+                moveEvent.target.onMouseMove(moveEvent);    
+            }
 
         } else {
-            // The event passed in is assumed to be within view. As such, 
-            // translate the event to have coordinates local the view for 
-            // checking again subviews.
-            let translatedX = event.x - view.getX();
-            let translatedY = event.y - view.getY();
+            let exitView = this.mouseOverView;
+            let enterView = view;
 
-            // Find the subview at the translated coordinates. Subview should be 
-            // null if no subview was found.
-            var subview = view.pickView(translatedX, translatedY);
+            /****************/
+            /* onMouseEnter */
+            /****************/
+            let enterPosition = this.getRelativeXY(event, enterView);
+            let enterEvent = event.copy();
+            enterEvent.type = MouseEvent.ENTER;
+            enterEvent.x = enterPosition.x;
+            enterEvent.y = enterPosition.y;
+            enterEvent.target = enterView;
+            enterEvent.related = exitView;
+            enterEvent.target.onMouseEnter(enterEvent);                
 
-            if (subview !== null) { // If a subview was found,
-                // Recursively dive into the subview.
-                return this.onMouseMove(
-                    subview,
-                    new MouseMoveEvent(
-                        translatedX, translatedY, 
-                        event.dx, event.dy, 
-                        event.button
-                    )
-                );
+            /***************/
+            /* onMouseExit */
+            /***************/
+            if (exitView != null) {
+                let exitPosition = this.getRelativeXY(event, exitView);
+                let exitEvent = event.copy();
+                exitEvent.type = MouseEvent.EXIT;
+                exitEvent.x = exitPosition.x;
+                exitEvent.y = exitPosition.y;
+                exitEvent.target = exitView;
+                exitEvent.related = enterView;
+                exitEvent.target.onMouseExit(exitEvent);                
             }
 
-            // Otherwise, the event happened in this view. This should happen on 
-            // the last step of recursion.
-            if (this.mouseOverView !== view) {
-                if (this.mouseOverView !== null) {
-                    // If the mouseOverView already exists and it is not the 
-                    // current view, then the mouse is exiting the mouseOverView 
-                    // and entering the current view. Trigger a MouseExitEvent 
-                    // on the mouseOverView.
-
-                    /********************
-                     *  MouseExitEvent  *
-                     *******************/
-                    this.mouseOverView.onMouseExit(new MouseExitEvent(
-                        event.x, event.y, 
-                        event.dx, event.dy, 
-                        event.button,
-                        this.mouseOverView
-                    ));
-                }
-
-                // The current view is not the same as the mouseOverView, so the
-                // mouse is entering the current view. Trigger a MouseEnterEvent
-                // on the current view.
-
-                /*********************
-                 *  MouseEnterEvent  *
-                 *********************/
-                view.onMouseEnter(new MouseEnterEvent(
-                    event.x, event.y, 
-                    event.dx, event.dy, 
-                    event.button,
-                    view
-                ));
-
-                // Change the mouseOverView to the current view. 
-                this.mouseOverView = view;
-            }
-
-            /********************
-             *  MouseMoveEvent  *
-             ********************/
-            view.onMouseMove(new MouseMoveEvent(
-                event.x, event.y, 
-                event.dx, event.dy, 
-                event.button,
-                view
-            ));
-
-            return view;
+            // Update the mouseOverView for the next event.
+            this.mouseOverView = view
         }
     }
 
-    onMouseWheel(view, event) {
+    onMouseWheel(event) {
         // The event passed in is assumed to be within view. As such, translate 
         // the event to have coordinates local the view for checking again 
         // subviews.
-        let translatedX = event.x - view.getX();
-        let translatedY = event.y - view.getY();
+        let translatedX = event.x - event.target.getX();
+        let translatedY = event.y - event.target.getY();
 
         // Find the subview at the translated coordinates. Subview should be 
         // null if no subview was found.
-        var subview = view.pickView(translatedX, translatedY);
+        var subview = event.target.pickView(translatedX, translatedY);
 
-        if (subview !== null) { // If a subview was found,
+        if (subview != null) { // If a subview was found,
             // Recursively dive into the subview.
             return this.onMouseWheel(
-                subview,
                 new MouseWheelEvent(
-                    translatedX, translatedY, 
-                    event.button,
-                    event.amount
+                    translatedX, 
+                    translatedY, 
+                    event.amount,
+                    subview
                 )
             );
         }
 
         // Otherwise, the event happened in this view. This should happen on the 
         // last step of recursion.
-        /*********************
-         *  MouseWheelEvent  *
-         *********************/
-        view.onMouseWheel(new MouseWheelEvent(
-            event.x, event.y, 
-            event.button,
+        /*********************/
+        /*  MouseWheelEvent  */
+        /*********************/
+        event.target.onMouseWheel(new MouseWheelEvent(
+            event.x, 
+            event.y, 
             event.amount, 
-            view
+            event.target
         ));
 
         // Return the view that the event happened in.
-        return view;
+        return event.target;
     }    
+
+    // --[ helpers ]------------------------------------------------------------
+    findView(event) {
+        let view = event.target;
+        let subview = event.target;
+        let position = new Vec2(event.x, event.y);
+        while (subview != null) {
+            view = subview;
+            position.x -= view.getX();
+            position.y -= view.getY();
+            subview = view.pickView(position.x, position.y);    
+        }
+        return view;
+    }
+
+    getRelativeXY(event, view) {
+        let position = new Vec2();
+        while (view != event.target && view != null) {
+            position.x += view.getX();
+            position.y += view.getY();
+            view = view.parent;
+        }
+        return new Vec2(event.x - position.x, event.y - position.y);
+    }
+
 }
