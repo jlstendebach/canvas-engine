@@ -1,5 +1,5 @@
 import { View } from "./View.js"
-import { Vec2 } from "../../math/Math.js"
+import { Vec2 } from "../../math/index.js"
 
 /**
  * Definitions:

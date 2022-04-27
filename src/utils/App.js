@@ -1,6 +1,7 @@
-import { AppPauseEvent } from "./events/AppEvents.js"
-import { Canvas } from "./graphics/Graphics.js"
-import { Profiler, Timer } from "./utils/Utils.js"
+import { AppPauseEvent } from "../events/index.js"
+import { Canvas } from "../graphics/index.js"
+import { Profiler } from "./Profiler.js"
+import { Timer } from "./Timer.js"
 
 export class App {
     canvas; // Canvas

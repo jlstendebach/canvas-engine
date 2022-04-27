@@ -1,5 +1,5 @@
 import { ShapeView } from "./ShapeView.js"
-import { Vec2 } from "../../../math/Math.js"
+import { Vec2 } from "../../../math/index.js"
 
 export class LineView extends ShapeView {
     constructor(x1, y1, x2, y2) {

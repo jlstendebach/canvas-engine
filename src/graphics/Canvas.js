@@ -6,9 +6,9 @@ import {
     MouseEvent,    
     MouseEventProcessor,
     MouseWheelEvent,
-} from "../events/Events.js";
+} from "../events/index.js";
 
-import { Vec2 } from "../math/Math.js";
+import { Vec2 } from "../math/index.js";
 
 export class Canvas {
     constructor(id) {
