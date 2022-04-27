@@ -1,5 +1,5 @@
 import { ShapeView } from "./ShapeView.js"
-import { Vec2 } from "../../../math/Math.js"
+import { Vec2 } from "../../../math/index.js"
 
 export class RectangleView extends ShapeView {
     constructor(w, h) {

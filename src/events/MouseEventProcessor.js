@@ -1,8 +1,5 @@
-import { Vec2 } from "../Engine.js";
-import {
-    MouseButton
-} from "./MouseButton.js"
-
+import { Vec2 } from "../index.js";
+import { MouseButton } from "./MouseButton.js"
 import { 
     MouseEvent,
     MouseWheelEvent,

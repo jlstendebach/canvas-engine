@@ -7,7 +7,7 @@ import {
     MouseEvent,
     MouseWheelEvent,
     RectangleView,
-} from "../../../src/Engine.js"
+} from "../../../src/index.js"
 
 export class MouseEventTestsApp extends App {
     constructor(canvasName) {
@@ -102,7 +102,7 @@ export class MouseEventTestsApp extends App {
             mouseDownCircle.setY(e.y);
             mouseUpCircle.setVisible(false);
             lineString.clear();
-            lineString.addPoint(e.x, e.y);
+            lineString.addPoint(e.x, e.y);    
         }.bind(this));
 
         this.rightRect.addEventListener(MouseEvent.UP, function(t, e) {
@@ -119,6 +119,26 @@ export class MouseEventTestsApp extends App {
         
         this.rightRect.addEventListener(MouseEvent.DRAG, function(t, e) {
             lineString.addPoint(e.x, e.y);
+            switch (e.button) {
+                case MouseButton.LEFT:
+                    lineString.setStrokeStyle("white");
+                    break;
+                case MouseButton.RIGHT:
+                    lineString.setStrokeStyle("red");
+                    break;
+                case MouseButton.MIDDLE:
+                    lineString.setStrokeStyle("green");
+                    break;
+                case MouseButton.MOUSE4:
+                    lineString.setStrokeStyle("blue");
+                    break;
+                case MouseButton.MOUSE5:
+                    lineString.setStrokeStyle("yellow");
+                    break;
+                default:
+                    lineString.setStrokeStyle("black");
+                    break;
+                }
         }.bind(this));
         
         this.rightRect.addEventListener(MouseEvent.ENTER, function(t, e) {

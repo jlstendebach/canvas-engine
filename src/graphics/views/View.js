@@ -1,8 +1,7 @@
 import { 
     EventEmitter,
-    MouseEvent,
     MouseWheelEvent,
-} from "../../events/Events.js"
+} from "../../events/index.js"
 
 export class View {
     constructor() {

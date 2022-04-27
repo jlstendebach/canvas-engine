@@ -1,5 +1,5 @@
 import { View } from "./View.js"
-import { Vec2Field } from "../../math/Math.js"
+import { Vec2Field } from "../../math/index.js"
 
 export class Vec2FieldView extends View {
     constructor(w, h) {
