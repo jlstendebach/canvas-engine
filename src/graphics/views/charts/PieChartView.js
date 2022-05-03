@@ -1,4 +1,4 @@
-import { LabelView } from "../LabelView.js";
+import { LabelView, LabelViewOptions } from "../LabelView.js";
 import { RectangleView } from "../shapes/RectangleView.js";
 import { View } from "../View.js"
 
@@ -30,8 +30,8 @@ export class PieChartTooltip extends RectangleView {
 
     // --[ init ]---------------------------------------------------------------
     initSelf() {
-        this.setFillColor("#ffffffef");
-        this.setStrokeColor("#aaaaaa");
+        this.setFillStyle("#ffffffef");
+        this.setStrokeStyle("#aaaaaa");
     }
 
     initTopLabel() {
@@ -126,9 +126,7 @@ export class PieChartView extends View {
             "#f044f0"
         ];
 
-        this.tooltip = this.initTooltip(200, 100);
-
-
+        this.tooltip = this.initTooltip(100, 100);
     }
 
     // --[ initializers ]-------------------------------------------------------
@@ -151,8 +149,8 @@ export class PieChartView extends View {
     setRadius(radius) { this.radius = radius; }
     getRadius() { return this.radius; }
 
-    isInBounds(x, y) {
-        return Math.sqrt(Math.pow(x - this.getX(), 2) + Math.pow(y - this.getY(), 2)) < this.getRadius();
+    isInBounds(x, y) {        
+        return Vec2.dist(new Vec2(x, y), new Vec2(this.getX(), this.getY())) < this.getRadius();
     }
 
 
@@ -357,9 +355,9 @@ export class PieChartView extends View {
                 const k = (ascend ? j : quadrant.length - 1 - j);
                 const slice = quadrant[k];
                 const midAngle = (slice.sAngle + slice.eAngle) / 2;
-                const v1 = Vec2.fromAngle(midAngle).scale(this.getRadius() + 2);
-                const v2 = Vec2.fromAngle(midAngle).scale(this.getRadius() + lineOffset);
-                const v3 = Vec2.copy(v2);
+                const v1 = Vec2.fromAngle(midAngle).mult(this.getRadius() + 2);
+                const v2 = Vec2.fromAngle(midAngle).mult(this.getRadius() + lineOffset);
+                const v3 = v2.copy();
 
                 // Setup the label
                 let label = new LabelView();
@@ -432,11 +430,8 @@ export class PieChartView extends View {
         context.textBaseline = "middle";
 
         for (let i = 0; i < this.slices.length; ++i) {
-            let s = this.slices[i];
             let boxX = x;
             let boxY = y + padding * i + boxSize * i;
-            let textX = boxX + boxSize + padding;
-            let textY = boxY + boxSize / 2
 
             // Draw the box
             context.beginPath();
@@ -493,8 +488,6 @@ export class PieChartView extends View {
     onMouseMove(event) {
         super.onMouseMove(event);
 
-        const localX = event.x - this.getX();
-        const localY = event.y - this.getY();
         const slice = this.pickSlice(event.x, event.y);
 
         if (slice !== null) {
@@ -507,13 +500,13 @@ export class PieChartView extends View {
             this.tooltip.setVisible(true);
             this.tooltip.topLabel.setText(name);
             this.tooltip.bottomLabel.setText(value);
-            this.tooltip.setX(event.x - this.getX() - this.tooltip.getWidth() - 4);
-            this.tooltip.setY(event.y - this.getY() - this.tooltip.getHeight() - 4);
+            this.tooltip.setX(event.x - this.tooltip.getWidth() - 4);
+            this.tooltip.setY(event.y - this.tooltip.getHeight() - 4);
         }
     }
 
     onMouseExit(event) {
-        super.onMouseEnter(event);
+        super.onMouseExit(event);
         this.setSelectedSlice(null);
         this.tooltip.setVisible(false);
     }
@@ -522,6 +515,11 @@ export class PieChartView extends View {
         super.onMouseDrag(event);
         this.setSelectedSlice(null);
         this.tooltip.setVisible(false);
+
+        let oldPos = new Vec2(event.x-event.dx, event.y-event.dy);
+        let newPos = new Vec2(event.x, event.y);
+        let angle = Vec2.angleTau(oldPos, newPos);
+        this.startAngle += angle;
     }
 
 
@@ -577,11 +575,11 @@ export class PieChartView extends View {
 
 
     pickSlice(x, y) {
-        if (this.isInBounds(x, y) && this.slices.length > 0) {
+        if (this.slices.length > 0) {
             // Find the angle between the starting vector and the vector from the 
             // center to (x,y).
             let startVec = new Vec2(1, 0).rotate(this.slices[0].sAngle);
-            let pickVec = new Vec2(x - this.getX(), y - this.getY());
+            let pickVec = new Vec2(x, y);
             let pickAngle = Vec2.angleTau(startVec, pickVec);
 
             // Find the slice

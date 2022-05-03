@@ -1,4 +1,4 @@
-import { LabelView } from "../LabelView.js";
+import { LabelView, LabelViewOptions } from "../LabelView.js";
 import { RectangleView } from "../shapes/RectangleView.js";
 import { View } from "../View.js"
 
@@ -727,20 +727,22 @@ export class BarChartView extends View {
 
     drawSelf(context) {
         this.layout(context);
-
+        
         context.save();
         context.translate(this.getX(), this.getY());
 
 
         // Draw background
+        /*
         context.fillStyle = "white";
         context.beginPath();
         context.rect(0, 0, this.getWidth(), this.getHeight());
         context.fill();
-
+        */
 
         // Draw graph area background
         context.strokeStyle = "#f0f0f0";
+        context.fillStyle = "white";
         context.beginPath();
         context.rect(
             this.graphArea.x1,
@@ -749,6 +751,7 @@ export class BarChartView extends View {
             this.graphArea.y2 - this.graphArea.y1
         );
         context.stroke();
+        context.fill();
 
         // Draw components    
         this.drawLeftLabels(context);
@@ -781,8 +784,8 @@ export class BarChartView extends View {
             this.tooltip.setVisible(true);
             this.tooltip.topLabel.setText(name);
             this.tooltip.bottomLabel.setText(value);
-            this.tooltip.setX(event.x - this.getX() - this.tooltip.getWidth() - 4);
-            this.tooltip.setY(event.y - this.getY() - this.tooltip.getHeight() - 4);
+            this.tooltip.setX(event.x - this.tooltip.getWidth() - 4);
+            this.tooltip.setY(event.y - this.tooltip.getHeight() - 4);
 
             this.selectedBar = bar;
 
@@ -805,8 +808,8 @@ export class BarChartView extends View {
 
         // Vector that points from the center of the chart to the mouse.
         let vecCurrent = new Vec2(
-            event.x - this.getX() - this.getWidth() / 2,
-            event.y - this.getY() - this.getHeight() / 2
+            event.x - this.getWidth() / 2,
+            event.y - this.getHeight() / 2
         );
         let vecPrevious = new Vec2(
             vecCurrent.x - event.dx,
@@ -825,8 +828,8 @@ export class BarChartView extends View {
 
     // --[ helpers ]------------------------------------------------------------
     pickBar(x, y) {
-        if (this.isInBounds(x, y) && this.barViews.length > 0) {
-            let pickVec = new Vec2(x - this.getX(), y - this.getY());
+        if (this.barViews.length > 0) {
+            let pickVec = new Vec2(x, y);
 
             for (let i = 0; i < this.barViews.length; ++i) {
                 let bar = this.barViews[i];
