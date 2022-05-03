@@ -27,11 +27,11 @@
                 Canvas,
                 CircleView,
                 Keyboard,
-                MouseDownEvent,
+                MouseEvent,
                 RectangleView,
                 SceneView,
                 Vec2,
-            } from "../src/Engine.js"
+            } from "../src/index.js"
 
             window.addEventListener("load", function () {
                 window.removeEventListener("load", this);
@@ -46,7 +46,7 @@
                     rect.setFillStyle("#FF0000");
                     rect.setStrokeStyle("#000000");
                     rect.setStrokeWidth(1);
-                    rect.addEventListener(MouseDownEvent.name, function (t, e) {
+                    rect.addEventListener(MouseEvent.DOWN, function (t, e) {
                         rect.setFillStyle("purple");
                     });
                     scene.addView(rect);
@@ -62,7 +62,7 @@
                 scene.size.y = canvas.getHeight() - 0;
                 scene.clip = true;
                 for (let i = 0; i < 500; ++i) { createRect(scene); }
-                scene.addEventListener(MouseDownEvent.name, (t, e) => {
+                scene.addEventListener(MouseEvent.DOWN, (t, e) => {
                     let point = scene.localToChild(e.x, e.y);
                     createRect(scene, point.x, point.y);
                 });
