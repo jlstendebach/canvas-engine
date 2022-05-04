@@ -5,7 +5,6 @@ import {
     MouseButton,
     MouseEvent,    
     MouseEventProcessor,
-    MouseWheelEvent,
 } from "../events/index.js";
 
 import { Vec2 } from "../math/index.js";
@@ -182,14 +181,7 @@ export class Canvas {
         /* ---- Mouse Wheel ---- */
         /*************************/
         this.canvas.addEventListener("wheel", function (event) {
-            let coords = this.windowToCanvasCoords(event.clientX, event.clientY);
-            let e = new MouseWheelEvent(
-                coords.x / this.scale, // x
-                coords.y / this.scale, // y
-                event.deltaY * -0.01,
-                this.view
-            );
-            this.mouseProcessor.onMouseWheel(e);
+            this.mouseProcessor.onMouseWheel(this.createMouseEvent(MouseEvent.WHEEL, event));
         }.bind(this));
 
         /**************************/
@@ -242,15 +234,28 @@ export class Canvas {
 
     createMouseEvent(type, event) {
         let coords = this.windowToCanvasCoords(event.clientX, event.clientY);
+        let dx = 0;
+        let dy = 0;
+
+        if (type == MouseEvent.WHEEL) {
+            dx = event.deltaX;
+            dy = event.deltaY;
+
+        } else {
+            dx = event.movementX / this.scale;
+            dy = event.movementY / this.scale;
+        }
+
         return new MouseEvent(
             type,                                // type
             coords.x / this.scale,               // x
             coords.y / this.scale,               // y
-            event.movementX / this.scale,        // dx
-            event.movementY / this.scale,        // dy            
+            dx,                                  // dx
+            dy,                                  // dy            
             MouseButton.fromIndex(event.button), // button
             event.buttons,                       // buttons
-            this.view                            // target
+            this.view,                           // target
+            null                                 // related
         );
     }
 

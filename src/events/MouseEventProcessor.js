@@ -1,8 +1,7 @@
 import { Vec2 } from "../index.js";
 import { MouseButton } from "./MouseButton.js"
 import { 
-    MouseEvent,
-    MouseWheelEvent,
+    MouseEvent
 } from "./MouseEvents.js"
 
 export class MouseEventProcessor {
@@ -138,42 +137,19 @@ export class MouseEventProcessor {
     }
 
     onMouseWheel(event) {
-        // The event passed in is assumed to be within view. As such, translate 
-        // the event to have coordinates local the view for checking again 
-        // subviews.
-        let translatedX = event.x - event.target.getX();
-        let translatedY = event.y - event.target.getY();
+        let target = this.findView(event);
+        let position = this.getRelativeXY(event, target);
 
-        // Find the subview at the translated coordinates. Subview should be 
-        // null if no subview was found.
-        var subview = event.target.pickView(translatedX, translatedY);
-
-        if (subview != null) { // If a subview was found,
-            // Recursively dive into the subview.
-            return this.onMouseWheel(
-                new MouseWheelEvent(
-                    translatedX, 
-                    translatedY, 
-                    event.amount,
-                    subview
-                )
-            );
-        }
-
-        // Otherwise, the event happened in this view. This should happen on the 
-        // last step of recursion.
-        /*********************/
-        /*  MouseWheelEvent  */
-        /*********************/
-        event.target.onMouseWheel(new MouseWheelEvent(
-            event.x, 
-            event.y, 
-            event.amount, 
-            event.target
-        ));
-
-        // Return the view that the event happened in.
-        return event.target;
+        /*******************/
+        /* MouseWheelEvent */
+        /*******************/
+        event = event.copy();
+        event.type = MouseEvent.WHEEL;
+        event.x = position.x;
+        event.y = position.y;
+        event.target = target;
+        event.related = null;
+        event.target.onMouseWheel(event);
     }    
 
     // --[ helpers ]------------------------------------------------------------
