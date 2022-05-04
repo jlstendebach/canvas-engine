@@ -5,7 +5,6 @@ import {
     LineStringView,
     MouseButton,
     MouseEvent,
-    MouseWheelEvent,
     RectangleView,
 } from "../../../src/index.js"
 
@@ -203,9 +202,9 @@ export class MouseEventTestsApp extends App {
         enterExitRect.addView(this.createLabel(w, h, "enter/exit"));
 
         let wheelRect = this.createRect(1*w + 2*10, y, w, h, "#00f", this.leftRect);
-        wheelRect.addEventListener(MouseWheelEvent.name, function(t, e) {
-            wheelRect.setWidth(wheelRect.getWidth() + 3*e.amount);
-            wheelRect.setHeight(wheelRect.getHeight() + 3*e.amount);
+        wheelRect.addEventListener(MouseEvent.WHEEL, function(t, e) {
+            wheelRect.setWidth(wheelRect.getWidth() + 3*e.dy);
+            wheelRect.setHeight(wheelRect.getHeight() + 3*e.dy);
         });
         wheelRect.addView(this.createLabel(w, h, "scroll wheel"));
     }

@@ -1,12 +1,13 @@
 import { Vec2 } from "../math/index.js";
 
 export class MouseEvent {
-    static DOWN = "MouseDownEvent";
-    static UP = "MouseUpEvent";
-    static MOVE = "MouseMoveEvent";
-    static DRAG = "MouseDragEvent";
+    static DOWN  = "MouseDownEvent";
+    static UP    = "MouseUpEvent";
+    static MOVE  = "MouseMoveEvent";
+    static DRAG  = "MouseDragEvent";
     static ENTER = "MouseEnterEvent";
-    static EXIT = "MouseExitEvent";
+    static EXIT  = "MouseExitEvent";
+    static WHEEL = "MouseWheelEvent";
 
     type = null; // String
     x = 0; // Int
@@ -31,30 +32,6 @@ export class MouseEvent {
         this.related = related;
     }
 
-    static createDownEvent(x, y, button, buttons, target=null) {
-        return new MouseEvent(this.DOWN, x, y, 0, 0, button, buttons, target);
-    }
-
-    static createUpEvent(x, y, button, buttons, target=null) {
-        return new MouseEvent(this.UP, x, y, 0, 0, button, buttons, target);
-    }
-
-    static createMoveEvent(x, y, dx, dy, buttons, target=null) {
-        return new MouseEvent(this.MOVE, x, y, dx, dy, 0, buttons, target);
-    }
-
-    static createDragEvent(x, y, dx, dy, button, buttons, target=null) {
-        return new MouseEvent(this.DRAG, x, y, dx, dy, button, buttons, target);
-    }
-
-    static createEnterEvent(x, y, button, buttons, target=null) {
-        return new MouseEvent(this.ENTER, x, y, 0, 0, button, buttons, target);
-    }
-
-    static createExitEvent(x, y, button, buttons, target=null) {
-        return new MouseEvent(this.EXIT, x, y, 0, 0, button, buttons, target);
-    }
-
     // --[ helpers ]------------------------------------------------------------
     copy() {
         return new MouseEvent(
@@ -65,7 +42,8 @@ export class MouseEvent {
             this.dy,
             this.button, 
             this.buttons,
-            this.target
+            this.target, 
+            this.related
         );
     }
 
@@ -95,22 +73,5 @@ export class MouseEvent {
 
     getLocalXY() {
         return new Vec2(this.x, this.y);
-    }
-
-    getTargetXY() {
-        let viewXY = this.view.getGlobalXY();
-        let targetXY = this.target.getGlobalXY();
-
-        return 
-    }
-}
-
-// --[ MouseWheelEvent ]--------------------------------------------------------
-export class MouseWheelEvent {
-    constructor(x, y, amount, target) {
-        this.x = x;
-        this.y = y; 
-        this.amount = amount;
-        this.target = target;
     }
 }

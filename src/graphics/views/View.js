@@ -1,6 +1,5 @@
 import { 
     EventEmitter,
-    MouseWheelEvent,
 } from "../../events/index.js"
 
 export class View {
@@ -162,7 +161,7 @@ export class View {
     }
 
     onMouseWheel(event) {
-        this.emitEvent(MouseWheelEvent.name, event);
+        this.emitEvent(event.type, event);
     }
 }
 
