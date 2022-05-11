@@ -139,13 +139,6 @@ export class SceneView extends View {
     }
 
 
-    // --[ view ]-----------------------------------------------------------------
-    pickView(x, y) {
-        let p = this.localToChild(x, y);
-        return super.pickView(p.x, p.y);
-    }
-
-
     // --[ drawing ]--------------------------------------------------------------
     drawChildren(context) {
         context.save();

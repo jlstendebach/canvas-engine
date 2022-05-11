@@ -1,73 +1,70 @@
 import { 
     EventEmitter,
 } from "../../events/index.js"
+import { Vec2 } from "../../math/Vec2.js";
 
 export class View {
-    constructor() {
-        this.parent = null;
-        this.views = [];
-        this.visible = true;
-        this.pickable = true;
+    #parent = null;
+    #views = [];
+    #isVisible = true;
+    #isPickable = true;
+    #eventEmitter = new EventEmitter();
 
-        this.eventEmitter = new EventEmitter();
-    }
+    // --[ init ]---------------------------------------------------------------
+    constructor() {}
 
     // --[ bounds ]-------------------------------------------------------------
-    isInBounds(x, y) {
-        return true;
-    }
+    isInBounds(x, y) { return true; }
+    getX() { return 0; }
+    getY() { return 0; }
 
-    getX() {
-        return 0;
-    }
-
-    getY() {
-        return 0;
-    }
+    localToChild(x, y) { return new Vec2(x, y); }
+    childToLocal(x, y) { return new Vec2(x, y); }
 
     // --[ parent ]-------------------------------------------------------------
     getParent() {
-        return this.parent;
+        return this.#parent;
     }
 
     removeFromParent() {
-        if (this.parent !== null) {
-            this.parent.removeView(this);
-            this.parent = null;
+        if (this.#parent !== null) {
+            this.#parent.removeView(this);
+            this.#parent = null;
         }
     }
 
     // --[ views ]--------------------------------------------------------------
     addView(v) {
         v.removeFromParent();
-        v.parent = this;
-        this.views.push(v);
+        v.#parent = this;
+        this.#views.push(v);
 
         return v;
     }
 
     removeView(v) {
-        var index = this.views.indexOf(v);
+        var index = this.#views.indexOf(v);
         if (index >= 0) {
-            v.parent = null;
-            this.views.splice(index, 1);
+            v.#parent = null;
+            this.#views.splice(index, 1);
         }
 
         return v;
     }
 
     getViews() {
-        return this.views;
+        return this.#views;
     }
 
     getViewCount() {
-        return this.views.length;
+        return this.#views.length;
     }
 
     pickView(x, y) {
+        let childXY = this.localToChild(x, y);
         for (var i = this.getViewCount() - 1; i >= 0; i--) {
-            var view = this.views[i];
-            if (view.visible && view.pickable && view.isInBounds(x, y)) {
+            var view = this.#views[i];
+            if (view.isVisible() && view.isPickable() && view.isInBounds(childXY.x, childXY.y)) {
                 // View was picked.
                 return view;
             }
@@ -79,25 +76,25 @@ export class View {
 
     // --[ visible ]------------------------------------------------------------
     setVisible(v) {
-        this.visible = v;
+        this.#isVisible = v;
     }
 
     isVisible() {
-        return this.visible;
+        return this.#isVisible;
     }
 
     // --[ pickable ]-----------------------------------------------------------
     setPickable(p) {
-        this.pickable = p;
+        this.#isPickable = p;
     }
 
     isPickable() {
-        return this.pickable;
+        return this.#isPickable;
     }
 
     // --[ drawing ]------------------------------------------------------------
     draw(context) {
-        if (this.visible) {
+        if (this.#isVisible) {
             this.drawSelf(context);
 
             context.translate(this.getX(), this.getY());
@@ -109,60 +106,32 @@ export class View {
     drawSelf(context) { }
 
     drawChildren(context) {
-        for (let i = 0; i < this.views.length; i++) {
-            this.views[i].draw(context);
+        for (let i = 0; i < this.#views.length; i++) {
+            this.#views[i].draw(context);
         }
     }
 
     // --[ event emitter ]------------------------------------------------------
     addEventListener(type, callback, owner = null) {
-        this.eventEmitter.add(type, callback, owner);
+        this.#eventEmitter.add(type, callback, owner);
     }
 
     removeEventListener(type, callback, owner = null) {
-        this.eventEmitter.remove(type, callback, owner);
+        this.#eventEmitter.remove(type, callback, owner);
     }
 
     emitEvent(type, event) {
-        this.eventEmitter.emit(type, event);
+        this.#eventEmitter.emit(type, event);
     }
 
     // --[ mouse events ]-------------------------------------------------------
-    onMouseDown(event) {
-        this.emitEvent(event.type, event);
-    }
-
-    onMouseUp(event) {
-        this.emitEvent(event.type, event);
-    }
-
-    onMouseUpInside(event) {
-        this.emitEvent(event.type, event);
-    }
-
-    onMouseUpOutside(event) {
-        this.emitEvent(event.type, event);
-    }
-
-    onMouseDrag(event) {
-        this.emitEvent(event.type, event);
-    }
-
-    onMouseMove(event) {
-        this.emitEvent(event.type, event);
-    }
-
-    onMouseEnter(event) {
-        this.emitEvent(event.type, event);
-    }
-
-    onMouseExit(event) {
-        this.emitEvent(event.type, event);
-    }
-
-    onMouseWheel(event) {
-        this.emitEvent(event.type, event);
-    }
+    onMouseDown(event) { this.emitEvent(event.type, event); }
+    onMouseUp(event) { this.emitEvent(event.type, event); }
+    onMouseMove(event) { this.emitEvent(event.type, event); }
+    onMouseDrag(event) { this.emitEvent(event.type, event); }
+    onMouseEnter(event) { this.emitEvent(event.type, event); }
+    onMouseExit(event) { this.emitEvent(event.type, event); }
+    onMouseWheel(event) { this.emitEvent(event.type, event); }
 }
 
 
