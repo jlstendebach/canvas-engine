@@ -41,7 +41,7 @@ export class ShapeView extends View {
     }
 
     stroke(context) {
-        if (this.strokeStyle !== null && this.strokeWidth > 0) {
+        if (this.isStroke()) {
             context.lineWidth = this.strokeWidth;
             context.strokeStyle = this.strokeStyle;
             context.setLineDash(this.strokeDash);
@@ -51,9 +51,19 @@ export class ShapeView extends View {
 
     drawSelf(context) {
         context.beginPath();
-        this.path(context);
+        if (this.isStroke()) {
+            context.translate(0.5, 0.5);
+            this.path(context);
+            context.translate(-0.5, -0.5);    
+        } else {
+            this.path(context);
+        }
         this.fill(context);
         this.stroke(context);
     }
 
+    // --[ helpers ]------------------------------------------------------------
+    isStroke() {
+        return this.strokeStyle != null && this.strokeWidth > 0;
+    }
 }

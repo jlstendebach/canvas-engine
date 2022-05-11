@@ -17,6 +17,7 @@ export class View {
     isInBounds(x, y) { return true; }
     getX() { return 0; }
     getY() { return 0; }
+    getXY() { return new Vec2(this.getX(), this.getY());  }
 
     localToChild(x, y) { return new Vec2(x, y); }
     childToLocal(x, y) { return new Vec2(x, y); }
