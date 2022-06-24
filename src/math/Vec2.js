@@ -306,6 +306,7 @@ export class Vec2 {
      * @returns {Vec2} This vector.
      */
     normalize(length = this.length()) {
+        length = length || 1;
         this.x /= length;
         this.y /= length;
         return this;
