@@ -8,6 +8,12 @@ export class Vec2 {
 		this.y = parseFloat(y);
 	}
 
+    // --[ aliases ]------------------------------------------------------------
+    get width() { return this.x; }
+    set width(width) { this.x = width; }
+    get height() { return this.y; }
+    set height(height) { this.y = height; }
+
     // --[ in-place operations ]------------------------------------------------
     /**
      * Sets the x and y components of this vector.
@@ -25,61 +31,81 @@ export class Vec2 {
     /* BASIC OPERATIONS */
     /********************/
     /**
-     * Adds the other vector to this vector, in-place.
-     * @param {Vec2} other The vector to add to this vector.
+     * Adds the given vector to this vector, in-place.
+     * @param {Vec2} v The vector to add to this vector.
      * @returns {Vec2} This vector.
      */
-    add(other) {
-		this.x += other.x;
-		this.y += other.y;
+    add(v) {
+		this.x += v.x;
+		this.y += v.y;
 		return this;
 	}
 
     /**
-     * Subtracts the other vector from this vector, in-place.
-     * @param {Vec2} other The vector to subtract from this vector.
+     * Subtracts the given vector from this vector, in-place.
+     * @param {Vec2} v The vector to subtract from this vector.
      * @returns {Vec2} This vector.
      */
-	subtract(other) {
-		this.x -= other.x;
-		this.y -= other.y;
+	subtract(v) {
+		this.x -= v.x;
+		this.y -= v.y;
 		return this;
 	}
 
     /**
-     * Multiplies the components of this vector by the components of the other 
+     * Multiplies the components of this vector by the components of the given 
      * vector, in-place.
-     * @param {Vec2} other The vector by which to multiply this vector.
+     * @param {Vec2} v The vector by which to multiply this vector.
      * @returns {Vec2} This vector.
      */
-	multiply(other) {
-		this.x *= other.x;
-		this.y *= other.y;
+	multiply(v) {
+		this.x *= v.x;
+		this.y *= v.y;
 		return this;
 	}
 
     /**
-     * Divides the components of this vector by the components of the other 
+     * Multiplies the components of this vector by the given scalar, in-place.
+     * @param {Number} s The scalar value.
+     * @returns {Vec2} This vector.
+     */
+    multiplyScalar(s) {
+		this.x *= s;
+		this.y *= s;
+		return this;
+    }
+
+    /**
+     * Divides the components of this vector by the components of the given 
      * vector, in-place.
-     * @param {Vec2} other The vector by which to divide this vector.
+     * @param {Vec2} v The vector by which to divide this vector.
      * @returns {Vec2} This vector.
      */
-	divide(other) {
-		this.x /= other.x;
-		this.y /= other.y;
+	divide(v) {
+		this.x /= v.x;
+		this.y /= v.y;
 		return this;
 	}
 
     /**
-     * Scales the components of this vector by the given scalar. This will 
-     * effectively scale this vector's length as well.
-     * @param {Number} scalar The number by which to scale this vector.
+     * Divides the components of this vector by the given scalar, in-place.
+     * @param {Number} s The scalar value.
      * @returns {Vec2} This vector.
      */
-    scale(scalar) {
-        this.x *= scalar;
-        this.y *= scalar;
+    divideScalar(s) {
+        this.x /= s;
+        this.y /= s;
         return this;
+    }
+
+    /**
+     * Multiplies the components of this vector by the given scalar, in-place.
+     * Alias of multiplyScalar.
+     * @param {Number} s The scalar value.
+     * @returns {Vec2} This vector.
+     */
+    scale(s) {
+        return this.multiplyScalar(s);
     }
 
     /**
@@ -91,6 +117,36 @@ export class Vec2 {
 		this.y = -this.y;
 		return this;
 	}
+
+    /**
+     * Rounds each component of this vector down to the nearest integer.
+     * @returns {Vec2} This vector.
+     */
+    floor() {
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
+        return this;
+    }
+
+    /**
+     * Rounds each component of this vector up to the nearest integer.
+     * @returns {Vec2} This vector.
+     */
+    ceil() {
+        this.x = Math.ceil(this.x);
+        this.y = Math.ceil(this.y);
+        return this;
+    }
+    
+    /**
+     * Rounds each component of this vector to the nearest integer.
+     * @returns {Vec2} This vector.
+     */
+    round() {
+        this.x = Math.round(this.x);
+        this.y = Math.round(this.y);
+        return this;
+    }
 
     /**********************/
     /* COMPLEX OPERATIONS */
@@ -110,51 +166,72 @@ export class Vec2 {
 	}
 
     /**
-     * Reflect this vector about the given vector, in-place.
-     * @param {Vec2} vector The vector about which to reflect this vector.
+     * Reflect this vector off of a surface whose normal is given, in-place.
+     * @param {Vec2} normal The normal of the surface.
      * @returns {Vec2} This vector.
      */
-    reflect(vector) {
-        return this.add(this.rejection(vector).scale(-2));
+    reflect(normal) {
+        const scale = 2*this.dot(normal);
+        this.x -= scale*normal.x;
+        this.y -= scale*normal.y;
+        return this;
     }
 
     /**
-     * Linearly interpolates this vector toward the other vector by a certain 
-     * amount.
-     * @param {Vec2} other The other vector to interpolate this vector toward.
-     * @param {Number} a The amount by which to interpolate this vector toward 
-     *     the other vector. This value will usually fall between 0 and 1. 
-     *     A value of 0 will result in no interpolation toward the other vector. 
-     *     A value of 1 will result in this vector being equal to the other.
-     *     Values less than 0 will move this vector away from the other vector.
-     *     Values more than 1 will move this vector past the other vector.
+     * Mirror this vector across the given vector, in-place.
+     * @param {Vec2} mirror The mirror vector.
      * @returns {Vec2} This vector.
      */
-    lerp(other, a) {
-		this.x += (other.x - this.x) * a;
-		this.y += (other.y - this.y) * a;
+    mirror(mirror) {
+        const scale = 2*this.dot(mirror);
+        this.x = scale*mirror.x - this.x;
+        this.y = scale*mirror.y - this.y;
+        return this;
+    }
+
+    /**
+     * Linearly interpolates this vector toward the target vector by a certain 
+     * amount.
+     * @param {Vec2} v The target vector to interpolate this vector toward.
+     * @param {Number} a The amount by which to interpolate this vector toward 
+     *     the target vector. This value will usually fall between 0 and 1. 
+     *     A value of 0 will result in no interpolation toward the target vector. 
+     *     A value of 1 will result in this vector being equal to the target.
+     *     Values less than 0 will move this vector away from the target vector.
+     *     Values more than 1 will move this vector past the target vector.
+     * @returns {Vec2} This vector.
+     */
+    lerp(v, a) {
+        // This method is more precise due to floating-point arithmetic error,
+        // and ensures that the 
+        // Source: https://en.wikipedia.org/wiki/Linear_interpolation#Programming_language_support
+        this.x = (1-a)*this.x + a*v.x;
+        this.y = (1-a)*this.y + a*v.y;
 		return this;
 	}
 
-    
     /**
-     * Projects this vector onto the other vector, in-place.
-     * @param {Vec2} other The vector on which to project this vector.
+     * Projects this vector onto the given vector, in-place.
+     * @param {Vec2} v The vector on which to project this vector.
      * @returns {Vec2} This vector.
      */
-	project(other) {
-		return other.isZero()
-            ? this.set(0, 0)
-            : this.scale(this.dot(other) / other.lengthSq());
+	project(v) {
+        const scale = this.dot(v) / v.lengthSq();
+        this.x = v.x * scale
+        this.y = v.y * scale;
+        return this;
 	}
 
     /**
-     * Rejects this vector from the other vector, in-place.
-     * @param {Vec2} other The vector from which to reject this vector.
+     * Rejects this vector from the given vector, in-place.
+     * @param {Vec2} vector The vector from which to reject this vector.
      * @returns {Vec2} This vector.
      */
-    reject(other) {
-        return this.subtract(this.projection(other));
+    reject(v) {
+        const scale = this.dot(v) / v.lengthSq();
+        this.x -= v.x * scale
+        this.y -= v.y * scale;
+        return this;
     }
 
     // --[ length operations ]--------------------------------------------------
@@ -174,127 +251,80 @@ export class Vec2 {
 
     /**
      * Sets the length of this vector.
-     * @param {Number} length The length of the vector.
+     * @param {Number} length The new length.
+     * @param {Number} current The current length of this vector. Automatically 
+     *     calculated, but provided for efficiency in the case that the length 
+     *     has been previously computed.
      * @returns {Vec2} This vector.
      */
-    setLength(length) {
-        return this.scale(length / (this.length() || 1))
+    setLength(length, current = this.length()) {
+        const scale = length / current;
+        this.x *= scale;
+        this.y *= scale;
+        return this;
     }
 
     /**
-     * Sets the length of this vector to 1.
+     * Limits the length of this vector.
+     * @param {Number} max The maximum length.
+     * @param {Number} length The current length of this vector. Automatically 
+     *     calculated, but provided for efficiency in the case that the length 
+     *     has been previously computed.
      * @returns {Vec2} This vector.
      */
-	normalize() {
-		return this.setLength(1);
-	}
-
-    /**
-     * Clamps the length of this vector between a min and max value.
-     * @param {Number} min The minimum length. Set this to 0 if you only want to 
-     *     limit the max length.
-     * @param {Number} max The maximum length. Can be null/undefined.
-     * @returns {Vec2} This vector.
-     */
-	clampLength(min, max) {
-		let length = this.length();
-        if (length < min) {
-            this.setLength(min);
-
-        } else if (max != null && length > max) {
-            this.setLength(max);
+	limitLength(max, length = this.length()) {
+        if (length > max) {
+            this.setLength(max, length);
         }
 		return this;
 	}    
 
-    // --[ out-of-place operations ]--------------------------------------------
-    /********************/
-    /* BASIC OPERATIONS */
-    /********************/
-    sum(other) {
-        return new Vec2(this.x+other.x, this.y+other.y);
-    }
+    /**
+     * Clamps the length of this vector between a min and max value.
+     * @param {Number} min The minimum length.
+     * @param {Number} max The maximum length.
+     * @param {Number} length The current length of this vector. Automatically 
+     *     calculated, but provided for efficiency in the case that the length 
+     *     has been previously computed.
+     * @returns {Vec2} This vector.
+     */
+	clampLength(min, max = Number.MAX_VALUE, length = this.length()) {
+        if (length < min) {
+            this.setLength(min, length);
 
-    difference(other) {
-        return new Vec2(this.x-other.x, this.y-other.y);
-    }
+        } else if (length > max) {
+            this.setLength(max, length);
+        }
+		return this;
+	}    
 
-    product(other) {
-        return new Vec2(this.x*other.x, this.y*other.y);
-    }
-
-    quotient(other) {
-        return new Vec2(this.x/other.x, this.y/other.y);
-    }
-
-    scaled(s) {
-        return new Vec2(this.x*s, this.y*s);
-    }
-
-    negated() {
-        return new Vec2(-this.x, -this.y);
-    }
-
-    /**********************/
-    /* COMPLEX OPERATIONS */
-    /**********************/
-	rotated(radians) {
-		const cos = Math.cos(radians);
-		const sin = Math.sin(radians);
-        return new Vec2(
-            this.x * cos - this.y * sin,
-            this.x * sin + this.y * cos
-        );
+    /**
+     * Sets the length of this vector to 1.
+     * @param {Number} length The current length of this vector. Automatically 
+     *     calculated, but provided for efficiency in the case that the length 
+     *     has been previously computed.
+     * @returns {Vec2} This vector.
+     */
+    normalize(length = this.length()) {
+        this.x /= length;
+        this.y /= length;
+        return this;
 	}
-
-    reflected(vector) {
-        return this.sum(this.rejection(vector).scale(-2));
-    }
-
-    lerped(other, a) {
-        return new Vec2(
-            this.x + (other.x - this.x) * a,
-            this.y + (other.y - this.y) * a
-        );
-	}
-
-    projection(other) {
-        return other.isZero() 
-            ? new Vec2(0, 0)
-            : this.scaled(this.dot(other) / other.lengthSq());
-    }
-
-    rejection(other) {
-        return this.difference(this.projection(other));
-    }
-
-    normalized() {
-        return this.copy().normalize();
-    }
-
-    normal() {
-        return new Vec2(-this.y, this.x);
-    }
-
-    unitNormal() {
-        return this.normal().normalize();
-    }
 
     // --[ information operations ]---------------------------------------------
-	dot(other) {
-		return this.x * other.x + this.y * other.y;
+	dot(v) {
+		return this.x*v.x + this.y*v.y;
 	}
 
-    angle(other = Vec2.i()) {
+    angle(v = Vec2.unitX()) {
 		// u . v = |u|*|v|*cos(angle)
 		// angle = acos((u . v) / (|u|*|v|))    
 		return Math.acos(
-			this.dot(other) / Math.sqrt((this.lengthSq()) * (other.lengthSq()))
+			this.dot(v) / Math.sqrt(this.lengthSq() * v.lengthSq())
 		);
-
     }
 
-	angleTau(other = Vec2.i()) {
+	angleTau(v = Vec2.unitX()) {
 		/*
 		 * Cross product:
 		 * ---------------------
@@ -311,18 +341,18 @@ export class Vec2 {
 		 * If z is less than zero, then the angle between u and v is greater 
 		 * than pi. Angle in range [0, 2pi) needs to be calculated.
 		 */
-		let angle = this.angle(other);
-        return (this.x * other.y - this.y * other.x < 0) 
+		const angle = this.angle(v);
+        return (this.x * v.y - this.y * v.x < 0) 
             ? 2 * Math.PI - angle
             : angle;
 	}
 
-	distanceSq(other) {
-		return (this.x - other.x)**2 + (this.y - other.y)**2;
+	distanceSq(v) {
+		return (this.x - v.x)**2 + (this.y - v.y)**2;
 	} 
 
-    distance(other) {
-        return Math.sqrt(this.distanceSq(other));
+    distance(v) {
+        return Math.sqrt(this.distanceSq(v));
     }
 
     // --[ helpers ]------------------------------------------------------------
@@ -334,12 +364,18 @@ export class Vec2 {
 		return (this.x !== 0 || this.y !== 0);
 	}
 
-    copy() {
+    clone() {
 		return new Vec2(this.x, this.y);
 	}
 
-    equals(vector) {
-        return (this.x === vector.x && this.y === vector.y);
+    copy(v) { 
+        this.x = v.x;
+        this.y = v.y;
+        return this;
+    }
+
+    equals(v) {
+        return (this.x === v.x && this.y === v.y);
     }
     
     toArray() {
@@ -351,15 +387,18 @@ export class Vec2 {
     }
 
     toString() {
-        return "<"+this.x+","+this.y+">";
+        return "("+this.x+","+this.y+")";
     }
 
-    // --[ static factory methods ]---------------------------------------------
+    // --[ static methods ]-----------------------------------------------------
+    /*********************/
+    /* FACTORY FUNCTIONS */
+    /*********************/
     static fromArray(array, offset = 0) {
         return new Vec2(
             parseFloat(array[offset]) || 0,  // x 
             parseFloat(array[offset+1]) || 0 // y
-        )
+        );
     }
 
     static fromObject(object) {
@@ -381,39 +420,131 @@ export class Vec2 {
 		return new Vec2(Math.cos(radians), Math.sin(radians));
 	}
 
-    static i() {
+	static random(length = 1) {
+        const radians = Math.random() * 2 * Math.PI;
+		return new Vec2(length*Math.cos(radians), length*Math.sin(radians));
+	}
+
+    static unitX() {
         return new Vec2(1, 0);
     }
 
-    static j() {
+    static unitY() {
         return new Vec2(0, 1);
     }
 
-	static random(length = 1) {
-		return Vec2
-            .fromAngle(Math.random() * 2 * Math.PI)
-			.setLength(length);
-	}
+    static zero() {
+        return new Vec2();
+    }
 
-    // --[ static operations ]--------------------------------------------------
-	static add(u, v) { return u.sum(v); }	
-	static subtract(u, v) { return u.difference(v); }	
-	static multiply(u, v) { return u.product(v); }	
-	static divide(u, v) { return u.quotient(v); }	
-    static scale(v, s) { return v.scaled(s); }
-    static negate(v) { return v.negated(); }
-    static rotate(v, radians) { return v.rotated(radians); }
-    static reflect(u, v) { return u.reflected(v); }
-    static lerp(u, v, a) { return u.lerped(v, a); }
-    static projection(u, v) { return u.projection(v); }
-    static rejection(u, v) { return u.rejection(v); }
-    static normalize(v) { return v.normalized(); }
-    static normal(v) { return v.normal(); }
-    static unitNormal(v) { return v.unitNormal(); }
+    static one() {
+        return new Vec2(1, 1);
+    }
 
-    static dot(u, v) { return u.dot(v); }
-    static angle(u, v = Vec2.i()) { return u.angle(v); }
-    static angleTau(u, v = Vec2.i()) { return u.angleTau(v); }
-    static distanceSq(u, v) { return u.distanceSq(v); }
-    static distance(u, v) { return u.distance(v); }
+    /**************/
+    /* OPERATIONS */
+    /**************/
+	static add(v1, v2) { 
+        return new Vec2(v1.x+v2.x, v1.y+v2.y); 
+    }
+
+	static subtract(v1, v2) { 
+        return new Vec2(v1.x-v2.x, v1.y-v2.y); 
+    }	
+
+	static multiply(v1, v2) { 
+        return new Vec2(v1.x*v2.x, v1.y*v2.y); 
+    }
+
+	static multiplyScalar(v, s) { 
+        return new Vec2(v.x*s, v.y*s);
+    }
+
+	static divide(v1, v2) { 
+        return new Vec2(v1.x/v2.x, v1.y/v2.y);
+    }	
+
+	static divideScalar(v, s) { 
+        return new Vec2(v.x/s, v.y/s);
+    }	
+
+    static scale(v, s) { 
+        return new Vec2(v.x*s, v.y*s);
+    }
+
+    static negate(v) { 
+        return new Vec2(-v.x, -v.y);
+    }
+
+    static rotate(v, radians) { 
+		const cos = Math.cos(radians);
+		const sin = Math.sin(radians);
+        return new Vec2(
+            v.x * cos - v.y * sin,
+            v.x * sin + v.y * cos
+        );
+    }
+
+    static reflect(v, normal) { 
+        const scale = 2*v.dot(normal);
+        return new Vec2(
+            v.x - normal.x * scale,
+            v.y - normal.y * scale
+        );
+    }
+
+    static mirror(v, mirror) { 
+        const scale = 2*v.dot(mirror);
+        return new Vec2(
+            mirror.x * scale - v.x,
+            mirror.y * scale - v.y
+        );
+    }
+
+    static lerp(v1, v2, a) { 
+        return new Vec2(
+            (1-a)*v1.x + a*v2.x,
+            (1-a)*v1.y + a*v2.y
+        );
+    }
+
+    static projection(v1, v2) { 
+        const scale = v1.dot(v2) / v2.lengthSq();
+        return new Vec2(
+            v2.x * scale, 
+            v2.y * scale 
+        );
+    }
+
+    static rejection(v1, v2) { 
+        const scale = v1.dot(v2) / v2.lengthSq();
+        return new Vec2(
+            v1.x - v2.x * scale,
+            v1.y - v2.y * scale
+        );
+    }
+
+    static normalize(v, length = v.length()) { 
+        return new Vec2(
+            v.x / length,
+            v.y / length
+        );
+    }
+
+    static normal(v) { 
+        return new Vec2(-v.y, v.x);
+    }
+
+    static unitNormal(v, length = v.length()) { 
+        return new Vec2(
+            -v.y/length, 
+            v.x/length
+        );
+    }
+
+    static dot(v1, v2) { return v1.dot(v2); }
+    static angle(v1, v2 = Vec2.unitX()) { return v1.angle(v2); }
+    static angleTau(v1, v2 = Vec2.unitX()) { return v1.angleTau(v2); }
+    static distanceSq(v1, v2) { return v1.distanceSq(v2); }
+    static distance(v1, v2) { return v1.distance(v2); }
 }

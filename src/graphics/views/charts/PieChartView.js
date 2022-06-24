@@ -150,7 +150,7 @@ export class PieChartView extends View {
     getRadius() { return this.radius; }
 
     isInBounds(x, y) {        
-        return Vec2.dist(new Vec2(x, y), new Vec2(this.getX(), this.getY())) < this.getRadius();
+        return Vec2.distance(new Vec2(x, y), new Vec2(this.getX(), this.getY())) < this.getRadius();
     }
 
 
@@ -355,9 +355,9 @@ export class PieChartView extends View {
                 const k = (ascend ? j : quadrant.length - 1 - j);
                 const slice = quadrant[k];
                 const midAngle = (slice.sAngle + slice.eAngle) / 2;
-                const v1 = Vec2.fromAngle(midAngle).mult(this.getRadius() + 2);
-                const v2 = Vec2.fromAngle(midAngle).mult(this.getRadius() + lineOffset);
-                const v3 = v2.copy();
+                const v1 = Vec2.fromAngle(midAngle).scale(this.getRadius() + 2);
+                const v2 = Vec2.fromAngle(midAngle).scale(this.getRadius() + lineOffset);
+                const v3 = v2.clone();
 
                 // Setup the label
                 let label = new LabelView();

@@ -33,7 +33,7 @@ export class MouseEvent {
     }
 
     // --[ helpers ]------------------------------------------------------------
-    copy() {
+    clone() {
         return new MouseEvent(
             this.type,
             this.x, 
