@@ -444,27 +444,27 @@ export class Vec2 {
     /**************/
     /* OPERATIONS */
     /**************/
-	static add(v1, v2) { 
+    static add(v1, v2) { 
         return new Vec2(v1.x+v2.x, v1.y+v2.y); 
     }
 
-	static subtract(v1, v2) { 
+    static subtract(v1, v2) { 
         return new Vec2(v1.x-v2.x, v1.y-v2.y); 
     }	
 
-	static multiply(v1, v2) { 
+    static multiply(v1, v2) { 
         return new Vec2(v1.x*v2.x, v1.y*v2.y); 
     }
 
-	static multiplyScalar(v, s) { 
+    static multiplyScalar(v, s) { 
         return new Vec2(v.x*s, v.y*s);
     }
 
-	static divide(v1, v2) { 
+    static divide(v1, v2) { 
         return new Vec2(v1.x/v2.x, v1.y/v2.y);
     }	
 
-	static divideScalar(v, s) { 
+    static divideScalar(v, s) { 
         return new Vec2(v.x/s, v.y/s);
     }	
 
