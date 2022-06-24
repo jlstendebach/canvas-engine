@@ -70,7 +70,7 @@ export class SceneView extends View {
 
     getScaledWidth() { return this.size.x / this.scale; }
     getScaledHeight() { return this.size.y / this.scale; }
-    getScaledSize() { return Vec2.div(this.size, this.scale); }
+    getScaledSize() { return Vec2.scale(this.size, 1/this.scale); }
 
 
     // --[ translation ]----------------------------------------------------------
@@ -116,12 +116,11 @@ export class SceneView extends View {
      * @return {Vec2} - A vector containing the point in child space.
      */
     localToChild(x, y) {
-        let point = new Vec2(x, y);
-        point.div(this.scale);
-        point.add(this.translation);
-        point.rotate(-this.rotation);
-        return point;
-    }
+        return new Vec2(x, y)
+            .scale(1/this.scale)
+            .add(this.translation)
+            .rotate(-this.rotation);
+   }
 
     /**
      * Converts (x, y) from child space to local space. Inputs are assumed to be
@@ -131,11 +130,10 @@ export class SceneView extends View {
      * @return {Vec2} - A vector containing the point in local space.
      */
     childToLocal(x, y) {
-        let point = new Vec2(x, y);
-        point.rotate(this.rotation);
-        point.sub(this.translation);
-        point.mult(this.scale);
-        return point
+        return new Vec2(x, y)
+            .rotate(this.rotation)
+            .subtract(this.translation)
+            .scale(this.scale);
     }
 
 

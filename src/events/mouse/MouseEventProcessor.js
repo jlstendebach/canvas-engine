@@ -22,7 +22,7 @@ export class MouseEventProcessor {
         /***************/
         /* onMouseDown */
         /***************/
-        event = event.copy();
+        event = event.clone();
         event.type = MouseEvent.DOWN;
         event.x = position.x;
         event.y = position.y;
@@ -46,7 +46,7 @@ export class MouseEventProcessor {
             /*************/
             /* onMouseUp */
             /*************/
-            event = event.copy();
+            event = event.clone();
             event.type = MouseEvent.UP;
             event.x = position.x;
             event.y = position.y;
@@ -71,7 +71,7 @@ export class MouseEventProcessor {
             /***************/
             /* onMouseDrag */
             /***************/
-            let dragEvent = event.copy();
+            let dragEvent = event.clone();
             dragEvent.type = MouseEvent.DRAG;
             dragEvent.x = position.x;
             dragEvent.y = position.y;
@@ -92,7 +92,7 @@ export class MouseEventProcessor {
                 /***************/
                 /* onMouseMove */
                 /***************/
-                let moveEvent = event.copy();
+                let moveEvent = event.clone();
                 moveEvent.type = MouseEvent.MOVE;
                 moveEvent.x = position.x;
                 moveEvent.y = position.y;
@@ -111,7 +111,7 @@ export class MouseEventProcessor {
             /* onMouseEnter */
             /****************/
             let [enterPosition, delta] = this.getRelativeXY(event, enterView);
-            let enterEvent = event.copy();
+            let enterEvent = event.clone();
             enterEvent.type = MouseEvent.ENTER;
             enterEvent.x = enterPosition.x;
             enterEvent.y = enterPosition.y;
@@ -126,7 +126,7 @@ export class MouseEventProcessor {
             /***************/
             if (exitView != null) {
                 let [exitPosition, delta] = this.getRelativeXY(event, exitView);
-                let exitEvent = event.copy();
+                let exitEvent = event.clone();
                 exitEvent.type = MouseEvent.EXIT;
                 exitEvent.x = exitPosition.x;
                 exitEvent.y = exitPosition.y;
@@ -149,7 +149,7 @@ export class MouseEventProcessor {
         /*******************/
         /* MouseWheelEvent */
         /*******************/
-        event = event.copy();
+        event = event.clone();
         event.type = MouseEvent.WHEEL;
         event.x = position.x;
         event.y = position.y;
@@ -193,7 +193,7 @@ export class MouseEventProcessor {
             delta.y -= views[i].getY();
             delta = views[i].localToChild(delta.x, delta.y);
         }
-        delta = Vec2.sub(position, delta);
+        delta = Vec2.subtract(position, delta);
 
         position.x -= view.getX();
         position.y -= view.getY();
