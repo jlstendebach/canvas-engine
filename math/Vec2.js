@@ -203,7 +203,7 @@ export class Vec2 {
      */
     lerp(v, a) {
         // This method is more precise due to floating-point arithmetic error,
-        // and ensures that the 
+        // and ensures that the result is exact when a is 0 or 1.
         // Source: https://en.wikipedia.org/wiki/Linear_interpolation#Programming_language_support
         this.x = (1-a)*this.x + a*v.x;
         this.y = (1-a)*this.y + a*v.y;

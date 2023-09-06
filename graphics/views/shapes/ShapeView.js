@@ -9,8 +9,8 @@ export class ShapeView extends View {
         this.strokeDash = [];
     }
 
-    // --[ boids ]--------------------------------------------------------------
-    isInBoinds(x, y) {
+    // --[ bounds ]-------------------------------------------------------------
+    isInBounds(x, y) {
         return false;
     }
 
