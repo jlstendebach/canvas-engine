@@ -4,6 +4,7 @@ export * from "./Canvas.js"
 export * from "./utils/Color.js"
 
 // --[ views/ ]-----------------------------------------------------------------
+export * from "./views/ImageView.js"
 export * from "./views/LabelView.js"
 export * from "./views/SceneView.js"
 export * from "./views/Vec2FieldView.js"
