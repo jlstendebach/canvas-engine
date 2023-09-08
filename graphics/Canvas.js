@@ -10,10 +10,10 @@ import {
 import { Vec2 } from "../math/index.js";
 
 export class Canvas {
-    constructor(id) {
+    constructor(id, contextType="2d") {
         this.id = id;
         this.canvas = document.getElementById(id);
-        this.context = this.canvas.getContext("2d");
+        this.context = this.canvas.getContext(contextType);
 
         this.view = new View();
         this.fillStyle = "#fff";
