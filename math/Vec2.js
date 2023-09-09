@@ -396,22 +396,30 @@ export class Vec2 {
     /* FACTORY FUNCTIONS */
     /*********************/
     static fromArray(array, offset = 0) {
-        return new Vec2(
-            parseFloat(array[offset]) || 0,  // x 
-            parseFloat(array[offset+1]) || 0 // y
-        );
+        try {
+            return new Vec2(
+                parseFloat(array[offset]) || 0,  // x 
+                parseFloat(array[offset+1]) || 0 // y
+            );
+        } catch {
+            return new Vec2();
+        }
     }
 
     static fromObject(object) {
-        return new Vec2(
-            parseFloat(object.x) || 0, // x
-            parseFloat(object.y) || 0  // y
-        );
+        try {
+            return new Vec2(
+                parseFloat(object.x) || 0, // x
+                parseFloat(object.y) || 0  // y
+            );    
+        } catch {
+            return new Vec2();
+        }
     }
 
-    static fromJson(json) {
+    static fromJson(string) {
         try {
-            return Vec2.fromObject(JSON.parse(json));
+            return Vec2.fromObject(JSON.parse(string));
         } catch {
             return new Vec2();
         }
