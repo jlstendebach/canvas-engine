@@ -48,6 +48,12 @@ export class Canvas {
             this.canvas.width = w;
             this.canvas.height = h;
 
+            if (this.context instanceof WebGL2RenderingContext ||
+                this.context instanceof WebGLRenderingContext    
+            ) {
+                this.context.viewport(0, 0, w, h);
+            }
+
             // Inform listeners of the event.
             this.emitEvent(CanvasResizeEvent.name, event);
         }
