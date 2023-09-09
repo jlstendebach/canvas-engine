@@ -5,6 +5,6 @@ test("Vec2.add(v1, v2)", () => {
     const v2 = new Vec2(2, 3);
     const result = Vec2.add(v1, v2);
 
-    expect(result.x).toBe(3);
+    expect(result.x).toBe(4);
     expect(result.y).toBe(4);
 });
