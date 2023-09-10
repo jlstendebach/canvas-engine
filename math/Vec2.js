@@ -3,10 +3,10 @@ export class Vec2 {
     y = 0;
 
     // --[ ctor ]---------------------------------------------------------------
-	constructor(x = 0, y = 0) {
-		this.x = parseFloat(x);
-		this.y = parseFloat(y);
-	}
+    constructor(x = 0, y = 0) {
+        this.x = parseFloat(x);
+        this.y = parseFloat(y);
+    }
 
     // --[ aliases ]------------------------------------------------------------
     get width() { return this.x; }
@@ -21,11 +21,11 @@ export class Vec2 {
      * @param {Number} y The y value.
      * @returns {Vec2} This vector.
      */
-	set(x, y) {
-		this.x = x;
-		this.y = y;
-		return this;
-	}
+    set(x, y) {
+        this.x = x;
+        this.y = y;
+        return this;
+    }
 
     /********************/
     /* BASIC OPERATIONS */
@@ -36,21 +36,21 @@ export class Vec2 {
      * @returns {Vec2} This vector.
      */
     add(v) {
-		this.x += v.x;
-		this.y += v.y;
-		return this;
-	}
+        this.x += v.x;
+        this.y += v.y;
+        return this;
+    }
 
     /**
      * Subtracts the given vector from this vector, in-place.
      * @param {Vec2} v The vector to subtract from this vector.
      * @returns {Vec2} This vector.
      */
-	subtract(v) {
-		this.x -= v.x;
-		this.y -= v.y;
-		return this;
-	}
+    subtract(v) {
+        this.x -= v.x;
+        this.y -= v.y;
+        return this;
+    }
 
     /**
      * Multiplies the components of this vector by the components of the given 
@@ -58,21 +58,10 @@ export class Vec2 {
      * @param {Vec2} v The vector by which to multiply this vector.
      * @returns {Vec2} This vector.
      */
-	multiply(v) {
-		this.x *= v.x;
-		this.y *= v.y;
-		return this;
-	}
-
-    /**
-     * Multiplies the components of this vector by the given scalar, in-place.
-     * @param {Number} s The scalar value.
-     * @returns {Vec2} This vector.
-     */
-    multiplyScalar(s) {
-		this.x *= s;
-		this.y *= s;
-		return this;
+    multiply(v) {
+        this.x *= v.x;
+        this.y *= v.y;
+        return this;
     }
 
     /**
@@ -81,11 +70,22 @@ export class Vec2 {
      * @param {Vec2} v The vector by which to divide this vector.
      * @returns {Vec2} This vector.
      */
-	divide(v) {
-		this.x /= v.x;
-		this.y /= v.y;
-		return this;
-	}
+    divide(v) {
+        this.x /= v.x;
+        this.y /= v.y;
+        return this;
+    }
+
+    /**
+     * Multiplies the components of this vector by the given scalar, in-place.
+     * @param {Number} s The scalar value.
+     * @returns {Vec2} This vector.
+     */
+    multiplyScalar(s) {
+        this.x *= s;
+        this.y *= s;
+        return this;
+    }
 
     /**
      * Divides the components of this vector by the given scalar, in-place.
@@ -112,11 +112,11 @@ export class Vec2 {
      * Negates both components of this vector.
      * @returns {Vec2} This vector.
      */
-	negate() {
-		this.x = -this.x;
-		this.y = -this.y;
-		return this;
-	}
+    negate() {
+        this.x = -this.x;
+        this.y = -this.y;
+        return this;
+    }
 
     /**
      * Rounds each component of this vector down to the nearest integer.
@@ -156,14 +156,14 @@ export class Vec2 {
      * @param {Number} radians The amount by which to rotate this vector.
      * @returns {Vec2} This vector.
      */
-	rotate(radians) {
-		const cos = Math.cos(radians);
-		const sin = Math.sin(radians);
+    rotate(radians) {
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
         return this.set(
             this.x * cos - this.y * sin,
             this.x * sin + this.y * cos
         );
-	}
+    }
 
     /**
      * Reflect this vector off of a surface whose normal is given, in-place.
@@ -207,20 +207,20 @@ export class Vec2 {
         // Source: https://en.wikipedia.org/wiki/Linear_interpolation#Programming_language_support
         this.x = (1-a)*this.x + a*v.x;
         this.y = (1-a)*this.y + a*v.y;
-		return this;
-	}
+        return this;
+    }
 
     /**
      * Projects this vector onto the given vector, in-place.
      * @param {Vec2} v The vector on which to project this vector.
      * @returns {Vec2} This vector.
      */
-	project(v) {
+    project(v) {
         const scale = this.dot(v) / v.lengthSq();
-        this.x = v.x * scale
+        this.x = v.x * scale;
         this.y = v.y * scale;
         return this;
-	}
+    }
 
     /**
      * Rejects this vector from the given vector, in-place.
@@ -229,7 +229,7 @@ export class Vec2 {
      */
     reject(v) {
         const scale = this.dot(v) / v.lengthSq();
-        this.x -= v.x * scale
+        this.x -= v.x * scale;
         this.y -= v.y * scale;
         return this;
     }
@@ -246,7 +246,7 @@ export class Vec2 {
      * @returns {Number} The length of this vector.
      */
     length() {
-		return Math.sqrt(this.lengthSq());
+        return Math.sqrt(this.lengthSq());
     }
 
     /**
@@ -267,107 +267,83 @@ export class Vec2 {
     /**
      * Limits the length of this vector.
      * @param {Number} max The maximum length.
-     * @param {Number} length The current length of this vector. Automatically 
+     * @param {Number} current The current length of this vector. Automatically 
      *     calculated, but provided for efficiency in the case that the length 
      *     has been previously computed.
      * @returns {Vec2} This vector.
      */
-	limitLength(max, length = this.length()) {
-        if (length > max) {
-            this.setLength(max, length);
+    limitLength(max, current = this.length()) {
+        if (current > max) {
+            this.setLength(max, current);
         }
-		return this;
-	}    
+        return this;
+    }    
 
     /**
      * Clamps the length of this vector between a min and max value.
      * @param {Number} min The minimum length.
      * @param {Number} max The maximum length.
-     * @param {Number} length The current length of this vector. Automatically 
+     * @param {Number} current The current length of this vector. Automatically 
      *     calculated, but provided for efficiency in the case that the length 
      *     has been previously computed.
      * @returns {Vec2} This vector.
      */
-	clampLength(min, max = Number.MAX_VALUE, length = this.length()) {
-        if (length < min) {
-            this.setLength(min, length);
+    clampLength(min, max = null, current = this.length()) {
+        if (current < min) {
+            this.setLength(min, current);
 
-        } else if (length > max) {
-            this.setLength(max, length);
+        } else if (max != null && current > max) {
+            this.setLength(max, current);
         }
-		return this;
-	}    
+        return this;
+    }    
 
     /**
      * Sets the length of this vector to 1.
-     * @param {Number} length The current length of this vector. Automatically 
+     * @param {Number} current The current length of this vector. Automatically 
      *     calculated, but provided for efficiency in the case that the length 
      *     has been previously computed.
      * @returns {Vec2} This vector.
      */
-    normalize(length = this.length()) {
-        length = length || 1;
-        this.x /= length;
-        this.y /= length;
+    normalize(current = this.length()) {
+        this.x /= current;
+        this.y /= current;
         return this;
-	}
-
-    // --[ information operations ]---------------------------------------------
-	dot(v) {
-		return this.x*v.x + this.y*v.y;
-	}
-
-    angle(v = Vec2.unitX()) {
-		// u . v = |u|*|v|*cos(angle)
-		// angle = acos((u . v) / (|u|*|v|))    
-		return Math.acos(
-			this.dot(v) / Math.sqrt(this.lengthSq() * v.lengthSq())
-		);
     }
 
-	angleTau(v = Vec2.unitX()) {
-		/*
-		 * Cross product:
-		 * ---------------------
-		 * x = u.y*v.z - u.z*v.y
-		 * y = u.z*v.x - u.x*v.z
-		 * z = u.x*v.y - u.y*v.x
-		 * 
-		 * z is 0, so...
-		 * ---------------------
-		 * x = 0
-		 * y = 0
-		 * z = u.x*v.y - u.y*v.x    
-		 *
-		 * If z is less than zero, then the angle between u and v is greater 
-		 * than pi. Angle in range [0, 2pi) needs to be calculated.
-		 */
-		const angle = this.angle(v);
-        return (this.x * v.y - this.y * v.x < 0) 
-            ? 2 * Math.PI - angle
-            : angle;
-	}
+    // --[ information operations ]---------------------------------------------
+    dot(v) {
+        return Vec2.dot(this, v);
+    }
 
-	distanceSq(v) {
-		return (this.x - v.x)**2 + (this.y - v.y)**2;
-	} 
+    angle(v = Vec2.unitX()) {
+        return Vec2.angle(this, v);
+    }
+
+    angleTau(v = Vec2.unitX()) {
+        return Vec2.angleTau(this, v);
+    }
+
+    distanceSq(v) {
+        return Vec2.distanceSq(this, v);
+    } 
 
     distance(v) {
-        return Math.sqrt(this.distanceSq(v));
+        return Vec2.distance(this, v);
     }
 
     // --[ helpers ]------------------------------------------------------------
-	isZero() {
-		return (this.x === 0 && this.y === 0);
-	}
+    isZero() {
+        return (this.x === 0 && this.y === 0);
+    }
 
-	isNotZero() {
-		return (this.x !== 0 || this.y !== 0);
-	}
+    isNotZero() {
+        return (this.x !== 0 || this.y !== 0);
+    }
 
     clone() {
-		return new Vec2(this.x, this.y);
-	}
+        return new Vec2(this.x, this.y);
+    }
 
     copy(v) { 
         this.x = v.x;
@@ -425,14 +401,14 @@ export class Vec2 {
         }
     }
 
-	static fromAngle(radians) {
-		return new Vec2(Math.cos(radians), Math.sin(radians));
-	}
+    static fromAngle(radians) {
+        return new Vec2(Math.cos(radians), Math.sin(radians));
+    }
 
-	static random(length = 1) {
+    static random(length = 1) {
         const radians = Math.random() * 2 * Math.PI;
-		return new Vec2(length*Math.cos(radians), length*Math.sin(radians));
-	}
+        return new Vec2(length*Math.cos(radians), length*Math.sin(radians));
+    }
 
     static unitX() {
         return new Vec2(1, 0);
@@ -459,35 +435,47 @@ export class Vec2 {
 
     static subtract(v1, v2) { 
         return new Vec2(v1.x-v2.x, v1.y-v2.y); 
-    }	
+    }    
 
     static multiply(v1, v2) { 
         return new Vec2(v1.x*v2.x, v1.y*v2.y); 
     }
 
+    static divide(v1, v2) { 
+        return new Vec2(v1.x/v2.x, v1.y/v2.y);
+    }    
+
     static multiplyScalar(v, s) { 
         return new Vec2(v.x*s, v.y*s);
     }
 
-    static divide(v1, v2) { 
-        return new Vec2(v1.x/v2.x, v1.y/v2.y);
-    }	
-
     static divideScalar(v, s) { 
         return new Vec2(v.x/s, v.y/s);
-    }	
+    }    
 
     static scale(v, s) { 
-        return new Vec2(v.x*s, v.y*s);
+        return Vec2.multiplyScalar(v, s);
     }
 
     static negate(v) { 
         return new Vec2(-v.x, -v.y);
     }
 
+    static floor(v) {
+        return new Vec2(Math.floor(v.x), Math.floor(v.y));
+    }
+    
+    static ceil(v) {
+        return new Vec2(Math.ceil(v.x), Math.ceil(v.y));
+    }
+    
+    static round(v) {
+        return new Vec2(Math.round(v.x), Math.round(v.y));
+    }
+
     static rotate(v, radians) { 
-		const cos = Math.cos(radians);
-		const sin = Math.sin(radians);
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
         return new Vec2(
             v.x * cos - v.y * sin,
             v.x * sin + v.y * cos
@@ -546,14 +534,51 @@ export class Vec2 {
 
     static unitNormal(v, length = v.length()) { 
         return new Vec2(
-            -v.y/length, 
-            v.x/length
+            -v.y / length, 
+            v.x / length
         );
     }
 
-    static dot(v1, v2) { return v1.dot(v2); }
-    static angle(v1, v2 = Vec2.unitX()) { return v1.angle(v2); }
-    static angleTau(v1, v2 = Vec2.unitX()) { return v1.angleTau(v2); }
-    static distanceSq(v1, v2) { return v1.distanceSq(v2); }
-    static distance(v1, v2) { return v1.distance(v2); }
+    static dot(v1, v2) { 
+        return v1.x*v2.x + v1.y*v2.y;
+    }
+
+    static angle(v1, v2 = Vec2.unitX()) { 
+        // u . v = |u|*|v|*cos(angle)
+        // angle = acos((u . v) / (|u|*|v|))    
+        return Math.acos(
+            Vec2.dot(v1, v2) / Math.sqrt(v1.lengthSq() * v2.lengthSq())
+        );
+    }
+
+    static angleTau(v1, v2 = Vec2.unitX()) { 
+        /*
+         * Cross product:
+         * ---------------------
+         * x = u.y*v.z - u.z*v.y
+         * y = u.z*v.x - u.x*v.z
+         * z = u.x*v.y - u.y*v.x
+         * 
+         * z is 0, so...
+         * ---------------------
+         * x = 0
+         * y = 0
+         * z = u.x*v.y - u.y*v.x    
+         *
+         * If z is less than zero, then the angle between u and v is greater 
+         * than pi. Angle in range [0, 2pi) needs to be calculated.
+         */
+        const angle = Vec2.angle(v1, v2);
+        return (v1.x*v2.y - v1.y*v2.x < 0) 
+            ? 2 * Math.PI - angle
+            : angle;
+    }
+
+    static distanceSq(v1, v2) { 
+        return (v1.x - v2.x)**2 + (v1.y - v2.y)**2; 
+    }
+
+    static distance(v1, v2) { 
+        return Math.sqrt(Vec2.distanceSq(v1, v2)); 
+    }
 }
