@@ -1,4 +1,13 @@
 export class Color {
+    static RED_MASK = 0xff000000;
+    static GREEN_MASK = 0x00ff0000;
+    static BLUE_MASK = 0x0000ff00;
+    static ALPHA_MASK = 0x000000ff;
+    static RED_BITS = 24;
+    static GREEN_BITS = 16;
+    static BLUE_BITS = 8;
+    static ALPHA_BITS = 0;
+    
     constructor(r = 0, g = 0, b = 0, a = 255) {
         this.value = 0;
         this.setRGBA(r, g, b, a);
@@ -154,12 +163,3 @@ export class Color {
 
 
 }
-
-Color.RED_MASK = 0xff000000;
-Color.GREEN_MASK = 0x00ff0000;
-Color.BLUE_MASK = 0x0000ff00;
-Color.ALPHA_MASK = 0x000000ff;
-Color.RED_BITS = 24;
-Color.GREEN_BITS = 16;
-Color.BLUE_BITS = 8;
-Color.ALPHA_BITS = 0;
