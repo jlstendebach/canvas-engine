@@ -4,6 +4,7 @@ import { Vec2 } from "../../../math/index.js"
 export class LineStringView extends ShapeView {
     constructor(points) {
         super()
+        this.position = new Vec2();
         this.points = points || [];
     }
 
@@ -50,11 +51,14 @@ export class LineStringView extends ShapeView {
     path(context) {
         let count = this.getPointCount();
         if (count >= 2) {
-            context.moveTo(this.points[0].x, this.points[0].y);
+            let p = this.points[0];
+            context.moveTo(this.position.x + p.x, this.position.y + p.y);
             for (let i = 1; i < count; ++i) {
-                context.lineTo(this.points[i].x, this.points[i].y);
+                p = this.points[i];
+                context.lineTo(this.position.x + p.x, this.position.y + p.y);
             }
         }
+
     }
 
     fill(context) { }
