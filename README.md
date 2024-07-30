@@ -12,7 +12,8 @@ If you have pulled the library, you can link to it directly:
 - `import { ... } from "path/to/library/index.js"`
 
 # Testing
-This library uses [Jest](https://jestjs.io/) for testing. To test, run the following command: `npm test`
+This library uses [Jest](https://jestjs.io/) for testing. To test, run the following command: 
+- `npm test`
 
 # Running Locally
 - Run command `npm install http-server`
