@@ -1,32 +1,58 @@
 import { View } from "../View.js"
+import { CachedColor } from "../../utils/CachedColor.js";
 
 export class ShapeView extends View {
+    #fillStyle = new CachedColor();
+    #strokeStyle = new CachedColor();
+    #strokeWidth = 1;
+    #strokeDash = [];
+
     constructor() {
         super();
-        this.fillStyle = "white";
-        this.strokeStyle = "black";
-        this.strokeWidth = 1;
-        this.strokeDash = [];
     }
 
-    // --[ bounds ]-------------------------------------------------------------
+    // MARK: - Hit Testing -----------------------------------------------------
     isInBounds(x, y) {
+        // To be implemented by subclasses.
         return false;
     }
 
+    // MARK: - Style -----------------------------------------------------------
+    setFillStyle(style) { 
+        this.#fillStyle.color = style; 
+        return this; 
+    }
 
-    // --[ style ]--------------------------------------------------------------
-    setFillStyle(style) { this.fillStyle = style; }
-    getFillStyle() { return this.fillStyle; }
+    getFillStyle() { 
+        return this.#fillStyle.color; 
+    }
 
-    setStrokeStyle(style) { this.strokeStyle = style; }
-    getStrokeStyle() { return this.strokeStyle; }
+    setStrokeStyle(style) { 
+        this.#strokeStyle.color = style; 
+        return this; 
+    }
+    
+    getStrokeStyle() { 
+        return this.#strokeStyle.color; 
+    }
 
-    setStrokeWidth(width) { this.strokeWidth = width; }
-    getStrokeWidth() { return this.strokeWidth; }
+    setStrokeWidth(width) { 
+        this.#strokeWidth = width; 
+        return this; 
+    }
+    
+    getStrokeWidth() { 
+        return this.#strokeWidth; 
+    }
 
-    setStrokeDash(dash) { this.strokeDash = dash; }
-    getStrokeDash() { return this.strokeDash; }
+    setStrokeDash(dash) { 
+        this.#strokeDash = dash; 
+        return this; 
+    }
+    
+    getStrokeDash() { 
+        return this.#strokeDash; 
+    }
 
 
     // --[ drawing ]------------------------------------------------------------
@@ -34,24 +60,24 @@ export class ShapeView extends View {
 
     fill(context) {
         let fillStyle = this.getFillStyle();
-        if (fillStyle !== null) {
-            context.fillStyle = fillStyle;
+        if (this.isFillEnabled()) {
+            context.fillStyle = this.#fillStyle.colorString;
             context.fill();
         }
     }
 
     stroke(context) {
-        if (this.isStroke()) {
-            context.lineWidth = this.strokeWidth;
-            context.strokeStyle = this.strokeStyle;
-            context.setLineDash(this.strokeDash);
+        if (this.isStrokeEnabled()) {
+            context.lineWidth = this.#strokeWidth;
+            context.strokeStyle = this.#strokeStyle.colorString;
+            context.setLineDash(this.#strokeDash);
             context.stroke();
         }
     }
 
     drawSelf(context) {
         context.beginPath();
-        if (this.isStroke()) {
+        if (this.isStrokeEnabled()) {
             context.translate(0.5, 0.5);
             this.path(context);
             context.translate(-0.5, -0.5);    
@@ -63,7 +89,11 @@ export class ShapeView extends View {
     }
 
     // --[ helpers ]------------------------------------------------------------
-    isStroke() {
-        return this.strokeStyle != null && this.strokeWidth > 0;
+    isStrokeEnabled() {
+        return this.#strokeStyle.colorString != null && this.#strokeWidth > 0;
+    }
+
+    isFillEnabled() {
+        return this.#fillStyle.colorString != null;
     }
 }

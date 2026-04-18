@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <!--[ head ]--------------------------------------------------------------->
+    <head>
+        <title>Basic App</title>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+
+    <!--[ body ]--------------------------------------------------------------->
+    <body>
+        <div id="container">
+            <canvas id="main-canvas"></canvas>
+        </div>
+    </body>
+
+
+    <!--[ javascript ]--------------------------------------------------------->
+    <script type="module">
+        import { BasicApp } from "./basic-app.js";
+
+        window.addEventListener("load", function() {
+            window.removeEventListener("load", this);
+            const app = new BasicApp();
+            app.start();
+        });
+    </script>
+</html>

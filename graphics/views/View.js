@@ -40,7 +40,7 @@ export class View {
         v.#parent = this;
         this.#views.push(v);
 
-        return v;
+        return this;
     }
 
     removeView(v) {
@@ -50,7 +50,7 @@ export class View {
             this.#views.splice(index, 1);
         }
 
-        return v;
+        return this;
     }
 
     getViews() {
@@ -78,6 +78,7 @@ export class View {
     // --[ visible ]------------------------------------------------------------
     setVisible(v) {
         this.#isVisible = v;
+        return this;
     }
 
     isVisible() {
@@ -87,6 +88,7 @@ export class View {
     // --[ pickable ]-----------------------------------------------------------
     setPickable(p) {
         this.#isPickable = p;
+        return this;
     }
 
     isPickable() {
@@ -115,14 +117,17 @@ export class View {
     // --[ event emitter ]------------------------------------------------------
     addEventListener(type, callback, owner = null) {
         this.#eventEmitter.add(type, callback, owner);
+        return this;
     }
 
     removeEventListener(type, callback, owner = null) {
         this.#eventEmitter.remove(type, callback, owner);
+        return this;
     }
 
     emitEvent(type, event) {
         this.#eventEmitter.emit(type, event);
+        return this;
     }
 
     // --[ mouse events ]-------------------------------------------------------

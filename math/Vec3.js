@@ -1,10 +1,23 @@
 export class Vec3 {
+    x = 0;
+    y = 0;
+    z = 0;
+
 	// --[ ctor ]---------------------------------------------------------------
 	constructor(x, y, z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
+
+    // --[ aliases ]------------------------------------------------------------
+    get r() { return this.x; }
+    set r(r) { this.x = r; }
+    get g() { return this.y; }
+    set g(g) { this.y = g; }
+    get b() { return this.z; }
+    set b(b) { this.z = b; }
+
 
 	// --[ static functions ]---------------------------------------------------
 	static copy(v) { return new Vec3(v.x, v.y, v.z); }

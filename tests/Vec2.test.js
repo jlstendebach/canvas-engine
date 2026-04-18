@@ -1,7 +1,5 @@
 import { Vec2 } from "../math/Vec2.js";
 
-const ALLOWED_ERROR = 1e-15; 
-
 const VECTORS = [
     new Vec2( 0,  0),
     new Vec2( 1,  2),
@@ -61,12 +59,10 @@ describe("Vec2 In-Place Operations", () => {
             const actual = new Vec2(v.x, v.y);
             const actualReturnValue = updateActual(actual); // method is meant to alter its input
             const expected = getExpected(new Vec2(v.x, v.y));
-            const xDist = Math.abs(actual.x - expected.x);
-            const yDist = Math.abs(actual.y - expected.y);
 
             // This checks the math is correct
-            expect(xDist).toBeLessThanOrEqual(ALLOWED_ERROR);
-            expect(yDist).toBeLessThanOrEqual(ALLOWED_ERROR);
+            expect(actual.x).toBeCloseTo(expected.x, 15);
+            expect(actual.y).toBeCloseTo(expected.y, 15);
 
             // This checks the original object was changed for future tests
             expect(v).toMatchObject(old);
@@ -300,8 +296,7 @@ describe("Vec2 Scalar Operations", () => {
             const old = v.clone();
             const actual = getActual(v);
             const expected = getExpected(v);
-            const dist = Math.abs(actual - expected);
-            expect(dist).toBeLessThanOrEqual(ALLOWED_ERROR);
+            expect(actual).toBeCloseTo(expected, 15);
             expect(v).toMatchObject(old);
         }
     };    
@@ -501,8 +496,7 @@ describe("Vec2 Static Factories", () => {
         for (let i = 0; i < actualVectors.length; i++) {
             const actual = actualLengths[i];
             const expected = expectedLengths[i];
-            const distance = Math.abs(actual-expected);
-            expect(distance).toBeLessThanOrEqual(ALLOWED_ERROR);
+            expect(actual).toBeCloseTo(expected, 15);
         }        
     });
 
@@ -524,10 +518,8 @@ describe("Vec2 Static Vector Operations", () => {
             const old = new Vec2(v.x, v.y);
             const actual = getActual(v);
             const expected = getExpected(v);
-            const xDist = Math.abs(actual.x - expected.x);
-            const yDist = Math.abs(actual.y - expected.y);
-            expect(xDist).toBeLessThanOrEqual(ALLOWED_ERROR);
-            expect(yDist).toBeLessThanOrEqual(ALLOWED_ERROR);
+            expect(actual.x).toBeCloseTo(expected.x, 15);
+            expect(actual.y).toBeCloseTo(expected.y, 15);
             expect(v).toMatchObject(old);
         }
     };
@@ -706,8 +698,7 @@ describe("Vec2 Static Scalar Operations", () => {
             const old = v.clone();
             const actual = getActual(v);
             const expected = getExpected(v);
-            const dist = Math.abs(actual - expected);
-            expect(dist).toBeLessThanOrEqual(ALLOWED_ERROR);
+            expect(actual).toBeCloseTo(expected, 15);
             expect(v).toMatchObject(old);
         }
     };    

@@ -16,19 +16,30 @@ export class CircleView extends ShapeView {
         );
     }
 
-    setX(x) { this.position.x = x; }
-    getX() { return this.position.x; }
+    setX(x) { 
+        this.position.x = x; 
+        return this; 
+    }
 
-    setY(y) { this.position.y = y; }
-    getY() { return this.position.y; }
+    setY(y) { 
+        this.position.y = y;
+        return this; 
+    }
 
-    setRadius(r) { this.radius = r; }
-    getRadius() { return this.radius; }
+    setPosition(x, y) { 
+        this.position.set(x, y); 
+        return this; 
+    }
+
+    setRadius(r) { 
+        this.radius = r; 
+        return this;
+    }
 
 
     // --[ drawing ]------------------------------------------------------------
     path(context) {
-        context.arc(this.getX(), this.getY(), this.getRadius(), 0, 2 * Math.PI);
+        context.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
     }
 
 }
