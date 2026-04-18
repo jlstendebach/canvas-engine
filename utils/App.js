@@ -1,25 +1,17 @@
 import { AppPauseEvent } from "../events/index.js"
-import { Canvas } from "../graphics/index.js"
 import { Profiler } from "./Profiler.js"
-import { Timer } from "./Timer.js"
 
 export class App {
-    canvas; // Canvas
-    #isPaused; // Bool
-    #profilerUpdate; // Profiler
-    #profilerDraw; // Profiler
-    #loopTimer; // Timer
+    canvases = [];
+    #isPaused = false;
+    #lastTime = null;
+    #profilerUpdate = new Profiler(10);
+    #profilerDraw = new Profiler(10);
 
-    // --[ initalizers ]--------------------------------------------------------
-    constructor(canvasId) {
-        this.canvas = new Canvas(canvasId);
-        this.#isPaused = false;
-        this.#profilerUpdate = new Profiler(10);
-        this.#profilerDraw = new Profiler(10);
-        this.#loopTimer = new Timer();
-    }
+    // MARK: - Initalizers -----------------------------------------------------
+    constructor() {}
 
-    // --[ app control ]--------------------------------------------------------
+    // MARK: - App Control -----------------------------------------------------
     start() {
         window.requestAnimationFrame(this.loop.bind(this));
     }
@@ -33,12 +25,12 @@ export class App {
             );
         }
     }
+
     isPaused() { 
         return this.#isPaused; 
     }
 
-
-    // --[ profilers ]----------------------------------------------------------
+    // MARK: - Profilers -------------------------------------------------------
     getUpdateTime() {
         return this.#profilerUpdate.getTime();
     }
@@ -47,34 +39,42 @@ export class App {
         return this.#profilerDraw.getTime();
     }
 
-    // -------------------------------------------------------------------------
-    update(dtime) {
-    }
-
-    draw() {
-        this.canvas.draw();
-    }
-
-    loop() {
-        let dtime = this.#loopTimer.getTime();
-        this.#loopTimer.start();
+    // MARK: - Lifecycle -------------------------------------------------------
+    loop(timestamp) {
+        if (this.#lastTime === null) {
+            this.#lastTime = timestamp;
+        }
+        const deltaTime = timestamp - this.#lastTime;
+        this.#lastTime = timestamp;
 
         // Update
-        this.#profilerUpdate.start();
-        if (!this.isPaused()) {
-            this.update(dtime);
+        if (this.isPaused() === false) {
+            this.#profilerUpdate.start();
+            this.update(deltaTime);
+            this.#profilerUpdate.mark();
         }
-        this.#profilerUpdate.mark();
 
         // Draw
         this.#profilerDraw.start();
         this.draw();
         this.#profilerDraw.mark();
 
+        // Go again
         window.requestAnimationFrame(this.loop.bind(this));
     }
 
-    // --[ events ]-------------------------------------------------------------
+    update(deltaTime) {
+        // To be overridden by subclass. Now receives fixed deltaTime.
+    }
+
+    draw() {
+        // To be overridden by subclass.
+        for (let canvas of this.canvases) {
+            canvas.draw();
+        }
+    }
+
+    // MARK: - Events ----------------------------------------------------------
     addEventListener(type, callback, owner=null) {
         this.canvas.addEventListener(type, callback, owner);
     }

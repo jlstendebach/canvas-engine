@@ -1,13 +1,13 @@
 export class Timer {
-	constructor() {
-		this.startTime = performance.now();
-	}
+    #startTime = performance.now();
+
+	constructor() {}
 
 	start() {
-		this.startTime = performance.now();
+		this.#startTime = performance.now();
 	}
 
 	getTime() {
-		return (performance.now() - this.startTime);
+		return performance.now() - this.#startTime;
 	}
 }

@@ -1,0 +1,27 @@
+html, body {
+    background-color: #000;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    font-family: monospace;
+    color: #ddd;
+    overflow: hidden;
+}
+
+#container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+#main-canvas {
+    display: block;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #ddd;
+    padding: 0;
+    margin: 0;
+    min-width: 0px;
+    min-height: 0px;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
