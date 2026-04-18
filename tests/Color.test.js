@@ -419,6 +419,7 @@ describe("Color String Conversion", () => {
     });
 });
 
+// MARK: - toHexString() Tests
 describe("Color toHexString()", () => {
     test("toHexString() with opaque color", () => {
         const c = new Color(255, 128, 64, 1);
@@ -443,4 +444,24 @@ describe("Color toHexString()", () => {
         c.a = 0.7;
         expect(c.toHexString()).toBe("#00ff00b3");
     });
-}); 
+});
+
+// MARK: - equals() Tests
+describe("Color equals()", () => {
+    test("equals() with identical colors", () => {
+        const c1 = new Color(100, 150, 200, 0.5);
+        const c2 = new Color(100, 150, 200, 0.5);
+        expect(c1.equals(c2)).toBe(true);
+    });
+
+    test("equals() with different colors", () => {
+        const c1 = new Color(100, 150, 200, 0.5);
+        const c2 = new Color(101, 150, 200, 0.5);
+        expect(c1.equals(c2)).toBe(false);
+    });
+
+    test("equals() with different types", () => {
+        const c = new Color(100, 150, 200, 0.5);
+        expect(c.equals("not a color")).toBe(false);
+    });
+});

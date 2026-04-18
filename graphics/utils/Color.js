@@ -1,3 +1,7 @@
+/**
+ * Represents a color with red, green, blue, and alpha components.
+ * Values are clamped to valid ranges (r/g/b: 0-255, a: 0-1).
+ */
 export class Color {
     #r = 0;
     #g = 0;
@@ -12,6 +16,12 @@ export class Color {
     }
 
     // MARK: - Factory Methods 
+    /**
+     * Creates a Color from a hex string (e.g., "#FF0000" or "F00").
+     * Supports 3, 4, 6, or 8 hex digits with optional #.
+     * @param {string} hexString - The hex color string.
+     * @returns {Color|null} A new Color instance or null if invalid.
+     */
     static fromHexString(hexString) {
         if (typeof hexString !== "string") {
             return null;
@@ -44,6 +54,11 @@ export class Color {
         );
     }
 
+    /**
+     * Creates a Color from an RGBA/RGB string (e.g., "rgba(255,0,0,1)" or "rgb(255,0,0)").
+     * @param {string} rgbaString - The RGBA/RGB string.
+     * @returns {Color|null} A new Color instance or null if invalid.
+     */
     static fromRgbaString(rgbaString) {
         if (typeof rgbaString !== "string") {
             return null;
@@ -53,9 +68,9 @@ export class Color {
         // - rgba? -> "rgb" followed by optional "a"
         // - \s* -> Optional whitespace (* means zero or more)
         // - (\d+) -> Capture group for red, green, blue (+ means one or more)
-        // - (?:,\s*([\d.]+)\s*)? -> Optional alpha component (non-capturing group)
+        // - (?:,\s*(\d*\.?\d+)\s*)? -> Optional alpha component (non-capturing group)
         // - i -> case-insensitive
-        const regex = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)/i;
+        const regex = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?\)/i;
         const match = rgbaString.match(regex);
         if (!match) {
             return null;
@@ -69,6 +84,11 @@ export class Color {
         );
     }
 
+    /**
+     * Creates a copy of the given Color.
+     * @param {Color} other - The Color to copy.
+     * @returns {Color} A new Color instance with the same values.
+     */
     static copy(other) {
         return new Color(other.#r, other.#g, other.#b, other.#a);
     }
@@ -107,15 +127,36 @@ export class Color {
     }
 
     // MARK: - Helpers
+    /**
+     * Converts the Color to an RGBA string in the format "rgba(r, g, b, a)".
+     * @returns {string} The RGBA string representation of the color.
+     */
     toRgbaString() {
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
 
+    /**
+     * Converts the Color to a hex string in the format "#RRGGBBAA".
+     * @returns {string} The hex string representation of the color.
+     */
     toHexString() {
         const rHex = this.r.toString(16).padStart(2, '0');
         const gHex = this.g.toString(16).padStart(2, '0');
         const bHex = this.b.toString(16).padStart(2, '0');
         const aHex = Math.round(this.a * 255).toString(16).padStart(2, '0');
         return `#${rHex}${gHex}${bHex}${aHex}`;
+    }
+
+    /**
+     * Checks if this color equals another.
+     * @param {Color} other - The other Color to compare.
+     * @returns {boolean} True if equal.
+     */
+    equals(other) {
+        return other instanceof Color &&
+            this.r === other.r &&
+            this.g === other.g &&
+            this.b === other.b &&
+            this.a === other.a;
     }
 }
