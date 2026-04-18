@@ -2,6 +2,7 @@ export * from "./Canvas.js"
 
 // --[ utils/ ]-----------------------------------------------------------------
 export * from "./utils/Color.js"
+export * from "./utils/CachedColor.js"
 
 // --[ views/ ]-----------------------------------------------------------------
 export * from "./views/ImageView.js"
