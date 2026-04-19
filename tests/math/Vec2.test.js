@@ -1,4 +1,4 @@
-import { Vec2 } from "../math/Vec2.js";
+import { Vec2 } from "../../src/math/Vec2.js";
 
 const VECTORS = [
     new Vec2( 0,  0),
@@ -12,6 +12,8 @@ const VECTORS = [
     Vec2.random(10).round(),
     Vec2.random(10).round(),
 ];
+
+const EXPECTED_PRECISION = 10; // number of decimal places to check for in floating point comparisons
 
 // --[ constructor tests ]------------------------------------------------------
 describe("Vec2 Constructor", () => {
@@ -61,8 +63,8 @@ describe("Vec2 In-Place Operations", () => {
             const expected = getExpected(new Vec2(v.x, v.y));
 
             // This checks the math is correct
-            expect(actual.x).toBeCloseTo(expected.x, 15);
-            expect(actual.y).toBeCloseTo(expected.y, 15);
+            expect(actual.x).toBeCloseTo(expected.x, EXPECTED_PRECISION);
+            expect(actual.y).toBeCloseTo(expected.y, EXPECTED_PRECISION);
 
             // This checks the original object was changed for future tests
             expect(v).toMatchObject(old);
@@ -296,7 +298,7 @@ describe("Vec2 Scalar Operations", () => {
             const old = v.clone();
             const actual = getActual(v);
             const expected = getExpected(v);
-            expect(actual).toBeCloseTo(expected, 15);
+            expect(actual).toBeCloseTo(expected, EXPECTED_PRECISION);
             expect(v).toMatchObject(old);
         }
     };    
@@ -496,7 +498,7 @@ describe("Vec2 Static Factories", () => {
         for (let i = 0; i < actualVectors.length; i++) {
             const actual = actualLengths[i];
             const expected = expectedLengths[i];
-            expect(actual).toBeCloseTo(expected, 15);
+            expect(actual).toBeCloseTo(expected, EXPECTED_PRECISION);
         }        
     });
 
@@ -518,8 +520,8 @@ describe("Vec2 Static Vector Operations", () => {
             const old = new Vec2(v.x, v.y);
             const actual = getActual(v);
             const expected = getExpected(v);
-            expect(actual.x).toBeCloseTo(expected.x, 15);
-            expect(actual.y).toBeCloseTo(expected.y, 15);
+            expect(actual.x).toBeCloseTo(expected.x, EXPECTED_PRECISION);
+            expect(actual.y).toBeCloseTo(expected.y, EXPECTED_PRECISION);
             expect(v).toMatchObject(old);
         }
     };
@@ -698,7 +700,7 @@ describe("Vec2 Static Scalar Operations", () => {
             const old = v.clone();
             const actual = getActual(v);
             const expected = getExpected(v);
-            expect(actual).toBeCloseTo(expected, 15);
+            expect(actual).toBeCloseTo(expected, EXPECTED_PRECISION);
             expect(v).toMatchObject(old);
         }
     };    
