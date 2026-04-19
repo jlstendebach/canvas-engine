@@ -1,4 +1,4 @@
-import { Vec2 } from "../math/Vec2.js";
+import { Vec2 } from "../../math/Vec2.js";
 
 const VECTORS = [
     new Vec2( 0,  0),
