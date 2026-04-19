@@ -1,4 +1,4 @@
-import { Color } from "../../../graphics/utils/Color.js";
+import { Color } from "../../../src/graphics/utils/Color.js";
 
 // MARK: - Constructor Tests
 describe("Color Constructor", () => {

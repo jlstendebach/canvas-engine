@@ -1,4 +1,4 @@
-import { App, Canvas, CircleView, Color, Vec2, MouseEvent, Timer } from "../../index.js";
+import { App, Canvas, CircleView, Color, Vec2, MouseEvent, Timer } from "../../src/index.js";
 
 export class BasicApp extends App {
     MAX_THROW_SPEED = 3000;
