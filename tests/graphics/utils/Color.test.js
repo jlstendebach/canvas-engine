@@ -109,7 +109,6 @@ describe("Color.fromHexString()", () => {
         "rgba(255, 128, 64, 0.5)", 
         "", null, undefined, {}, [], 0.0
     ])("Invalid hex string returns default black", (invalidString) => {
-        console.log(">>>> Testing invalid hex string:", invalidString);
         const c = Color.fromHexString(invalidString);
         expect(c).toBe(null);
     });

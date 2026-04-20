@@ -60,13 +60,13 @@ export class Keyboard {
 
     static addEventListener(type, callback, owner = null) {
         if (Keyboard.isValidType(type)) {
-            Keyboard.#eventEmitter.add(type, callback, owner);
+            Keyboard.#eventEmitter.addListener(type, callback, owner);
         }
     }
 
     static removeEventListener(type, callback, owner = null) {
         if (Keyboard.isValidType(type)) {
-            Keyboard.#eventEmitter.remove(type, callback, owner);
+            Keyboard.#eventEmitter.removeListener(type, callback, owner);
         }
     }
 
