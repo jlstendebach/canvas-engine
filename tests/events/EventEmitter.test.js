@@ -223,7 +223,7 @@ describe("EventEmitter", () => {
 		});
 	});
 
-	describe("on(type, event, owner)", () => {
+	describe("on(type, callback, owner)", () => {
 		test("calls addListener with once=false", () => {
 			const emitter = new EventEmitter();
 			const callback = jest.fn();
@@ -372,4 +372,3 @@ describe("EventEmitter", () => {
 
 	});
 });
-
