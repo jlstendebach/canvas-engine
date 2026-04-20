@@ -251,7 +251,7 @@ describe("EventEmitter", () => {
 		});
     });
 
-    describe("off(type, event, owner)", () => {
+    describe("off(type, callback, owner)", () => {
 		test("calls removeListener", () => {
 			const emitter = new EventEmitter();
 			const callback = jest.fn();
