@@ -370,5 +370,41 @@ describe("EventEmitter", () => {
             expect(calls).toEqual(["first", "addedDuringEmit"]);
         });
 
+
+        test("listener isn't accidentally removed during emit", () => {
+            const emitter = new EventEmitter();
+            let calls = [];
+
+            const callbackB = () => {
+                calls.push("B");
+            };
+
+            const callbackA = () => {
+                calls.push("A");
+                // This will remove callbackA from the live list, then it will 
+                // delete the event type from the map.
+                emitter.removeListener("tick", callbackA);
+
+                // This will create a new listener list for the event type.
+                emitter.addListener("tick", callbackB);
+
+                // Once emit continues, it will detect that the listener list it
+                // grabbed is now empty, so it will try to delete the event type 
+                // from the map again.
+            };
+
+            emitter.addListener("tick", callbackA);
+
+            emitter.emit("tick", {});
+            expect(calls).toEqual(["A"]);
+            expect(emitter.getListenerCount("tick")).toBe(1);
+
+            calls = []; // Reset calls
+            emitter.emit("tick", {});
+            expect(calls).toEqual(["B"]);
+            expect(emitter.getListenerCount("tick")).toBe(1);
+
+        });
+
     });
 });

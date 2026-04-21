@@ -180,8 +180,14 @@ export class EventEmitter {
             listener.onEvent(type, event);
         }
 
+        // If removeListener was called during event emission and removed all 
+        // listeners for this event type, we need to check if listenerList is 
+        // the same as the one in the map before deleting it to avoid deleting a
+        // new listener list that was added during event emission.
         if (listenerList.length === 0) {
-            this.#listeners.delete(type);
+            if (this.#listeners.get(type) === listenerList) {
+                this.#listeners.delete(type);
+            }
         }
     }
 
