@@ -2,21 +2,21 @@
  * Internal helper used by EventEmitter to store listener metadata.
  */
 export class EventListener {
-	#callback = null;
-	#owner = null;
-	#boundCallback = null;
-	#once = false;
+    #callback = null;
+    #owner = null;
+    #boundCallback = null;
+    #once = false;
 
-	constructor(callback, owner = null, once = false) {
+    constructor(callback, owner = null, once = false) {
         if (typeof callback !== "function") {
             throw new TypeError("Callback must be a function");
         }
 
-		this.#callback = callback;
-		this.#owner = owner;
+        this.#callback = callback;
+        this.#owner = owner;
         this.#boundCallback = owner === null ? callback : callback.bind(owner);
         this.#once = once === true; // Ensure once is a boolean
-	}
+    }
 
     /** 
      * Gets a value indicating whether this event listener should be invoked only once.
@@ -32,9 +32,9 @@ export class EventListener {
      * @param {*} type - The event type.
      * @param {*} event - The event object.
      */
-	onEvent(type, event) {
-		this.#boundCallback(type, event);
-	}
+    onEvent(type, event) {
+        this.#boundCallback(type, event);
+    }
     
     /**
      * Checks if this event listener matches the given callback and owner.
