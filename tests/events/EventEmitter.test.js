@@ -389,8 +389,8 @@ describe("EventEmitter", () => {
                 emitter.addListener("tick", callbackB);
 
                 // Once emit continues, it will detect that the listener list it
-                // grabbed is now empty, so it will try to delete the event type 
-                // from the map again.
+                // grabbed is now empty, so it could try to delete the event 
+                // type from the map again.
             };
 
             emitter.addListener("tick", callbackA);
