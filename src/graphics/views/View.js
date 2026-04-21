@@ -116,12 +116,12 @@ export class View {
 
     // --[ event emitter ]------------------------------------------------------
     addEventListener(type, callback, owner = null) {
-        this.#eventEmitter.add(type, callback, owner);
+        this.#eventEmitter.addListener(type, callback, owner);
         return this;
     }
 
     removeEventListener(type, callback, owner = null) {
-        this.#eventEmitter.remove(type, callback, owner);
+        this.#eventEmitter.removeListener(type, callback, owner);
         return this;
     }
 
