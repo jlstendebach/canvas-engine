@@ -18,12 +18,12 @@ export class EventEmitter {
      * @param {boolean} once - Whether the listener should be invoked only once.
      * @returns {boolean} Returns true if the listener was added, false if it already existed.
      */
-	addListener(type, callback, owner = null, once = false) {
-		if (typeof callback !== "function") {
-			throw new TypeError("Callback must be a function");
-		}
+    addListener(type, callback, owner = null, once = false) {
+        if (typeof callback !== "function") {
+            throw new TypeError("Callback must be a function");
+        }
 
-		let listenerList = this.#listeners.get(type);
+        let listenerList = this.#listeners.get(type);
         if (listenerList === undefined) {
             listenerList = [new EventListener(callback, owner, once)];
             this.#listeners.set(type, listenerList);
@@ -34,9 +34,9 @@ export class EventEmitter {
             return false; 
         }
 
-		listenerList.push(new EventListener(callback, owner, once));
-		return true;
-	}
+        listenerList.push(new EventListener(callback, owner, once));
+        return true;
+    }
 
     /**
      * Removes a listener for the specified event type.
@@ -45,24 +45,24 @@ export class EventEmitter {
      * @param {*} owner - The owner object.
      * @returns {boolean} Returns true if the listener was found and removed, false otherwise.
      */
-	removeListener(type, callback, owner = null) {
-		const listenerList = this.#listeners.get(type);
+    removeListener(type, callback, owner = null) {
+        const listenerList = this.#listeners.get(type);
         if (listenerList === undefined) {
             return false;
         }
 
         const index = this.#indexOfListener(listenerList, callback, owner);
-		if (index < 0) {
-			return false;
-		}
+        if (index < 0) {
+            return false;
+        }
 
-		listenerList.splice(index, 1);
-		if (listenerList.length === 0) {
-			this.#listeners.delete(type);
-		}
+        listenerList.splice(index, 1);
+        if (listenerList.length === 0) {
+            this.#listeners.delete(type);
+        }
 
         return true;
-	}
+    }
 
     /**
      * Removes all listeners for the specified event type.
@@ -75,7 +75,7 @@ export class EventEmitter {
             return true;
         } 
         return this.#listeners.delete(type);
-	}
+    }
 
     /**
      * Checks if a listener is registered for the specified event type.
@@ -84,26 +84,26 @@ export class EventEmitter {
      * @param {*} owner - The owner object.
      * @returns {boolean} Returns true if the listener is registered, false otherwise.
      */
-	hasListener(type, callback, owner = null) {
-		const listenerList = this.#listeners.get(type);
+    hasListener(type, callback, owner = null) {
+        const listenerList = this.#listeners.get(type);
         if (listenerList === undefined) {
             return false;
         }
-		return this.#indexOfListener(listenerList, callback, owner) !== -1;
-	}
+        return this.#indexOfListener(listenerList, callback, owner) !== -1;
+    }
 
     /**
      * Gets the number of listeners for the specified event type.
      * @param {*} type - The event type.
      * @returns {number} Returns the number of listeners.
      */
-	getListenerCount(type) {
-		const listenerList = this.#listeners.get(type);
+    getListenerCount(type) {
+        const listenerList = this.#listeners.get(type);
         if (listenerList === undefined) {
             return 0;
         }
-		return listenerList.length;
-	}
+        return listenerList.length;
+    }
 
     /**
      * Gets an array of all event types that have registered listeners.
@@ -155,16 +155,16 @@ export class EventEmitter {
      * @param {*} type - The event type.
      * @param {*} event - The event object to pass to listeners.
      */
-	emit(type, event) {
-		const listenerList = this.#listeners.get(type);
-		if (listenerList === undefined) {
-			return;
-		}
+    emit(type, event) {
+        const listenerList = this.#listeners.get(type);
+        if (listenerList === undefined) {
+            return;
+        }
 
         // Use a shallow copy of the listener list to allow listeners to 
         // manipulate the list during event emission without affecting iteration.
         const snapshot = listenerList.slice();
-		for (let i = 0; i < snapshot.length; i++) {
+        for (let i = 0; i < snapshot.length; i++) {
             const listener = snapshot[i];
 
             if (listener.once) {
@@ -178,12 +178,12 @@ export class EventEmitter {
             }
 
             listener.onEvent(type, event);
-		}
+        }
 
         if (listenerList.length === 0) {
             this.#listeners.delete(type);
         }
-	}
+    }
 
     // MARK: - Helpers ---------------------------------------------------------
     /**
