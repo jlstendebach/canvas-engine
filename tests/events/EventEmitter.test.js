@@ -435,7 +435,7 @@ describe("EventEmitter", () => {
         test("once listener is removed even if callback throws", () => {
             const emitter = new EventEmitter();
             const callback = () => {
-                throw new Error("listener failure");;
+                throw new Error("listener failure");
             };
 
             emitter.once("tick", callback);
