@@ -2,6 +2,7 @@ import { EventEmitter } from "../../src/events/EventEmitter.js";
 import { expect, jest } from "@jest/globals";
 
 describe("EventEmitter", () => {
+    // MARK: - addListener() Tests ---------------------------------------------
     describe("addListener(type, callback, owner, once)", () => {
         test("throws when callback is not a function", () => {
             const emitter = new EventEmitter();
@@ -69,6 +70,7 @@ describe("EventEmitter", () => {
         });
     });
 
+    // MARK: - removeListener() Tests ------------------------------------------
     describe("removeListener(type, callback, owner)", () => {
         test("returns false when event type has no listeners", () => {
             const emitter = new EventEmitter();
@@ -137,6 +139,7 @@ describe("EventEmitter", () => {
         });
     });
 
+    // MARK: - removeAllListeners() Tests --------------------------------------
     describe("removeAllListeners(type)", () => {
         test("clears all event types when type is omitted", () => {
             const emitter = new EventEmitter();
@@ -171,6 +174,7 @@ describe("EventEmitter", () => {
         });
     });
 
+    // MARK: - hasListener() Tests ---------------------------------------------
     describe("hasListener(type, callback, owner)", () => {
         test("returns true only for exact callback-owner match", () => {
             const emitter = new EventEmitter();
@@ -185,6 +189,7 @@ describe("EventEmitter", () => {
         });
     });
 
+    // MARK: - getListenerCount() Tests ----------------------------------------
     describe("getListenerCount(type)", () => {
         test("returns zero for unknown event type", () => {
             const emitter = new EventEmitter();
@@ -202,6 +207,7 @@ describe("EventEmitter", () => {
         });
     });
 
+    // MARK: - getListenerTypes() Tests ----------------------------------------
     describe("getListenerTypes()", () => {
         test("returns all event types that currently have listeners", () => {
             const emitter = new EventEmitter();
@@ -223,6 +229,7 @@ describe("EventEmitter", () => {
         });
     });
 
+    // MARK: - on() Tests ------------------------------------------------------
     describe("on(type, callback, owner)", () => {
         test("calls addListener with once=false", () => {
             const emitter = new EventEmitter();
@@ -237,6 +244,7 @@ describe("EventEmitter", () => {
         });
     });
 
+    // MARK: - once() Tests ----------------------------------------------------
     describe("once(type, callback, owner)", () => {
         test("calls addListener with once=true", () => {
             const emitter = new EventEmitter();
@@ -251,6 +259,7 @@ describe("EventEmitter", () => {
         });
     });
 
+    // MARK: - off() Tests ------------------------------------------------------
     describe("off(type, callback, owner)", () => {
         test("calls removeListener", () => {
             const emitter = new EventEmitter();
@@ -266,6 +275,7 @@ describe("EventEmitter", () => {
         });
     });
 
+    // MARK: - emit() Tests ----------------------------------------------------
     describe("emit(type, event)", () => {
         test("returns silently when event type has no listeners", () => {
             const emitter = new EventEmitter();
@@ -404,6 +414,66 @@ describe("EventEmitter", () => {
             expect(calls).toEqual(["B"]);
             expect(emitter.getListenerCount("tick")).toBe(1);
 
+        });
+
+        test("once listener is not called again during re-entrant emit", () => {
+            const emitter = new EventEmitter();
+            const calls = [];
+
+            const callback = () => {
+                calls.push("once");
+                emitter.emit("tick", {});
+            };
+
+            emitter.once("tick", callback);
+            emitter.emit("tick", {});
+
+            expect(calls).toEqual(["once"]);
+            expect(emitter.getListenerCount("tick")).toBe(0);
+        });
+
+        test("once listener is removed even if callback throws", () => {
+            const emitter = new EventEmitter();
+            const callback = () => {
+                throw new Error("listener failure");
+            };
+
+            emitter.once("tick", callback);
+
+            expect(() => emitter.emit("tick", {})).toThrow(AggregateError);
+            expect(emitter.getListenerCount("tick")).toBe(0);
+            expect(emitter.getListenerTypes()).toEqual([]);
+            expect(() => emitter.emit("tick", {})).not.toThrow();
+        });
+
+        test("emits to all listeners even if some throw errors", () => {
+            const emitter = new EventEmitter();
+            const calls = [];
+
+            const callbackA = () => {
+                calls.push("A");
+                throw new Error("listener A failure");
+            };
+
+            const callbackB = () => {
+                calls.push("B");
+                throw new Error("listener B failure");
+            };
+
+            emitter.addListener("tick", callbackA);
+            emitter.addListener("tick", callbackB);
+
+            expect(() => emitter.emit("tick", {})).toThrow(AggregateError);
+            expect(calls).toEqual(["A", "B"]);
+
+            try {
+                emitter.emit("tick", {});
+            } catch (error) {
+                expect(error).toBeInstanceOf(AggregateError);
+                expect(error.errors).toHaveLength(2);
+                expect(error.errors[0].message).toBe("listener A failure");
+                expect(error.errors[1].message).toBe("listener B failure");
+            }
         });
 
     });
