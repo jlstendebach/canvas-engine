@@ -168,9 +168,8 @@ export class EventEmitter {
             const listener = snapshot[i];
 
             if (listener.once) {
-                // We have the exact listener instance from the snapshot, so we 
-                // can directly find and remove it from the live listener list 
-                // instead of calling removeListener.
+                // Remove before callback invocation so 'once' remains correct
+                // for re-entrant emits and thrown callbacks.
                 const liveIndex = listenerList.indexOf(listener);
                 if (liveIndex !== -1) {
                     listenerList.splice(liveIndex, 1);

@@ -406,5 +406,35 @@ describe("EventEmitter", () => {
 
         });
 
+        test("once listener is not called again during re-entrant emit", () => {
+            const emitter = new EventEmitter();
+            const calls = [];
+
+            const callback = () => {
+                calls.push("once");
+                emitter.emit("tick", {});
+            };
+
+            emitter.once("tick", callback);
+            emitter.emit("tick", {});
+
+            expect(calls).toEqual(["once"]);
+            expect(emitter.getListenerCount("tick")).toBe(0);
+        });
+
+        test("once listener is removed even if callback throws", () => {
+            const emitter = new EventEmitter();
+            const error = new Error("listener failure");
+            const callback = () => {
+                throw error;
+            };
+
+            emitter.once("tick", callback);
+
+            expect(() => emitter.emit("tick", {})).toThrow(error);
+            expect(emitter.getListenerCount("tick")).toBe(0);
+            expect(() => emitter.emit("tick", {})).not.toThrow();
+        });
+
     });
 });
