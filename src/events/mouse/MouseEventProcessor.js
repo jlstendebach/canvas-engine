@@ -144,7 +144,7 @@ export class MouseEventProcessor {
 
     onMouseWheel(event) {
         let target = this.findView(event);
-        let position = this.getRelativeXY(event, target);
+        let [position, delta] = this.getRelativeXY(event, target);
 
         /*******************/
         /* MouseWheelEvent */
