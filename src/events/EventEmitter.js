@@ -154,6 +154,7 @@ export class EventEmitter {
      * with the given event object.
      * @param {*} type - The event type.
      * @param {*} event - The event object to pass to listeners.
+     * @throws {AggregateError} Throws an AggregateError if listeners throw errors during event emission.
      */
     emit(type, event) {
         const listenerList = this.#listeners.get(type);
@@ -164,6 +165,7 @@ export class EventEmitter {
         // Use a shallow copy of the listener list to allow listeners to 
         // manipulate the list during event emission without affecting iteration.
         const snapshot = listenerList.slice();
+        const errors = [];
         for (let i = 0; i < snapshot.length; i++) {
             const listener = snapshot[i];
 
@@ -176,17 +178,25 @@ export class EventEmitter {
                 }
             }
 
-            listener.onEvent(type, event);
+            try {
+                listener.onEvent(type, event);
+            } catch (error) {
+                errors.push(error);
+            }
         }
 
-        // If removeListener was called during event emission and removed all 
-        // listeners for this event type, we need to check if listenerList is 
-        // the same as the one in the map before deleting it to avoid deleting a
-        // new listener list that was added during event emission.
-        if (listenerList.length === 0) {
-            if (this.#listeners.get(type) === listenerList) {
-                this.#listeners.delete(type);
-            }
+        // If removeListener was called during event emission, this event type 
+        // may have already been removed, then readded to the map as a new 
+        // array. Double-check before deleting the listener list to avoid 
+        // accidental deletion of a new listener list.
+        if (listenerList.length === 0 && this.#listeners.get(type) === listenerList) {
+            this.#listeners.delete(type);
+        }                    
+
+        // Throw an aggregate error after all listeners have been invoked. This 
+        // also ensures that the listener list is properly cleaned up.
+        if (errors.length > 0) {
+            throw new AggregateError(errors, `Errors occurred while emitting event: ${type}`);
         }
     }
 
