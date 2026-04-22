@@ -259,7 +259,7 @@ describe("EventEmitter", () => {
         });
     });
 
-    // MARK - off() Tests ------------------------------------------------------
+    // MARK: - off() Tests ------------------------------------------------------
     describe("off(type, callback, owner)", () => {
         test("calls removeListener", () => {
             const emitter = new EventEmitter();
