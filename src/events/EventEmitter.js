@@ -171,7 +171,7 @@ export class EventEmitter {
 
             if (listener.once) {
                 // Remove before callback invocation so 'once' remains correct
-                // for re-entrant emits and thrown callbacks.
+                // for re-entrant emits.
                 const liveIndex = listenerList.indexOf(listener);
                 if (liveIndex !== -1) {
                     listenerList.splice(liveIndex, 1);
