@@ -1,7 +1,6 @@
-import { 
-    EventEmitter,
-} from "../../events/index.js"
+import { EventEmitter } from "../../events/index.js"
 import { Vec2 } from "../../math/Vec2.js";
+
 
 export class View {
     #parent = null;
@@ -10,10 +9,28 @@ export class View {
     #isPickable = true;
     #eventEmitter = new EventEmitter();
 
-    // --[ init ]---------------------------------------------------------------
-    constructor() {}
+    // MARK: - Properties ------------------------------------------------------
+    get parent() { 
+        return this.#parent; 
+    }
 
-    // --[ bounds ]-------------------------------------------------------------
+    get views() { 
+        return this.#views.slice(); // Return a copy to prevent external modification
+    }
+
+    get isVisible() {
+        return this.#isVisible;
+    }
+
+    get isPickable() {
+        return this.#isPickable;
+    }
+
+    get eventEmitter() {
+        return this.#eventEmitter;
+    }
+
+    // MARK: - Bounds ----------------------------------------------------------
     isInBounds(x, y) { return true; }
     getX() { return 0; }
     getY() { return 0; }
@@ -22,48 +39,62 @@ export class View {
     localToChild(x, y) { return new Vec2(x, y); }
     childToLocal(x, y) { return new Vec2(x, y); }
 
-    // --[ parent ]-------------------------------------------------------------
-    getParent() {
-        return this.#parent;
-    }
-
+    // MARK: - Parent ----------------------------------------------------------
     removeFromParent() {
         if (this.#parent !== null) {
             this.#parent.removeView(this);
             this.#parent = null;
         }
+        return this;
     }
 
-    // --[ views ]--------------------------------------------------------------
-    addView(v) {
-        v.removeFromParent();
-        v.#parent = this;
-        this.#views.push(v);
+    /**
+     * Checks if the given view is in the parent chain of this view.
+     * @param {View} view - The view to check.
+     * @returns {boolean} True if the view is in the parent chain, false otherwise.
+     */
+    isViewInParentChain(view) {
+        let current = this;
+        while (current !== null) {
+            if (current === view) {
+                return true;
+            }
+            current = current.#parent;
+        }
+        return false;
+    }   
+
+    // MARK: - Views -----------------------------------------------------------
+    addView(view) {
+        if (!(view instanceof View)) {
+            throw new TypeError("addView expects an instance of View");
+        }
+        if (view === this) {
+            throw new Error("Cannot add a view to itself");
+        }
+        if (this.isViewInParentChain(view)) {
+            throw new Error("Cannot add an ancestor view as a child");
+        }        
+        view.removeFromParent();
+        view.#parent = this;
+        this.#views.push(view);
 
         return this;
     }
 
-    removeView(v) {
-        var index = this.#views.indexOf(v);
+    removeView(view) {
+        var index = this.#views.indexOf(view);
         if (index >= 0) {
-            v.#parent = null;
+            view.#parent = null;
             this.#views.splice(index, 1);
         }
 
         return this;
     }
 
-    getViews() {
-        return this.#views;
-    }
-
-    getViewCount() {
-        return this.#views.length;
-    }
-
     pickView(x, y) {
         let childXY = this.localToChild(x, y);
-        for (var i = this.getViewCount() - 1; i >= 0; i--) {
+        for (var i = this.#views.length - 1; i >= 0; i--) {
             var view = this.#views[i];
             if (view.isVisible() && view.isPickable() && view.isInBounds(childXY.x, childXY.y)) {
                 // View was picked.
@@ -77,7 +108,7 @@ export class View {
 
     // --[ visible ]------------------------------------------------------------
     setVisible(v) {
-        this.#isVisible = v;
+        this.#isVisible = v === true;
         return this;
     }
 
@@ -87,7 +118,7 @@ export class View {
 
     // --[ pickable ]-----------------------------------------------------------
     setPickable(p) {
-        this.#isPickable = p;
+        this.#isPickable = p === true;
         return this;
     }
 
@@ -100,13 +131,16 @@ export class View {
         if (this.#isVisible) {
             this.drawSelf(context);
 
+            context.save();
             context.translate(this.getX(), this.getY());
             this.drawChildren(context);
-            context.translate(-this.getX(), -this.getY());
+            context.restore();
         }
     }
 
-    drawSelf(context) { }
+    drawSelf(context) {
+        // Base view does not draw anything. Subclasses should override this method.
+    }
 
     drawChildren(context) {
         for (let i = 0; i < this.#views.length; i++) {
@@ -138,6 +172,8 @@ export class View {
     onMouseEnter(event) { this.emitEvent(event.type, event); }
     onMouseExit(event) { this.emitEvent(event.type, event); }
     onMouseWheel(event) { this.emitEvent(event.type, event); }
+
+ 
 }
 
 

@@ -57,7 +57,7 @@ export class MouseEvent {
         while (view != null) {
             position.x += view.getX();
             position.y += view.getY();
-            view = view.getParent();
+            view = view.parent;
         }
         return position;
     }

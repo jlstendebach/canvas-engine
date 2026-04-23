@@ -23,15 +23,16 @@ export class BasicApp extends App {
     }
 
     initBall() {
-        this.ball = new CircleView(50)
-            .setFillStyle(new Color(0, 0, 200))
-            .setStrokeStyle(new Color(100, 100, 100))
-            .setStrokeWidth(2)
-            .setPosition(100, 100)
-            .addEventListener(MouseEvent.DOWN, this.onBallGrab, this)
-            .addEventListener(MouseEvent.DRAG, this.onBallDrag, this)
-            .addEventListener(MouseEvent.UP, this.onBallDrop, this);
-        this.mainCanvas.addView(this.ball);
+        const ball = new CircleView(50);
+        ball.fillStyle = new Color(0, 0, 200);
+        ball.strokeStyle = new Color(100, 100, 100);
+        ball.strokeWidth = 2;
+        ball.position = new Vec2(100, 100);
+        ball.eventEmitter.on(MouseEvent.DOWN, this.onBallGrab, this);
+        ball.eventEmitter.on(MouseEvent.DRAG, this.onBallDrag, this);
+        ball.eventEmitter.on(MouseEvent.UP, this.onBallDrop, this);
+        this.mainCanvas.addView(ball);
+        this.ball = ball;
     }
     
     // MARK: - Lifecycle -------------------------------------------------------

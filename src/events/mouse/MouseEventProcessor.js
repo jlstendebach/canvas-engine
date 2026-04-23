@@ -177,10 +177,10 @@ export class MouseEventProcessor {
         // I have a strong feeling that this can be optimized, but this works 
         // as expected for now.
         let views = [];
-        let parent = view.getParent();
+        let parent = view.parent;
         while (parent != event.target && parent != null) {
             views.push(parent);
-            parent = parent.getParent();
+            parent = parent.parent;
         }
         
         let position = new Vec2(event.x, event.y);
