@@ -3,6 +3,7 @@ import { Vec2 } from "../../math/Vec2.js";
 
 
 export class View {
+    #position = new Vec2();
     #parent = null;
     #views = [];
     #isVisible = true;
@@ -10,6 +11,14 @@ export class View {
     #eventEmitter = new EventEmitter();
 
     // MARK: - Properties ------------------------------------------------------
+    set position(position) {
+        this.#position.set(position.x, position.y);
+    }
+    
+    get position() { 
+        return this.#position; 
+    }    
+
     get parent() { 
         return this.#parent; 
     }
@@ -18,8 +27,16 @@ export class View {
         return this.#views.slice(); // Return a copy to prevent external modification
     }
 
+    set isVisible(visible) {
+        this.#isVisible = visible === true;
+    }
+
     get isVisible() {
         return this.#isVisible;
+    }
+
+    set isPickable(pickable) {
+        this.#isPickable = pickable === true;
     }
 
     get isPickable() {
@@ -32,10 +49,6 @@ export class View {
 
     // MARK: - Bounds ----------------------------------------------------------
     isInBounds(x, y) { return true; }
-    getX() { return 0; }
-    getY() { return 0; }
-    getXY() { return new Vec2(this.getX(), this.getY());  }
-
     localToChild(x, y) { return new Vec2(x, y); }
     childToLocal(x, y) { return new Vec2(x, y); }
 
@@ -49,11 +62,11 @@ export class View {
     }
 
     /**
-     * Checks if the given view is in the parent chain of this view.
+     * Checks if this view is a descendant of the specified view.
      * @param {View} view - The view to check.
-     * @returns {boolean} True if the view is in the parent chain, false otherwise.
+     * @returns {boolean} Returns true if this view is a descendant of the specified view, false otherwise.
      */
-    isViewInParentChain(view) {
+    isDescendantOf(view) {
         let current = this;
         while (current !== null) {
             if (current === view) {
@@ -62,7 +75,16 @@ export class View {
             current = current.#parent;
         }
         return false;
-    }   
+    }
+
+    /**
+     * Checks if this view is an ancestor of the specified view.
+     * @param {View} view - The view to check.
+     * @returns {boolean} Returns true if this view is an ancestor of the specified view, false otherwise.
+     */
+    isAncestorOf(view) {
+        return view.isDescendantOf(this);
+    }
 
     // MARK: - Views -----------------------------------------------------------
     addView(view) {
@@ -72,7 +94,7 @@ export class View {
         if (view === this) {
             throw new Error("Cannot add a view to itself");
         }
-        if (this.isViewInParentChain(view)) {
+        if (this.isDescendantOf(view)) {
             throw new Error("Cannot add an ancestor view as a child");
         }        
         view.removeFromParent();
@@ -92,11 +114,20 @@ export class View {
         return this;
     }
 
+    /**
+     * Gets the number of child views. This is the preferred method for getting 
+     * the number of child views as it does not create a copy of the views array.
+     * @returns {number} Returns the number of child views.
+     */
+    getViewCount() {
+        return this.#views.length;
+    }
+
     pickView(x, y) {
         let childXY = this.localToChild(x, y);
         for (var i = this.#views.length - 1; i >= 0; i--) {
             var view = this.#views[i];
-            if (view.isVisible() && view.isPickable() && view.isInBounds(childXY.x, childXY.y)) {
+            if (view.#isVisible && view.#isPickable && view.isInBounds(childXY.x, childXY.y)) {
                 // View was picked.
                 return view;
             }
@@ -106,33 +137,13 @@ export class View {
         return null;
     }
 
-    // --[ visible ]------------------------------------------------------------
-    setVisible(v) {
-        this.#isVisible = v === true;
-        return this;
-    }
-
-    isVisible() {
-        return this.#isVisible;
-    }
-
-    // --[ pickable ]-----------------------------------------------------------
-    setPickable(p) {
-        this.#isPickable = p === true;
-        return this;
-    }
-
-    isPickable() {
-        return this.#isPickable;
-    }
-
     // --[ drawing ]------------------------------------------------------------
     draw(context) {
         if (this.#isVisible) {
             this.drawSelf(context);
 
             context.save();
-            context.translate(this.getX(), this.getY());
+            context.translate(this.#position.x, this.#position.y);
             this.drawChildren(context);
             context.restore();
         }
@@ -148,30 +159,14 @@ export class View {
         }
     }
 
-    // --[ event emitter ]------------------------------------------------------
-    addEventListener(type, callback, owner = null) {
-        this.#eventEmitter.addListener(type, callback, owner);
-        return this;
-    }
-
-    removeEventListener(type, callback, owner = null) {
-        this.#eventEmitter.removeListener(type, callback, owner);
-        return this;
-    }
-
-    emitEvent(type, event) {
-        this.#eventEmitter.emit(type, event);
-        return this;
-    }
-
     // --[ mouse events ]-------------------------------------------------------
-    onMouseDown(event) { this.emitEvent(event.type, event); }
-    onMouseUp(event) { this.emitEvent(event.type, event); }
-    onMouseMove(event) { this.emitEvent(event.type, event); }
-    onMouseDrag(event) { this.emitEvent(event.type, event); }
-    onMouseEnter(event) { this.emitEvent(event.type, event); }
-    onMouseExit(event) { this.emitEvent(event.type, event); }
-    onMouseWheel(event) { this.emitEvent(event.type, event); }
+    onMouseDown(event) { this.#eventEmitter.emit(event.type, event); }
+    onMouseUp(event) { this.#eventEmitter.emit(event.type, event); }
+    onMouseMove(event) { this.#eventEmitter.emit(event.type, event); }
+    onMouseDrag(event) { this.#eventEmitter.emit(event.type, event); }
+    onMouseEnter(event) { this.#eventEmitter.emit(event.type, event); }
+    onMouseExit(event) { this.#eventEmitter.emit(event.type, event); }
+    onMouseWheel(event) { this.#eventEmitter.emit(event.type, event); }
 
  
 }

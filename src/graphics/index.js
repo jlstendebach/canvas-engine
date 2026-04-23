@@ -5,7 +5,6 @@ export * from "./utils/Color.js"
 export * from "./utils/CachedColor.js"
 
 // --[ views/ ]-----------------------------------------------------------------
-export * from "./views/Bounds.js"
 export * from "./views/ImageView.js"
 export * from "./views/LabelView.js"
 export * from "./views/SceneView.js"

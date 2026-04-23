@@ -16,7 +16,6 @@ export class Canvas {
     #context = null;
     #view = new View();
     #fillStyle = new CachedColor();
-    #scale = 1;
     #mouseProcessor = new MouseEventProcessor();
 
     constructor(id, contextType="2d") {
@@ -26,6 +25,16 @@ export class Canvas {
         this.hookEvents();
         this.updateCanvasSize();
     }
+
+    // MARK: - Properties ------------------------------------------------------
+    set fillStyle(style) {
+        this.#fillStyle.color = style;
+    }
+
+    get fillStyle() {
+        return this.#fillStyle.color;
+    }
+
 
     // --[ canvas ]-------------------------------------------------------------
     getContext() {
@@ -82,26 +91,6 @@ export class Canvas {
         return this.#canvas.height;
     }
 
-    /*********/
-    /* scale */
-    /*********/
-    setScale(s) {
-        this.#scale = s;
-        return this;
-    }
-
-    getScale() {
-        return this.#scale;
-    }
-
-    getScaledWidth() {
-        return this.getWidth() / this.#scale;
-    }
-
-    getScaledHeight() {
-        return this.getHeight() / this.#scale;
-    }
-
     // --[ background ]---------------------------------------------------------
     setFillStyle(style) {
         this.#fillStyle.color = style;
@@ -129,9 +118,8 @@ export class Canvas {
         // Save the state of the context to be restored later.
         this.#context.save();
 
-        this.#context.scale(this.#scale, this.#scale);
         this.#context.fillStyle = this.#fillStyle.colorString;
-        this.#context.fillRect(0, 0, this.getScaledWidth(), this.getScaledHeight());
+        this.#context.fillRect(0, 0, this.getWidth(), this.getHeight());
         this.#view.draw(this.#context);
 
         // Restore the context so we can start fresh next time.
@@ -151,7 +139,7 @@ export class Canvas {
     }
 
     emitEvent(type, event) {
-        this.#view.emitEvent(type, event);
+        this.#view.eventEmitter.emit(type, event);
     }
 
     onWindowResized() {
@@ -259,14 +247,14 @@ export class Canvas {
             dy = event.deltaY;
 
         } else {
-            dx = event.movementX / this.#scale;
-            dy = event.movementY / this.#scale;
+            dx = event.movementX;
+            dy = event.movementY;
         }
 
         return new MouseEvent(
             type,                                // type
-            coords.x / this.#scale,              // x
-            coords.y / this.#scale,              // y
+            coords.x,                             // x
+            coords.y,                             // y
             dx,                                  // dx
             dy,                                  // dy            
             MouseButton.fromIndex(event.button), // button

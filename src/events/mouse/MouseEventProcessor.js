@@ -165,8 +165,8 @@ export class MouseEventProcessor {
         let position = new Vec2(event.x, event.y);
         while (subview != null) {
             view = subview;
-            position.x -= view.getX();
-            position.y -= view.getY();
+            position.x -= view.position.x;
+            position.y -= view.position.y;
             subview = view.pickView(position.x, position.y);    
             position = view.localToChild(position.x, position.y);
         }
@@ -186,25 +186,25 @@ export class MouseEventProcessor {
         let position = new Vec2(event.x, event.y);
         let delta = new Vec2(event.x - event.dx, event.y - event.dy); 
         for (let i = views.length-1; i >= 0; i--) {
-            position.x -= views[i].getX();
-            position.y -= views[i].getY();
+            position.x -= views[i].position.x;
+            position.y -= views[i].position.y;
             position = views[i].localToChild(position.x, position.y);
-            delta.x -= views[i].getX();
-            delta.y -= views[i].getY();
+            delta.x -= views[i].position.x;
+            delta.y -= views[i].position.y;
             delta = views[i].localToChild(delta.x, delta.y);
         }
         delta = Vec2.subtract(position, delta);
 
-        position.x -= view.getX();
-        position.y -= view.getY();
+        position.x -= view.position.x;
+        position.y -= view.position.y;
 
         return [position, delta];
 
         /*
         let position = new Vec2();
         while (view != event.target && view != null) {
-            position.x += view.getX();
-            position.y += view.getY();
+            position.x += view.position.x;
+            position.y += view.position.y;
             view = view.parent;
         }
         return new Vec2(event.x - position.x, event.y - position.y);

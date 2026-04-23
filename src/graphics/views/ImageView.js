@@ -7,7 +7,6 @@ export class ImageView extends View {
     sourcePosition = new Vec2();
     sourceSize = new Vec2();
 
-    position = new Vec2();
     size = new Vec2();
 
     #imageLoadListener = null;
@@ -28,13 +27,6 @@ export class ImageView extends View {
             y < this.position.y + this.size.y
         );
     }
-
-    setX(x) { this.position.x = x; }
-    getX() { return this.position.x; }
-    setY(y) { this.position.y = y; }
-    getY() { return this.position.y; }
-    setPosition(position) { this.position = position; }
-    getPosition() { return this.position; }
 
     setWidth(w) { this.size.x = w; }
     getWidth() { return this.size.x; }
