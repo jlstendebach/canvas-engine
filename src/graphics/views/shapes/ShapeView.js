@@ -11,6 +11,39 @@ export class ShapeView extends View {
         super();
     }
 
+    // MARK: - Properties ------------------------------------------------------
+    set fillStyle(style) { 
+        this.#fillStyle.color = style; 
+    }
+    
+    get fillStyle() { 
+        return this.#fillStyle.color; 
+    }
+
+    set strokeStyle(style) { 
+        this.#strokeStyle.color = style; 
+    }
+
+    get strokeStyle() { 
+        return this.#strokeStyle.color; 
+    }
+
+    set strokeWidth(width) { 
+        this.#strokeWidth = width; 
+    }
+
+    get strokeWidth() { 
+        return this.#strokeWidth; 
+    }
+
+    set strokeDash(dash) { 
+        this.#strokeDash = dash; 
+    }
+
+    get strokeDash() { 
+        return this.#strokeDash; 
+    }
+
     // MARK: - Hit Testing -----------------------------------------------------
     isInBounds(x, y) {
         // To be implemented by subclasses.

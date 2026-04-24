@@ -1,10 +1,13 @@
 export class MouseButton {
     // https://www.w3schools.com/jsref/event_buttons.asp
-    static LEFT = 1;
-    static RIGHT = 2;
-    static MIDDLE = 4;
-    static MOUSE4 = 8;
-    static MOUSE5 = 16;
+    static get LEFT()   { return 1; }
+    static get MOUSE1() { return 1; }
+    static get RIGHT()  { return 2; }
+    static get MOUSE2() { return 2; }
+    static get MIDDLE() { return 4; }
+    static get MOUSE3() { return 4; }
+    static get MOUSE4() { return 8; }
+    static get MOUSE5() { return 16; }
 
     static fromIndex(index) {
         // https://www.w3schools.com/jsref/event_button.asp

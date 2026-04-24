@@ -2,39 +2,35 @@ import { ShapeView } from "./ShapeView.js"
 import { Vec2 } from "../../../math/index.js"
 
 export class RectangleView extends ShapeView {
-    constructor(w, h) {
+    #size = null;
+
+    constructor(width, height) {
         super();
-        this.position = new Vec2();
-        this.size = new Vec2(w, h);
+        this.#size = new Vec2(width, height);
     }
 
+    // MARK: - Properties ------------------------------------------------------
+    set size(size) { 
+        this.#size.set(size.x, size.y); 
+    }
+
+    get size() { 
+        return this.#size; 
+    }
 
     // --[ bounds ]-------------------------------------------------------------
     isInBounds(x, y) {
         return (
-            x >= this.getX()
-            && x < this.getX() + this.getWidth()
-            && y >= this.getY()
-            && y < this.getY() + this.getHeight()
+            x >= this.position.x
+            && x < this.position.x + this.#size.x
+            && y >= this.position.y
+            && y < this.position.y + this.#size.y
         );
     }
 
-    setX(x) { this.position.x = x; }
-    getX() { return this.position.x; }
-
-    setY(y) { this.position.y = y; }
-    getY() { return this.position.y; }
-
-    setWidth(w) { this.size.x = w; }
-    getWidth() { return this.size.x; }
-
-    setHeight(h) { this.size.y = h; }
-    getHeight() { return this.size.y; }
-
-
     // --[ drawing ]------------------------------------------------------------
     path(context) {
-        context.rect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        context.rect(this.position.x, this.position.y, this.#size.x, this.#size.y);
     }
 
 }

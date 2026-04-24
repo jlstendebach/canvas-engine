@@ -17,7 +17,6 @@ import { Vec2 } from "../../math/index.js"
 export class SceneView extends View {
     constructor() {
         super();
-        this.position = new Vec2();
         this.size = new Vec2();
 
         this.scale = 1;
@@ -38,18 +37,6 @@ export class SceneView extends View {
             && y < this.position.y + this.size.y
         );
     }
-
-    /************/
-    /* position */
-    /************/
-    setX(x) { this.position.x = x; }
-    getX() { return this.position.x; }
-
-    setY(y) { this.position.y = y; }
-    getY() { return this.position.y; }
-
-    setPosition(p) { this.position = p; }
-    getPosition() { return this.position; }
 
     /********/
     /* size */
@@ -72,14 +59,27 @@ export class SceneView extends View {
     getScaledHeight() { return this.size.y / this.scale; }
     getScaledSize() { return Vec2.scale(this.size, 1/this.scale); }
 
+    zoom(x, y, factor) {
+        this.translation.x += x/this.scale;
+        this.translation.y += y/this.scale;
+        this.scale *= factor;
+        this.translation.x -= x/this.scale;
+        this.translation.y -= y/this.scale;
+    }   
+
 
     // --[ translation ]----------------------------------------------------------
     setTranslation(t) { this.translation = t; }
     getTranslation() { return this.translation; }
 
-    translate(x, y) {
-        this.translation.x += x;
-        this.translation.y += y;
+    translate(x, y, scaled = false) {
+        if (scaled) {
+            this.translation.x += x / this.scale;
+            this.translation.y += y / this.scale;
+        } else {
+            this.translation.x += x;
+            this.translation.y += y;
+        }
     }
 
     /**

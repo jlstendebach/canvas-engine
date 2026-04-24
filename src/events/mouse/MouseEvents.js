@@ -1,13 +1,13 @@
 import { Vec2 } from "../../math/index.js";
 
 export class MouseEvent {
-    static DOWN  = "MouseDownEvent";
-    static UP    = "MouseUpEvent";
-    static MOVE  = "MouseMoveEvent";
-    static DRAG  = "MouseDragEvent";
-    static ENTER = "MouseEnterEvent";
-    static EXIT  = "MouseExitEvent";
-    static WHEEL = "MouseWheelEvent";
+    static get DOWN()  { return "MouseDownEvent"; }
+    static get UP()    { return "MouseUpEvent"; }
+    static get MOVE()  { return "MouseMoveEvent"; }
+    static get DRAG()  { return "MouseDragEvent"; }
+    static get ENTER() { return "MouseEnterEvent"; }
+    static get EXIT()  { return "MouseExitEvent"; }
+    static get WHEEL() { return "MouseWheelEvent"; }
 
     type = null; // String
     x = 0; // Int
@@ -16,11 +16,11 @@ export class MouseEvent {
     dy = 0; // Int
     button = 0; // Int
     buttons = 0; // Int
-    view = null; // View
     target = null; // View
+    related = null; // View
 
     // --[ init ]---------------------------------------------------------------
-    constructor(type, x, y, dx, dy, button, buttons, target, related=null) {
+    constructor(type, x, y, dx, dy, button, buttons, target, related = null) {
         this.type = type;
         this.x = parseInt(x) || 0;
         this.y = parseInt(y) || 0;
@@ -55,9 +55,9 @@ export class MouseEvent {
         let position = this.getLocalXY();
         let view = this.target;
         while (view != null) {
-            position.x += view.getX();
-            position.y += view.getY();
-            view = view.getParent();
+            position.x += view.position.x;
+            position.y += view.position.y;
+            view = view.parent;
         }
         return position;
     }
@@ -65,8 +65,8 @@ export class MouseEvent {
     getParentXY() {
         let position = this.getLocalXY();
         if (this.target != null) {
-            position.x += this.target.getX();
-            position.y += this.target.getY();
+            position.x += this.target.position.x;
+            position.y += this.target.position.y;
         }
         return position;
     }
