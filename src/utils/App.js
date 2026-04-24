@@ -1,4 +1,4 @@
-import { AppPauseEvent } from "../events/index.js"
+import { AppPauseEvent, EventEmitter } from "../events/index.js"
 import { Profiler } from "./Profiler.js"
 
 export class App {
@@ -7,6 +7,7 @@ export class App {
     #lastTime = null;
     #profilerUpdate = new Profiler(10);
     #profilerDraw = new Profiler(10);
+    #eventEmitter = new EventEmitter();
 
     // MARK: - Initalizers -----------------------------------------------------
     constructor() {}
@@ -19,7 +20,7 @@ export class App {
     setPaused(paused) { 
         if (this.#isPaused !== paused) {
             this.#isPaused = paused; 
-            this.emitEvent(
+            this.#eventEmitter.emit(
                 AppPauseEvent.name, 
                 new AppPauseEvent(this, this.#isPaused)
             );
@@ -75,16 +76,12 @@ export class App {
     }
 
     // MARK: - Events ----------------------------------------------------------
-    addEventListener(type, callback, owner=null) {
-        this.canvas.addEventListener(type, callback, owner);
+    addEventListener(type, callback, owner=null, once=false) {
+        this.#eventEmitter.addListener(type, callback, owner, once);
     }
 
     removeEventListener(type, callback, owner=null) {
-        this.canvas.removeEventListener(type, callback, owner);
-    }
-
-    emitEvent(type, event) {
-        this.canvas.emitEvent(type, event);
+        this.#eventEmitter.removeListener(type, callback, owner);
     }
 
 }

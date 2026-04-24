@@ -3,6 +3,7 @@ import { CachedColor } from "./utils/CachedColor.js";
 
 import { 
     CanvasResizeEvent, 
+    EventEmitter, 
     MouseButton,
     MouseEvent,    
     MouseEventProcessor,
@@ -14,9 +15,11 @@ export class Canvas {
     #id = "";
     #canvas = null;
     #context = null;
-    #view = new View();
+    #rootView = new View();
     #fillStyle = new CachedColor();
+
     #mouseProcessor = new MouseEventProcessor();
+    #eventEmitter = new EventEmitter();
 
     constructor(id, contextType="2d") {
         this.#id = id;
@@ -33,6 +36,10 @@ export class Canvas {
 
     get fillStyle() {
         return this.#fillStyle.color;
+    }
+
+    get rootView() {
+        return this.#rootView;
     }
 
 
@@ -64,9 +71,8 @@ export class Canvas {
             }
 
             // Inform listeners of the event.
-            this.emitEvent(CanvasResizeEvent.name, event);
+            this.#eventEmitter.emit(CanvasResizeEvent.name, event);
         }
-        return this;
     }
 
     getSize() {
@@ -75,7 +81,6 @@ export class Canvas {
     
     setWidth(w) {
         this.setSize(w, this.getHeight());
-        return this;
     }
 
     getWidth() {
@@ -84,32 +89,23 @@ export class Canvas {
 
     setHeight(h) {
         this.setSize(this.getWidth(), h);
-        return this;
     }
 
     getHeight() {
         return this.#canvas.height;
     }
 
-    // --[ background ]---------------------------------------------------------
-    setFillStyle(style) {
-        this.#fillStyle.color = style;
-        return this;
-    }
-
-    // --[ drawing ]------------------------------------------------------------
-    getView() { 
-        return this.#view; 
-    }
-
+    // MARK: - Drawing ---------------------------------------------------------
     addView(view) {
-        this.#view.addView(view);
-        return this;
+        return this.#rootView.addView(view);
     }
 
     removeView(view) {
-        this.#view.removeView(view);
-        return this;
+        return this.#rootView.removeView(view);
+    }
+
+    removeAllViews() {
+        this.#rootView.removeAllViews();
     }
 
     draw() {
@@ -118,86 +114,80 @@ export class Canvas {
         // Save the state of the context to be restored later.
         this.#context.save();
 
-        this.#context.fillStyle = this.#fillStyle.colorString;
-        this.#context.fillRect(0, 0, this.getWidth(), this.getHeight());
-        this.#view.draw(this.#context);
+        const fillStyle = this.#fillStyle.colorString;
+        if (fillStyle) {
+            this.#context.fillStyle = fillStyle;
+            this.#context.fillRect(0, 0, this.getWidth(), this.getHeight());
+        }
+        this.#rootView.draw(this.#context);
 
         // Restore the context so we can start fresh next time.
         this.#context.restore();
     }
 
 
-    // --[ events ]---------------------------------------------------------------
-    addEventListener(type, callback, owner) {
-        this.#view.addEventListener(type, callback, owner);
-        return this;
+    // MARK: - Events ----------------------------------------------------------
+    addEventListener(type, callback, owner = null, once = false) {
+        if (this.#isEventHandledByView(type)) {
+            return this.#rootView.addEventListener(type, callback, owner, once);
+        }
+        return this.#eventEmitter.addListener(type, callback, owner, once);
     }
 
-    removeEventListener(type, callback, owner) {
-        this.#view.removeEventListener(type, callback, owner);
-        return this;
-    }
-
-    emitEvent(type, event) {
-        this.#view.eventEmitter.emit(type, event);
+    removeEventListener(type, callback, owner = null) {
+        if (this.#isEventHandledByView(type)) {
+            return this.#rootView.removeEventListener(type, callback, owner);
+        }
+        return this.#eventEmitter.removeListener(type, callback, owner);
     }
 
     onWindowResized() {
         this.updateCanvasSize();
     }
 
-    hookEvents() {
-        /****************************/
-        /* ---- Window Resized ---- */
-        /****************************/
-        window.addEventListener("resize", function () {
-            this.onWindowResized();
-        }.bind(this));
-
-        /************************/
-        /* ---- Mouse Down ---- */
-        /************************/
-        this.#canvas.addEventListener("mousedown", function (event) {
-            this.#mouseProcessor.onMouseDown(this.createMouseEvent(MouseEvent.DOWN, event));
-        }.bind(this));
-
-        /**********************/
-        /* ---- Mouse Up ---- */
-        /**********************/
-        this.#canvas.addEventListener("mouseup", function (event) {
-            this.#mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
-        }.bind(this));
-
-        /***********************/
-        /* ---- Mouse Out ---- */
-        /***********************/
-        this.#canvas.addEventListener("mouseout", function (event) {
-            this.#mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
-        }.bind(this));
-
-        /************************/
-        /* ---- Mouse Move ---- */
-        /************************/
-        this.#canvas.addEventListener("mousemove", function (event) {
-            this.#mouseProcessor.onMouseMove(this.createMouseEvent(MouseEvent.MOVE, event));
-        }.bind(this));
-
-        /*************************/
-        /* ---- Mouse Wheel ---- */
-        /*************************/
-        this.#canvas.addEventListener("wheel", function (event) {
-            this.#mouseProcessor.onMouseWheel(this.createMouseEvent(MouseEvent.WHEEL, event));
-        }.bind(this));
-
-        /**************************/
-        /* ---- Context Menu ---- */
-        /**************************/
-        this.#canvas.oncontextmenu = function () { return false; }
-
+    hookEvents() {        
+        this.hookMouseEvents();
+        this.hookOtherEvents();
     }
 
+    hookMouseEvents() {
+        // Mouse Down
+        this.#canvas.addEventListener("mousedown", (event) => {
+            this.#mouseProcessor.onMouseDown(this.createMouseEvent(MouseEvent.DOWN, event));
+        });
 
-    // --[ helpers ]--------------------------------------------------------------
+        // Mouse Up
+        this.#canvas.addEventListener("mouseup", (event) => {
+            this.#mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
+        });
+
+        // Mouse Out
+        this.#canvas.addEventListener("mouseout", (event) => {
+            this.#mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
+        });
+
+        // Mouse Move
+        this.#canvas.addEventListener("mousemove", (event) => {
+            this.#mouseProcessor.onMouseMove(this.createMouseEvent(MouseEvent.MOVE, event));
+        });
+
+        // Mouse Wheel
+        this.#canvas.addEventListener("wheel", (event) => {
+            this.#mouseProcessor.onMouseWheel(this.createMouseEvent(MouseEvent.WHEEL, event));
+        });
+
+        // Context Menu - Disable right click context menu on the canvas.
+        this.#canvas.oncontextmenu = () => false;
+    }
+
+    hookOtherEvents() {
+        // Window Resized
+        window.addEventListener("resize", () => {
+            this.onWindowResized();
+        });
+    }
+
+    // MARK: - Helpers ---------------------------------------------------------
     windowToCanvasCoords(x, y) {
         this.#canvas = document.getElementById(this.#id);
 
@@ -253,15 +243,30 @@ export class Canvas {
 
         return new MouseEvent(
             type,                                // type
-            coords.x,                             // x
-            coords.y,                             // y
+            coords.x,                            // x
+            coords.y,                            // y
             dx,                                  // dx
             dy,                                  // dy            
             MouseButton.fromIndex(event.button), // button
             event.buttons,                       // buttons
-            this.#view,                          // target
+            this.#rootView,                          // target
             null                                 // related
         );
+    }
+
+    #isEventHandledByView(eventType) {
+        switch (eventType) {
+            case MouseEvent.DOWN:
+            case MouseEvent.UP:
+            case MouseEvent.MOVE:
+            case MouseEvent.DRAG:
+            case MouseEvent.ENTER:
+            case MouseEvent.EXIT:
+            case MouseEvent.WHEEL:
+                return true;
+            default:
+                return false;
+        }
     }
 
 }

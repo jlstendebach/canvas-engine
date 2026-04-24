@@ -23,10 +23,6 @@ export class View {
         return this.#parent; 
     }
 
-    get views() { 
-        return this.#views.slice(); // Return a copy to prevent external modification
-    }
-
     set isVisible(visible) {
         this.#isVisible = visible === true;
     }
@@ -43,14 +39,18 @@ export class View {
         return this.#isPickable;
     }
 
-    get eventEmitter() {
-        return this.#eventEmitter;
+    // MARK: - Bounds ----------------------------------------------------------
+    isInBounds(x, y) { 
+        return true; 
+    }
+    
+    localToChild(x, y) { 
+        return new Vec2(x, y); 
     }
 
-    // MARK: - Bounds ----------------------------------------------------------
-    isInBounds(x, y) { return true; }
-    localToChild(x, y) { return new Vec2(x, y); }
-    childToLocal(x, y) { return new Vec2(x, y); }
+    childToLocal(x, y) { 
+        return new Vec2(x, y); 
+    }
 
     // MARK: - Parent ----------------------------------------------------------
     removeFromParent() {
@@ -58,7 +58,6 @@ export class View {
             this.#parent.removeView(this);
             this.#parent = null;
         }
-        return this;
     }
 
     /**
@@ -67,7 +66,7 @@ export class View {
      * @returns {boolean} Returns true if this view is a descendant of the specified view, false otherwise.
      */
     isDescendantOf(view) {
-        let current = this;
+        let current = this.#parent;
         while (current !== null) {
             if (current === view) {
                 return true;
@@ -101,7 +100,7 @@ export class View {
         view.#parent = this;
         this.#views.push(view);
 
-        return this;
+        return view;
     }
 
     removeView(view) {
@@ -111,7 +110,18 @@ export class View {
             this.#views.splice(index, 1);
         }
 
-        return this;
+        return view;
+    }
+
+    removeAllViews() {
+        for (let i = 0; i < this.#views.length; i++) {
+            this.#views[i].#parent = null;
+        }
+        this.#views = [];
+    }
+
+    getViews() {
+        return this.#views.slice();
     }
 
     /**
@@ -137,7 +147,7 @@ export class View {
         return null;
     }
 
-    // --[ drawing ]------------------------------------------------------------
+    // MARK: - Drawing ---------------------------------------------------------
     draw(context) {
         if (this.#isVisible) {
             this.drawSelf(context);
@@ -159,7 +169,15 @@ export class View {
         }
     }
 
-    // --[ mouse events ]-------------------------------------------------------
+    // MARK: - Events ----------------------------------------------------------
+    addEventListener(type, callback, owner = null, once = false) {
+        return this.#eventEmitter.addListener(type, callback, owner, once);
+    }
+
+    removeEventListener(type, callback, owner = null) {
+        return this.#eventEmitter.removeListener(type, callback, owner);
+    }
+
     onMouseDown(event) { this.#eventEmitter.emit(event.type, event); }
     onMouseUp(event) { this.#eventEmitter.emit(event.type, event); }
     onMouseMove(event) { this.#eventEmitter.emit(event.type, event); }
