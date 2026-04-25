@@ -2,16 +2,21 @@ import { View } from "./View.js"
 import { Vec2 } from "../../math/index.js"
 
 /**
- * Definitions:
- * - Child space:
- *   - The (x, y) space of the child views before being scaled, translated, and 
- *     rotated.
- * - Local space: 
- *   - (0, 0) is the top-left of the view, (width, height) is the bottom-right 
- *     of the view.
- * - Parent space:
- *   - (x, y) is the top-left of the view, (x+width, y+height) is the
- *     bottom-right of the view.
+ * Parent space:
+ * - Coordinates relative to the parent view's position.
+ * - A point at (0, 0) is the origin of the parent view.
+ * - A point at (position.x, position.y) represents the origin of this view.
+ * 
+ * Local space: 
+ * - Coordinates relative to this view's position. 
+ * - A point at (0, 0) represents the origin of this view.
+ * 
+ * Child space:
+ * - Coordinates relative to this view's children before any transformations.
+ * - If this view has no transformations, then local space and child space are the same.
+ * - If this view has transformations (translation, rotation, scale), then child
+ *   space is the coordinate space of the children before any transformations 
+ *   are applied.
  */
 
 export class SceneView extends View {
@@ -24,7 +29,6 @@ export class SceneView extends View {
         this.rotation = 0;
 
         this.clip = false;
-
     }
 
 
