@@ -107,23 +107,22 @@ export class View {
         view.removeFromParent();
         view.#parent = this;
         this.#views.push(view);
-
         return view;
     }
 
     /**
      * Removes a child view from this view.
      * @param {View} view - The child view to remove.
-     * @returns {View|null} The removed view, or null if it was not a child.
+     * @returns {boolean} True if the view was removed, false if the view was not a child of this view.
      */
     removeView(view) {
         const index = this.#views.indexOf(view);
         if (index === -1) {
-            return null;
+            return false;
         }
         view.#parent = null;
         this.#views.splice(index, 1);
-        return view;
+        return true;
     }
 
     /**
