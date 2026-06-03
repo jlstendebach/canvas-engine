@@ -15,7 +15,6 @@ import {
 export class SceneApp extends App {
     MAX_THROW_SPEED = 3000;
     MAX_BALL_SPEED = 500;
-    ANCHOR_RADIUS = 5;
     CORNER_RADIUS = 5;
 
     canvas = null;
@@ -23,7 +22,6 @@ export class SceneApp extends App {
     box = null;
     boxCorner1 = null;
     boxCorner2 = null;
-    anchor = null;
     ball = null;
     ballVelocity = new Vec2(1, 1).setLength(this.MAX_BALL_SPEED);
     ballLastPosition = new Vec2();
@@ -35,6 +33,7 @@ export class SceneApp extends App {
         super();
         this.initCanvas();
         this.initScene();
+        this.initBox();
         this.initBall();
     }
 
@@ -48,12 +47,15 @@ export class SceneApp extends App {
     initScene() {
         const scene = new SceneView();
         //scene.position = new Vec2(50, 50);
-        //scene.size.set(500, 500);
+        scene.size.set(this.canvas.getWidth(), this.canvas.getHeight());
         //scene.clip = true;
         scene.addEventListener(MouseEvent.WHEEL, this.onSceneZoom, this);
         scene.addEventListener(MouseEvent.DRAG, this.onSceneDragged, this);
+        scene.addEventListener(MouseEvent.DOWN, this.onSceneClicked, this);
         this.scene = this.canvas.addView(scene);
+    }
 
+    initBox() {
         const box = new RectangleView(this.canvas.getWidth(), this.canvas.getHeight());
         box.fillStyle = new Color(0, 0, 40);
         box.strokeStyle = new Color(100, 100, 100);
@@ -75,16 +77,7 @@ export class SceneApp extends App {
         boxCorner2.strokeWidth = 2;
         boxCorner2.position = Vec2.add(this.box.position, this.box.size);
         boxCorner2.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
-        this.boxCorner2 = this.scene.addView(boxCorner2);
-
-        const anchor = new CircleView(this.ANCHOR_RADIUS);
-        anchor.fillStyle = new Color(200, 0, 0);
-        anchor.strokeStyle = null;
-        anchor.position = new Vec2(this.canvas.getWidth()/2, this.canvas.getHeight()/2);
-        anchor.addEventListener(MouseEvent.DOWN, this.onBallGrab, this);
-        anchor.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
-        anchor.addEventListener(MouseEvent.UP, this.onBallDrop, this);
-        this.anchor = this.scene.addView(anchor);
+        this.boxCorner2 = this.scene.addView(boxCorner2);        
     }
 
     initBall() {
@@ -127,7 +120,6 @@ export class SceneApp extends App {
 
         this.boxCorner1.radius = this.CORNER_RADIUS / this.scene.scale;
         this.boxCorner2.radius = this.CORNER_RADIUS / this.scene.scale;
-        this.anchor.radius = this.ANCHOR_RADIUS / this.scene.scale;
     }
 
     onSceneDragged(type, event) {
@@ -135,14 +127,20 @@ export class SceneApp extends App {
             this.scene.translate(new Vec2(event.dx, event.dy));
 
         } else if (event.button == MouseButton.RIGHT) {
-            const childSpaceAnchor = this.anchor.position;
+            const childSpaceAnchor = this.box.position.clone().add(this.box.size.clone().divideScalar(2));
             const localSpaceAnchor = this.scene.childToLocal(childSpaceAnchor.x, childSpaceAnchor.y);
 
             const lastPosition = new Vec2(event.x - event.dx, event.y - event.dy).subtract(localSpaceAnchor);
             const currentPosition = new Vec2(event.x, event.y).subtract(localSpaceAnchor);
             const rotation = lastPosition.angleTau(currentPosition);
 
-            this.scene.rotate(rotation, childSpaceAnchor, false);
+            this.scene.rotate(rotation, localSpaceAnchor);
+        }
+    }
+
+    onSceneClicked(type, event) {
+        if (event.button == MouseButton.MIDDLE) {
+            this.scene.centerOn(this.ball.position, false);
         }
     }
 
@@ -159,9 +157,9 @@ export class SceneApp extends App {
 
         if (event.target == this.boxCorner1) {
             this.box.position = this.boxCorner1.position.clone();
-            this.box.size = Vec2.subtract(this.boxCorner2.position, this.boxCorner1.position);
+            this.box.size = this.boxCorner2.position.clone().subtract(this.boxCorner1.position);
         } else if (event.target == this.boxCorner2) {
-            this.box.size = Vec2.subtract(this.boxCorner2.position, this.boxCorner1.position);
+            this.box.size = this.boxCorner2.position.clone().subtract(this.boxCorner1.position);
         }
     }
 
@@ -178,7 +176,6 @@ export class SceneApp extends App {
 
     // MARK: - Helpers ---------------------------------------------------------
     keepBallInBounds() {
-        //const scale = this.ballVelocity.length() > this.MAX_BALL_SPEED ? 0.9 : 1;
         const scale = 0.90;
         const friction = 0.995;
         const left = this.box.position.x;

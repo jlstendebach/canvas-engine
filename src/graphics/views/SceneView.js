@@ -148,11 +148,16 @@ export class SceneView extends View {
      * @param {Number} y - The y coordinate in child space.
      * @return {void} - Nothing
      */
-    centerOn(x, y) {
-        this.#translation.set(-x, -y);
-        this.#translation.rotate(this.#rotation);
-        this.#translation.x += this.#size.x / (2 * this.#scale);
-        this.#translation.y += this.#size.y / (2 * this.#scale);
+    centerOn(target, isLocalSpace = true) {
+        const targetInLocalSpace = isLocalSpace            
+            ? target
+            : this.childToLocal(target.x, target.y);
+
+        const translation = this.#size.clone()
+            .divideScalar(2)
+            .subtract(targetInLocalSpace);
+
+        this.translate(translation);
     }
 
 
@@ -166,11 +171,16 @@ export class SceneView extends View {
      * @return {Vec2} - A vector containing the point in child space.
      */
     localToChild(x, y) {
-        return new Vec2(x, y)
-            .scale(1/this.#scale)
-            .rotate(-this.#rotation)
-            .subtract(this.#translation);
-   }
+        let childSpacePoint = new Vec2(x, y);
+        if (this.#scale != 1) {
+            childSpacePoint.divideScalar(this.#scale);
+        }
+        if (this.#rotation != 0) {
+            childSpacePoint.rotate(-this.#rotation);
+        }
+        childSpacePoint.subtract(this.#translation);
+        return childSpacePoint;
+    }
 
     /**
      * Converts (x, y) from child space to local space. Inputs are assumed to be
@@ -180,10 +190,15 @@ export class SceneView extends View {
      * @return {Vec2} - A vector containing the point in local space.
      */
     childToLocal(x, y) {
-        return new Vec2(x, y)
-            .add(this.#translation)
-            .rotate(this.#rotation)
-            .scale(this.#scale);
+        let localSpacePoint = new Vec2(x, y);
+        localSpacePoint.add(this.#translation);
+        if (this.#rotation != 0) {
+            localSpacePoint.rotate(this.#rotation);
+        }
+        if (this.#scale != 1) {
+            localSpacePoint.scale(this.#scale);
+        }
+        return localSpacePoint;
     }
 
 
