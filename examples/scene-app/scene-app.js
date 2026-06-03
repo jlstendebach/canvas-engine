@@ -8,7 +8,8 @@ import {
     Timer, 
     SceneView, 
     RectangleView, 
-    MouseButton
+    MouseButton,
+    CoordinateSpace
 } from "../../src/index.js";
 
 // MARK: - SceneApp ------------------------------------------------------------
@@ -157,7 +158,7 @@ export class SceneApp extends App {
 
     onSceneClicked(type, event) {
         if (event.button == MouseButton.MIDDLE) {
-            this.scene.centerOn(this.ball.position, false);
+            this.scene.centerOn(this.ball.position, CoordinateSpace.CHILD);
         }
     }
 

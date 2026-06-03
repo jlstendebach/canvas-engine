@@ -191,15 +191,7 @@ export class SceneView extends View {
     childToLocal(x, y) {
         this.#assertFinite("x", x);
         this.#assertFinite("y", y);
-        let localPoint = new Vec2(x, y);
-        localPoint.add(this.#translation);
-        if (this.#isRotated()) {
-            localPoint.rotate(this.#rotation);
-        }
-        if (this.#isScaled()) {
-            localPoint.scale(this.#scale);
-        }
-        return localPoint;
+        return this.#childToLocalVector(new Vec2(x, y).add(this.#translation));
     }
 
     // MARK: - drawing
@@ -229,28 +221,38 @@ export class SceneView extends View {
     // MARK: - helpers
     #applyTransformWithAnchor(anchor, coordinateSpace, transformCallback) {
         let anchorLocal;
-        let anchorChildBefore;
+        let anchorChild;
         if (coordinateSpace === CoordinateSpace.CHILD) {
             anchorLocal = this.childToLocal(anchor.x, anchor.y);
-            anchorChildBefore = anchor;
+            anchorChild = anchor;
         } else {
             anchorLocal = anchor;
-            anchorChildBefore = this.localToChild(anchor.x, anchor.y);
+            anchorChild = this.localToChild(anchor.x, anchor.y);
         }
         transformCallback();
-        const anchorChildAfter = this.localToChild(anchorLocal.x, anchorLocal.y);
-        this.translate(anchorChildAfter.subtract(anchorChildBefore), CoordinateSpace.CHILD);          
+        this.#translation = this.#localToChildVector(anchorLocal).subtract(anchorChild);         
     }
 
     #localToChildVector(vector) {
         const childVector = vector.clone();
-        if (this.#isRotated()) {
-            childVector.rotate(-this.#rotation);
-        }
         if (this.#isScaled()) {
             childVector.divideScalar(this.#scale);
         }
+        if (this.#isRotated()) {
+            childVector.rotate(-this.#rotation);
+        }
         return childVector;
+    }
+
+    #childToLocalVector(vector) {
+        const localVector = vector.clone();
+        if (this.#isRotated()) {
+            localVector.rotate(this.#rotation);
+        }
+        if (this.#isScaled()) {
+            localVector.scale(this.#scale);
+        }
+        return localVector;
     }
 
     #isScaled() {
