@@ -19,71 +19,126 @@ import { Vec2 } from "../../math/index.js"
  *   are applied.
  */
 
+/*
+What do I want from this view?
+- I want this view to represent a scene that can be panned, zoomed, and rotated.
+- Should be able to center on a specific point in the scene. Methods should be 
+  available to center on a point in child space or local space.
+- Should be able to zoom in and out of the scene, with the zoom centered on a 
+  specific point. Methods should be available to zoom relative to a point in 
+  child space or local space.
+- Should be able to rotate the scene around a specific point. Methods should be
+  available to rotate around a point in child space or local space.
+- Should be able to convert coordinates between local space and child space.
+- I need a set of functions that will operate in local space
+- I need a set of functions that will operate in child space
+- The distinction between the two should be clear and intuitive.
+*/
+
 export class SceneView extends View {
-    constructor() {
-        super();
-        this.size = new Vec2();
+    #size = new Vec2();
+    #clip = false;
+    #scale = 1;
+    #translation = new Vec2();
+    #rotation = 0;
+    
+    // MARK: - properties
+    set size(size) { 
+        if (!(size instanceof Vec2)) {
+            throw new Error("size must be an instance of Vec2");
+        }
+        this.#size = size; 
+    }
+    
+    get size() { 
+        return this.#size; 
+    }
 
-        this.scale = 1;
-        this.translation = new Vec2();
-        this.rotation = 0;
+    set clip(clip) { 
+        this.#clip = (clip === true); 
+    }
+    
+    get clip() { 
+        return this.#clip; 
+    }
 
-        this.clip = false;
+    set scale(scale) { 
+        if (typeof scale !== "number" || isNaN(scale)) {
+            throw new Error("scale must be a valid number");
+        }
+        this.#scale = scale; 
+    }
+    
+    get scale() { 
+        return this.#scale; 
+    }
+
+    set translation(translation) { 
+        if (!(translation instanceof Vec2)) {
+            throw new Error("translation must be an instance of Vec2");
+        }
+        this.#translation = translation; 
+    }
+
+    get translation() { 
+        return this.#translation; 
+    }
+
+    set rotation(rotation) { 
+        if (typeof rotation !== "number" || isNaN(rotation)) {
+            throw new Error("rotation must be a valid number");
+        }
+        this.#rotation = rotation % (2 * Math.PI); 
+    }
+
+    get rotation() { 
+        return this.#rotation; 
     }
 
 
-    // --[ bounds ]---------------------------------------------------------------
+    // MARK: - bounds
     isInBounds(x, y) {
-        return this.size.isZero() || (
+        return this.#size.isZero() || (
             x >= this.position.x
-            && x < this.position.x + this.size.x
+            && x < this.position.x + this.#size.x
             && y >= this.position.y
-            && y < this.position.y + this.size.y
+            && y < this.position.y + this.#size.y
         );
     }
 
-    /********/
-    /* size */
-    /********/
-    setWidth(w) { this.size.x = w; }
-    getWidth() { return this.size.x; }
-
-    setHeight(h) { this.size.y = h; }
-    getHeight() { return this.size.y; }
-
-    setSize(s) { this.size = s; }
-    getSize() { return this.size; }
-
-
-    // --[ scale ]----------------------------------------------------------------
-    setScale(s) { this.scale = s; }
-    getScale() { return this.scale; }
-
-    getScaledWidth() { return this.size.x / this.scale; }
-    getScaledHeight() { return this.size.y / this.scale; }
-    getScaledSize() { return Vec2.scale(this.size, 1/this.scale); }
-
-    zoom(x, y, factor) {
-        this.translation.x += x/this.scale;
-        this.translation.y += y/this.scale;
-        this.scale *= factor;
-        this.translation.x -= x/this.scale;
-        this.translation.y -= y/this.scale;
+    // MARK: - transformations
+    zoom(factor, anchor = new Vec2(), isLocalSpace = true) {
+        const anchorInLocalSpace = isLocalSpace
+            ? anchor
+            : this.childToLocal(anchor.x, anchor.y);
+        const anchorInLocalSpaceRotated = anchorInLocalSpace.clone().rotate(-this.#rotation); // Undo the rotation
+        this.#translation.subtract(anchorInLocalSpaceRotated.clone().divideScalar(this.#scale));
+        this.#scale *= factor;
+        this.#translation.add(anchorInLocalSpaceRotated.clone().divideScalar(this.#scale));
     }   
 
 
-    // --[ translation ]----------------------------------------------------------
-    setTranslation(t) { this.translation = t; }
-    getTranslation() { return this.translation; }
+    rotate(radians, anchor = new Vec2(), isLocalSpace = true) {
+        const anchorInLocalSpace = isLocalSpace 
+            ? anchor 
+            : this.childToLocal(anchor.x, anchor.y);
+        this.translate(anchorInLocalSpace.clone().negate());
+        this.#rotation += radians;
+        this.translate(anchorInLocalSpace.clone());
+    }
 
-    translate(x, y, scaled = false) {
-        if (scaled) {
-            this.translation.x += x / this.scale;
-            this.translation.y += y / this.scale;
-        } else {
-            this.translation.x += x;
-            this.translation.y += y;
+    translate(translation, isLocalSpace = true) {
+        if (!(translation instanceof Vec2)) {
+            throw new Error("translation must be an instance of Vec2");
         }
+        if (!isLocalSpace) {
+            this.#translation.add(translation);
+            return;
+        }
+        const adjustedTranslation = translation.clone()
+            .rotate(-this.#rotation) // Undo the rotation
+            .divideScalar(this.#scale); // Undo the scale
+        this.#translation.add(adjustedTranslation);
     }
 
     /**
@@ -94,19 +149,10 @@ export class SceneView extends View {
      * @return {void} - Nothing
      */
     centerOn(x, y) {
-        this.translation.set(x, y);
-        this.translation.rotate(this.rotation);
-        this.translation.x -= this.size.x / (2 * this.scale);
-        this.translation.y -= this.size.y / (2 * this.scale);
-    }
-
-
-    // --[ rotation ]-------------------------------------------------------------
-    setRotation(r) { this.rotation = r % (2 * Math.PI); }
-    getRotation() { return this.rotation; }
-
-    rotate(r) {
-        this.setRotation(this.rotation + r);
+        this.#translation.set(-x, -y);
+        this.#translation.rotate(this.#rotation);
+        this.#translation.x += this.#size.x / (2 * this.#scale);
+        this.#translation.y += this.#size.y / (2 * this.#scale);
     }
 
 
@@ -121,9 +167,9 @@ export class SceneView extends View {
      */
     localToChild(x, y) {
         return new Vec2(x, y)
-            .scale(1/this.scale)
-            .add(this.translation)
-            .rotate(-this.rotation);
+            .scale(1/this.#scale)
+            .rotate(-this.#rotation)
+            .subtract(this.#translation);
    }
 
     /**
@@ -135,31 +181,34 @@ export class SceneView extends View {
      */
     childToLocal(x, y) {
         return new Vec2(x, y)
-            .rotate(this.rotation)
-            .subtract(this.translation)
-            .scale(this.scale);
+            .add(this.#translation)
+            .rotate(this.#rotation)
+            .scale(this.#scale);
     }
 
 
     // --[ drawing ]--------------------------------------------------------------
     drawChildren(context) {
-        context.save();
-
         // clipping
-        if (this.clip && !this.size.isZero()) {
-            context.rect(0, 0, this.size.x, this.size.y);
+        if (this.#clip && !this.#size.isZero()) {
+            context.beginPath();
+            context.rect(0, 0, this.#size.x, this.#size.y);
             context.clip();
         }
 
-        // translate, scale, rotate
-        context.scale(this.scale, this.scale);
-        context.translate(-this.translation.x, -this.translation.y);
-        context.rotate(this.rotation);
+        // scale, rotate, translate
+        if (this.#scale != 1) {
+            context.scale(this.#scale, this.#scale);
+        }
+        if (this.#rotation != 0) {
+            context.rotate(this.#rotation);
+        }
+        if (!this.#translation.isZero()) {
+            context.translate(this.#translation.x, this.#translation.y);
+        }
 
         // draw children
         super.drawChildren(context);
-
-        context.restore();
     }
 
 }
