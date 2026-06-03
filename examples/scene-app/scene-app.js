@@ -27,6 +27,8 @@ export class SceneApp extends App {
     ballLastPosition = new Vec2();
     ballTimer = new Timer();
     isBallGrabbed = false;
+
+    tracker = null;
     
     // MARK: - Initialization ---------------------------------------------------
     constructor() {
@@ -90,6 +92,13 @@ export class SceneApp extends App {
         ball.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
         ball.addEventListener(MouseEvent.UP, this.onBallDrop, this);
         this.ball = this.scene.addView(ball);
+
+        const tracker = new CircleView(5);
+        tracker.fillStyle = new Color(200, 0, 0);
+        tracker.strokeStyle = new Color(100, 100, 100);
+        tracker.strokeWidth = 2;
+        tracker.position = ball.position.clone();
+        this.tracker = this.canvas.addView(tracker);
     }
     
     // MARK: - Lifecycle -------------------------------------------------------
@@ -108,6 +117,10 @@ export class SceneApp extends App {
 
         this.keepBallInBounds();
 
+        const ballPosition = this.ball.position.clone();
+        this.tracker.position = this.scene.childToLocal(ballPosition.x, ballPosition.y);
+
+
         this.ballLastPosition = this.ball.position.clone();
         this.ballTimer.start();    
     }
@@ -123,18 +136,22 @@ export class SceneApp extends App {
     }
 
     onSceneDragged(type, event) {
-        if (event.button == MouseButton.LEFT) {
-            this.scene.translate(new Vec2(event.dx, event.dy));
+        try {
+            if (event.button == MouseButton.LEFT) {
+                this.scene.translate(new Vec2(event.dx, event.dy));
 
-        } else if (event.button == MouseButton.RIGHT) {
-            const childSpaceAnchor = this.box.position.clone().add(this.box.size.clone().divideScalar(2));
-            const localSpaceAnchor = this.scene.childToLocal(childSpaceAnchor.x, childSpaceAnchor.y);
+            } else if (event.button == MouseButton.RIGHT) {
+                const childSpaceAnchor = this.box.position.clone().add(this.box.size.clone().divideScalar(2));
+                const localSpaceAnchor = this.scene.childToLocal(childSpaceAnchor.x, childSpaceAnchor.y);
 
-            const lastPosition = new Vec2(event.x - event.dx, event.y - event.dy).subtract(localSpaceAnchor);
-            const currentPosition = new Vec2(event.x, event.y).subtract(localSpaceAnchor);
-            const rotation = lastPosition.angleTau(currentPosition);
+                const lastPosition = new Vec2(event.x - event.dx, event.y - event.dy).subtract(localSpaceAnchor);
+                const currentPosition = new Vec2(event.x, event.y).subtract(localSpaceAnchor);
+                const rotation = lastPosition.angleTau(currentPosition);
 
-            this.scene.rotate(rotation, localSpaceAnchor);
+                this.scene.rotate(rotation, localSpaceAnchor);
+            }
+        } catch (error) {
+            console.error("Error handling scene drag:", error);
         }
     }
 
