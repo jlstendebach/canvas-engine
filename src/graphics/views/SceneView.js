@@ -24,6 +24,7 @@ export const CoordinateSpace = Object.freeze({
 });
 
 export class SceneView extends View {
+    static #TAU = 2 * Math.PI;
     #size = new Vec2();
     #clip = false;
     #scale = 1;
@@ -68,8 +69,10 @@ export class SceneView extends View {
 
     set rotation(rotation) { 
         this.#assertFinite("rotation", rotation);
-        const tau = 2 * Math.PI;
-        this.#rotation = ((rotation % tau) + tau) % tau;
+        this.#rotation = rotation % SceneView.#TAU;
+        if (this.#rotation < 0) {
+            this.#rotation += SceneView.#TAU;
+        }
     }
 
     get rotation() { 
