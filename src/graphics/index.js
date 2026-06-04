@@ -1,8 +1,9 @@
 export * from "./Canvas.js"
 
 // --[ utils/ ]-----------------------------------------------------------------
-export * from "./utils/Color.js"
 export * from "./utils/CachedColor.js"
+export * from "./utils/Color.js"
+export * from "./utils/CoordinateSpace.js"
 
 // --[ views/ ]-----------------------------------------------------------------
 export * from "./views/ImageView.js"
@@ -24,3 +25,4 @@ export * from "./views/shapes/RectangleView.js"
 export * from "./views/shapes/ShapeGroupView.js"
 export * from "./views/shapes/ShapeView.js"
 export * from "./views/shapes/VectorView.js"
+
