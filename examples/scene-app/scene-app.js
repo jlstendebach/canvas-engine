@@ -28,6 +28,7 @@ export class SceneApp extends App {
     ballLastPosition = new Vec2();
     ballTimer = new Timer();
     isBallGrabbed = false;
+    isFollowingBall = false;
     
     // MARK: - Initialization ---------------------------------------------------
     constructor() {
@@ -108,11 +109,14 @@ export class SceneApp extends App {
         }       
 
         this.keepBallInBounds();
-
-        this.positionBoxCorners();
-
         this.ballLastPosition = this.ball.position.clone();
         this.ballTimer.start();    
+
+        if (this.isFollowingBall && this.isBallGrabbed == false) {
+            this.scene.centerOn(this.ball.position, CoordinateSpace.CHILD);
+        }
+
+        this.positionBoxCorners();
     }
 
     // MARK: - UI Events -------------------------------------------------------
@@ -129,7 +133,9 @@ export class SceneApp extends App {
 
             } else if (event.button == MouseButton.RIGHT) {
                 const childSpaceAnchor = this.box.position.clone().add(this.box.size.clone().divideScalar(2));
-                const localSpaceAnchor = this.scene.childToLocal(childSpaceAnchor);
+                const localSpaceAnchor = this.isFollowingBall
+                    ? this.canvas.getSize().clone().divideScalar(2)
+                    : this.scene.childToLocal(childSpaceAnchor);
 
                 const lastPosition = new Vec2(event.x - event.dx, event.y - event.dy).subtract(localSpaceAnchor);
                 const currentPosition = new Vec2(event.x, event.y).subtract(localSpaceAnchor);
@@ -144,7 +150,7 @@ export class SceneApp extends App {
 
     onSceneClicked(type, event) {
         if (event.button == MouseButton.MIDDLE) {
-            this.scene.centerOn(this.ball.position, CoordinateSpace.CHILD);
+            this.isFollowingBall = !this.isFollowingBall;
         }
     }
 
