@@ -29,7 +29,7 @@ export class VectorView extends View {
     getEndX() { return this.getX() + this.vector.x; }
     getEndY() { return this.getY() + this.vector.y; }
 
-    isInBounds(x, y) { return false; }
+    isInBounds(point) { return false; }
 
     // --[ style ]----------------------------------------------------------------
     setStrokeWidth(w) { this.strokeWidth = w; }

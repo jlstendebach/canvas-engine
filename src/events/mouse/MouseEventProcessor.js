@@ -167,8 +167,8 @@ export class MouseEventProcessor {
             view = subview;
             position.x -= view.position.x;
             position.y -= view.position.y;
-            subview = view.pickView(position.x, position.y);    
-            position = view.localToChild(position.x, position.y);
+            subview = view.pickView(position);    
+            position = view.localToChild(position);
         }
         return view;
     }
@@ -188,10 +188,10 @@ export class MouseEventProcessor {
         for (let i = views.length-1; i >= 0; i--) {
             position.x -= views[i].position.x;
             position.y -= views[i].position.y;
-            position = views[i].localToChild(position.x, position.y);
+            position = views[i].localToChild(position);
             delta.x -= views[i].position.x;
             delta.y -= views[i].position.y;
-            delta = views[i].localToChild(delta.x, delta.y);
+            delta = views[i].localToChild(delta);
         }
         delta = Vec2.subtract(position, delta);
 

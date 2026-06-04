@@ -49,15 +49,15 @@ export class LabelView extends View {
     }
 
     // --[ bounds ]-------------------------------------------------------------
-    isInBounds(x, y) {
+    isInBounds(point) {
         let labelX = this.getX() - this.getAnchorX() * this.getWidth();
         let labelY = this.getY() - this.getAnchorY() * this.getHeight();
 
         return (
-            x >= labelX
-            && x < labelX + this.getWidth()
-            && y >= labelY
-            && y < labelY + this.getHeight()
+            point.x >= labelX
+            && point.x < labelX + this.getWidth()
+            && point.y >= labelY
+            && point.y < labelY + this.getHeight()
         );
     }
 

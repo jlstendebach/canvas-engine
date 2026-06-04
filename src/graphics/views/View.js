@@ -44,11 +44,10 @@ export class View {
     // MARK: - Bounds ----------------------------------------------------------
     /**
      * Checks if a point in parent space is contained within this view.
-     * @param {number} x - The x coordinate in parent space.
-     * @param {number} y - The y coordinate in parent space.
+     * @param {Vec2} point - The point in parent space.
      * @returns {boolean} True if the point is inside this view, false otherwise.
      */
-    isInBounds(x, y) { 
+    isInBounds(point) { 
         // Base view has no bounds. Subclasses should override this method.
         return true; 
     }
@@ -60,13 +59,12 @@ export class View {
      *   this view's origin. A value of (0, 0) represents the origin of this view.
      * - "Child space" is the coordinate space of the children before any 
      *   transformations. 
-     * @param {number} x - The x coordinate in local space.
-     * @param {number} y - The y coordinate in local space.
+     * @param {Vec2} point - The point in local space to convert.
      * @returns {Vec2} The point in child space.
      */
-    localToChild(x, y) { 
+    localToChild(point) { 
         // Base view has no transformations. Subclasses should override this method.
-        return new Vec2(x, y); 
+        return point.clone(); 
     }
 
     /**
@@ -76,13 +74,12 @@ export class View {
      *   this view's origin. A value of (0, 0) represents the origin of this view.
      * - "Child space" is the coordinate space of the children before any 
      *   transformations. 
-     * @param {number} x - The x coordinate in child space.
-     * @param {number} y - The y coordinate in child space.
+     * @param {Vec2} point - The point in child space to convert.
      * @returns {Vec2} The point in local space.
      */
-    childToLocal(x, y) { 
+    childToLocal(point) { 
         // Base view has no transformations. Subclasses should override this method.
-        return new Vec2(x, y); 
+        return point.clone(); 
     }
 
     // MARK: - Views -----------------------------------------------------------
@@ -156,15 +153,14 @@ export class View {
     /**
      * Picks the topmost visible and pickable child at the given local-space 
      * point.
-     * @param {number} x - The x coordinate in local space.
-     * @param {number} y - The y coordinate in local space.
+     * @param {Vec2} point - The point in local space.
      * @returns {View|null} The picked child view, or null if none are found.
      */
-    pickView(x, y) {
-        const childXY = this.localToChild(x, y);
+    pickView(point) {
+        const childXY = this.localToChild(point);
         for (let i = this.#views.length - 1; i >= 0; i--) {
             const view = this.#views[i];
-            if (view.#isVisible && view.#isPickable && view.isInBounds(childXY.x, childXY.y)) {
+            if (view.#isVisible && view.#isPickable && view.isInBounds(childXY)) {
                 return view;
             }
         }

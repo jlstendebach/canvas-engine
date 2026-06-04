@@ -9,7 +9,7 @@ export class LineView extends ShapeView {
     }
 
     // --[ bounds ]-------------------------------------------------------------
-    isInBounds(x, y) { return false; }
+    isInBounds(point) { return false; }
 
     getX() { return this.p1.x; }
     getY() { return this.p1.y; }

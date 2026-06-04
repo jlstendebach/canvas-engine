@@ -45,7 +45,7 @@ export class ShapeView extends View {
     }
 
     // MARK: - Hit Testing -----------------------------------------------------
-    isInBounds(x, y) {
+    isInBounds(point) {
         // To be implemented by subclasses.
         return false;
     }
@@ -92,7 +92,6 @@ export class ShapeView extends View {
     path(context) { }
 
     fill(context) {
-        let fillStyle = this.getFillStyle();
         if (this.isFillEnabled()) {
             context.fillStyle = this.#fillStyle.colorString;
             context.fill();

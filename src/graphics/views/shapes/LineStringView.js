@@ -10,7 +10,7 @@ export class LineStringView extends ShapeView {
 
 
     // --[ bounds ]-------------------------------------------------------------
-    isInBounds(x, y) {
+    isInBounds(point) {
         return false;
     }
 
