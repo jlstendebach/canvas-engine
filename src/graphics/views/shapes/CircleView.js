@@ -10,9 +10,9 @@ export class CircleView extends ShapeView {
 
 
     // --[ bounds ]-------------------------------------------------------------
-    isInBounds(x, y) {
+    isInBounds(point) {
         return (
-            Math.sqrt((this.position.x - x) ** 2 + (this.position.y - y) ** 2) <= this.radius
+            Math.sqrt((this.position.x - point.x) ** 2 + (this.position.y - point.y) ** 2) <= this.radius
         );
     }
 

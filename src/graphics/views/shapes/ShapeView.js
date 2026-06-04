@@ -45,7 +45,7 @@ export class ShapeView extends View {
     }
 
     // MARK: - Hit Testing -----------------------------------------------------
-    isInBounds(x, y) {
+    isInBounds(point) {
         // To be implemented by subclasses.
         return false;
     }

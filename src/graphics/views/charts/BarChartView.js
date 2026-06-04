@@ -197,12 +197,12 @@ export class BarChartView extends View {
     setHeight(h) { this.size.y = h; }
     getHeight() { return this.size.y; }
 
-    isInBounds(x, y) {
+    isInBounds(point) {
         return (
-            x >= this.getX()
-            && y >= this.getY()
-            && x < this.getX() + this.getWidth()
-            && y < this.getY() + this.getHeight()
+            point.x >= this.getX()
+            && point.y >= this.getY()
+            && point.x < this.getX() + this.getWidth()
+            && point.y < this.getY() + this.getHeight()
         );
     }
 
@@ -833,7 +833,7 @@ export class BarChartView extends View {
 
             for (let i = 0; i < this.barViews.length; ++i) {
                 let bar = this.barViews[i];
-                if (bar.isInBounds(pickVec.x, pickVec.y)) {
+                if (bar.isInBounds(pickVec)) {
                     return this.getBar(i);
                 }
             }

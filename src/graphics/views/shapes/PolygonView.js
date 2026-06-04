@@ -11,7 +11,7 @@ export class PolygonView extends ShapeView {
 
 
     // --[ bounds ]-------------------------------------------------------------
-    isInBounds(x, y) {
+    isInBounds(point) {
         return false;
     }
 

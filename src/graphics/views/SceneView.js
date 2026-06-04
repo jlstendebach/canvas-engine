@@ -62,18 +62,16 @@ export class SceneView extends View {
     /**
      * Checks whether a point in parent space is inside this scene view.
      * If size is zero, the scene is treated as unbounded.
-     * @param {number} x - The x coordinate in parent space.
-     * @param {number} y - The y coordinate in parent space.
+     * @param {Vec2} point - The point in parent space.
      * @returns {boolean} True if the point is in bounds; otherwise false.
      */
-    isInBounds(x, y) {
-        this.#assertFinite("x", x);
-        this.#assertFinite("y", y);
+    isInBounds(point) {
+        this.#assertType("point", point, Vec2);
         return this.#size.isZero() || (
-            x >= this.position.x
-            && x < this.position.x + this.#size.x
-            && y >= this.position.y
-            && y < this.position.y + this.#size.y
+            point.x >= this.position.x
+            && point.x < this.position.x + this.#size.x
+            && point.y >= this.position.y
+            && point.y < this.position.y + this.#size.y
         );
     }
 
@@ -138,7 +136,7 @@ export class SceneView extends View {
         this.#assertType("target", target, Vec2);
         this.#assertCoordinateSpace(coordinateSpace);
         const targetLocal = coordinateSpace === CoordinateSpace.CHILD            
-            ? this.childToLocal(target.x, target.y)
+            ? this.childToLocal(target)
             : target;
         const translation = this.#size.clone()
             .divideScalar(2)
@@ -150,27 +148,23 @@ export class SceneView extends View {
     /**
      * Converts (x, y) from local space to child space. Inputs are assumed to be
      * in local space.
-     * @param {number} x - The x coordinate in local space.
-     * @param {number} y - The y coordinate in local space.
+     * @param {Vec2} point - The point in local space to convert.
      * @returns {Vec2} A vector containing the point in child space.
      */
-    localToChild(x, y) {
-        this.#assertFinite("x", x);
-        this.#assertFinite("y", y);
-        return this.#localToChildVector(new Vec2(x, y)).subtract(this.#translation);
+    localToChild(point) {
+        this.#assertType("point", point, Vec2);
+        return this.#localToChildVector(point).subtract(this.#translation);
     }
 
     /**
      * Converts (x, y) from child space to local space. Inputs are assumed to be
      * in child space.
-     * @param {number} x - The x coordinate in child space.
-     * @param {number} y - The y coordinate in child space.
+     * @param {Vec2} point - The point in child space to convert.
      * @returns {Vec2} A vector containing the point in local space.
      */
-    childToLocal(x, y) {
-        this.#assertFinite("x", x);
-        this.#assertFinite("y", y);
-        return this.#childToLocalVector(new Vec2(x, y).add(this.#translation));
+    childToLocal(point) {
+        this.#assertType("point", point, Vec2);
+        return this.#childToLocalVector(point.clone().add(this.#translation));
     }
 
     // MARK: - drawing
@@ -202,11 +196,11 @@ export class SceneView extends View {
         let anchorLocal;
         let anchorChild;
         if (coordinateSpace === CoordinateSpace.CHILD) {
-            anchorLocal = this.childToLocal(anchor.x, anchor.y);
+            anchorLocal = this.childToLocal(anchor);
             anchorChild = anchor;
         } else {
             anchorLocal = anchor;
-            anchorChild = this.localToChild(anchor.x, anchor.y);
+            anchorChild = this.localToChild(anchor);
         }
         transformCallback();
         this.#translation = this.#localToChildVector(anchorLocal).subtract(anchorChild);         

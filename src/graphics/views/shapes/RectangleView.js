@@ -19,12 +19,12 @@ export class RectangleView extends ShapeView {
     }
 
     // --[ bounds ]-------------------------------------------------------------
-    isInBounds(x, y) {
+    isInBounds(point) {
         return (
-            x >= this.position.x
-            && x < this.position.x + this.#size.x
-            && y >= this.position.y
-            && y < this.position.y + this.#size.y
+            point.x >= this.position.x
+            && point.x < this.position.x + this.#size.x
+            && point.y >= this.position.y
+            && point.y < this.position.y + this.#size.y
         );
     }
 

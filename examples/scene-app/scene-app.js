@@ -1,15 +1,15 @@
-import { 
-    App, 
-    Canvas, 
-    CircleView, 
-    Color, 
-    Vec2, 
-    MouseEvent, 
-    Timer, 
-    SceneView, 
-    RectangleView, 
+import {
+    App,
+    Canvas,
+    CircleView,
+    Color,
+    CoordinateSpace,
     MouseButton,
-    CoordinateSpace
+    MouseEvent,
+    RectangleView,
+    SceneView,
+    Timer,
+    Vec2
 } from "../../src/index.js";
 
 // MARK: - SceneApp ------------------------------------------------------------
@@ -28,8 +28,6 @@ export class SceneApp extends App {
     ballLastPosition = new Vec2();
     ballTimer = new Timer();
     isBallGrabbed = false;
-
-    tracker = null;
     
     // MARK: - Initialization ---------------------------------------------------
     constructor() {
@@ -72,7 +70,7 @@ export class SceneApp extends App {
         boxCorner1.strokeWidth = 2;
         boxCorner1.position = this.box.position.clone();
         boxCorner1.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
-        this.boxCorner1 = this.scene.addView(boxCorner1);
+        this.boxCorner1 = this.canvas.addView(boxCorner1);
 
         const boxCorner2 = new CircleView(this.CORNER_RADIUS);
         boxCorner2.fillStyle = new Color(0, 200, 0);
@@ -80,7 +78,7 @@ export class SceneApp extends App {
         boxCorner2.strokeWidth = 2;
         boxCorner2.position = Vec2.add(this.box.position, this.box.size);
         boxCorner2.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
-        this.boxCorner2 = this.scene.addView(boxCorner2);        
+        this.boxCorner2 = this.canvas.addView(boxCorner2);        
     }
 
     initBall() {
@@ -93,13 +91,6 @@ export class SceneApp extends App {
         ball.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
         ball.addEventListener(MouseEvent.UP, this.onBallDrop, this);
         this.ball = this.scene.addView(ball);
-
-        const tracker = new CircleView(5);
-        tracker.fillStyle = new Color(200, 0, 0);
-        tracker.strokeStyle = new Color(100, 100, 100);
-        tracker.strokeWidth = 2;
-        tracker.position = ball.position.clone();
-        this.tracker = this.canvas.addView(tracker);
     }
     
     // MARK: - Lifecycle -------------------------------------------------------
@@ -118,9 +109,7 @@ export class SceneApp extends App {
 
         this.keepBallInBounds();
 
-        const ballPosition = this.ball.position.clone();
-        this.tracker.position = this.scene.childToLocal(ballPosition.x, ballPosition.y);
-
+        this.positionBoxCorners();
 
         this.ballLastPosition = this.ball.position.clone();
         this.ballTimer.start();    
@@ -131,9 +120,6 @@ export class SceneApp extends App {
         const direction = event.dy / Math.abs(event.dy);
         const factor =  1 - direction / 20;
         this.scene.zoom(factor, new Vec2(event.x, event.y));
-
-        this.boxCorner1.radius = this.CORNER_RADIUS / this.scene.scale;
-        this.boxCorner2.radius = this.CORNER_RADIUS / this.scene.scale;
     }
 
     onSceneDragged(type, event) {
@@ -143,7 +129,7 @@ export class SceneApp extends App {
 
             } else if (event.button == MouseButton.RIGHT) {
                 const childSpaceAnchor = this.box.position.clone().add(this.box.size.clone().divideScalar(2));
-                const localSpaceAnchor = this.scene.childToLocal(childSpaceAnchor.x, childSpaceAnchor.y);
+                const localSpaceAnchor = this.scene.childToLocal(childSpaceAnchor);
 
                 const lastPosition = new Vec2(event.x - event.dx, event.y - event.dy).subtract(localSpaceAnchor);
                 const currentPosition = new Vec2(event.x, event.y).subtract(localSpaceAnchor);
@@ -174,10 +160,10 @@ export class SceneApp extends App {
         event.target.position = event.getParentXY();
 
         if (event.target == this.boxCorner1) {
-            this.box.position = this.boxCorner1.position.clone();
-            this.box.size = this.boxCorner2.position.clone().subtract(this.boxCorner1.position);
+            this.box.position = this.scene.localToChild(this.boxCorner1.position);
+            this.box.size = this.scene.localToChild(this.boxCorner2.position).subtract(this.box.position);
         } else if (event.target == this.boxCorner2) {
-            this.box.size = this.boxCorner2.position.clone().subtract(this.boxCorner1.position);
+            this.box.size = this.scene.localToChild(this.boxCorner2.position).subtract(this.box.position);
         }
     }
 
@@ -220,6 +206,11 @@ export class SceneApp extends App {
             this.ballVelocity.x *= friction;
             this.ballVelocity.y *= -1*scale;
         }
+    }
+
+    positionBoxCorners() {
+        this.boxCorner1.position = this.scene.childToLocal(this.box.position);
+        this.boxCorner2.position = this.scene.childToLocal(this.box.position.clone().add(this.box.size));
     }
 
 }
