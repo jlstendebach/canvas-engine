@@ -1,4 +1,3 @@
-export * from "./AppEvents.js"
 export * from "./CanvasEvents.js"
 export * from "./EventEmitter.js"
 

@@ -1,5 +1,6 @@
-import { AppPauseEvent, EventEmitter } from "../events/index.js"
-import { Profiler } from "./Profiler.js"
+import { EventEmitter } from "../../events/index.js";
+import { Profiler } from "../../utils/Profiler.js";
+import { CanvasAppPauseEvent } from "./CanvasAppPauseEvent.js";
 
 export class CanvasApp {
     canvases = [];
@@ -21,8 +22,8 @@ export class CanvasApp {
         if (this.#isPaused !== paused) {
             this.#isPaused = paused; 
             this.#eventEmitter.emit(
-                AppPauseEvent.name, 
-                new AppPauseEvent(this, this.#isPaused)
+                CanvasAppPauseEvent.name, 
+                new CanvasAppPauseEvent(this, this.#isPaused)
             );
         }
     }
