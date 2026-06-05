@@ -1,5 +1,5 @@
 import { 
-    App, 
+    CanvasApp, 
     Canvas, 
     CircleView, 
     Color, 
@@ -9,7 +9,7 @@ import {
 } from "../../src/index.js";
 
 // MARK: - BasicApp ------------------------------------------------------------
-export class BasicApp extends App {
+export class BasicApp extends CanvasApp {
     MAX_THROW_SPEED = 3000;
     MAX_BALL_SPEED = 500;
 

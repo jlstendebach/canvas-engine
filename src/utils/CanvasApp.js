@@ -1,7 +1,7 @@
 import { AppPauseEvent, EventEmitter } from "../events/index.js"
 import { Profiler } from "./Profiler.js"
 
-export class App {
+export class CanvasApp {
     canvases = [];
     #isPaused = false;
     #lastTime = null;

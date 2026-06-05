@@ -1,6 +1,6 @@
 import {
-    App,
     Canvas,
+    CanvasApp,
     CircleView,
     Color,
     CoordinateSpace,
@@ -13,7 +13,7 @@ import {
 } from "../../src/index.js";
 
 // MARK: - SceneApp ------------------------------------------------------------
-export class SceneApp extends App {
+export class SceneApp extends CanvasApp {
     MAX_THROW_SPEED = 3000;
     MAX_BALL_SPEED = 500;
     CORNER_RADIUS = 5;
