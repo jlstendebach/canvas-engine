@@ -21,7 +21,6 @@ export class CanvasApp {
 
     // MARK: - Initialization
     constructor(canvasSelectorOrElement) {
-        console.log("Initializing CanvasApp with canvas:", canvasSelectorOrElement);
         this.#canvas = new Canvas(canvasSelectorOrElement);
         this.#boundTick = this.#tick.bind(this);
         this.#boundVisibilityHandler = this.#onVisibilityChange.bind(this);
