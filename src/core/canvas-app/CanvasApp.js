@@ -12,11 +12,11 @@ export class CanvasApp {
 
     #isRunning = false;
     #frameId = null;
-    #boundLoop = null;
+    #boundTick = null;
 
     // MARK: - Initialization
     constructor() {
-        this.#boundLoop = this.#loop.bind(this);
+        this.#boundTick = this.#tick.bind(this);
     }
 
     // MARK: - App Control
@@ -25,7 +25,7 @@ export class CanvasApp {
             return;
         }
         this.#isRunning = true;
-        this.#frameId = requestAnimationFrame(this.#boundLoop);
+        this.#frameId = requestAnimationFrame(this.#boundTick);
     }
 
     stop() {
@@ -61,7 +61,7 @@ export class CanvasApp {
     }
 
     // MARK: - Lifecycle 
-    #loop(timestamp) {
+    #tick(timestamp) {
         if (this.#lastTime === null) {
             this.#lastTime = timestamp;
         }
@@ -82,7 +82,7 @@ export class CanvasApp {
 
         // Go again
         if (this.#isRunning) {
-            this.#frameId = requestAnimationFrame(this.#boundLoop);
+            this.#frameId = requestAnimationFrame(this.#boundTick);
         }
     }
 
