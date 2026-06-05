@@ -4,15 +4,14 @@ import { CanvasAppPauseEvent } from "./CanvasAppPauseEvent.js";
 
 export class CanvasApp {
     canvases = [];
-    #isPaused = false;
-    #lastTime = null;
-    #profilerUpdate = new Profiler(10);
-    #profilerDraw = new Profiler(10);
-    #eventEmitter = new EventEmitter();
 
+    #isPaused = false;
     #isRunning = false;
+    #lastTime = null;
     #frameId = null;
     #boundTick = null;
+
+    #eventEmitter = new EventEmitter();
 
     // MARK: - Initialization
     constructor() {
@@ -37,28 +36,29 @@ export class CanvasApp {
         this.#frameId = null;
     }
 
-    setPaused(paused) { 
-        if (this.#isPaused !== paused) {
-            this.#isPaused = paused; 
-            this.#eventEmitter.emit(
-                CanvasAppPauseEvent.name, 
-                new CanvasAppPauseEvent(this, this.#isPaused)
-            );
+    isRunning() {
+        return this.#isRunning;
+    }
+
+    pause() { 
+        if (this.#isPaused) {
+            return;
         }
+        this.#isPaused = true; 
+        this.#emitPauseEvent();
     }
 
-    isPaused() { 
-        return this.#isPaused; 
+    resume() {
+        if (!this.#isPaused) {
+            return;
+        }
+        this.#isPaused = false; 
+        this.#emitPauseEvent();
     }
 
-    // MARK: - Profilers 
-    getUpdateTime() {
-        return this.#profilerUpdate.getTime();
-    }
-
-    getDrawTime() {
-        return this.#profilerDraw.getTime();
-    }
+    isPaused() {
+        return this.#isPaused;
+    }    
 
     // MARK: - Lifecycle 
     #tick(timestamp) {
@@ -68,19 +68,12 @@ export class CanvasApp {
         const deltaTime = timestamp - this.#lastTime;
         this.#lastTime = timestamp;
 
-        // Update
         if (this.isPaused() === false) {
-            this.#profilerUpdate.start();
             this.update(deltaTime);
-            this.#profilerUpdate.mark();
         }
 
-        // Draw
-        this.#profilerDraw.start();
         this.draw();
-        this.#profilerDraw.mark();
 
-        // Go again
         if (this.#isRunning) {
             this.#frameId = requestAnimationFrame(this.#boundTick);
         }
@@ -104,6 +97,13 @@ export class CanvasApp {
 
     removeEventListener(type, callback, owner=null) {
         this.#eventEmitter.removeListener(type, callback, owner);
+    }
+
+    #emitPauseEvent() {
+        this.#eventEmitter.emit(
+            CanvasAppPauseEvent.name, 
+            new CanvasAppPauseEvent(this, this.#isPaused)
+        );
     }
 
 }
