@@ -1,5 +1,5 @@
-import { View } from "../View.js"
-import { Vec2 } from "../../../math/index.js"
+import { Vec2 } from "../../../math/Vec2.js";
+import { View } from "../View.js";
 
 export class VectorView extends View {
     constructor() {

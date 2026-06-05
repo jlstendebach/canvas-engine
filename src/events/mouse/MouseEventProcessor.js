@@ -1,6 +1,6 @@
-import { Vec2 } from "../../index.js";
+import { Vec2 } from "../../math/Vec2.js";
 import { MouseButton } from "./MouseButton.js"
-import { MouseEvent } from "./MouseEvents.js"
+import { MouseEvent } from "./MouseEvent.js"
 
 export class MouseEventProcessor {
     constructor() {

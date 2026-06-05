@@ -1,4 +1,4 @@
-import { EventEmitter } from "../../events/index.js"
+import { EventEmitter } from "../../events/EventEmitter.js";
 import { Vec2 } from "../../math/Vec2.js";
 
 /**

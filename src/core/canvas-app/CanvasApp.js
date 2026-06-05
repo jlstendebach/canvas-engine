@@ -1,4 +1,4 @@
-import { EventEmitter } from "../../events/index.js";
+import { EventEmitter } from "../../events/EventEmitter.js";
 import { Profiler } from "../../utils/Profiler.js";
 import { CanvasAppPauseEvent } from "./CanvasAppPauseEvent.js";
 

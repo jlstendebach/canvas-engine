@@ -1,5 +1,5 @@
-import { ShapeView } from "./ShapeView.js"
-import { Vec2 } from "../../../math/index.js"
+import { Vec2 } from "../../../math/Vec2.js";
+import { ShapeView } from "./ShapeView.js";
 
 export class PolygonView extends ShapeView {
     constructor(points) {

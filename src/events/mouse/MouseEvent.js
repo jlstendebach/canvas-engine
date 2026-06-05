@@ -1,4 +1,4 @@
-import { Vec2 } from "../../math/index.js";
+import { Vec2 } from "../../math/Vec2.js";
 
 export class MouseEvent {
     static get DOWN()  { return "MouseDownEvent"; }

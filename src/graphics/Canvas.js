@@ -1,15 +1,11 @@
-import { View } from "./views/View.js";
+import { CanvasResizeEvent } from "../events/CanvasEvents.js";
+import { EventEmitter } from "../events/EventEmitter.js";
+import { MouseButton } from "../events/mouse/MouseButton.js";
+import { MouseEvent } from "../events/mouse/MouseEvent.js";
+import { MouseEventProcessor } from "../events/mouse/MouseEventProcessor.js";
+import { Vec2 } from "../math/Vec2.js";
 import { CachedColor } from "./utils/CachedColor.js";
-
-import { 
-    CanvasResizeEvent, 
-    EventEmitter, 
-    MouseButton,
-    MouseEvent,    
-    MouseEventProcessor,
-} from "../events/index.js";
-
-import { Vec2 } from "../math/index.js";
+import { View } from "./views/View.js";
 
 export class Canvas {
     #id = "";
