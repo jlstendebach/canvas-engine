@@ -18,7 +18,6 @@ export class SceneApp extends CanvasApp {
     MAX_BALL_SPEED = 500;
     CORNER_RADIUS = 5;
 
-    canvas = null;
     scene = null;
     box = null;
     boxCorner1 = null;
@@ -31,8 +30,8 @@ export class SceneApp extends CanvasApp {
     isFollowingBall = false;
     
     // MARK: - Initialization ---------------------------------------------------
-    constructor() {
-        super();
+    constructor(canvasSelectorOrElement) {
+        super(canvasSelectorOrElement);
         this.initCanvas();
         this.initScene();
         this.initBox();
@@ -40,10 +39,7 @@ export class SceneApp extends CanvasApp {
     }
 
     initCanvas() {
-        const canvas = new Canvas("main-canvas");
-        canvas.fillStyle = new Color(0, 0, 20);
-        this.canvases.push(canvas);       
-        this.canvas = canvas; 
+        this.canvas.fillStyle = new Color(0, 0, 20);
     }
 
     initScene() {

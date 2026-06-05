@@ -225,8 +225,7 @@ export class Canvas {
 
     createMouseEvent(type, event) {
         let coords = this.windowToCanvasCoords(event.clientX, event.clientY);
-        let dx = 0;
-        let dy = 0;
+        let dx, dy;
 
         if (type == MouseEvent.WHEEL) {
             dx = event.deltaX;

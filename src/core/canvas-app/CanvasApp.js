@@ -1,8 +1,9 @@
 import { EventEmitter } from "../../events/EventEmitter.js";
 import { CanvasAppPauseEvent } from "./CanvasAppPauseEvent.js";
+import { Canvas } from "../../graphics/Canvas.js";
 
 export class CanvasApp {
-    canvases = [];
+    #canvas = null;
     #eventEmitter = new EventEmitter();
 
     #isPaused = false;
@@ -13,8 +14,15 @@ export class CanvasApp {
     #boundTick = null;
     #boundVisibilityHandler = null;
 
+    // MARK: - Properties
+    get canvas() {
+        return this.#canvas;
+    }
+
     // MARK: - Initialization
-    constructor() {
+    constructor(canvasSelectorOrElement) {
+        console.log("Initializing CanvasApp with canvas:", canvasSelectorOrElement);
+        this.#canvas = new Canvas(canvasSelectorOrElement);
         this.#boundTick = this.#tick.bind(this);
         this.#boundVisibilityHandler = this.#onVisibilityChange.bind(this);
     }
@@ -70,22 +78,17 @@ export class CanvasApp {
 
     // MARK: - Lifecycle 
     #tick(timestamp) {
-        if (this.#lastFrameTime === null) {
-            this.#lastFrameTime = timestamp;
-        }
-
-        const deltaTime = timestamp - this.#lastFrameTime;
+        const deltaTime = timestamp - (this.#lastFrameTime ?? timestamp);
         this.#lastFrameTime = timestamp;
 
         if (!document.hidden) {
-            if (this.isPaused() === false) {
+            if (!this.isPaused()) {
                 this.update(deltaTime);
             }
-
             this.draw();
         }
 
-        if (this.#isRunning) {
+        if (this.isRunning()) {
             this.#frameId = requestAnimationFrame(this.#boundTick);
         }
     }
@@ -95,8 +98,8 @@ export class CanvasApp {
     }
 
     draw() {
-        for (let canvas of this.canvases) {
-            canvas.draw();
+        if (this.#canvas) {
+            this.#canvas.draw();
         }
     }
 

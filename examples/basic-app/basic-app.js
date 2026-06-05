@@ -1,6 +1,5 @@
 import { 
     CanvasApp, 
-    Canvas, 
     CircleView, 
     Color, 
     Vec2, 
@@ -10,21 +9,17 @@ import {
 
 // MARK: - BasicApp ------------------------------------------------------------
 export class BasicApp extends CanvasApp {
-    canvas = null;
     box = null;
     
     // MARK: - Initialization ---------------------------------------------------
-    constructor() {
-        super();
+    constructor(canvasSelectorOrElement) {
+        super(canvasSelectorOrElement);
         this.initCanvas();
     }
 
     initCanvas() {
-        const canvas = new Canvas("main-canvas");
-        canvas.fillStyle = new Color(0, 0, 20);
-        canvas.addEventListener(MouseEvent.DOWN, this.onCanvasClick, this);
-        this.canvases.push(canvas);       
-        this.canvas = canvas; 
+        this.canvas.fillStyle = new Color(0, 0, 20);
+        this.canvas.addEventListener(MouseEvent.DOWN, this.onCanvasClick, this);
     }
     
     // MARK: - Lifecycle -------------------------------------------------------
