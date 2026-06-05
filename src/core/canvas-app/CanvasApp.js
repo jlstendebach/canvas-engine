@@ -10,12 +10,29 @@ export class CanvasApp {
     #profilerDraw = new Profiler(10);
     #eventEmitter = new EventEmitter();
 
-    // MARK: - Initalizers -----------------------------------------------------
-    constructor() {}
+    #isRunning = false;
+    #frameId = null;
 
-    // MARK: - App Control -----------------------------------------------------
+    // MARK: - App Control
     start() {
-        window.requestAnimationFrame(this.loop.bind(this));
+        if (this.#isRunning) {
+            return;
+        }
+        this.#isRunning = true;
+        this.#frameId = requestAnimationFrame(this.loop.bind(this));
+    }
+
+    stop() {
+        if (!this.#isRunning) {
+            return;
+        }
+        this.#isRunning = false;
+
+        if (this.#frameId === null) {
+            return;
+        }
+        cancelAnimationFrame(this.#frameId);
+        this.#frameId = null;
     }
 
     setPaused(paused) { 
@@ -32,7 +49,7 @@ export class CanvasApp {
         return this.#isPaused; 
     }
 
-    // MARK: - Profilers -------------------------------------------------------
+    // MARK: - Profilers 
     getUpdateTime() {
         return this.#profilerUpdate.getTime();
     }
@@ -41,7 +58,7 @@ export class CanvasApp {
         return this.#profilerDraw.getTime();
     }
 
-    // MARK: - Lifecycle -------------------------------------------------------
+    // MARK: - Lifecycle 
     loop(timestamp) {
         if (this.#lastTime === null) {
             this.#lastTime = timestamp;
@@ -62,7 +79,9 @@ export class CanvasApp {
         this.#profilerDraw.mark();
 
         // Go again
-        window.requestAnimationFrame(this.loop.bind(this));
+        if (this.#isRunning) {
+            this.#frameId = requestAnimationFrame(this.loop.bind(this));
+        }
     }
 
     update(deltaTime) {
@@ -76,7 +95,7 @@ export class CanvasApp {
         }
     }
 
-    // MARK: - Events ----------------------------------------------------------
+    // MARK: - Events 
     addEventListener(type, callback, owner=null, once=false) {
         this.#eventEmitter.addListener(type, callback, owner, once);
     }
