@@ -10,9 +10,6 @@ import {
 
 // MARK: - BasicApp ------------------------------------------------------------
 export class BasicApp extends CanvasApp {
-    MAX_THROW_SPEED = 3000;
-    MAX_BALL_SPEED = 500;
-
     canvas = null;
     box = null;
     

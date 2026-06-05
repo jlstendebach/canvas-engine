@@ -1,21 +1,22 @@
 import { EventEmitter } from "../../events/EventEmitter.js";
-import { Profiler } from "../../utils/Profiler.js";
 import { CanvasAppPauseEvent } from "./CanvasAppPauseEvent.js";
 
 export class CanvasApp {
     canvases = [];
+    #eventEmitter = new EventEmitter();
 
     #isPaused = false;
     #isRunning = false;
-    #lastTime = null;
+
+    #lastFrameTime = null;
     #frameId = null;
     #boundTick = null;
-
-    #eventEmitter = new EventEmitter();
+    #boundVisibilityHandler = null;
 
     // MARK: - Initialization
     constructor() {
         this.#boundTick = this.#tick.bind(this);
+        this.#boundVisibilityHandler = this.#onVisibilityChange.bind(this);
     }
 
     // MARK: - App Control
@@ -24,6 +25,10 @@ export class CanvasApp {
             return;
         }
         this.#isRunning = true;
+
+        document.addEventListener("visibilitychange", this.#boundVisibilityHandler);
+
+        this.#lastFrameTime = null;
         this.#frameId = requestAnimationFrame(this.#boundTick);
     }
 
@@ -32,6 +37,9 @@ export class CanvasApp {
             return;
         }
         this.#isRunning = false;
+
+        document.removeEventListener("visibilitychange", this.#boundVisibilityHandler);
+
         cancelAnimationFrame(this.#frameId);
         this.#frameId = null;
     }
@@ -62,17 +70,20 @@ export class CanvasApp {
 
     // MARK: - Lifecycle 
     #tick(timestamp) {
-        if (this.#lastTime === null) {
-            this.#lastTime = timestamp;
-        }
-        const deltaTime = timestamp - this.#lastTime;
-        this.#lastTime = timestamp;
-
-        if (this.isPaused() === false) {
-            this.update(deltaTime);
+        if (this.#lastFrameTime === null) {
+            this.#lastFrameTime = timestamp;
         }
 
-        this.draw();
+        const deltaTime = timestamp - this.#lastFrameTime;
+        this.#lastFrameTime = timestamp;
+
+        if (!document.hidden) {
+            if (this.isPaused() === false) {
+                this.update(deltaTime);
+            }
+
+            this.draw();
+        }
 
         if (this.#isRunning) {
             this.#frameId = requestAnimationFrame(this.#boundTick);
@@ -84,7 +95,6 @@ export class CanvasApp {
     }
 
     draw() {
-        // To be overridden by subclass.
         for (let canvas of this.canvases) {
             canvas.draw();
         }
@@ -106,4 +116,10 @@ export class CanvasApp {
         );
     }
 
+    #onVisibilityChange() {
+        if (document.hidden) { 
+            return;
+        }
+        this.#lastFrameTime = null;
+    }
 }
