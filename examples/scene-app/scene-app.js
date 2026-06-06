@@ -30,8 +30,7 @@ export class SceneApp extends CanvasApp {
     isFollowingBall = false;
     
     // MARK: - Initialization ---------------------------------------------------
-    constructor(canvasSelectorOrElement) {
-        super(canvasSelectorOrElement);
+    onStart() {
         this.initCanvas();
         this.initScene();
         this.initBox();
@@ -91,7 +90,7 @@ export class SceneApp extends CanvasApp {
     }
     
     // MARK: - Lifecycle -------------------------------------------------------
-    update(dtime) {
+    onUpdate(dtime) {
         const timeScale = dtime/1000.0;
 
         if (this.isBallGrabbed == false) {

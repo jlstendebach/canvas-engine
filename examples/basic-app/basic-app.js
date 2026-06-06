@@ -23,7 +23,7 @@ export class BasicApp extends CanvasApp {
     }
     
     // MARK: - Lifecycle -------------------------------------------------------
-    update(dtime) {
+    onUpdate(dtime) {
     }
 
     // MARK: - UI Events -------------------------------------------------------

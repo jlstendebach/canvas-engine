@@ -1,6 +1,11 @@
 import { EventEmitter } from "../../events/EventEmitter.js";
-import { CanvasAppPauseEvent } from "./CanvasAppPauseEvent.js";
 import { Canvas } from "../../graphics/Canvas.js";
+import {
+    CanvasAppPauseEvent,
+    CanvasAppResumeEvent,
+    CanvasAppStartEvent,
+    CanvasAppStopEvent
+} from "./CanvasAppEvent.js";
 
 export class CanvasApp {
     #canvas = null;
@@ -14,29 +19,30 @@ export class CanvasApp {
     #boundTick = null;
     #boundVisibilityHandler = null;
 
-    // MARK: - Properties
+    // MARK: - properties
     get canvas() {
         return this.#canvas;
     }
 
-    // MARK: - Initialization
+    // MARK: - initialization
     constructor(canvasSelectorOrElement) {
         this.#canvas = new Canvas(canvasSelectorOrElement);
         this.#boundTick = this.#tick.bind(this);
         this.#boundVisibilityHandler = this.#onVisibilityChange.bind(this);
     }
 
-    // MARK: - App Control
+    // MARK: - app control
     start() {
         if (this.#isRunning) {
             return;
         }
         this.#isRunning = true;
+        this.#isPaused = false;
+        this.#attachListeners();
 
-        document.addEventListener("visibilitychange", this.#boundVisibilityHandler);
-
-        this.#lastFrameTime = null;
-        this.#frameId = requestAnimationFrame(this.#boundTick);
+        this.#lastFrameTime = performance.now();
+        this.#dispatchStart();
+        this.#requestNextFrame();
     }
 
     stop() {
@@ -44,65 +50,66 @@ export class CanvasApp {
             return;
         }
         this.#isRunning = false;
+        this.#isPaused = false;
+        this.#detachListeners();
 
-        document.removeEventListener("visibilitychange", this.#boundVisibilityHandler);
+        this.#cancelCurrentFrame();
+        this.#dispatchStop();
+    }
 
-        cancelAnimationFrame(this.#frameId);
-        this.#frameId = null;
+    pause() { 
+        if (this.#isPaused || !this.#isRunning) {
+            return;
+        }
+        this.#isPaused = true; 
+        this.#dispatchPause();
+    }
+
+    resume() {
+        if (!this.#isPaused || !this.#isRunning) {
+            return;
+        }
+        this.#isPaused = false; 
+        this.#dispatchResume();
     }
 
     isRunning() {
         return this.#isRunning;
     }
 
-    pause() { 
-        if (this.#isPaused) {
-            return;
-        }
-        this.#isPaused = true; 
-        this.#emitPauseEvent();
-    }
-
-    resume() {
-        if (!this.#isPaused) {
-            return;
-        }
-        this.#isPaused = false; 
-        this.#emitPauseEvent();
-    }
-
     isPaused() {
         return this.#isPaused;
     }    
 
-    // MARK: - Lifecycle 
+    // MARK: - lifecycle 
     #tick(timestamp) {
-        const deltaTime = timestamp - (this.#lastFrameTime ?? timestamp);
+        const deltaTime = timestamp - this.#lastFrameTime;
         this.#lastFrameTime = timestamp;
 
         if (!document.hidden) {
             if (!this.isPaused()) {
-                this.update(deltaTime);
+                this.onUpdate(deltaTime);
             }
-            this.draw();
+            this.onDraw();
         }
 
-        if (this.isRunning()) {
-            this.#frameId = requestAnimationFrame(this.#boundTick);
-        }
+        this.#requestNextFrame();
     }
 
-    update(deltaTime) {
-        // To be overridden by subclass. Now receives fixed deltaTime.
-    }
+    // MARK: - subclass hooks
+    onStart() {}
+    onStop() {}
+    onPause() {}
+    onResume() {}
 
-    draw() {
+    onUpdate(deltaTime) {}
+    onDraw() {
         if (this.#canvas) {
             this.#canvas.draw();
         }
     }
 
-    // MARK: - Events 
+    // MARK: - events 
     addEventListener(type, callback, owner=null, once=false) {
         this.#eventEmitter.addListener(type, callback, owner, once);
     }
@@ -111,17 +118,51 @@ export class CanvasApp {
         this.#eventEmitter.removeListener(type, callback, owner);
     }
 
-    #emitPauseEvent() {
-        this.#eventEmitter.emit(
-            CanvasAppPauseEvent.name, 
-            new CanvasAppPauseEvent(this, this.#isPaused)
-        );
+    // MARK: - event emitters
+    #dispatchStart() {
+        this.onStart();
+        this.#eventEmitter.emit(CanvasAppStartEvent, new CanvasAppStartEvent(this));
     }
 
+    #dispatchStop() {
+        this.onStop();
+        this.#eventEmitter.emit(CanvasAppStopEvent, new CanvasAppStopEvent(this));
+    }
+
+    #dispatchPause() {
+        this.onPause();
+        this.#eventEmitter.emit(CanvasAppPauseEvent, new CanvasAppPauseEvent(this));
+    }
+
+    #dispatchResume() {
+        this.onResume();
+        this.#eventEmitter.emit(CanvasAppResumeEvent, new CanvasAppResumeEvent(this));
+    }
+
+    // MARK: - event handlers
     #onVisibilityChange() {
-        if (document.hidden) { 
-            return;
+        if (!document.hidden) { 
+            this.#lastFrameTime = performance.now();
         }
-        this.#lastFrameTime = null;
+    }
+
+    // MARK: - helpers
+    #attachListeners() {
+        document.addEventListener("visibilitychange", this.#boundVisibilityHandler);
+    }
+
+    #detachListeners() {
+        document.removeEventListener("visibilitychange", this.#boundVisibilityHandler);
+    }
+
+    #requestNextFrame() {
+        if (this.isRunning()) {
+            this.#frameId = requestAnimationFrame(this.#boundTick);
+        }
+    }
+
+    #cancelCurrentFrame() {
+        cancelAnimationFrame(this.#frameId);
+        this.#frameId = null;
     }
 }
