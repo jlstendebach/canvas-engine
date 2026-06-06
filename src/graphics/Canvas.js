@@ -8,7 +8,6 @@ import { CachedColor } from "./utils/CachedColor.js";
 import { View } from "./views/View.js";
 
 export class Canvas {
-    #id = "";
     #canvas = null;
     #context = null;
     #rootView = new View();
@@ -17,9 +16,14 @@ export class Canvas {
     #mouseProcessor = new MouseEventProcessor();
     #eventEmitter = new EventEmitter();
 
-    constructor(id, contextType="2d") {
-        this.#id = id;
-        this.#canvas = document.getElementById(id);
+    constructor(selectorOrElement, contextType="2d") {
+        if (typeof selectorOrElement === "string") {
+            this.#canvas = document.querySelector(selectorOrElement);
+        } else if (selectorOrElement instanceof HTMLCanvasElement) {
+            this.#canvas = selectorOrElement;
+        } else {
+            throw new TypeError("Canvas constructor requires a CSS selector string or an HTMLCanvasElement.");
+        }
         this.#context = this.#canvas.getContext(contextType);
         this.hookEvents();
         this.updateCanvasSize();
@@ -185,8 +189,6 @@ export class Canvas {
 
     // MARK: - Helpers ---------------------------------------------------------
     windowToCanvasCoords(x, y) {
-        this.#canvas = document.getElementById(this.#id);
-
         let style = window.getComputedStyle
             ? getComputedStyle(this.#canvas, null)
             : this.#canvas.currentStyle;
@@ -203,8 +205,6 @@ export class Canvas {
     }
 
     updateCanvasSize() {
-        this.#canvas = document.getElementById(this.#id);
-
         let width = this.#canvas.clientWidth;
         let height = this.#canvas.clientHeight;
 
