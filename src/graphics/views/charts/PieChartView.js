@@ -1,8 +1,7 @@
+import { Vec2 } from "../../../math/Vec2.js";
 import { LabelView, LabelViewOptions } from "../LabelView.js";
 import { RectangleView } from "../shapes/RectangleView.js";
-import { View } from "../View.js"
-
-import { Vec2 } from "../../../math/index.js"
+import { View } from "../View.js";
 
 // ==[ PieChartSlice ]==========================================================
 export class PieChartSlice {

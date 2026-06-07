@@ -1,18 +1,13 @@
-import { View } from "./views/View.js";
+import { CanvasResizeEvent } from "../events/CanvasEvents.js";
+import { EventEmitter } from "../events/EventEmitter.js";
+import { MouseButton } from "../events/mouse/MouseButton.js";
+import { MouseEvent } from "../events/mouse/MouseEvent.js";
+import { MouseEventProcessor } from "../events/mouse/MouseEventProcessor.js";
+import { Vec2 } from "../math/Vec2.js";
 import { CachedColor } from "./utils/CachedColor.js";
-
-import { 
-    CanvasResizeEvent, 
-    EventEmitter, 
-    MouseButton,
-    MouseEvent,    
-    MouseEventProcessor,
-} from "../events/index.js";
-
-import { Vec2 } from "../math/index.js";
+import { View } from "./views/View.js";
 
 export class Canvas {
-    #id = "";
     #canvas = null;
     #context = null;
     #rootView = new View();
@@ -21,12 +16,26 @@ export class Canvas {
     #mouseProcessor = new MouseEventProcessor();
     #eventEmitter = new EventEmitter();
 
-    constructor(id, contextType="2d") {
-        this.#id = id;
-        this.#canvas = document.getElementById(id);
+    #domAbortController = null;
+
+    constructor(selectorOrElement, contextType="2d") {
+        if (typeof selectorOrElement === "string") {
+            this.#canvas = document.querySelector(selectorOrElement);
+        } else if (selectorOrElement instanceof HTMLCanvasElement) {
+            this.#canvas = selectorOrElement;
+        } else {
+            throw new TypeError("Canvas constructor requires a CSS selector string or an HTMLCanvasElement.");
+        }
         this.#context = this.#canvas.getContext(contextType);
-        this.hookEvents();
+        this.#attachDomEvents();
         this.updateCanvasSize();
+    }
+
+    destroy() {
+        this.#detachDomEvents();
+        this.#rootView.removeAllViews();
+        this.#rootView.removeAllEventListeners();
+        this.#eventEmitter.removeAllListeners();
     }
 
     // MARK: - Properties ------------------------------------------------------
@@ -141,56 +150,62 @@ export class Canvas {
         return this.#eventEmitter.removeListener(type, callback, owner);
     }
 
-    onWindowResized() {
+    // MARK: - DOM event binding
+    #attachDomEvents() {        
+        if (this.#domAbortController) {
+            return;
+        }
+        this.#domAbortController = new AbortController();
+        const options = { signal: this.#domAbortController.signal };
+
+        // Mouse events
+        this.#canvas.addEventListener("mousedown", this.#onMouseDown.bind(this), options);
+        this.#canvas.addEventListener("mouseup", this.#onMouseUp.bind(this), options);
+        this.#canvas.addEventListener("mouseout", this.#onMouseUp.bind(this), options);
+        this.#canvas.addEventListener("mousemove", this.#onMouseMove.bind(this), options);
+        this.#canvas.addEventListener("wheel", this.#onMouseWheel.bind(this), options);
+
+        // Window events
+        window.addEventListener("resize", this.#onWindowResized.bind(this), options);
+
+        // Other events
+        this.#canvas.oncontextmenu = () => false; // disable context menu on right click
+    }
+
+    #detachDomEvents() {
+        if (!this.#domAbortController) {
+            return;
+        }
+        this.#domAbortController.abort();
+        this.#domAbortController = null;
+        this.#canvas.oncontextmenu = null; // restore default context menu behavior
+    }
+
+    // MARK: - DOM window event handlers
+    #onWindowResized() {
         this.updateCanvasSize();
     }
 
-    hookEvents() {        
-        this.hookMouseEvents();
-        this.hookOtherEvents();
+    // MARK: - DOM mouse event handlers
+    #onMouseDown(event) {
+        this.#mouseProcessor.onMouseDown(this.createMouseEvent(MouseEvent.DOWN, event));
     }
 
-    hookMouseEvents() {
-        // Mouse Down
-        this.#canvas.addEventListener("mousedown", (event) => {
-            this.#mouseProcessor.onMouseDown(this.createMouseEvent(MouseEvent.DOWN, event));
-        });
-
-        // Mouse Up
-        this.#canvas.addEventListener("mouseup", (event) => {
-            this.#mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
-        });
-
-        // Mouse Out
-        this.#canvas.addEventListener("mouseout", (event) => {
-            this.#mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
-        });
-
-        // Mouse Move
-        this.#canvas.addEventListener("mousemove", (event) => {
-            this.#mouseProcessor.onMouseMove(this.createMouseEvent(MouseEvent.MOVE, event));
-        });
-
-        // Mouse Wheel
-        this.#canvas.addEventListener("wheel", (event) => {
-            this.#mouseProcessor.onMouseWheel(this.createMouseEvent(MouseEvent.WHEEL, event));
-        });
-
-        // Context Menu - Disable right click context menu on the canvas.
-        this.#canvas.oncontextmenu = () => false;
+    #onMouseUp(event) {
+        this.#mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
+    }
+    
+    #onMouseMove(event) {
+        this.#mouseProcessor.onMouseMove(this.createMouseEvent(MouseEvent.MOVE, event));
+    }
+    
+    #onMouseWheel(event) {
+        this.#mouseProcessor.onMouseWheel(this.createMouseEvent(MouseEvent.WHEEL, event));
     }
 
-    hookOtherEvents() {
-        // Window Resized
-        window.addEventListener("resize", () => {
-            this.onWindowResized();
-        });
-    }
 
     // MARK: - Helpers ---------------------------------------------------------
     windowToCanvasCoords(x, y) {
-        this.#canvas = document.getElementById(this.#id);
-
         let style = window.getComputedStyle
             ? getComputedStyle(this.#canvas, null)
             : this.#canvas.currentStyle;
@@ -207,8 +222,6 @@ export class Canvas {
     }
 
     updateCanvasSize() {
-        this.#canvas = document.getElementById(this.#id);
-
         let width = this.#canvas.clientWidth;
         let height = this.#canvas.clientHeight;
 
@@ -229,8 +242,7 @@ export class Canvas {
 
     createMouseEvent(type, event) {
         let coords = this.windowToCanvasCoords(event.clientX, event.clientY);
-        let dx = 0;
-        let dy = 0;
+        let dx, dy;
 
         if (type == MouseEvent.WHEEL) {
             dx = event.deltaX;

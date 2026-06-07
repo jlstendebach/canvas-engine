@@ -1,4 +1,4 @@
-import { EventEmitter } from "../../events/index.js"
+import { EventEmitter } from "../../events/EventEmitter.js";
 import { Vec2 } from "../../math/Vec2.js";
 
 /**
@@ -49,6 +49,7 @@ export class View {
      */
     isInBounds(point) { 
         // Base view has no bounds. Subclasses should override this method.
+        void point;
         return true; 
     }
     
@@ -227,8 +228,9 @@ export class View {
      * Subclasses should override this method.
      * @param {CanvasRenderingContext2D} context - The canvas drawing context.
      */
-    drawSelf(context) {
+    drawSelf(context) {        
         // Base view does not draw anything. Subclasses should override this method.
+        void context;
     }
 
     /**
@@ -263,6 +265,13 @@ export class View {
      */
     removeEventListener(type, callback, owner = null) {
         return this.#eventEmitter.removeListener(type, callback, owner);
+    }
+
+    /**
+     * Removes all event listeners from this view.
+     */
+    removeAllEventListeners() {
+        this.#eventEmitter.removeAllListeners();
     }
 
     // MARK: - Mouse Events ----------------------------------------------------

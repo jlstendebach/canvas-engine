@@ -1,6 +1,5 @@
 import {
-    App,
-    Canvas,
+    CanvasApp,
     CircleView,
     Color,
     CoordinateSpace,
@@ -13,12 +12,11 @@ import {
 } from "../../src/index.js";
 
 // MARK: - SceneApp ------------------------------------------------------------
-export class SceneApp extends App {
+export class SceneApp extends CanvasApp {
     MAX_THROW_SPEED = 3000;
     MAX_BALL_SPEED = 500;
     CORNER_RADIUS = 5;
 
-    canvas = null;
     scene = null;
     box = null;
     boxCorner1 = null;
@@ -30,9 +28,9 @@ export class SceneApp extends App {
     isBallGrabbed = false;
     isFollowingBall = false;
     
-    // MARK: - Initialization ---------------------------------------------------
-    constructor() {
-        super();
+    // MARK: - Initialization --------------------------------------------------
+    constructor(canvasSelectorOrElement) {
+        super(canvasSelectorOrElement);
         this.initCanvas();
         this.initScene();
         this.initBox();
@@ -40,10 +38,7 @@ export class SceneApp extends App {
     }
 
     initCanvas() {
-        const canvas = new Canvas("main-canvas");
-        canvas.fillStyle = new Color(0, 0, 20);
-        this.canvases.push(canvas);       
-        this.canvas = canvas; 
+        this.canvas.fillStyle = new Color(0, 0, 20);
     }
 
     initScene() {
@@ -95,8 +90,8 @@ export class SceneApp extends App {
     }
     
     // MARK: - Lifecycle -------------------------------------------------------
-    update(dtime) {
-        const timeScale = dtime/1000.0;
+    onUpdate(timestamp, deltaTime) {
+        const timeScale = deltaTime/1000.0;
 
         if (this.isBallGrabbed == false) {
             const acceleration = new Vec2(0, 2000.0)

@@ -1,6 +1,6 @@
-import { View } from "./View.js"
-import { Vec2 } from "../../math/index.js"
+import { Vec2 } from "../../math/Vec2.js";
 import { CoordinateSpace } from "../utils/CoordinateSpace.js";
+import { View } from "./View.js";
 
 export class SceneView extends View {
     static #TAU = 2 * Math.PI;

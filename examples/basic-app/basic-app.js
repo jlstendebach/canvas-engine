@@ -1,6 +1,5 @@
 import { 
-    App, 
-    Canvas, 
+    CanvasApp, 
     CircleView, 
     Color, 
     Vec2, 
@@ -9,31 +8,20 @@ import {
 } from "../../src/index.js";
 
 // MARK: - BasicApp ------------------------------------------------------------
-export class BasicApp extends App {
-    MAX_THROW_SPEED = 3000;
-    MAX_BALL_SPEED = 500;
-
-    canvas = null;
+export class BasicApp extends CanvasApp {
     box = null;
     
     // MARK: - Initialization ---------------------------------------------------
-    constructor() {
-        super();
+    constructor(canvasSelectorOrElement) {
+        super(canvasSelectorOrElement);
         this.initCanvas();
     }
 
     initCanvas() {
-        const canvas = new Canvas("main-canvas");
-        canvas.fillStyle = new Color(0, 0, 20);
-        canvas.addEventListener(MouseEvent.DOWN, this.onCanvasClick, this);
-        this.canvases.push(canvas);       
-        this.canvas = canvas; 
+        this.canvas.fillStyle = new Color(0, 0, 20);
+        this.canvas.addEventListener(MouseEvent.DOWN, this.onCanvasClick, this);
     }
     
-    // MARK: - Lifecycle -------------------------------------------------------
-    update(dtime) {
-    }
-
     // MARK: - UI Events -------------------------------------------------------
     onCanvasClick(type, event) {
         if (event.button === MouseButton.LEFT) {
