@@ -22,10 +22,6 @@ export class BasicApp extends CanvasApp {
         this.canvas.addEventListener(MouseEvent.DOWN, this.onCanvasClick, this);
     }
     
-    // MARK: - Lifecycle -------------------------------------------------------
-    onUpdate(dtime) {
-    }
-
     // MARK: - UI Events -------------------------------------------------------
     onCanvasClick(type, event) {
         if (event.button === MouseButton.LEFT) {

@@ -1,5 +1,4 @@
 import {
-    Canvas,
     CanvasApp,
     CircleView,
     Color,
@@ -29,8 +28,9 @@ export class SceneApp extends CanvasApp {
     isBallGrabbed = false;
     isFollowingBall = false;
     
-    // MARK: - Initialization ---------------------------------------------------
-    onStart() {
+    // MARK: - Initialization --------------------------------------------------
+    constructor(canvasSelectorOrElement) {
+        super(canvasSelectorOrElement);
         this.initCanvas();
         this.initScene();
         this.initBox();
@@ -90,8 +90,8 @@ export class SceneApp extends CanvasApp {
     }
     
     // MARK: - Lifecycle -------------------------------------------------------
-    onUpdate(dtime) {
-        const timeScale = dtime/1000.0;
+    onUpdate(timestamp, deltaTime) {
+        const timeScale = deltaTime/1000.0;
 
         if (this.isBallGrabbed == false) {
             const acceleration = new Vec2(0, 2000.0)

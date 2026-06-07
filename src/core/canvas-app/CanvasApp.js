@@ -1,23 +1,27 @@
 import { EventEmitter } from "../../events/EventEmitter.js";
 import { Canvas } from "../../graphics/Canvas.js";
 import {
+    CanvasAppDestroyEvent,
     CanvasAppPauseEvent,
     CanvasAppResumeEvent,
     CanvasAppStartEvent,
-    CanvasAppStopEvent
+    CanvasAppStopEvent,
+    CanvasAppUpdateEvent
 } from "./CanvasAppEvent.js";
 
 export class CanvasApp {
     #canvas = null;
     #eventEmitter = new EventEmitter();
 
-    #isPaused = false;
-    #isRunning = false;
-
     #lastFrameTime = null;
     #frameId = null;
     #boundTick = null;
-    #boundVisibilityHandler = null;
+
+    #domAbortController = null;
+
+    #isPaused = false;
+    #isRunning = false;
+    #isDestroying = false;
 
     // MARK: - properties
     get canvas() {
@@ -28,115 +32,223 @@ export class CanvasApp {
     constructor(canvasSelectorOrElement) {
         this.#canvas = new Canvas(canvasSelectorOrElement);
         this.#boundTick = this.#tick.bind(this);
-        this.#boundVisibilityHandler = this.#onVisibilityChange.bind(this);
+        this.#attachDomEvents();
     }
 
-    // MARK: - app control
+    // MARK: - lifecycle
     start() {
-        if (this.#isRunning) {
+        this.#assertNotDestroyed();
+        if (this.isRunning() || this.isDestroying()) {
             return;
         }
+
         this.#isRunning = true;
         this.#isPaused = false;
-        this.#attachListeners();
 
         this.#lastFrameTime = performance.now();
-        this.#dispatchStart();
+        this.#dispatchStartEvent();
         this.#requestNextFrame();
     }
 
     stop() {
-        if (!this.#isRunning) {
+        this.#assertNotDestroyed();
+        if (!this.isRunning()) {
             return;
         }
         this.#isRunning = false;
         this.#isPaused = false;
-        this.#detachListeners();
 
         this.#cancelCurrentFrame();
-        this.#dispatchStop();
+        this.#dispatchStopEvent();
     }
 
     pause() { 
-        if (this.#isPaused || !this.#isRunning) {
+        this.#assertNotDestroyed();
+        if (this.isPaused() || !this.isRunning()) {
             return;
         }
         this.#isPaused = true; 
-        this.#dispatchPause();
+        this.#dispatchPauseEvent();
     }
 
     resume() {
-        if (!this.#isPaused || !this.#isRunning) {
+        this.#assertNotDestroyed();
+        if (!this.isPaused() || !this.isRunning()) {
             return;
         }
         this.#isPaused = false; 
-        this.#dispatchResume();
+        this.#dispatchResumeEvent();
     }
 
+    destroy() {
+        if (this.isDestroying() || this.isDestroyed()) {
+            return;
+        }
+        this.#isDestroying = true;
+
+        try {
+            this.stop();
+            this.#detachDomEvents();
+            this.#dispatchDestroyEvent();
+            this.removeAllEventListeners();
+            this.#canvas.destroy();
+
+        } catch (error) {
+            this.#reportError(error);
+
+        } finally {
+            this.#canvas = null;
+            this.#isDestroying = false;
+        }
+
+    }
+
+    // MARK: - lifecycle hooks
+    onStart() {}
+    onStop() {}
+    onPause() {}
+    onResume() {}
+    onUpdate(timestamp, deltaTime) {
+        void timestamp;
+        void deltaTime;
+    }
+    onDestroy() {}
+
+    // MARK: - state queries
     isRunning() {
         return this.#isRunning;
     }
 
     isPaused() {
         return this.#isPaused;
-    }    
-
-    // MARK: - lifecycle 
-    #tick(timestamp) {
-        const deltaTime = timestamp - this.#lastFrameTime;
-        this.#lastFrameTime = timestamp;
-
-        if (!document.hidden) {
-            if (!this.isPaused()) {
-                this.onUpdate(deltaTime);
-            }
-            this.onDraw();
-        }
-
-        this.#requestNextFrame();
     }
 
-    // MARK: - subclass hooks
-    onStart() {}
-    onStop() {}
-    onPause() {}
-    onResume() {}
+    isDestroying() {
+        return this.#isDestroying;
+    }
 
-    onUpdate(deltaTime) {}
-    onDraw() {
-        if (this.#canvas) {
-            this.#canvas.draw();
-        }
+    isDestroyed() {
+        return this.#canvas === null;
     }
 
     // MARK: - events 
     addEventListener(type, callback, owner=null, once=false) {
-        this.#eventEmitter.addListener(type, callback, owner, once);
+        return this.#eventEmitter.addListener(type, callback, owner, once);
     }
 
     removeEventListener(type, callback, owner=null) {
-        this.#eventEmitter.removeListener(type, callback, owner);
+        return this.#eventEmitter.removeListener(type, callback, owner);
     }
 
-    // MARK: - event emitters
-    #dispatchStart() {
-        this.onStart();
-        this.#eventEmitter.emit(CanvasAppStartEvent, new CanvasAppStartEvent(this));
+    removeAllEventListeners() {
+        this.#eventEmitter.removeAllListeners();
     }
 
-    #dispatchStop() {
-        this.onStop();
-        this.#eventEmitter.emit(CanvasAppStopEvent, new CanvasAppStopEvent(this));
+    // MARK: - main loop
+    #tick(timestamp) {
+        try {
+            const deltaTime = timestamp - this.#lastFrameTime;
+            this.#lastFrameTime = timestamp;
+
+            if (!document.hidden) {
+                this.#update(timestamp, deltaTime);
+                this.#draw();
+            }
+            
+        } catch (error) {
+            this.#reportError(error);
+
+        } finally {
+            this.#requestNextFrame();
+        }
     }
 
-    #dispatchPause() {
-        this.onPause();
-        this.#eventEmitter.emit(CanvasAppPauseEvent, new CanvasAppPauseEvent(this));
+    #update(timestamp, deltaTime) {
+        if (this.isPaused()) {
+            return;
+        }
+
+        try {
+            this.onUpdate(timestamp, deltaTime);
+        } catch (error) {
+            this.#reportError(error);
+        }
+
+        try {
+            this.#eventEmitter.emit(
+                CanvasAppUpdateEvent, 
+                new CanvasAppUpdateEvent(this, timestamp, deltaTime)
+            );
+        } catch (error) {
+            this.#reportError(error);
+        }
     }
 
-    #dispatchResume() {
-        this.onResume();
-        this.#eventEmitter.emit(CanvasAppResumeEvent, new CanvasAppResumeEvent(this));
+    #draw() {
+        if (!this.#canvas) { 
+            return; 
+        }
+
+        try {
+            this.#canvas.draw();
+        } catch (error) {
+            this.#reportError(error);
+        }
+    }
+
+    // MARK: - event dispatching
+    #safeDispatchLifecycleEvent(hook, type, event) {
+        try {
+            hook();
+        } catch (error) {
+            this.#reportError(error);
+        }
+        
+        try {
+            this.#eventEmitter.emit(type, event);
+        } catch (error) {
+            this.#reportError(error);
+        }        
+    }
+
+    #dispatchStartEvent() {
+        this.#safeDispatchLifecycleEvent( 
+            () => this.onStart(),
+            CanvasAppStartEvent, 
+            new CanvasAppStartEvent(this)
+        );
+    }
+
+    #dispatchStopEvent() {
+        this.#safeDispatchLifecycleEvent( 
+            () => this.onStop(),
+            CanvasAppStopEvent, 
+            new CanvasAppStopEvent(this)
+        );
+    }
+
+    #dispatchPauseEvent() {
+        this.#safeDispatchLifecycleEvent( 
+            () => this.onPause(),
+            CanvasAppPauseEvent, 
+            new CanvasAppPauseEvent(this)
+        );
+    }
+
+    #dispatchResumeEvent() {
+        this.#safeDispatchLifecycleEvent( 
+            () => this.onResume(),
+            CanvasAppResumeEvent, 
+            new CanvasAppResumeEvent(this)
+        );
+    }
+
+    #dispatchDestroyEvent() {
+        this.#safeDispatchLifecycleEvent( 
+            () => this.onDestroy(),
+            CanvasAppDestroyEvent, 
+            new CanvasAppDestroyEvent(this)
+        );
     }
 
     // MARK: - event handlers
@@ -147,12 +259,21 @@ export class CanvasApp {
     }
 
     // MARK: - helpers
-    #attachListeners() {
-        document.addEventListener("visibilitychange", this.#boundVisibilityHandler);
+    #attachDomEvents() {
+        if (this.#domAbortController) {
+            return;
+        }
+        this.#domAbortController = new AbortController();
+        const options = { signal: this.#domAbortController.signal };
+        document.addEventListener("visibilitychange", this.#onVisibilityChange.bind(this), options);
     }
 
-    #detachListeners() {
-        document.removeEventListener("visibilitychange", this.#boundVisibilityHandler);
+    #detachDomEvents() {
+        if (!this.#domAbortController) {
+            return;
+        }
+        this.#domAbortController.abort();
+        this.#domAbortController = null;
     }
 
     #requestNextFrame() {
@@ -164,5 +285,15 @@ export class CanvasApp {
     #cancelCurrentFrame() {
         cancelAnimationFrame(this.#frameId);
         this.#frameId = null;
+    }
+
+    #assertNotDestroyed() {
+        if (this.isDestroyed()) {
+            throw new Error("This CanvasApp has been destroyed and can no longer be used.");
+        }   
+    }
+
+    #reportError(error) {
+        console.error(error);
     }
 }
