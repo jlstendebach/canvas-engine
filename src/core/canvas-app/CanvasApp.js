@@ -1,12 +1,6 @@
 import { Canvas } from "../../graphics/Canvas.js";
 
-const CanvasAppState = Object.freeze({
-    STOPPED: 0,
-    RUNNING: 1,
-    DESTROYING: 2,
-    DESTROYED: 3
-});
-
+// MARK: - CanvasApp
 export class CanvasApp {
     #canvas = null;
 
@@ -242,3 +236,11 @@ export class CanvasApp {
         this.stop();
     }
 }
+
+// MARK: - CanvasAppState
+const CanvasAppState = Object.freeze({
+    STOPPED: 0,
+    RUNNING: 1,
+    DESTROYING: 2,
+    DESTROYED: 3
+});

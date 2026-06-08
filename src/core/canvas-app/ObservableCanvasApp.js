@@ -25,41 +25,56 @@ export class ObservableCanvasApp extends CanvasApp {
         this.#eventEmitter.removeAllListeners();
     }
 
-    // MARK: - internal event extension points
+    // MARK: - lifecycle events
     onStart() {
-        this.#safeEmit(CanvasAppStartEvent, new CanvasAppStartEvent(this));
+        this.#eventEmitter.emit(
+            CanvasAppStartEvent, 
+            new CanvasAppStartEvent(this)
+        );
     }
 
     onStop() {
-        this.#safeEmit(CanvasAppStopEvent, new CanvasAppStopEvent(this));
+        this.#eventEmitter.emit(
+            CanvasAppStopEvent, 
+            new CanvasAppStopEvent(this)
+        );
     }
 
     onPause() {
-        this.#safeEmit(CanvasAppPauseEvent, new CanvasAppPauseEvent(this));
+        this.#eventEmitter.emit(
+            CanvasAppPauseEvent, 
+            new CanvasAppPauseEvent(this)
+        );
     }
 
     onResume() {
-        this.#safeEmit(CanvasAppResumeEvent, new CanvasAppResumeEvent(this));
+        this.#eventEmitter.emit(
+            CanvasAppResumeEvent, 
+            new CanvasAppResumeEvent(this)
+        );
     }
 
     onUpdate(timestamp, deltaTime) { 
-        this.#safeEmit(CanvasAppUpdateEvent, new CanvasAppUpdateEvent(this, timestamp, deltaTime));
+        this.#eventEmitter.emit(
+            CanvasAppUpdateEvent, 
+            new CanvasAppUpdateEvent(this, timestamp, deltaTime)
+        );
     }
 
     onDestroy() {
-        this.#safeEmit(CanvasAppDestroyEvent, new CanvasAppDestroyEvent(this));
-        this.removeAllEventListeners();
-    }
-
-    // MARK: - helpers
-    #safeEmit(type, event) {
         try {
-            this.#eventEmitter.emit(type, event);
+            this.#eventEmitter.emit(
+                CanvasAppDestroyEvent, 
+                new CanvasAppDestroyEvent(this)
+            );
         } catch (error) {
             this.#reportError(error);
+        } finally {
+            this.removeAllEventListeners();
         }
     }
 
+    // MARK: - helpers
     #reportError(error) {
         console.error(error);
     }
