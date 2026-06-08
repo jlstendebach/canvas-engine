@@ -32,10 +32,21 @@ export class Canvas {
     }
 
     destroy() {
-        this.#detachDomEvents();
-        this.#rootView.removeAllViews();
-        this.#rootView.removeAllEventListeners();
-        this.#eventEmitter.removeAllListeners();
+        if (this.#canvas === null) {
+            return;
+        }
+
+        try {
+            this.#detachDomEvents();
+            this.#rootView.removeAllViews();
+            this.#rootView.removeAllEventListeners();
+            this.#eventEmitter.removeAllListeners();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            this.#canvas = null;
+            this.#context = null;
+        }
     }
 
     // MARK: - Properties ------------------------------------------------------

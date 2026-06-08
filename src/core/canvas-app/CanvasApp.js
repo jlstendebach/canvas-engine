@@ -1,27 +1,22 @@
-import { EventEmitter } from "../../events/EventEmitter.js";
 import { Canvas } from "../../graphics/Canvas.js";
-import {
-    CanvasAppDestroyEvent,
-    CanvasAppPauseEvent,
-    CanvasAppResumeEvent,
-    CanvasAppStartEvent,
-    CanvasAppStopEvent,
-    CanvasAppUpdateEvent
-} from "./CanvasAppEvent.js";
+
+const CanvasAppState = Object.freeze({
+    STOPPED: 0,
+    RUNNING: 1,
+    DESTROYING: 2,
+    DESTROYED: 3
+});
 
 export class CanvasApp {
     #canvas = null;
-    #eventEmitter = new EventEmitter();
 
     #lastFrameTime = null;
-    #frameId = null;
-    #boundTick = null;
+    #animationFrameId = null;
+
+    #state = CanvasAppState.STOPPED;
+    #isPaused = false;
 
     #domAbortController = null;
-
-    #isPaused = false;
-    #isRunning = false;
-    #isDestroying = false;
 
     // MARK: - properties
     get canvas() {
@@ -31,135 +26,92 @@ export class CanvasApp {
     // MARK: - initialization
     constructor(canvasSelectorOrElement) {
         this.#canvas = new Canvas(canvasSelectorOrElement);
-        this.#boundTick = this.#tick.bind(this);
         this.#attachDomEvents();
     }
 
     // MARK: - lifecycle
     start() {
-        this.#assertNotDestroyed();
-        if (this.isRunning() || this.isDestroying()) {
+        if (!this.isStopped()) {
             return;
         }
-
-        this.#isRunning = true;
+        this.#state = CanvasAppState.RUNNING;
         this.#isPaused = false;
-
         this.#lastFrameTime = performance.now();
-        this.#dispatchStartEvent();
-        this.#requestNextFrame();
+
+        this.#safeCall(() => this.onStart());
+        this.#requestFrame();
     }
 
     stop() {
-        this.#assertNotDestroyed();
         if (!this.isRunning()) {
             return;
         }
-        this.#isRunning = false;
+        this.#state = CanvasAppState.STOPPED;
         this.#isPaused = false;
 
-        this.#cancelCurrentFrame();
-        this.#dispatchStopEvent();
+        this.#cancelFrame();
+        this.#safeCall(() => this.onStop());
     }
 
     pause() { 
-        this.#assertNotDestroyed();
-        if (this.isPaused() || !this.isRunning()) {
+        if (!this.isRunning() || this.isPaused()) {
             return;
         }
-        this.#isPaused = true; 
-        this.#dispatchPauseEvent();
+        this.#isPaused = true;
+        this.#safeCall(() => this.onPause());
     }
 
     resume() {
-        this.#assertNotDestroyed();
-        if (!this.isPaused() || !this.isRunning()) {
+        if (!this.isRunning() || !this.isPaused()) {
             return;
         }
-        this.#isPaused = false; 
-        this.#dispatchResumeEvent();
+        this.#isPaused = false;
+        this.#safeCall(() => this.onResume());
     }
 
     destroy() {
         if (this.isDestroying() || this.isDestroyed()) {
             return;
         }
-        this.#isDestroying = true;
+        this.#state = CanvasAppState.DESTROYING;
 
         try {
-            this.stop();
+            this.#isPaused = false;
+            this.#cancelFrame();
             this.#detachDomEvents();
-            this.#dispatchDestroyEvent();
-            this.removeAllEventListeners();
-            this.#canvas.destroy();
+            this.#safeCall(() => this.onDestroy());
 
         } catch (error) {
             this.#reportError(error);
 
         } finally {
+            this.#canvas.destroy();
             this.#canvas = null;
-            this.#isDestroying = false;
+            this.#state = CanvasAppState.DESTROYED;
         }
 
     }
 
-    // MARK: - lifecycle hooks
-    onStart() {}
-    onStop() {}
-    onPause() {}
-    onResume() {}
-    onUpdate(timestamp, deltaTime) {
-        void timestamp;
-        void deltaTime;
-    }
-    onDestroy() {}
-
-    // MARK: - state queries
-    isRunning() {
-        return this.#isRunning;
-    }
-
-    isPaused() {
-        return this.#isPaused;
-    }
-
-    isDestroying() {
-        return this.#isDestroying;
-    }
-
-    isDestroyed() {
-        return this.#canvas === null;
-    }
-
-    // MARK: - events 
-    addEventListener(type, callback, owner=null, once=false) {
-        return this.#eventEmitter.addListener(type, callback, owner, once);
-    }
-
-    removeEventListener(type, callback, owner=null) {
-        return this.#eventEmitter.removeListener(type, callback, owner);
-    }
-
-    removeAllEventListeners() {
-        this.#eventEmitter.removeAllListeners();
-    }
-
     // MARK: - main loop
-    #tick(timestamp) {
+    #tick = (timestamp) => {
+        // Clearing this here allows another frame to be requested from 
+        // anywhere, even from DOM events like our 'visibilitychange' handler. 
+        // JavaScript ensures that the current tick will finish before 
+        // processing new frames.
+        this.#animationFrameId = null;
+
         try {
             const deltaTime = timestamp - this.#lastFrameTime;
             this.#lastFrameTime = timestamp;
 
-            if (!document.hidden) {
-                this.#update(timestamp, deltaTime);
-                this.#draw();
-            }
+            this.#update(timestamp, deltaTime);
+            this.#draw();
             
         } catch (error) {
-            this.#reportError(error);
+            this.#handleFrameError(error, "tick");
 
         } finally {
-            this.#requestNextFrame();
+            this.#requestFrame();
         }
     }
 
@@ -171,16 +123,7 @@ export class CanvasApp {
         try {
             this.onUpdate(timestamp, deltaTime);
         } catch (error) {
-            this.#reportError(error);
-        }
-
-        try {
-            this.#eventEmitter.emit(
-                CanvasAppUpdateEvent, 
-                new CanvasAppUpdateEvent(this, timestamp, deltaTime)
-            );
-        } catch (error) {
-            this.#reportError(error);
+            this.#handleFrameError(error, "onUpdate");
         }
     }
 
@@ -192,80 +135,66 @@ export class CanvasApp {
         try {
             this.#canvas.draw();
         } catch (error) {
-            this.#reportError(error);
+            this.#handleFrameError(error, "draw");
         }
     }
 
-    // MARK: - event dispatching
-    #safeDispatchLifecycleEvent(hook, type, event) {
-        try {
-            hook();
-        } catch (error) {
-            this.#reportError(error);
+    // MARK: - state queries
+    isStopped() {
+        return this.#state === CanvasAppState.STOPPED;
+    }
+
+    isRunning() {
+        return this.#state === CanvasAppState.RUNNING;
+    }
+
+    isDestroying() {
+        return this.#state === CanvasAppState.DESTROYING;
+    }
+
+    isDestroyed() {
+        return this.#state === CanvasAppState.DESTROYED;
+    }
+
+    isPaused() {
+        return this.#isPaused;
+    }
+
+    // MARK: - lifecycle hooks
+    onStart() {}
+    onStop() {}
+    onPause() {}
+    onResume() {}
+    onUpdate(timestamp, deltaTime) { void timestamp; void deltaTime; }
+    onDestroy() {}
+
+    // MARK: - events
+    #onDocumentHidden() {
+        this.#cancelFrame();
+    }
+
+    #onDocumentVisible() {
+        if (!this.isRunning()) {
+            return;
         }
-        
-        try {
-            this.#eventEmitter.emit(type, event);
-        } catch (error) {
-            this.#reportError(error);
-        }        
+        this.#lastFrameTime = performance.now();
+        this.#requestFrame();
     }
 
-    #dispatchStartEvent() {
-        this.#safeDispatchLifecycleEvent( 
-            () => this.onStart(),
-            CanvasAppStartEvent, 
-            new CanvasAppStartEvent(this)
-        );
-    }
-
-    #dispatchStopEvent() {
-        this.#safeDispatchLifecycleEvent( 
-            () => this.onStop(),
-            CanvasAppStopEvent, 
-            new CanvasAppStopEvent(this)
-        );
-    }
-
-    #dispatchPauseEvent() {
-        this.#safeDispatchLifecycleEvent( 
-            () => this.onPause(),
-            CanvasAppPauseEvent, 
-            new CanvasAppPauseEvent(this)
-        );
-    }
-
-    #dispatchResumeEvent() {
-        this.#safeDispatchLifecycleEvent( 
-            () => this.onResume(),
-            CanvasAppResumeEvent, 
-            new CanvasAppResumeEvent(this)
-        );
-    }
-
-    #dispatchDestroyEvent() {
-        this.#safeDispatchLifecycleEvent( 
-            () => this.onDestroy(),
-            CanvasAppDestroyEvent, 
-            new CanvasAppDestroyEvent(this)
-        );
-    }
-
-    // MARK: - event handlers
-    #onVisibilityChange() {
-        if (!document.hidden) { 
-            this.#lastFrameTime = performance.now();
-        }
-    }
-
-    // MARK: - helpers
     #attachDomEvents() {
         if (this.#domAbortController) {
             return;
         }
         this.#domAbortController = new AbortController();
         const options = { signal: this.#domAbortController.signal };
-        document.addEventListener("visibilitychange", this.#onVisibilityChange.bind(this), options);
+        const listener = () => {
+            if (document.hidden) {
+                this.#onDocumentHidden();
+            } else {
+                this.#onDocumentVisible();
+            }
+        };
+        document.addEventListener("visibilitychange", listener, options);
     }
 
     #detachDomEvents() {
@@ -276,24 +205,40 @@ export class CanvasApp {
         this.#domAbortController = null;
     }
 
-    #requestNextFrame() {
-        if (this.isRunning()) {
-            this.#frameId = requestAnimationFrame(this.#boundTick);
+    // MARK: - frame management
+    #requestFrame() {
+        const isNotRunning = !this.isRunning();
+        const isFrameRequested = this.#animationFrameId !== null;
+        const isDocumentHidden = document.hidden;
+
+        if (isNotRunning || isFrameRequested || isDocumentHidden) {
+            return;
+        }
+
+        this.#animationFrameId = requestAnimationFrame(this.#tick);
+    }
+
+    #cancelFrame() {
+        cancelAnimationFrame(this.#animationFrameId);
+        this.#animationFrameId = null;
+    }
+
+    // MARK: - helpers
+    #safeCall(callback) {
+        try {
+            callback();
+        } catch (error) {
+            this.#reportError(error);
         }
     }
 
-    #cancelCurrentFrame() {
-        cancelAnimationFrame(this.#frameId);
-        this.#frameId = null;
-    }
-
-    #assertNotDestroyed() {
-        if (this.isDestroyed()) {
-            throw new Error("This CanvasApp has been destroyed and can no longer be used.");
-        }   
-    }
-
+    // MARK: - error helpers
     #reportError(error) {
         console.error(error);
+    }
+
+    #handleFrameError(error, source) {
+        this.#reportError({ source, error });
+        this.stop();
     }
 }
