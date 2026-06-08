@@ -11,7 +11,7 @@ export class CanvasApp {
     #canvas = null;
 
     #lastFrameTime = null;
-    #frameId = null;
+    #animationFrameId = null;
 
     #state = CanvasAppState.STOPPED;
     #isPaused = false;
@@ -94,14 +94,18 @@ export class CanvasApp {
 
     // MARK: - main loop
     #tick = (timestamp) => {
+        // Clearing this here allows another frame to be requested from 
+        // anywhere, even from DOM events like our 'visibilitychange' handler. 
+        // JavaScript ensures that the current tick will finish before 
+        // processing new frames.
+        this.#animationFrameId = null;
+
         try {
             const deltaTime = timestamp - this.#lastFrameTime;
             this.#lastFrameTime = timestamp;
 
-            if (!document.hidden) {
-                this.#update(timestamp, deltaTime);
-                this.#draw();
-            }
+            this.#update(timestamp, deltaTime);
+            this.#draw();
             
         } catch (error) {
             this.#handleFrameError(error, "tick");
@@ -144,16 +148,16 @@ export class CanvasApp {
         return this.#state === CanvasAppState.RUNNING;
     }
 
-    isPaused() {
-        return this.#isPaused;
-    }
-
     isDestroying() {
         return this.#state === CanvasAppState.DESTROYING;
     }
 
     isDestroyed() {
         return this.#state === CanvasAppState.DESTROYED;
+    }
+
+    isPaused() {
+        return this.#isPaused;
     }
 
     // MARK: - lifecycle hooks
@@ -164,11 +168,59 @@ export class CanvasApp {
     onUpdate(timestamp, deltaTime) { void timestamp; void deltaTime; }
     onDestroy() {}
 
-    // MARK: - event handlers
-    #onVisibilityChange() {
-        if (!document.hidden) { 
-            this.#lastFrameTime = performance.now();
+    // MARK: - events
+    #onDocumentHidden() {
+        this.#cancelFrame();
+    }
+
+    #onDocumentVisible() {
+        if (!this.isRunning()) {
+            return;
         }
+        this.#lastFrameTime = performance.now();
+        this.#requestFrame();
+    }
+
+    #attachDomEvents() {
+        if (this.#domAbortController) {
+            return;
+        }
+        this.#domAbortController = new AbortController();
+        const options = { signal: this.#domAbortController.signal };
+        const listener = () => {
+            if (document.hidden) {
+                this.#onDocumentHidden();
+            } else {
+                this.#onDocumentVisible();
+            }
+        };
+        document.addEventListener("visibilitychange", listener, options);
+    }
+
+    #detachDomEvents() {
+        if (!this.#domAbortController) {
+            return;
+        }
+        this.#domAbortController.abort();
+        this.#domAbortController = null;
+    }
+
+    // MARK: - frame management
+    #requestFrame() {
+        const isNotRunning = !this.isRunning();
+        const isFrameRequested = this.#animationFrameId !== null;
+        const isDocumentHidden = document.hidden;
+
+        if (isNotRunning || isFrameRequested || isDocumentHidden) {
+            return;
+        }
+
+        this.#animationFrameId = requestAnimationFrame(this.#tick);
+    }
+
+    #cancelFrame() {
+        cancelAnimationFrame(this.#animationFrameId);
+        this.#animationFrameId = null;
     }
 
     // MARK: - helpers
@@ -180,38 +232,7 @@ export class CanvasApp {
         }
     }
 
-    #attachDomEvents() {
-        if (this.#domAbortController) {
-            return;
-        }
-        this.#domAbortController = new AbortController();
-        const options = { signal: this.#domAbortController.signal };
-        document.addEventListener(
-            "visibilitychange", 
-            () => this.#onVisibilityChange(), 
-            options
-        );
-    }
-
-    #detachDomEvents() {
-        if (!this.#domAbortController) {
-            return;
-        }
-        this.#domAbortController.abort();
-        this.#domAbortController = null;
-    }
-
-    #requestFrame() {
-        if (this.isRunning()) {
-            this.#frameId = requestAnimationFrame(this.#tick);
-        }
-    }
-
-    #cancelFrame() {
-        cancelAnimationFrame(this.#frameId);
-        this.#frameId = null;
-    }
-
+    // MARK: - error helpers
     #reportError(error) {
         console.error(error);
     }
