@@ -63,6 +63,19 @@ export class CanvasApp {
         this.#safeCall(() => this.onResume());
     }
 
+    refresh() {
+        const isNotStopped = !this.isStopped();
+        const isFrameRequested = this.#isFrameRequested();
+        const isDocumentHidden = document.hidden;
+
+        if (isNotStopped || isFrameRequested || isDocumentHidden) {
+            return;
+        }
+
+        this.#lastFrameTime = performance.now();
+        this.#animationFrameId = requestAnimationFrame(this.#tick);
+    }
+
     destroy() {
         if (this.isDestroying() || this.isDestroyed()) {
             return;
@@ -200,9 +213,13 @@ export class CanvasApp {
     }
 
     // MARK: - frame management
+    #isFrameRequested() {
+        return this.#animationFrameId !== null;
+    }
+
     #requestFrame() {
         const isNotRunning = !this.isRunning();
-        const isFrameRequested = this.#animationFrameId !== null;
+        const isFrameRequested = this.#isFrameRequested();
         const isDocumentHidden = document.hidden;
 
         if (isNotRunning || isFrameRequested || isDocumentHidden) {
