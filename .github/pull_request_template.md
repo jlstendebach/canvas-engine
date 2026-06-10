@@ -1,5 +1,5 @@
 ## Addresses
-- ISSUE_NUMBER
+- Story: NUMBER
 
 ## Description
 <!-- Description of the change -->
