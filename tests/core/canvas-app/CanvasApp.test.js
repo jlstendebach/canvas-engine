@@ -5,6 +5,7 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from "@jest/globals";
 import { CanvasApp } from "../../../src/core/canvas-app/CanvasApp.js";
 import { CanvasAppState } from "../../../src/core/canvas-app/CanvasAppState.js";
+import { View } from "../../../src/graphics/views/View.js";
 
 // MARK: - CanvasApp tests
 describe("CanvasApp", () => {
@@ -284,8 +285,10 @@ describe("CanvasApp", () => {
             expect(app.onUpdate).toHaveBeenCalledTimes(1);
 
             app.pause();
-            jest.advanceTimersToNextFrame();
-            expect(app.onUpdate).toHaveBeenCalledTimes(1);
+            for (let i = 1; i <= 10; i++) {
+                jest.advanceTimersToNextFrame();
+                expect(app.onUpdate).toHaveBeenCalledTimes(1);
+            }
 
             app.resume();
             for (let i = 2; i <= 11; i++) {
@@ -466,7 +469,7 @@ describe("CanvasApp", () => {
             expect(() => app.stop()).not.toThrow();
             expect(app.state).toBe(CanvasAppState.STOPPED);
             expect(app.onStop).toHaveBeenCalledTimes(1);
-        });        
+        });
     });
 
     // MARK: - onPause() tests
@@ -573,4 +576,66 @@ describe("CanvasApp", () => {
         });
     });
 
+    // MARK: - other tests
+    describe("other", () => {
+        test("errors thrown during drawing are handled", () => {
+            const error = new Error("Test error during drawing");
+            const mockView = new MockView(error);
+            app.canvas.addView(mockView);
+            app.start();
+            expect(() => jest.advanceTimersToNextFrame()).not.toThrow();
+            expect(app.state).toBe(CanvasAppState.STOPPED);
+        });
+
+        test("updates stop when document hides and resumes when visible", () => {
+            jest.spyOn(app, "onUpdate");
+
+            app.start();
+            jest.advanceTimersToNextFrame();
+            expect(app.onUpdate).toHaveBeenCalledTimes(1);
+
+            document.hidden = true;
+            document.dispatchEvent(new Event("visibilitychange"));
+            jest.advanceTimersToNextFrame();
+            expect(app.onUpdate).toHaveBeenCalledTimes(1);
+
+            document.hidden = false;
+            document.dispatchEvent(new Event("visibilitychange"));
+            jest.advanceTimersToNextFrame();
+            expect(app.onUpdate).toHaveBeenCalledTimes(2);
+        });
+
+        test("visibility change has no effect when app is stopped", () => {
+            jest.spyOn(app, "onUpdate");
+
+            document.hidden = true;
+            document.dispatchEvent(new Event("visibilitychange"));
+            jest.advanceTimersToNextFrame();
+            expect(app.onUpdate).toHaveBeenCalledTimes(0);
+
+            document.hidden = false;
+            document.dispatchEvent(new Event("visibilitychange"));
+            jest.advanceTimersToNextFrame();
+            expect(app.onUpdate).toHaveBeenCalledTimes(0);
+        });
+    });
+
 });
+
+// MARK: - MockView
+class MockView extends View {
+    error;
+
+    constructor(error = null) {
+        super();
+        this.error = error;
+    }
+
+    drawSelf(context) {
+        super.drawSelf(context);
+        if (this.error) {
+            throw this.error;
+        }
+        // No actual drawing needed for tests
+    }
+}

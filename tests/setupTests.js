@@ -5,6 +5,7 @@
  * as well as the getContext method of HTMLCanvasElement to return a mock 
  * context.
  */
+
 if (typeof window !== 'undefined') {
     if (!window.WebGLRenderingContext) {
         window.WebGLRenderingContext = class { };
@@ -15,20 +16,26 @@ if (typeof window !== 'undefined') {
         globalThis.WebGL2RenderingContext = window.WebGL2RenderingContext;
     }
 
+    Object.defineProperty(document, 'hidden', {
+        value: false,
+        writable: true,
+        configurable: true
+    });
+
     HTMLCanvasElement.prototype.getContext = function () {
         return {
-            viewport: () => {},
-            save: () => {},     
-            restore: () => {}, 
-            clearRect: () => {},
-            beginPath: () => {},
-            moveTo: () => {},
-            lineTo: () => {},
-            stroke: () => {},
-            fill: () => {},
-            translate: () => {},
-            rotate: () => {},
-            scale: () => {},
+            viewport: () => { },
+            save: () => { },
+            restore: () => { },
+            clearRect: () => { },
+            beginPath: () => { },
+            moveTo: () => { },
+            lineTo: () => { },
+            stroke: () => { },
+            fill: () => { },
+            translate: () => { },
+            rotate: () => { },
+            scale: () => { },
         };
     };
 }
