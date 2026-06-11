@@ -143,7 +143,7 @@ export class CanvasApp {
             this.#isPaused = false;
             this.#cancelFrame();
             this.#detachDomEvents();
-            this.#safeCall(() => this.onDestroy());
+            this.onDestroy();
 
         } catch (error) {
             this.#reportError(error);
@@ -151,6 +151,11 @@ export class CanvasApp {
         } finally {
             this.#canvas.destroy();
             this.#canvas = null;
+            this.#lastFrameTime = null;
+            this.#animationFrameId = null;
+            this.#isPaused = null;
+            this.#domAbortController = null;
+            this.#tick = null;   
             this.#state = CanvasAppState.DESTROYED;
         }
     }
@@ -173,6 +178,14 @@ export class CanvasApp {
     }
 
     /**
+     * Checks if the `CanvasApp` is currently paused.
+     * @returns {boolean} True if the app is paused, false otherwise.
+     */
+    isPaused() {
+        return this.#isPaused === true;
+    }
+
+    /**
      * Checks if the `CanvasApp` is currently being destroyed.
      * @returns {boolean} True if the app is being destroyed, false otherwise.
      */
@@ -186,14 +199,6 @@ export class CanvasApp {
      */
     isDestroyed() {
         return this.#state === CanvasAppState.DESTROYED;
-    }
-
-    /**
-     * Checks if the `CanvasApp` is currently paused.
-     * @returns {boolean} True if the app is paused, false otherwise.
-     */
-    isPaused() {
-        return this.#isPaused;
     }
 
     // MARK: - lifecycle hooks
@@ -277,19 +282,13 @@ export class CanvasApp {
         // processing new frames.
         this.#animationFrameId = null;
 
-        try {
-            const deltaTime = timestamp - this.#lastFrameTime;
-            this.#lastFrameTime = timestamp;
+        const deltaTime = timestamp - this.#lastFrameTime;
+        this.#lastFrameTime = timestamp;
 
-            this.#update(timestamp, deltaTime);
-            this.#draw();
-            
-        } catch (error) {
-            this.#handleErrorAndStop(error, "tick");
-
-        } finally {
-            this.#requestFrame();
-        }
+        this.#update(timestamp, deltaTime);
+        this.#draw();
+        
+        this.#requestFrame();
     }
 
     #update(timestamp, deltaTime) {

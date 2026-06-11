@@ -21,8 +21,13 @@ export class Canvas {
     constructor(selectorOrElement, contextType="2d") {
         if (typeof selectorOrElement === "string") {
             this.#canvas = document.querySelector(selectorOrElement);
+            if (!this.#canvas) {
+                throw new Error(`No canvas element found for selector: ${selectorOrElement}`);
+            }
+
         } else if (selectorOrElement instanceof HTMLCanvasElement) {
             this.#canvas = selectorOrElement;
+
         } else {
             throw new TypeError("Canvas constructor requires a CSS selector string or an HTMLCanvasElement.");
         }
@@ -32,7 +37,7 @@ export class Canvas {
     }
 
     destroy() {
-        if (this.#canvas === null) {
+        if (this.isDestroyed()) {
             return;
         }
 
@@ -46,26 +51,37 @@ export class Canvas {
         } finally {
             this.#canvas = null;
             this.#context = null;
+            this.#rootView = null;
+            this.#fillStyle = null;
+            this.#mouseProcessor = null;
+            this.#eventEmitter = null;
+            this.#domAbortController = null;
         }
     }
 
-    // MARK: - Properties ------------------------------------------------------
-    set fillStyle(style) {
-        this.#fillStyle.color = style;
+    isDestroyed() {
+        return this.#rootView === null;
     }
 
-    get fillStyle() {
-        return this.#fillStyle.color;
+    // MARK: - Properties ------------------------------------------------------
+    get canvasElement() {
+        return this.#canvas;
+    }
+
+    get context() {
+        return this.#context;
     }
 
     get rootView() {
         return this.#rootView;
     }
 
+    set fillStyle(style) {
+        this.#fillStyle.color = style;
+    }
 
-    // --[ canvas ]-------------------------------------------------------------
-    getContext() {
-        return this.#context;
+    get fillStyle() {
+        return this.#fillStyle.color;
     }
 
     // --[ size ]---------------------------------------------------------------
