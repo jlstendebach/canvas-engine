@@ -14,6 +14,7 @@ describe("CanvasApp", () => {
     document.body.appendChild(canvasElement);
     let app;
 
+    // MARK: - setup and teardown
     const destroyApp = () => {
         if (app) {
             app.destroy();
@@ -21,7 +22,6 @@ describe("CanvasApp", () => {
         }
     };
 
-    // MARK: - setup and teardown
     beforeEach(() => {
         jest.useFakeTimers();
         app = new CanvasApp(canvasElement);
@@ -578,11 +578,31 @@ describe("CanvasApp", () => {
 
     // MARK: - other tests
     describe("other", () => {
-        test("errors thrown during drawing are handled", () => {
-            const error = new Error("Test error during drawing");
-            const mockView = new MockView(error);
-            app.canvas.addView(mockView);
+        test("destroying during update does not throw and completes teardown", () => {
+            class DestroyOnUpdateCanvasApp extends CanvasApp {
+                onUpdate() {
+                    this.destroy();
+                }
+            }
+
+            destroyApp();
+            app = new DestroyOnUpdateCanvasApp(canvasElement);
             app.start();
+
+            expect(() => jest.advanceTimersToNextFrame()).not.toThrow();
+            expect(app.isDestroyed()).toBe(true);
+        });
+
+        test("errors thrown during drawing are handled", () => {
+            class ThrowOnDrawView extends View {
+                drawSelf() {
+                    throw new Error("Test error during drawing");
+                }
+            }
+
+            app.canvas.addView(new ThrowOnDrawView());
+            app.start();
+            
             expect(() => jest.advanceTimersToNextFrame()).not.toThrow();
             expect(app.state).toBe(CanvasAppState.STOPPED);
         });
@@ -622,20 +642,3 @@ describe("CanvasApp", () => {
 
 });
 
-// MARK: - MockView
-class MockView extends View {
-    error;
-
-    constructor(error = null) {
-        super();
-        this.error = error;
-    }
-
-    drawSelf(context) {
-        super.drawSelf(context);
-        if (this.error) {
-            throw this.error;
-        }
-        // No actual drawing needed for tests
-    }
-}
