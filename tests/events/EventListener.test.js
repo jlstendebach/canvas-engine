@@ -1,5 +1,5 @@
+import { describe, expect, jest, test } from "@jest/globals";
 import { EventListener } from "../../src/events/EventListener.js";
-import { expect, jest } from "@jest/globals";
 
 describe("EventListener", () => {
     describe("constructor(callback, owner, once)", () => {

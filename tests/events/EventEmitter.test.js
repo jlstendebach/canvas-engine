@@ -1,5 +1,5 @@
+import { describe, expect, jest, test } from "@jest/globals";
 import { EventEmitter } from "../../src/events/EventEmitter.js";
-import { expect, jest } from "@jest/globals";
 
 describe("EventEmitter", () => {
     // MARK: - addListener() Tests ---------------------------------------------

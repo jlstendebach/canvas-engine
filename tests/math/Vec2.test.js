@@ -1,4 +1,5 @@
 import { Vec2 } from "../../src/math/Vec2.js";
+import { describe, expect, test } from "@jest/globals";
 
 const VECTORS = [
     new Vec2( 0,  0),
@@ -78,7 +79,7 @@ describe("Vec2 In-Place Operations", () => {
     test("v.set(x, y)", () => {
         doTests(
             (v) => { return v.set(1, 2); },
-            (v) => { return new Vec2(1, 2); }
+            () => { return new Vec2(1, 2); }
         );
     });
 
@@ -290,7 +291,7 @@ describe("Vec2 In-Place Operations", () => {
 
 // --[ scalar operation tests ]-------------------------------------------------
 describe("Vec2 Scalar Operations", () => {
-    const doTests = (getActual, getExpected, isValid = (v)=>{ return true; }) => {
+    const doTests = (getActual, getExpected, isValid = () => { return true; }) => {
         for (let v of VECTORS) {
             if (!isValid(v)) {
                 continue; 
@@ -692,7 +693,7 @@ describe("Vec2 Static Vector Operations", () => {
 
 // --[ static scalar operation tests ]------------------------------------------
 describe("Vec2 Static Scalar Operations", () => {
-    const doTests = (getActual, getExpected, isValid = (v)=>{ return true; }) => {
+    const doTests = (getActual, getExpected, isValid = () => { return true; }) => {
         for (let v of VECTORS) {
             if (!isValid(v)) {
                 continue; 
