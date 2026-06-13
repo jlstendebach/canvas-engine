@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <!--[ head ]--------------------------------------------------------------->
+    <head>
+        <title>Canvas Sizes App</title>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+
+    <!--[ body ]--------------------------------------------------------------->
+    <body>
+        <div class="container">
+            <div class="controls">
+                <button id="maximize-button">Maximize</button>
+                <button id="restore-button" disabled>Restore</button>
+            </div>
+            <canvas id="main-canvas" class="sized-canvas"></canvas>
+        </div>
+    </body>
+
+    <!--[ javascript ]--------------------------------------------------------->
+    <script type="module">
+        import { CanvasSizesApp } from "./canvas-sizes-app.js";
+
+        function onMaximizeButtonClicked() {
+            const canvas = document.getElementById("main-canvas");
+            canvas.className = "expandable-canvas";
+
+            document.getElementById("maximize-button").disabled = true;
+            document.getElementById("restore-button").disabled = false;
+        }
+
+        function onRestoreButtonClicked() {
+            const canvas = document.getElementById("main-canvas");
+            canvas.className = "sized-canvas";
+
+            document.getElementById("maximize-button").disabled = false;
+            document.getElementById("restore-button").disabled = true;
+        }
+
+        window.addEventListener("load", function () {
+            window.removeEventListener("load", this);
+            const app = new CanvasSizesApp("#main-canvas");
+            app.start();
+
+            const maximizeButton = document.getElementById("maximize-button");
+            maximizeButton.addEventListener("click", onMaximizeButtonClicked);
+
+            const restoreButton = document.getElementById("restore-button");
+            restoreButton.addEventListener("click", onRestoreButtonClicked);
+        });
+    </script>
+</html>

@@ -7,19 +7,6 @@ import { Vec2 } from "../math/Vec2.js";
 import { CachedColor } from "./utils/CachedColor.js";
 import { View } from "./views/View.js";
 
-export class CanvasRootView extends View {
-    #canvas;
-
-    get canvas() {
-        return this.#canvas;
-    }
-
-    constructor(canvas) {
-        super();
-        this.#canvas = canvas;
-    }
-}
-
 export class Canvas {
     #canvas = null;
     #context = null;
@@ -148,7 +135,7 @@ export class Canvas {
             }
 
             // Inform listeners of the event.
-            this.#eventEmitter.emit(CanvasResizeEvent.name, event);
+            this.#eventEmitter.emit(CanvasResizeEvent, event);
         }
     }
 
@@ -349,4 +336,19 @@ export class Canvas {
         }
     }
 
+}
+
+
+// MARK: - CanvasRootView
+export class CanvasRootView extends View {
+    #canvas;
+
+    get canvas() {
+        return this.#canvas;
+    }
+
+    constructor(canvas) {
+        super();
+        this.#canvas = canvas;
+    }
 }
