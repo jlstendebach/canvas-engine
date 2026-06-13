@@ -18,7 +18,18 @@ export class Canvas {
 
     #domAbortController = null;
 
-    constructor(selectorOrElement, contextType="2d") {
+    // MARK: - initialization
+    constructor(selectorOrElement, contextType = "2d") {
+        this.#initCanvas(selectorOrElement);
+        this.#initContext(contextType);
+        this.#attachDomEvents();
+        this.updateCanvasSize();
+    }
+
+    #initCanvas(selectorOrElement) {
+        if (this.#canvas) {
+            return;
+        }
         if (typeof selectorOrElement === "string") {
             this.#canvas = document.querySelector(selectorOrElement);
             if (!this.#canvas) {
@@ -31,11 +42,49 @@ export class Canvas {
         } else {
             throw new TypeError("Canvas constructor requires a CSS selector string or an HTMLCanvasElement.");
         }
-        this.#context = this.#canvas.getContext(contextType);
-        this.#attachDomEvents();
-        this.updateCanvasSize();
     }
 
+    #initContext(contextType) {
+        if (this.#context) {
+            return;
+        }
+        if (typeof contextType !== "string") {
+            throw new TypeError("Context type must be a string.");
+        }
+        
+        const validContextTypes = ["2d", "webgl", "webgl2", "webgpu", "bitmaprenderer"];
+        if (!validContextTypes.includes(contextType)) {
+            throw new Error(`Invalid context type: ${contextType}`);
+        }
+
+        this.#context = this.#canvas.getContext(contextType);
+        if (!this.#context) {
+            throw new Error(`Failed to get context of type: ${contextType}`);
+        }
+    }
+    
+    // MARK: - properties 
+    get canvasElement() {
+        return this.#canvas;
+    }
+
+    get context() {
+        return this.#context;
+    }
+
+    get rootView() {
+        return this.#rootView;
+    }
+
+    set fillStyle(style) {
+        this.#fillStyle.color = style;
+    }
+
+    get fillStyle() {
+        return this.#fillStyle.color;
+    }
+
+    // MARK: - destruction
     destroy() {
         if (this.isDestroyed()) {
             return;
@@ -61,28 +110,7 @@ export class Canvas {
 
     isDestroyed() {
         return this.#rootView === null;
-    }
-
-    // MARK: - Properties ------------------------------------------------------
-    get canvasElement() {
-        return this.#canvas;
-    }
-
-    get context() {
-        return this.#context;
-    }
-
-    get rootView() {
-        return this.#rootView;
-    }
-
-    set fillStyle(style) {
-        this.#fillStyle.color = style;
-    }
-
-    get fillStyle() {
-        return this.#fillStyle.color;
-    }
+    }    
 
     // --[ size ]---------------------------------------------------------------
     setSize(w, h) {
@@ -101,7 +129,7 @@ export class Canvas {
             this.#canvas.height = h;
 
             if (this.#context instanceof WebGL2RenderingContext ||
-                this.#context instanceof WebGLRenderingContext    
+                this.#context instanceof WebGLRenderingContext
             ) {
                 this.#context.viewport(0, 0, w, h);
             }
@@ -114,7 +142,7 @@ export class Canvas {
     getSize() {
         return new Vec2(this.#canvas.width, this.#canvas.height);
     }
-    
+
     setWidth(w) {
         this.setSize(w, this.getHeight());
     }
@@ -178,7 +206,7 @@ export class Canvas {
     }
 
     // MARK: - DOM event binding
-    #attachDomEvents() {        
+    #attachDomEvents() {
         if (this.#domAbortController) {
             return;
         }
@@ -221,11 +249,11 @@ export class Canvas {
     #onMouseUp(event) {
         this.#mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
     }
-    
+
     #onMouseMove(event) {
         this.#mouseProcessor.onMouseMove(this.createMouseEvent(MouseEvent.MOVE, event));
     }
-    
+
     #onMouseWheel(event) {
         this.#mouseProcessor.onMouseWheel(this.createMouseEvent(MouseEvent.WHEEL, event));
     }
