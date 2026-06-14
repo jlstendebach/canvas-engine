@@ -18,6 +18,27 @@ export class Canvas {
 
     #domAbortController = null;
 
+    // MARK: - properties 
+    get context() {
+        return this.#context;
+    }
+
+    get rootView() {
+        return this.#rootView;
+    }
+
+    set fillStyle(style) {
+        this.#fillStyle.color = style;
+    }
+
+    get fillStyle() {
+        return this.#fillStyle.color;
+    }
+
+    get size() {
+        return new Vec2(this.#element.width, this.#element.height);
+    }
+
     // MARK: - initialization
     constructor(selectorOrElement, contextType = "2d") {
         this.#initCanvas(selectorOrElement);
@@ -62,28 +83,6 @@ export class Canvas {
             throw new Error(`Failed to get context of type: ${contextType}`);
         }
     }
-    
-    // MARK: - properties 
-    get context() {
-        return this.#context;
-    }
-
-    get rootView() {
-        return this.#rootView;
-    }
-
-    set fillStyle(style) {
-        this.#fillStyle.color = style;
-    }
-
-    get fillStyle() {
-        return this.#fillStyle.color;
-    }
-
-    get size() {
-        return new Vec2(this.#element.width, this.#element.height);
-    }
-
 
     // MARK: - destruction
     destroy() {
@@ -113,7 +112,7 @@ export class Canvas {
         return this.#rootView === null;
     }    
 
-    // MARK: - Drawing ---------------------------------------------------------
+    // MARK: - drawing
     addView(view) {
         return this.#rootView.addView(view);
     }
@@ -128,8 +127,6 @@ export class Canvas {
 
     draw() {
         this.#updateCanvasSize();
-
-        // Save the state of the context to be restored later.
         this.#context.save();
 
         const fillStyle = this.#fillStyle.colorString;
@@ -139,12 +136,10 @@ export class Canvas {
         }
         this.#rootView.draw(this.#context);
 
-        // Restore the context so we can start fresh next time.
         this.#context.restore();
     }
 
-
-    // MARK: - Events ----------------------------------------------------------
+    // MARK: - events 
     addEventListener(type, callback, owner = null, once = false) {
         if (this.#isEventHandledByView(type)) {
             return this.#rootView.addEventListener(type, callback, owner, once);
@@ -159,7 +154,12 @@ export class Canvas {
         return this.#eventEmitter.removeListener(type, callback, owner);
     }
 
-    // MARK: - DOM event binding
+    removeAllEventListeners(type = null) {
+        this.#rootView.removeAllEventListeners(type);
+        this.#eventEmitter.removeAllListeners(type);
+    }
+
+    // MARK: - event binding
     #attachDomEvents() {
         if (this.#domAbortController) {
             return;
@@ -170,7 +170,7 @@ export class Canvas {
         // Mouse events
         this.#element.addEventListener("mousedown", this.#onMouseDown.bind(this), options);
         this.#element.addEventListener("mouseup", this.#onMouseUp.bind(this), options);
-        this.#element.addEventListener("mouseout", this.#onMouseUp.bind(this), options);
+        this.#element.addEventListener("mouseout", this.#onMouseOut.bind(this), options);
         this.#element.addEventListener("mousemove", this.#onMouseMove.bind(this), options);
         this.#element.addEventListener("wheel", this.#onMouseWheel.bind(this), options);
 
@@ -190,28 +190,46 @@ export class Canvas {
         this.#element.oncontextmenu = null; // restore default context menu behavior
     }
 
-    // MARK: - DOM window event handlers
+    // MARK: - event handlers
     #onWindowResized() {
         this.#updateCanvasSize();
     }
 
-    // MARK: - DOM mouse event handlers
     #onMouseDown(event) {
-        this.#mouseProcessor.onMouseDown(this.createMouseEvent(MouseEvent.DOWN, event));
+        this.#mouseProcessor.onMouseDown(this.#createMouseEvent(MouseEvent.DOWN, event));
     }
 
     #onMouseUp(event) {
-        this.#mouseProcessor.onMouseUp(this.createMouseEvent(MouseEvent.UP, event));
+        this.#mouseProcessor.onMouseUp(this.#createMouseEvent(MouseEvent.UP, event));
     }
 
     #onMouseMove(event) {
-        this.#mouseProcessor.onMouseMove(this.createMouseEvent(MouseEvent.MOVE, event));
+        this.#mouseProcessor.onMouseMove(this.#createMouseEvent(MouseEvent.MOVE, event));
+    }
+
+    #onMouseOut(event) {
+        this.#mouseProcessor.onMouseOut(this.#createMouseEvent(MouseEvent.MOVE, event));
     }
 
     #onMouseWheel(event) {
-        this.#mouseProcessor.onMouseWheel(this.createMouseEvent(MouseEvent.WHEEL, event));
+        this.#mouseProcessor.onMouseWheel(this.#createMouseEvent(MouseEvent.WHEEL, event));
     }
 
+    // MARK: - event helpers
+    #isEventHandledByView(eventType) {
+        switch (eventType) {
+            case MouseEvent.DOWN:
+            case MouseEvent.UP:
+            case MouseEvent.MOVE:
+            case MouseEvent.DRAG:
+            case MouseEvent.ENTER:
+            case MouseEvent.EXIT:
+            case MouseEvent.WHEEL:
+                return true;
+            default:
+                return false;
+        }
+    }
 
     // MARK: - size helpers
     #updateCanvasSize() {
@@ -263,23 +281,22 @@ export class Canvas {
         this.#eventEmitter.emit(CanvasResizeEvent, event);
     }
 
-    // MARK: - Helpers ---------------------------------------------------------
-    windowToCanvasCoords(x, y) {
-        const style = window.getComputedStyle(this.#element);
+    // MARK: - mouse helpers
+    #windowToLocal(x, y) {
+        const style = getComputedStyle(this.#element)
+        const getStyleFloat = (property) => parseFloat(style.getPropertyValue(property)) || 0;
 
-        let paddingLeft = parseInt(style.paddingLeft) || 0;
-        let paddingTop = parseInt(style.paddingTop) || 0;
-        let bounds = this.#element.getBoundingClientRect();
+        const paddingX = getStyleFloat("padding-left");
+        const paddingY = getStyleFloat("padding-top");        
 
         return new Vec2(
-            Math.min(x - bounds.left - paddingLeft, bounds.width - 1),
-            Math.min(y - bounds.top - paddingTop, bounds.height - 1)
+            x - paddingX,
+            y - paddingY
         );
-
     }
 
-    createMouseEvent(type, event) {
-        let coords = this.windowToCanvasCoords(event.clientX, event.clientY);
+    #createMouseEvent(type, event) {
+        let coords = this.#windowToLocal(event.offsetX, event.offsetY);
         let dx, dy;
 
         if (type == MouseEvent.WHEEL) {
@@ -302,21 +319,6 @@ export class Canvas {
             this.#rootView,                          // target
             null                                 // related
         );
-    }
-
-    #isEventHandledByView(eventType) {
-        switch (eventType) {
-            case MouseEvent.DOWN:
-            case MouseEvent.UP:
-            case MouseEvent.MOVE:
-            case MouseEvent.DRAG:
-            case MouseEvent.ENTER:
-            case MouseEvent.EXIT:
-            case MouseEvent.WHEEL:
-                return true;
-            default:
-                return false;
-        }
     }
 
 }

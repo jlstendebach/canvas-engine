@@ -21,8 +21,8 @@ export class ObservableCanvasApp extends CanvasApp {
         return this.#eventEmitter.removeListener(type, callback, owner);
     }
 
-    removeAllEventListeners() {
-        this.#eventEmitter.removeAllListeners();
+    removeAllEventListeners(type = null) {
+        this.#eventEmitter.removeAllListeners(type);
     }
 
     // MARK: - lifecycle events

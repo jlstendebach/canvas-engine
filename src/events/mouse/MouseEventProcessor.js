@@ -4,12 +4,12 @@ import { MouseEvent } from "./MouseEvent.js"
 
 export class MouseEventProcessor {
     constructor() {
-        this.mouseDownViews = {};
-        this.mouseDownViews[MouseButton.LEFT] = null;
-        this.mouseDownViews[MouseButton.RIGHT] = null;
-        this.mouseDownViews[MouseButton.MIDDLE] = null;
-        this.mouseDownViews[MouseButton.MOUSE4] = null;
-        this.mouseDownViews[MouseButton.MOUSE5] = null;
+        this.mouseDownViews = new Map();
+        this.mouseDownViews.set(MouseButton.LEFT, null);
+        this.mouseDownViews.set(MouseButton.RIGHT, null);
+        this.mouseDownViews.set(MouseButton.MIDDLE, null);
+        this.mouseDownViews.set(MouseButton.MOUSE4, null);
+        this.mouseDownViews.set(MouseButton.MOUSE5, null);
         this.mouseDragButton = null;
         this.mouseOverView = null;
     }
@@ -31,14 +31,14 @@ export class MouseEventProcessor {
         event.target.onMouseDown(event);
 
         // Store the view and button to respond to other mouse events later.
-        this.mouseDownViews[event.button] = target;
+        this.mouseDownViews.set(event.button, target);
         if (this.mouseDragButton == null) {
             this.mouseDragButton = event.button;
         }
     }
 
     onMouseUp(event) {
-        let mouseDownView = this.mouseDownViews[event.button];
+        let mouseDownView = this.mouseDownViews.get(event.button);
         if (mouseDownView != null) {
             let related = this.findView(event);
             let [position, delta] = this.getRelativeXY(event, mouseDownView);
@@ -56,14 +56,14 @@ export class MouseEventProcessor {
         }
 
         // Reset the mouseDownView so we don't respond to mouse up events.
-        this.mouseDownViews[event.button] = null;
+        this.mouseDownViews.set(event.button, null);
         if (this.mouseDragButton === event.button) {
             this.mouseDragButton = null;
         }
     }
 
     onMouseMove(event) {
-        let mouseDragView = this.mouseDownViews[this.mouseDragButton];
+        let mouseDragView = this.mouseDownViews.get(this.mouseDragButton);
         if (mouseDragView != null) {
             let related = this.findView(event);
             let [position, delta] = this.getRelativeXY(event, mouseDragView);
@@ -139,6 +139,16 @@ export class MouseEventProcessor {
 
             // Update the mouseOverView for the next event.
             this.mouseOverView = view
+        }
+    }
+
+    onMouseOut(event) {
+        for (let [button, view] of this.mouseDownViews.entries()) {
+            if (!view) {
+                continue;
+            }
+            this.onMouseUp(event);
+            this.mouseDownViews.set(button, null);
         }
     }
 

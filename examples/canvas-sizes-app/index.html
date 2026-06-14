@@ -12,7 +12,7 @@
         <div class="container">
             <div class="controls">
             </div>
-            <canvas id="main-canvas" class="content-box-sizing"></canvas>
+            <canvas id="main-canvas"></canvas>
         </div>
     </body>
 
@@ -64,7 +64,6 @@
                     }                    
                 }
             });
-
             addCheckboxToControls({
                 text: "Big Border",
                 onChange: (event) => {
@@ -95,8 +94,16 @@
                     }                    
                 }
             });
-
-
+            addCheckboxToControls({
+                text: "Scale 2x",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        document.documentElement.classList.add("scale-2x");
+                    } else {
+                        document.documentElement.classList.remove("scale-2x");
+                    }                    
+                }
+            });
         });
     </script>
 </html>
