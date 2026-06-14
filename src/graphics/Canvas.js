@@ -8,7 +8,7 @@ import { CachedColor } from "./utils/CachedColor.js";
 import { View } from "./views/View.js";
 
 export class Canvas {
-    #canvas = null;
+    #element = null;
     #context = null;
     #rootView = new CanvasRootView(this);
     #fillStyle = new CachedColor();
@@ -23,21 +23,21 @@ export class Canvas {
         this.#initCanvas(selectorOrElement);
         this.#initContext(contextType);
         this.#attachDomEvents();
-        this.updateCanvasSize();
+        this.#updateCanvasSize();
     }
 
     #initCanvas(selectorOrElement) {
-        if (this.#canvas) {
+        if (this.#element) {
             return;
         }
         if (typeof selectorOrElement === "string") {
-            this.#canvas = document.querySelector(selectorOrElement);
-            if (!this.#canvas) {
+            this.#element = document.querySelector(selectorOrElement);
+            if (!this.#element) {
                 throw new Error(`No canvas element found for selector: ${selectorOrElement}`);
             }
 
         } else if (selectorOrElement instanceof HTMLCanvasElement) {
-            this.#canvas = selectorOrElement;
+            this.#element = selectorOrElement;
 
         } else {
             throw new TypeError("Canvas constructor requires a CSS selector string or an HTMLCanvasElement.");
@@ -57,17 +57,13 @@ export class Canvas {
             throw new Error(`Invalid context type: ${contextType}`);
         }
 
-        this.#context = this.#canvas.getContext(contextType);
+        this.#context = this.#element.getContext(contextType);
         if (!this.#context) {
             throw new Error(`Failed to get context of type: ${contextType}`);
         }
     }
     
     // MARK: - properties 
-    get canvasElement() {
-        return this.#canvas;
-    }
-
     get context() {
         return this.#context;
     }
@@ -84,6 +80,11 @@ export class Canvas {
         return this.#fillStyle.color;
     }
 
+    get size() {
+        return new Vec2(this.#element.width, this.#element.height);
+    }
+
+
     // MARK: - destruction
     destroy() {
         if (this.isDestroyed()) {
@@ -98,7 +99,7 @@ export class Canvas {
         } catch (error) {
             console.error(error);
         } finally {
-            this.#canvas = null;
+            this.#element = null;
             this.#context = null;
             this.#rootView = null;
             this.#fillStyle = null;
@@ -111,53 +112,6 @@ export class Canvas {
     isDestroyed() {
         return this.#rootView === null;
     }    
-
-    // --[ size ]---------------------------------------------------------------
-    setSize(w, h) {
-        if (this.#canvas.width !== w || this.#canvas.height !== h) {
-            // Create the event to emit.
-            const event = new CanvasResizeEvent(
-                this,                // canvas
-                this.#canvas.width,  // old width
-                this.#canvas.height, // old height
-                w,                   // new width
-                h                    // new height
-            );
-
-            // Set the size of the canvas.
-            this.#canvas.width = w;
-            this.#canvas.height = h;
-
-            if (this.#context instanceof WebGL2RenderingContext ||
-                this.#context instanceof WebGLRenderingContext
-            ) {
-                this.#context.viewport(0, 0, w, h);
-            }
-
-            // Inform listeners of the event.
-            this.#eventEmitter.emit(CanvasResizeEvent, event);
-        }
-    }
-
-    getSize() {
-        return new Vec2(this.#canvas.width, this.#canvas.height);
-    }
-
-    setWidth(w) {
-        this.setSize(w, this.getHeight());
-    }
-
-    getWidth() {
-        return this.#canvas.width;
-    }
-
-    setHeight(h) {
-        this.setSize(this.getWidth(), h);
-    }
-
-    getHeight() {
-        return this.#canvas.height;
-    }
 
     // MARK: - Drawing ---------------------------------------------------------
     addView(view) {
@@ -173,7 +127,7 @@ export class Canvas {
     }
 
     draw() {
-        this.updateCanvasSize();
+        this.#updateCanvasSize();
 
         // Save the state of the context to be restored later.
         this.#context.save();
@@ -181,7 +135,7 @@ export class Canvas {
         const fillStyle = this.#fillStyle.colorString;
         if (fillStyle) {
             this.#context.fillStyle = fillStyle;
-            this.#context.fillRect(0, 0, this.getWidth(), this.getHeight());
+            this.#context.fillRect(0, 0, this.#element.width, this.#element.height);
         }
         this.#rootView.draw(this.#context);
 
@@ -214,17 +168,17 @@ export class Canvas {
         const options = { signal: this.#domAbortController.signal };
 
         // Mouse events
-        this.#canvas.addEventListener("mousedown", this.#onMouseDown.bind(this), options);
-        this.#canvas.addEventListener("mouseup", this.#onMouseUp.bind(this), options);
-        this.#canvas.addEventListener("mouseout", this.#onMouseUp.bind(this), options);
-        this.#canvas.addEventListener("mousemove", this.#onMouseMove.bind(this), options);
-        this.#canvas.addEventListener("wheel", this.#onMouseWheel.bind(this), options);
+        this.#element.addEventListener("mousedown", this.#onMouseDown.bind(this), options);
+        this.#element.addEventListener("mouseup", this.#onMouseUp.bind(this), options);
+        this.#element.addEventListener("mouseout", this.#onMouseUp.bind(this), options);
+        this.#element.addEventListener("mousemove", this.#onMouseMove.bind(this), options);
+        this.#element.addEventListener("wheel", this.#onMouseWheel.bind(this), options);
 
         // Window events
         window.addEventListener("resize", this.#onWindowResized.bind(this), options);
 
         // Other events
-        this.#canvas.oncontextmenu = () => false; // disable context menu on right click
+        this.#element.oncontextmenu = () => false; // disable context menu on right click
     }
 
     #detachDomEvents() {
@@ -233,12 +187,12 @@ export class Canvas {
         }
         this.#domAbortController.abort();
         this.#domAbortController = null;
-        this.#canvas.oncontextmenu = null; // restore default context menu behavior
+        this.#element.oncontextmenu = null; // restore default context menu behavior
     }
 
     // MARK: - DOM window event handlers
     #onWindowResized() {
-        this.updateCanvasSize();
+        this.#updateCanvasSize();
     }
 
     // MARK: - DOM mouse event handlers
@@ -259,40 +213,69 @@ export class Canvas {
     }
 
 
+    // MARK: - size helpers
+    #updateCanvasSize() {
+        const style = getComputedStyle(this.#element)
+        const getStyleFloat = (property) => parseFloat(style.getPropertyValue(property)) || 0;
+
+        let width = getStyleFloat("width");
+        let height = getStyleFloat("height");
+
+        // When box-sizing is set to border-box, the computed width and height 
+        // include padding and border, so we need to subtract those out to get 
+        // the actual canvas size.
+        if (style.boxSizing === "border-box") {
+            const paddingX = getStyleFloat("padding-left") + getStyleFloat("padding-right");
+            const paddingY = getStyleFloat("padding-top") + getStyleFloat("padding-bottom");        
+            const borderX = getStyleFloat("border-left-width") + getStyleFloat("border-right-width");
+            const borderY = getStyleFloat("border-top-width") + getStyleFloat("border-bottom-width");
+
+            width -= (paddingX + borderX);
+            height -= (paddingY + borderY);
+        }
+
+        this.#setSize(width, height);
+    }
+
+    #setSize(width, height) {
+        if (this.#element.width === width && this.#element.height === height) {
+            return;
+        }
+
+        // Create the event before setting the size so that we still have access
+        // to the old width and height values.
+        const event = new CanvasResizeEvent(
+            this,                 // app
+            this.#element.width,  // oldWidth
+            this.#element.height, // oldHeight
+            width,                // width
+            height                // height
+        );
+
+        this.#element.width = width;
+        this.#element.height = height;        
+        if (this.#context instanceof WebGL2RenderingContext ||
+            this.#context instanceof WebGLRenderingContext
+        ) {
+            this.#context.viewport(0, 0, width, height);
+        }
+
+        this.#eventEmitter.emit(CanvasResizeEvent, event);
+    }
+
     // MARK: - Helpers ---------------------------------------------------------
     windowToCanvasCoords(x, y) {
-        let style = window.getComputedStyle
-            ? getComputedStyle(this.#canvas, null)
-            : this.#canvas.currentStyle;
+        const style = window.getComputedStyle(this.#element);
 
         let paddingLeft = parseInt(style.paddingLeft) || 0;
         let paddingTop = parseInt(style.paddingTop) || 0;
-        let bounds = this.#canvas.getBoundingClientRect();
+        let bounds = this.#element.getBoundingClientRect();
 
         return new Vec2(
             Math.min(x - bounds.left - paddingLeft, bounds.width - 1),
             Math.min(y - bounds.top - paddingTop, bounds.height - 1)
         );
 
-    }
-
-    updateCanvasSize() {
-        let width = this.#canvas.clientWidth;
-        let height = this.#canvas.clientHeight;
-
-        const style = window.getComputedStyle
-            ? getComputedStyle(this.#canvas, null)
-            : this.#canvas.currentStyle;
-
-        const paddingLeft = parseInt(style.paddingLeft) || 0;
-        const paddingRight = parseInt(style.paddingRight) || 0;
-        const paddingTop = parseInt(style.paddingTop) || 0;
-        const paddingBottom = parseInt(style.paddingBottom) || 0;
-
-        width -= (paddingLeft + paddingRight);
-        height -= (paddingTop + paddingBottom);
-
-        this.setSize(width, height);
     }
 
     createMouseEvent(type, event) {

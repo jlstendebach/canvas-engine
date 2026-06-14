@@ -11,10 +11,8 @@
     <body>
         <div class="container">
             <div class="controls">
-                <button id="maximize-button">Maximize</button>
-                <button id="restore-button" disabled>Restore</button>
             </div>
-            <canvas id="main-canvas" class="sized-canvas"></canvas>
+            <canvas id="main-canvas" class="content-box-sizing"></canvas>
         </div>
     </body>
 
@@ -22,32 +20,83 @@
     <script type="module">
         import { CanvasSizesApp } from "./canvas-sizes-app.js";
 
-        function onMaximizeButtonClicked() {
-            const canvas = document.getElementById("main-canvas");
-            canvas.className = "expandable-canvas";
+        function addCheckboxToControls({ text, onChange }) {
+            const container = document.createElement("label");
+            container.className = "checkbox-container";
 
-            document.getElementById("maximize-button").disabled = true;
-            document.getElementById("restore-button").disabled = false;
-        }
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.addEventListener("change", onChange);
+            container.appendChild(checkbox);
 
-        function onRestoreButtonClicked() {
-            const canvas = document.getElementById("main-canvas");
-            canvas.className = "sized-canvas";
+            const label = document.createElement("span");
+            label.textContent = text;
+            container.appendChild(label);
 
-            document.getElementById("maximize-button").disabled = false;
-            document.getElementById("restore-button").disabled = true;
+            document.querySelector(".controls").appendChild(container);
+            return checkbox;
         }
 
         window.addEventListener("load", function () {
             window.removeEventListener("load", this);
-            const app = new CanvasSizesApp("#main-canvas");
+
+            const canvas = document.getElementById("main-canvas");
+            const app = new CanvasSizesApp(canvas);
             app.start();
 
-            const maximizeButton = document.getElementById("maximize-button");
-            maximizeButton.addEventListener("click", onMaximizeButtonClicked);
+            addCheckboxToControls({
+                text: "Maximize Canvas",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        canvas.classList.add("expandable-canvas");
+                    } else {
+                        canvas.classList.remove("expandable-canvas");
+                    }                    
+                }
+            });
+            addCheckboxToControls({
+                text: "Tall Canvas",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        canvas.classList.add("tall-canvas");
+                    } else {
+                        canvas.classList.remove("tall-canvas");
+                    }                    
+                }
+            });
 
-            const restoreButton = document.getElementById("restore-button");
-            restoreButton.addEventListener("click", onRestoreButtonClicked);
+            addCheckboxToControls({
+                text: "Big Border",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        canvas.classList.add("big-border");
+                    } else {
+                        canvas.classList.remove("big-border");
+                    }                    
+                }
+            });
+            addCheckboxToControls({
+                text: "Big Padding",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        canvas.classList.add("big-padding");
+                    } else {
+                        canvas.classList.remove("big-padding");
+                    }                    
+                }
+            });
+            addCheckboxToControls({
+                text: "Border Box Sizing",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        canvas.classList.add("border-box-sizing");
+                    } else {
+                        canvas.classList.remove("border-box-sizing");
+                    }                    
+                }
+            });
+
+
         });
     </script>
 </html>
