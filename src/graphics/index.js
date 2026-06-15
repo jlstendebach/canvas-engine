@@ -1,22 +1,25 @@
-export * from "./Canvas.js"
+// MARK: - canvas
+export * from "./canvas/Canvas.js"
+export * from "./canvas/CanvasEvents.js"
+export * from "./canvas/CanvasRootView.js"
 
-// --[ utils/ ]-----------------------------------------------------------------
+// MARK: - utils
 export * from "./utils/CachedColor.js"
 export * from "./utils/Color.js"
 export * from "./utils/CoordinateSpace.js"
 
-// --[ views/ ]-----------------------------------------------------------------
+// MARK: - views
 export * from "./views/ImageView.js"
 export * from "./views/LabelView.js"
 export * from "./views/SceneView.js"
 export * from "./views/Vec2FieldView.js"
 export * from "./views/View.js"
 
-// --[ views/charts/ ]----------------------------------------------------------
+// MARK: - views/charts
 export * from "./views/charts/BarChartView.js"
 export * from "./views/charts/PieChartView.js"
 
-// --[ views/shapes/ ]----------------------------------------------------------
+// MARK: - views/shapes
 export * from "./views/shapes/CircleView.js"
 export * from "./views/shapes/LineStringView.js"
 export * from "./views/shapes/LineView.js"

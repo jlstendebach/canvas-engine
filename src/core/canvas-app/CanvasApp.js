@@ -1,4 +1,4 @@
-import { Canvas } from "../../graphics/Canvas.js";
+import { Canvas } from "../../graphics/canvas/Canvas.js";
 import { CanvasAppState } from "./CanvasAppState.js";
 
 /**

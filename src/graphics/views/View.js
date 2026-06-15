@@ -269,9 +269,10 @@ export class View {
 
     /**
      * Removes all event listeners from this view.
+     * @param {*} [type=null] - The event type to remove, or null to remove all types.
      */
-    removeAllEventListeners() {
-        this.#eventEmitter.removeAllListeners();
+    removeAllEventListeners(type) {
+        this.#eventEmitter.removeAllListeners(type);
     }
 
     // MARK: - Mouse Events ----------------------------------------------------
@@ -282,8 +283,6 @@ export class View {
     onMouseEnter(event) { this.#eventEmitter.emit(event.type, event); }
     onMouseExit(event) { this.#eventEmitter.emit(event.type, event); }
     onMouseWheel(event) { this.#eventEmitter.emit(event.type, event); }
-
- 
 }
 
 

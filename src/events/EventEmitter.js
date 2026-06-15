@@ -17,8 +17,12 @@ export class EventEmitter {
      * @param {*} owner - The owner object.
      * @param {boolean} once - Whether the listener should be invoked only once.
      * @returns {boolean} Returns true if the listener was added, false if it already existed.
+     * @throws {TypeError} Throws if the event type is not defined or the callback is not a function.
      */
     addListener(type, callback, owner = null, once = false) {
+        if (type === undefined || type === null) {
+            throw new TypeError("Event type cannot be undefined or null");
+        }
         if (typeof callback !== "function") {
             throw new TypeError("Callback must be a function");
         }
@@ -69,8 +73,8 @@ export class EventEmitter {
      * @param {*} type - The event type. If omitted, removes all listeners for all event types.
      * @returns {boolean} Returns true if listeners were removed, false otherwise.
      */
-    removeAllListeners(type = undefined) {
-        if (type === undefined) {
+    removeAllListeners(type) {
+        if (type === undefined || type === null) {
             this.#listeners.clear();
             return true;
         } 

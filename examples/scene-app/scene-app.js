@@ -44,7 +44,7 @@ export class SceneApp extends CanvasApp {
     initScene() {
         const scene = new SceneView();
         //scene.position = new Vec2(50, 50);
-        scene.size.set(this.canvas.getWidth(), this.canvas.getHeight());
+        scene.size.set(this.canvas.size.width, this.canvas.size.height);
         //scene.clip = true;
         scene.addEventListener(MouseEvent.WHEEL, this.onSceneZoom, this);
         scene.addEventListener(MouseEvent.DRAG, this.onSceneDragged, this);
@@ -53,7 +53,7 @@ export class SceneApp extends CanvasApp {
     }
 
     initBox() {
-        const box = new RectangleView(this.canvas.getWidth(), this.canvas.getHeight());
+        const box = new RectangleView(this.canvas.size.width, this.canvas.size.height);
         box.fillStyle = new Color(0, 0, 40);
         box.strokeStyle = new Color(100, 100, 100);
         box.strokeWidth = 2;
@@ -129,7 +129,7 @@ export class SceneApp extends CanvasApp {
             } else if (event.button == MouseButton.RIGHT) {
                 const childSpaceAnchor = this.box.position.clone().add(this.box.size.clone().divideScalar(2));
                 const localSpaceAnchor = this.isFollowingBall
-                    ? this.canvas.getSize().clone().divideScalar(2)
+                    ? this.canvas.size.clone().divideScalar(2)
                     : this.scene.childToLocal(childSpaceAnchor);
 
                 const lastPosition = new Vec2(event.x - event.dx, event.y - event.dy).subtract(localSpaceAnchor);

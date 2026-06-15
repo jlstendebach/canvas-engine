@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <!--[ head ]--------------------------------------------------------------->
+    <head>
+        <title>Canvas Sizes App</title>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+
+    <!--[ body ]--------------------------------------------------------------->
+    <body>
+        <div class="container">
+            <div class="controls">
+            </div>
+            <canvas id="main-canvas"></canvas>
+        </div>
+    </body>
+
+    <!--[ javascript ]--------------------------------------------------------->
+    <script type="module">
+        import { CanvasSizesApp } from "./canvas-sizes-app.js";
+
+        function addCheckboxToControls({ text, onChange }) {
+            const container = document.createElement("label");
+            container.className = "checkbox-container";
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.addEventListener("change", onChange);
+            container.appendChild(checkbox);
+
+            const label = document.createElement("span");
+            label.textContent = text;
+            container.appendChild(label);
+
+            document.querySelector(".controls").appendChild(container);
+            return checkbox;
+        }
+
+        window.addEventListener("load", function () {
+            window.removeEventListener("load", this);
+
+            const canvas = document.getElementById("main-canvas");
+            const app = new CanvasSizesApp(canvas);
+            app.start();
+
+            addCheckboxToControls({
+                text: "Maximize Canvas",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        canvas.classList.add("expandable-canvas");
+                    } else {
+                        canvas.classList.remove("expandable-canvas");
+                    }                    
+                }
+            });
+            addCheckboxToControls({
+                text: "Tall Canvas",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        canvas.classList.add("tall-canvas");
+                    } else {
+                        canvas.classList.remove("tall-canvas");
+                    }                    
+                }
+            });
+            addCheckboxToControls({
+                text: "Big Border",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        canvas.classList.add("big-border");
+                    } else {
+                        canvas.classList.remove("big-border");
+                    }                    
+                }
+            });
+            addCheckboxToControls({
+                text: "Big Padding",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        canvas.classList.add("big-padding");
+                    } else {
+                        canvas.classList.remove("big-padding");
+                    }                    
+                }
+            });
+            addCheckboxToControls({
+                text: "Border Box Sizing",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        canvas.classList.add("border-box-sizing");
+                    } else {
+                        canvas.classList.remove("border-box-sizing");
+                    }                    
+                }
+            });
+            addCheckboxToControls({
+                text: "Scale 2x",
+                onChange: (event) => {
+                    if (event.target.checked) {
+                        document.documentElement.classList.add("scale-2x");
+                    } else {
+                        document.documentElement.classList.remove("scale-2x");
+                    }                    
+                }
+            });
+        });
+    </script>
+</html>
