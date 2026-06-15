@@ -1,11 +1,11 @@
-import { CanvasResizeEvent } from "../events/CanvasEvents.js";
-import { EventEmitter } from "../events/EventEmitter.js";
-import { MouseButton } from "../events/mouse/MouseButton.js";
-import { MouseEvent } from "../events/mouse/MouseEvent.js";
-import { MouseEventProcessor } from "../events/mouse/MouseEventProcessor.js";
-import { Vec2 } from "../math/Vec2.js";
-import { CachedColor } from "./utils/CachedColor.js";
-import { View } from "./views/View.js";
+import { EventEmitter } from "../../events/EventEmitter.js";
+import { MouseButton } from "../../events/mouse/MouseButton.js";
+import { MouseEvent } from "../../events/mouse/MouseEvent.js";
+import { MouseEventProcessor } from "../../events/mouse/MouseEventProcessor.js";
+import { Vec2 } from "../../math/Vec2.js";
+import { CachedColor } from "../utils/CachedColor.js";
+import { CanvasResizeEvent } from "./CanvasEvents.js";
+import { CanvasRootView } from "./CanvasRootView.js";
 
 export class Canvas {
     #element = null;
@@ -345,19 +345,4 @@ export class Canvas {
         );
     }
 
-}
-
-
-// MARK: - CanvasRootView
-export class CanvasRootView extends View {
-    #canvas;
-
-    get canvas() {
-        return this.#canvas;
-    }
-
-    constructor(canvas) {
-        super();
-        this.#canvas = canvas;
-    }
 }

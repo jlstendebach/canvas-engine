@@ -45,7 +45,6 @@ export class CanvasSizesApp extends CanvasApp {
     // MARK: - event handlers
     onCanvasResize(type, event) {
         this.updateBallPositions();
-        console.log("Resize: ", event.oldWidth, event.oldHeight, "->", event.width, event.height);
     }
 
     onCanvasMouseMove(type, event) {
