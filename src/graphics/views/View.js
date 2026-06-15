@@ -271,7 +271,7 @@ export class View {
      * Removes all event listeners from this view.
      * @param {*} [type=null] - The event type to remove, or null to remove all types.
      */
-    removeAllEventListeners(type = null) {
+    removeAllEventListeners(type) {
         this.#eventEmitter.removeAllListeners(type);
     }
 

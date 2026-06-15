@@ -4,6 +4,13 @@ import { EventEmitter } from "../../src/events/EventEmitter.js";
 describe("EventEmitter", () => {
     // MARK: - addListener() Tests ---------------------------------------------
     describe("addListener(type, callback, owner, once)", () => {
+        test("throws when event type is undefined or null", () => {
+            const emitter = new EventEmitter();
+            const callback = jest.fn();
+            expect(() => emitter.addListener(undefined, callback)).toThrow(TypeError);
+            expect(() => emitter.addListener(null, callback)).toThrow(TypeError);
+        });
+
         test("throws when callback is not a function", () => {
             const emitter = new EventEmitter();
 
@@ -68,7 +75,7 @@ describe("EventEmitter", () => {
             expect(emitter.getListenerCount("tick")).toBe(1);
             expect(emitter.getListenerCount("move")).toBe(1);
         });
-    });
+   });
 
     // MARK: - removeListener() Tests ------------------------------------------
     describe("removeListener(type, callback, owner)", () => {
@@ -152,6 +159,22 @@ describe("EventEmitter", () => {
             expect(emitter.getListenerCount("tick")).toBe(0);
             expect(emitter.getListenerCount("move")).toBe(0);
             expect(emitter.getListenerTypes()).toEqual([]);
+        });
+
+        test("clears all event types when type is undefined or null", () => {
+            const emitter = new EventEmitter();
+            const callback = jest.fn();
+
+            const types = [undefined, null];
+            types.forEach(type => {
+                emitter.addListener("tick", callback);
+                emitter.addListener("move", callback);
+
+                expect(emitter.removeAllListeners(type)).toBe(true);
+                expect(emitter.getListenerCount("tick")).toBe(0);
+                expect(emitter.getListenerCount("move")).toBe(0);
+                expect(emitter.getListenerTypes(type)).toEqual([]);
+            });
         });
 
         test("clears listeners for a specific type", () => {

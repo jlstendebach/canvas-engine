@@ -4,13 +4,13 @@ import { ShapeView } from "./ShapeView.js";
 export class LineStringView extends ShapeView {
     constructor(points) {
         super()
-        this.position = new Vec2();
         this.points = points || [];
     }
 
 
     // --[ bounds ]-------------------------------------------------------------
     isInBounds(point) {
+        void point;
         return false;
     }
 

@@ -19,6 +19,10 @@ export class Canvas {
     #domAbortController = null;
 
     // MARK: - properties 
+    get element() {
+        return this.#element;
+    }
+
     get context() {
         return this.#context;
     }
@@ -44,7 +48,7 @@ export class Canvas {
         this.#initCanvas(selectorOrElement);
         this.#initContext(contextType);
         this.#attachDomEvents();
-        this.#updateCanvasSize();
+        this.#updateSize();
     }
 
     #initCanvas(selectorOrElement) {
@@ -126,17 +130,20 @@ export class Canvas {
     }
 
     draw() {
-        this.#updateCanvasSize();
+        this.#updateSize();
         this.#context.save();
 
-        const fillStyle = this.#fillStyle.colorString;
-        if (fillStyle) {
-            this.#context.fillStyle = fillStyle;
-            this.#context.fillRect(0, 0, this.#element.width, this.#element.height);
-        }
-        this.#rootView.draw(this.#context);
+        try {
+            const fillStyle = this.#fillStyle.colorString;
+            if (fillStyle) {
+                this.#context.fillStyle = fillStyle;
+                this.#context.fillRect(0, 0, this.#element.width, this.#element.height);
+            }
+            this.#rootView.draw(this.#context);
 
-        this.#context.restore();
+        } finally {
+            this.#context.restore();
+        }
     }
 
     // MARK: - events 
@@ -154,7 +161,7 @@ export class Canvas {
         return this.#eventEmitter.removeListener(type, callback, owner);
     }
 
-    removeAllEventListeners(type = null) {
+    removeAllEventListeners(type) {
         this.#rootView.removeAllEventListeners(type);
         this.#eventEmitter.removeAllListeners(type);
     }
@@ -192,27 +199,42 @@ export class Canvas {
 
     // MARK: - event handlers
     #onWindowResized() {
-        this.#updateCanvasSize();
+        this.#updateSize();
     }
 
     #onMouseDown(event) {
-        this.#mouseProcessor.onMouseDown(this.#createMouseEvent(MouseEvent.DOWN, event));
+        const mouseEvent = this.#createMouseEvent(MouseEvent.DOWN, event);
+        if (mouseEvent) {
+            this.#mouseProcessor.onMouseDown(mouseEvent);
+        }
     }
 
     #onMouseUp(event) {
-        this.#mouseProcessor.onMouseUp(this.#createMouseEvent(MouseEvent.UP, event));
+        const mouseEvent = this.#createMouseEvent(MouseEvent.UP, event);
+        if (mouseEvent) {
+            this.#mouseProcessor.onMouseUp(mouseEvent);
+        }
     }
 
     #onMouseMove(event) {
-        this.#mouseProcessor.onMouseMove(this.#createMouseEvent(MouseEvent.MOVE, event));
+        const mouseEvent = this.#createMouseEvent(MouseEvent.MOVE, event);
+        if (mouseEvent) {
+            this.#mouseProcessor.onMouseMove(mouseEvent);
+        }
     }
 
     #onMouseOut(event) {
-        this.#mouseProcessor.onMouseOut(this.#createMouseEvent(MouseEvent.MOVE, event));
+        const mouseEvent = this.#createMouseEvent(MouseEvent.EXIT, event);
+        if (mouseEvent) {
+            this.#mouseProcessor.onMouseOut(mouseEvent);
+        }
     }
 
     #onMouseWheel(event) {
-        this.#mouseProcessor.onMouseWheel(this.#createMouseEvent(MouseEvent.WHEEL, event));
+        const mouseEvent = this.#createMouseEvent(MouseEvent.WHEEL, event);
+        if (mouseEvent) {
+            this.#mouseProcessor.onMouseWheel(mouseEvent);
+        }
     }
 
     // MARK: - event helpers
@@ -232,31 +254,33 @@ export class Canvas {
     }
 
     // MARK: - size helpers
-    #updateCanvasSize() {
+    #getComputedSize() {
         const style = getComputedStyle(this.#element)
         const getStyleFloat = (property) => parseFloat(style.getPropertyValue(property)) || 0;
+        const size = new Vec2(getStyleFloat("width"), getStyleFloat("height"));
 
-        let width = getStyleFloat("width");
-        let height = getStyleFloat("height");
-
-        // When box-sizing is set to border-box, the computed width and height 
-        // include padding and border, so we need to subtract those out to get 
-        // the actual canvas size.
+        // A box-sizing of border-box includes the padding and border in the 
+        // element's width and height, so we must subtract those values.
         if (style.boxSizing === "border-box") {
             const paddingX = getStyleFloat("padding-left") + getStyleFloat("padding-right");
             const paddingY = getStyleFloat("padding-top") + getStyleFloat("padding-bottom");        
             const borderX = getStyleFloat("border-left-width") + getStyleFloat("border-right-width");
             const borderY = getStyleFloat("border-top-width") + getStyleFloat("border-bottom-width");
-
-            width -= (paddingX + borderX);
-            height -= (paddingY + borderY);
+            size.x -= (paddingX + borderX);
+            size.y -= (paddingY + borderY);
         }
 
-        this.#setSize(width, height);
+        // HTMLCanvasElement converts width and height values to integers, so we
+        // round the computed size to avoid unnecessary resizes when the 
+        // computed size has fractional pixels.
+        return size.round();
     }
 
-    #setSize(width, height) {
-        if (this.#element.width === width && this.#element.height === height) {
+    #updateSize() {
+        const size = this.#getComputedSize();
+
+        if (this.#element.width === size.x && this.#element.height === size.y) {
+            // Size is already correct, exit early.
             return;
         }
 
@@ -266,43 +290,43 @@ export class Canvas {
             this,                 // app
             this.#element.width,  // oldWidth
             this.#element.height, // oldHeight
-            width,                // width
-            height                // height
+            size.x,               // width
+            size.y                // height
         );
 
-        this.#element.width = width;
-        this.#element.height = height;        
+        this.#element.width = size.x;
+        this.#element.height = size.y;        
         if (this.#context instanceof WebGL2RenderingContext ||
             this.#context instanceof WebGLRenderingContext
         ) {
-            this.#context.viewport(0, 0, width, height);
+            this.#context.viewport(0, 0, size.x, size.y);
         }
 
         this.#eventEmitter.emit(CanvasResizeEvent, event);
     }
 
     // MARK: - mouse helpers
-    #windowToLocal(x, y) {
-        const style = getComputedStyle(this.#element)
-        const getStyleFloat = (property) => parseFloat(style.getPropertyValue(property)) || 0;
-
-        const paddingX = getStyleFloat("padding-left");
-        const paddingY = getStyleFloat("padding-top");        
-
-        return new Vec2(
-            x - paddingX,
-            y - paddingY
-        );
-    }
-
     #createMouseEvent(type, event) {
-        let coords = this.#windowToLocal(event.offsetX, event.offsetY);
-        let dx, dy;
+        const style = getComputedStyle(this.#element)
+        const paddingX = parseFloat(style.getPropertyValue("padding-left")) || 0;
+        const paddingY = parseFloat(style.getPropertyValue("padding-top")) || 0;        
+        const coords = new Vec2(event.offsetX - paddingX, event.offsetY - paddingY);
 
+        if (type !== MouseEvent.EXIT) {
+            if (
+                coords.x < 0 || 
+                coords.y < 0 ||
+                coords.x >= this.#element.width || 
+                coords.y >= this.#element.height
+            ) {
+                return null;
+            }
+        }
+
+        let dx, dy;
         if (type == MouseEvent.WHEEL) {
             dx = event.deltaX;
             dy = event.deltaY;
-
         } else {
             dx = event.movementX;
             dy = event.movementY;
@@ -316,7 +340,7 @@ export class Canvas {
             dy,                                  // dy            
             MouseButton.fromIndex(event.button), // button
             event.buttons,                       // buttons
-            this.#rootView,                          // target
+            this.#rootView,                      // target
             null                                 // related
         );
     }

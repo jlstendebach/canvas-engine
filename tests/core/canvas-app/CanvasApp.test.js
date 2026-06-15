@@ -37,13 +37,13 @@ describe("CanvasApp", () => {
         test("initializes canvas correctly from element", () => {
             destroyApp();
             app = new CanvasApp(canvasElement);
-            expect(app.canvas.canvasElement).toBe(canvasElement);
+            expect(app.canvas.element).toBe(canvasElement);
         });
 
         test("initializes canvas correctly from selector", () => {
             destroyApp();
             app = new CanvasApp("#test-canvas");
-            expect(app.canvas.canvasElement).toBe(canvasElement);
+            expect(app.canvas.element).toBe(canvasElement);
         });
 
         test("initializes state correctly", () => {

@@ -3,6 +3,7 @@ import {
     CanvasResizeEvent,
     CircleView,
     Color,
+    LineStringView,
     MouseEvent,
     Vec2
 } from "../../src/index.js";
@@ -19,8 +20,8 @@ export class CanvasSizesApp extends CanvasApp {
     #bottomRightBall;
     #centerBall;
 
-    #mouseBalls = [];
-    #maxMouseBalls = 200;
+    #mousePath = new LineStringView();
+    #maxMousePathLength = 100;
 
     initCanvas() {
         this.canvas.fillStyle = new Color(0, 0, 0);
@@ -33,28 +34,25 @@ export class CanvasSizesApp extends CanvasApp {
         this.#bottomLeftBall = this.createBall({color: new Color(100, 100, 0)});
         this.#centerBall = this.createBall({color: new Color(100, 0, 100)});
 
+        this.#mousePath = new LineStringView();
+        this.#mousePath.strokeStyle = new Color(200, 200, 200);
+        this.#mousePath.strokeWidth = 2;
+        this.canvas.addView(this.#mousePath);
+
         this.updateBallPositions();
     }
     
     // MARK: - event handlers
     onCanvasResize(type, event) {
         this.updateBallPositions();
+        console.log("Resize: ", event.oldWidth, event.oldHeight, "->", event.width, event.height);
     }
 
     onCanvasMouseMove(type, event) {
-        let ball;
-        if (this.#mouseBalls.length >= this.#maxMouseBalls) {
-            ball = this.#mouseBalls.shift();
-            ball.position = new Vec2(event.x, event.y);
-        } else {
-            ball = this.createBall({
-                x: event.x, 
-                y: event.y, 
-                radius: 5, 
-                color: new Color(200, 200, 200)
-            });
+        if (this.#mousePath.getPointCount() >= this.#maxMousePathLength) {
+            this.#mousePath.points.shift();
         }
-        this.#mouseBalls.push(ball);
+        this.#mousePath.addPoint(new Vec2(event.x, event.y));
     }
 
     // MARK: - helpers
