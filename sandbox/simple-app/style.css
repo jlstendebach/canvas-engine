@@ -17,7 +17,7 @@ html, body {
 #main-canvas {
     display: block;
     border-top: 1px solid #444;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 0;
     padding: 0;
     margin: 0;
     min-width: 0px;
