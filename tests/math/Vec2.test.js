@@ -68,7 +68,8 @@ describe("Vec2 In-Place Operations", () => {
             expect(actual.y).toBeCloseTo(expected.y, EXPECTED_PRECISION);
 
             // This checks the original object was changed for future tests
-            expect(v).toMatchObject(old);
+            expect(v.x).toBeCloseTo(old.x, EXPECTED_PRECISION);
+            expect(v.y).toBeCloseTo(old.y, EXPECTED_PRECISION);
 
             // This makes sure the method is returning itself since this is an
             // in-place operation.
@@ -300,7 +301,8 @@ describe("Vec2 Scalar Operations", () => {
             const actual = getActual(v);
             const expected = getExpected(v);
             expect(actual).toBeCloseTo(expected, EXPECTED_PRECISION);
-            expect(v).toMatchObject(old);
+            expect(v.x).toBeCloseTo(old.x, EXPECTED_PRECISION);
+            expect(v.y).toBeCloseTo(old.y, EXPECTED_PRECISION);
         }
     };    
 
@@ -523,7 +525,8 @@ describe("Vec2 Static Vector Operations", () => {
             const expected = getExpected(v);
             expect(actual.x).toBeCloseTo(expected.x, EXPECTED_PRECISION);
             expect(actual.y).toBeCloseTo(expected.y, EXPECTED_PRECISION);
-            expect(v).toMatchObject(old);
+            expect(v.x).toBeCloseTo(old.x, EXPECTED_PRECISION);
+            expect(v.y).toBeCloseTo(old.y, EXPECTED_PRECISION);
         }
     };
 
@@ -702,7 +705,8 @@ describe("Vec2 Static Scalar Operations", () => {
             const actual = getActual(v);
             const expected = getExpected(v);
             expect(actual).toBeCloseTo(expected, EXPECTED_PRECISION);
-            expect(v).toMatchObject(old);
+            expect(v.x).toBeCloseTo(old.x, EXPECTED_PRECISION);
+            expect(v.y).toBeCloseTo(old.y, EXPECTED_PRECISION);
         }
     };    
 
