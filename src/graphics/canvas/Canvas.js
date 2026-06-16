@@ -17,6 +17,8 @@ export class Canvas {
     #eventEmitter = new EventEmitter();
 
     #domAbortController = null;
+    #resizeObserver = null;
+    #mutationObserver = null;
 
     // MARK: - properties 
     get element() {
@@ -130,13 +132,10 @@ export class Canvas {
     }
 
     draw() {
-        this.#updateSize();
         this.#context.save();
-
         try {
-            const fillStyle = this.#fillStyle.colorString;
-            if (fillStyle) {
-                this.#context.fillStyle = fillStyle;
+            if (this.#fillStyle.colorString) {
+                this.#context.fillStyle = this.#fillStyle.colorString;
                 this.#context.fillRect(0, 0, this.#element.width, this.#element.height);
             }
             this.#rootView.draw(this.#context);
@@ -181,11 +180,19 @@ export class Canvas {
         this.#element.addEventListener("mousemove", this.#onMouseMove.bind(this), options);
         this.#element.addEventListener("wheel", this.#onMouseWheel.bind(this), options);
 
-        // Window events
-        window.addEventListener("resize", this.#onWindowResized.bind(this), options);
-
         // Other events
         this.#element.oncontextmenu = () => false; // disable context menu on right click
+
+        // Resize events
+        this.#resizeObserver = new ResizeObserver(() => this.#updateSize());
+        this.#resizeObserver.observe(this.#element);
+        
+        // CSS changes
+        this.#mutationObserver = new MutationObserver(() => this.#updateSize());
+        this.#mutationObserver.observe(this.#element, { 
+            attributes: true, 
+            attributeFilter: ["style", "class"]
+        });
     }
 
     #detachDomEvents() {
@@ -194,7 +201,14 @@ export class Canvas {
         }
         this.#domAbortController.abort();
         this.#domAbortController = null;
+
         this.#element.oncontextmenu = null; // restore default context menu behavior
+
+        this.#resizeObserver.disconnect();
+        this.#resizeObserver = null;
+
+        this.#mutationObserver.disconnect();
+        this.#mutationObserver = null;
     }
 
     // MARK: - event handlers
@@ -310,7 +324,7 @@ export class Canvas {
         const style = getComputedStyle(this.#element)
         const paddingX = parseFloat(style.getPropertyValue("padding-left")) || 0;
         const paddingY = parseFloat(style.getPropertyValue("padding-top")) || 0;        
-        const coords = new Vec2(event.offsetX - paddingX, event.offsetY - paddingY);
+        const coords = new Vec2(event.offsetX - paddingX, event.offsetY - paddingY).round();
 
         if (type !== MouseEvent.EXIT) {
             if (

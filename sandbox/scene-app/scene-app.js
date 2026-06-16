@@ -116,6 +116,9 @@ export class SceneApp extends CanvasApp {
 
     // MARK: - UI Events -------------------------------------------------------
     onSceneZoom(type, event) {
+        if (event.dy === 0) {
+            return;
+        }
         const direction = event.dy / Math.abs(event.dy);
         const factor =  1 - direction / 20;
         this.scene.zoom(factor, new Vec2(event.x, event.y));

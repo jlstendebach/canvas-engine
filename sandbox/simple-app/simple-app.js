@@ -56,27 +56,29 @@ export class SimpleApp extends CanvasApp {
     // MARK: - Update
     onUpdate(timestamp, deltaTime) {
         if (!this.#isBallGrabbed) {
-            const velocity = this.#ballVelocity.clone().scale(deltaTime / 1000);
-            this.#ball.position.add(velocity);
+            this.#ball.position.x += this.#ballVelocity.x * deltaTime / 1000;
+            this.#ball.position.y += this.#ballVelocity.y * deltaTime / 1000;
             this.#keepBallInBounds();
         }
     }
 
     // MARK: - Helpers
     #keepBallInBounds() {
+        const size = this.canvas.size;
+
         if (this.#ball.position.x - this.#ball.radius < 0) {
             this.#ball.position.x = this.#ball.radius;
             this.#ballVelocity.x *= -1;
-        } else if (this.#ball.position.x + this.#ball.radius > this.canvas.size.x) {
-            this.#ball.position.x = this.canvas.size.x - this.#ball.radius;
+        } else if (this.#ball.position.x + this.#ball.radius > size.x) {
+            this.#ball.position.x = size.x - this.#ball.radius;
             this.#ballVelocity.x *= -1;
         }
 
         if (this.#ball.position.y - this.#ball.radius < 0) {
             this.#ball.position.y = this.#ball.radius;
             this.#ballVelocity.y *= -1;
-        } else if (this.#ball.position.y + this.#ball.radius > this.canvas.size.y) {
-            this.#ball.position.y = this.canvas.size.y - this.#ball.radius;
+        } else if (this.#ball.position.y + this.#ball.radius > size.y) {
+            this.#ball.position.y = size.y - this.#ball.radius;
             this.#ballVelocity.y *= -1;
         }
     }

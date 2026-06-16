@@ -109,13 +109,7 @@ export class ShapeView extends View {
 
     drawSelf(context) {
         context.beginPath();
-        if (this.isStrokeEnabled()) {
-            context.translate(0.5, 0.5);
-            this.path(context);
-            context.translate(-0.5, -0.5);    
-        } else {
-            this.path(context);
-        }
+        this.path(context);
         this.fill(context);
         this.stroke(context);
     }
