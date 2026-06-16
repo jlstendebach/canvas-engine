@@ -7,6 +7,54 @@
  */
 
 if (typeof window !== 'undefined') {
+    // MARK: - document
+    Object.defineProperty(document, 'hidden', {
+        value: false,
+        writable: true,
+        configurable: true
+    });
+
+    // MARK: - MutationObserver
+    if (!window.MutationObserver) {
+        window.MutationObserver = class {
+            constructor(callback) { void callback; }
+            disconnect() {}
+            observe(element, options) { void element; void options; }
+            takeRecords() { return []; }
+        };
+        globalThis.MutationObserver = window.MutationObserver;
+    }
+
+    // MARK: - ResizeObserver
+    if (!window.ResizeObserver) {
+        window.ResizeObserver = class {
+            constructor(callback) { void callback; }
+            disconnect() {}
+            observe(element, options) { void element; void options; }
+            unobserve(element) { void element; }
+        };
+        globalThis.ResizeObserver = window.ResizeObserver;
+    }
+
+    // MARK: - HTMLCanvasElement
+    HTMLCanvasElement.prototype.getContext = function () {
+        return {
+            viewport: () => {},
+            save: () => {},
+            restore: () => {},
+            clearRect: () => {},
+            beginPath: () => {},
+            moveTo: () => {},
+            lineTo: () => {},
+            stroke: () => {},
+            fill: () => {},
+            translate: () => {},
+            rotate: () => {},
+            scale: () => {},
+        };
+    };
+
+    // MARK: - WebGL contexts
     if (!window.WebGLRenderingContext) {
         window.WebGLRenderingContext = class { };
         globalThis.WebGLRenderingContext = window.WebGLRenderingContext;
@@ -15,27 +63,4 @@ if (typeof window !== 'undefined') {
         window.WebGL2RenderingContext = class { };
         globalThis.WebGL2RenderingContext = window.WebGL2RenderingContext;
     }
-
-    Object.defineProperty(document, 'hidden', {
-        value: false,
-        writable: true,
-        configurable: true
-    });
-
-    HTMLCanvasElement.prototype.getContext = function () {
-        return {
-            viewport: () => { },
-            save: () => { },
-            restore: () => { },
-            clearRect: () => { },
-            beginPath: () => { },
-            moveTo: () => { },
-            lineTo: () => { },
-            stroke: () => { },
-            fill: () => { },
-            translate: () => { },
-            rotate: () => { },
-            scale: () => { },
-        };
-    };
 }

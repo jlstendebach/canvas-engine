@@ -2,7 +2,7 @@
 <html>
     <!--[ head ]--------------------------------------------------------------->
     <head>
-        <title>Basic App</title>
+        <title>Simple App</title>
         <link rel="stylesheet" type="text/css" href="style.css" />
     </head>
 
@@ -16,11 +16,11 @@
 
     <!--[ javascript ]--------------------------------------------------------->
     <script type="module">
-        import { BasicApp } from "./basic-app.js";
+        import { SimpleApp } from "./simple-app.js";
 
         window.addEventListener("load", function() {
             window.removeEventListener("load", this);
-            const app = new BasicApp("#main-canvas");
+            const app = new SimpleApp("#main-canvas");
             app.start();
         });
     </script>
