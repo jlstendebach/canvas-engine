@@ -1,4 +1,4 @@
-import { Vec2 } from "../../src/math/Vec2.js";
+import { Vec2 } from "@canvas-engine";
 import { describe, expect, test } from "@jest/globals";
 
 const VECTORS = [

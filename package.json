@@ -16,6 +16,10 @@
         "testEnvironment": "jsdom",
         "setupFilesAfterEnv": [
             "./tests/setupTests.js"
-        ]
+        ],
+        "moduleNameMapper": {
+            "^@canvas-engine$": "<rootDir>/src",
+            "^@canvas-engine/(.*)$": "<rootDir>/src/$1"
+        }
     }
 }

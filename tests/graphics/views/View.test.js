@@ -1,6 +1,5 @@
+import { Vec2, View } from "@canvas-engine";
 import { describe, expect, test } from "@jest/globals";
-import { View, Vec2  } from "../../../src/index.js";
-
 
 describe("View", () => {
     describe("constructor", () => {

@@ -1,0 +1,36 @@
+import { Color, ShapeView, Vec2 } from "@canvas-engine";
+import { describe, expect, test } from "@jest/globals";
+
+describe("ShapeView", () => {
+    describe("constructor", () => {
+        test("initializes with default options", () => {
+            const view = new ShapeView();
+            expect(view.position).toEqual(new Vec2());
+            expect(view.isVisible).toBe(true);
+            expect(view.isPickable).toBe(true);
+            expect(view.fillStyle).toEqual(new Color(255, 255, 255));
+            expect(view.strokeStyle).toEqual(new Color(0, 0, 0));
+            expect(view.strokeWidth).toBe(1);
+            expect(view.strokeDash).toEqual([]);
+        });
+
+        test("initializes with custom options", () => {
+            const view = new ShapeView({
+                position: new Vec2(10, 20),
+                isVisible: false,
+                isPickable: false,
+                fillStyle: new Color(128, 128, 128),
+                strokeStyle: new Color(64, 64, 64),
+                strokeWidth: 2,
+                strokeDash: [5, 5],
+            });
+            expect(view.position).toEqual(new Vec2(10, 20));
+            expect(view.isVisible).toBe(false);
+            expect(view.isPickable).toBe(false);
+            expect(view.fillStyle).toEqual(new Color(128, 128, 128));
+            expect(view.strokeStyle).toEqual(new Color(64, 64, 64));
+            expect(view.strokeWidth).toBe(2);
+            expect(view.strokeDash).toEqual([5, 5]);
+        });
+    });
+});
