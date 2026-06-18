@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <!--[ head ]--------------------------------------------------------------->
+    <head>
+        <title>Shapes App</title>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+
+    <!--[ body ]--------------------------------------------------------------->
+    <body>
+        <div id="container">
+            <canvas id="main-canvas"></canvas>
+        </div>
+    </body>
+
+
+    <!--[ javascript ]--------------------------------------------------------->
+    <script type="module">
+        import { ShapesApp } from "./shapes-app.js";
+
+        window.addEventListener("load", function() {
+            window.removeEventListener("load", this);
+            const app = new ShapesApp("#main-canvas");
+            app.start();
+        });
+    </script>
+</html>

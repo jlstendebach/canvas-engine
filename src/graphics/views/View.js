@@ -6,23 +6,20 @@ import { Vec2 } from "../../math/Vec2.js";
  */
 export class View {
     #position = new Vec2();
-    #parent = null;
-    #views = [];
     #isVisible = true;
     #isPickable = true;
+
+    #parent = null;
+    #views = [];
     #eventEmitter = new EventEmitter();
 
-    // MARK: - Properties ------------------------------------------------------
+    // MARK: - Properties 
     set position(position) {
         this.#position.set(position.x, position.y);
     }
-    
-    get position() { 
-        return this.#position; 
-    }    
 
-    get parent() { 
-        return this.#parent; 
+    get position() {
+        return this.#position;
     }
 
     set isVisible(visible) {
@@ -41,18 +38,29 @@ export class View {
         return this.#isPickable;
     }
 
-    // MARK: - Bounds ----------------------------------------------------------
+    get parent() {
+        return this.#parent;
+    }
+
+    // MARK: - Initialization 
+    constructor(options = {}) {
+        this.position = options.position ?? new Vec2();
+        this.isVisible = options.isVisible ?? true;
+        this.isPickable = options.isPickable ?? true;
+    }
+
+    // MARK: - Bounds 
     /**
      * Checks if a point in parent space is contained within this view.
      * @param {Vec2} point - The point in parent space.
      * @returns {boolean} True if the point is inside this view, false otherwise.
      */
-    isInBounds(point) { 
+    isInBounds(point) {
         // Base view has no bounds. Subclasses should override this method.
         void point;
-        return true; 
+        return true;
     }
-    
+
     /**
      * Converts a point from local space to child space. If there are no 
      * transformations, then local space and child space are the same.
@@ -63,9 +71,9 @@ export class View {
      * @param {Vec2} point - The point in local space to convert.
      * @returns {Vec2} The point in child space.
      */
-    localToChild(point) { 
+    localToChild(point) {
         // Base view has no transformations. Subclasses should override this method.
-        return point.clone(); 
+        return point.clone();
     }
 
     /**
@@ -78,12 +86,12 @@ export class View {
      * @param {Vec2} point - The point in child space to convert.
      * @returns {Vec2} The point in local space.
      */
-    childToLocal(point) { 
+    childToLocal(point) {
         // Base view has no transformations. Subclasses should override this method.
-        return point.clone(); 
+        return point.clone();
     }
 
-    // MARK: - Views -----------------------------------------------------------
+    // MARK: - Views 
     /**
      * Adds a child view to this view. If the view already has a parent, it is 
      * removed from that parent first.
@@ -101,7 +109,7 @@ export class View {
         }
         if (this.isDescendantOf(view)) {
             throw new Error("Cannot add an ancestor view as a child");
-        }        
+        }
         view.removeFromParent();
         view.#parent = this;
         this.#views.push(view);
@@ -166,9 +174,9 @@ export class View {
             }
         }
         return null;
-    }    
+    }
 
-    // MARK: - Parent ----------------------------------------------------------
+    // MARK: - Parent 
     /**
      * Removes this view from its parent.
      */
@@ -205,7 +213,7 @@ export class View {
         return view.isDescendantOf(this);
     }
 
-    // MARK: - Drawing ---------------------------------------------------------
+    // MARK: - Drawing 
     /**
      * Draws this view and its descendants when visible.
      * @param {CanvasRenderingContext2D} context - The canvas drawing context.
@@ -215,10 +223,9 @@ export class View {
             return;
         }
 
-        this.drawSelf(context);
-
         context.save();
         context.translate(this.#position.x, this.#position.y);
+        this.drawSelf(context);
         this.drawChildren(context);
         context.restore();
     }
@@ -228,7 +235,7 @@ export class View {
      * Subclasses should override this method.
      * @param {CanvasRenderingContext2D} context - The canvas drawing context.
      */
-    drawSelf(context) {        
+    drawSelf(context) {
         // Base view does not draw anything. Subclasses should override this method.
         void context;
     }
@@ -243,7 +250,7 @@ export class View {
         }
     }
 
-    // MARK: - Events ----------------------------------------------------------
+    // MARK: - Events 
     /**
      * Registers an event listener on this view.
      * @param {*} type - The event type.
@@ -275,7 +282,7 @@ export class View {
         this.#eventEmitter.removeAllListeners(type);
     }
 
-    // MARK: - Mouse Events ----------------------------------------------------
+    // MARK: - Mouse Events 
     onMouseDown(event) { this.#eventEmitter.emit(event.type, event); }
     onMouseUp(event) { this.#eventEmitter.emit(event.type, event); }
     onMouseMove(event) { this.#eventEmitter.emit(event.type, event); }
