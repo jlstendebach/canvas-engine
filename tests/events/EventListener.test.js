@@ -1,4 +1,4 @@
-import { EventListener } from "@canvas-engine";
+import { EventListener } from "@canvas-engine/events/EventListener.js";
 import { describe, expect, jest, test } from "@jest/globals";
 
 describe("EventListener", () => {
