@@ -1,3 +1,4 @@
+import { describe, expect, test } from "@jest/globals";
 import { Color } from "../../../src/graphics/utils/Color.js";
 
 // MARK: - Constructor Tests
