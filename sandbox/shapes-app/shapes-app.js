@@ -1,9 +1,11 @@
-import { 
-    CanvasApp, 
-    Color, 
+import {
+    CanvasApp,
+    CircleView,
+    Color,
     MouseButton,
-    Vec2,
-    CircleView
+    MouseEvent,
+    RectangleView,
+    Vec2
 } from "../../src/index.js";
 
 export class ShapesApp extends CanvasApp {
@@ -21,18 +23,31 @@ export class ShapesApp extends CanvasApp {
 
     initShapes() {
         this.initCircleView();
+        this.initRectangleView();
     }
 
     initCircleView() {
         const circle = new CircleView({
             position: new Vec2(100, 100),
             radius: 50,
-            fillStyle: new Color(255, 0, 0),
-            strokeStyle: new Color(255, 255, 255),
+            fillStyle: new Color(0, 180, 216),
+            strokeStyle: new Color(0, 240, 255),
             strokeWidth: 2
         });
         this.addEventListeners(circle);
-        this.addView(circle);
+        this.canvas.addView(circle);
+    }
+
+    initRectangleView() {
+        const rectangle = new RectangleView({
+            position: new Vec2(100, 100),
+            size: new Vec2(150, 100),
+            fillStyle: new Color(0, 180, 216),
+            strokeStyle: new Color(0, 240, 255),
+            strokeWidth: 2
+        });
+        this.addEventListeners(rectangle);
+        this.canvas.addView(rectangle);
     }
     
     // MARK: - Events Handlers
@@ -56,9 +71,9 @@ export class ShapesApp extends CanvasApp {
 
     // MARK: - Helpers
     addEventListeners(shape) {
-        shape.addEventListener("mousedown", this.onMouseDown, this);
-        shape.addEventListener("mousemove", this.onMouseDrag, this);
-        shape.addEventListener("mouseup", this.onMouseUp, this);
+        shape.addEventListener(MouseEvent.DOWN, this.onMouseDown, this);
+        shape.addEventListener(MouseEvent.DRAG, this.onMouseDrag, this);
+        shape.addEventListener(MouseEvent.UP, this.onMouseUp, this);
     }
 
 }
