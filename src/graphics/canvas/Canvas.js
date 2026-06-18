@@ -131,6 +131,10 @@ export class Canvas {
         this.#rootView.removeAllViews();
     }
 
+    getViewCount() {
+        return this.#rootView.getViewCount();
+    }
+
     draw() {
         this.#context.save();
         try {
@@ -212,10 +216,6 @@ export class Canvas {
     }
 
     // MARK: - event handlers
-    #onWindowResized() {
-        this.#updateSize();
-    }
-
     #onMouseDown(event) {
         const mouseEvent = this.#createMouseEvent(MouseEvent.DOWN, event);
         if (mouseEvent) {
