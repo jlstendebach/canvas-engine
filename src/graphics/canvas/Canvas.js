@@ -10,6 +10,7 @@ import { CanvasRootView } from "./CanvasRootView.js";
 export class Canvas {
     #element = null;
     #context = null;
+    #contextType = null;
     #rootView = new CanvasRootView(this);
     #fillStyle = new CachedColor();
 
@@ -88,6 +89,8 @@ export class Canvas {
         if (!this.#context) {
             throw new Error(`Failed to get context of type: ${contextType}`);
         }
+
+        this.#contextType = contextType;
     }
 
     // MARK: - destruction
@@ -106,6 +109,7 @@ export class Canvas {
         } finally {
             this.#element = null;
             this.#context = null;
+            this.#contextType = null;
             this.#rootView = null;
             this.#fillStyle = null;
             this.#mouseProcessor = null;
@@ -298,6 +302,15 @@ export class Canvas {
             return;
         }
 
+        // To preserve the existing canvas content when resizing, we draw the 
+        // current canvas onto a temporary canvas, resize the original canvas, 
+        // then draw the temporary canvas back onto the resized canvas.
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = this.#element.width;
+        tempCanvas.height = this.#element.height;
+        const tempContext = tempCanvas.getContext(this.#contextType);
+        tempContext.drawImage(this.#element, 0, 0);
+
         // Create the event before setting the size so that we still have access
         // to the old width and height values.
         const event = new CanvasResizeEvent(
@@ -308,6 +321,7 @@ export class Canvas {
             size.y                // height
         );
 
+        // Set the new size.
         this.#element.width = size.x;
         this.#element.height = size.y;        
         if (this.#context instanceof WebGL2RenderingContext ||
@@ -316,6 +330,10 @@ export class Canvas {
             this.#context.viewport(0, 0, size.x, size.y);
         }
 
+        // Draw the previous content back onto the resized canvas.
+        this.#context.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height);
+
+        // Inform any listeners about the resize event.
         this.#eventEmitter.emit(CanvasResizeEvent, event);
     }
 
