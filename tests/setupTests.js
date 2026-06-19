@@ -39,20 +39,20 @@ if (typeof window !== 'undefined') {
     // MARK: - HTMLCanvasElement
     HTMLCanvasElement.prototype.getContext = function () {
         return {
-            viewport: () => {},
-            save: () => {},
-            restore: () => {},
-            clearRect: () => {},
             beginPath: () => {},
-            moveTo: () => {},
-            lineTo: () => {},
-            stroke: () => {},
-            fill: () => {},
-            translate: () => {},
-            rotate: () => {},
-            scale: () => {},
+            clearRect: () => {},
             drawImage: () => {},
+            fill: () => {},
             fillRect: () => {},
+            lineTo: () => {},
+            moveTo: () => {},
+            restore: () => {},
+            rotate: () => {},
+            save: () => {},
+            scale: () => {},
+            stroke: () => {},
+            translate: () => {},
+            viewport: () => {},
         };
     };
 

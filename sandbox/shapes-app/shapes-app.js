@@ -5,6 +5,7 @@ import {
     Color,
     MouseButton,
     MouseEvent,
+    PolygonView,
     RectangleView,
     Vec2
 } from "../../src/index.js";
@@ -16,7 +17,7 @@ export class ShapesApp extends CanvasApp {
     constructor(canvasSelectorOrElement) {
         super(canvasSelectorOrElement);
         this.initCanvas();
-        this.initShapes();
+        this.initShapes();        
     }
 
     initCanvas() {
@@ -27,6 +28,7 @@ export class ShapesApp extends CanvasApp {
     initShapes() {
         this.initCircleView();
         this.initRectangleView();
+        this.initPolygonTriangleView();
     }
 
     initCircleView() {
@@ -54,12 +56,29 @@ export class ShapesApp extends CanvasApp {
         this.addEventListeners(rectangle);
         this.canvas.addView(rectangle);
     }
+
+    initPolygonTriangleView() {
+        const style = this.getNextStyle();
+        const triangle = new PolygonView({
+            position: new Vec2(450, 100),
+            points: [
+                new Vec2(0, -50),
+                new Vec2(-50, 50),
+                new Vec2(50, 50)
+            ],
+            fillStyle: style.fillStyle,
+            strokeStyle: style.strokeStyle,
+            strokeWidth: style.strokeWidth
+        });
+        this.addEventListeners(triangle);
+        this.canvas.addView(triangle);
+    }
     
     // MARK: - Events Handlers
     onMouseDown(type, event) {
         if (event.button === MouseButton.LEFT) {
             this.setShapeCenter(event.target, event.getParentXY());
-            event.target.fillStyle.a = 0.5;
+            event.target.fillStyle.a += 0.1;
         }
         this.refresh();
     }
@@ -71,7 +90,17 @@ export class ShapesApp extends CanvasApp {
 
     onMouseUp(type, event) {
         this.setShapeCenter(event.target, event.getParentXY());
-        event.target.fillStyle.a = 0.25;
+        event.target.fillStyle.a -= 0.1;
+        this.refresh();
+    }
+
+    onMouseEnter(type, event) {
+        event.target.fillStyle.a += 0.1;
+        this.refresh();
+    }
+
+    onMouseExit(type, event) {
+        event.target.fillStyle.a -= 0.1;
         this.refresh();
     }
 
@@ -80,16 +109,18 @@ export class ShapesApp extends CanvasApp {
         shape.addEventListener(MouseEvent.DOWN, this.onMouseDown, this);
         shape.addEventListener(MouseEvent.DRAG, this.onMouseDrag, this);
         shape.addEventListener(MouseEvent.UP, this.onMouseUp, this);
+        shape.addEventListener(MouseEvent.ENTER, this.onMouseEnter, this);
+        shape.addEventListener(MouseEvent.EXIT, this.onMouseExit, this);
     }
 
     setShapeCenter(shape, center) {
-        if (shape instanceof CircleView) {
-            shape.position = center;
-        } else if (shape instanceof RectangleView) {
+        if (shape instanceof RectangleView) {
             shape.position = new Vec2(
                 center.x - shape.size.x / 2,
                 center.y - shape.size.y / 2
             );
+        } else {
+            shape.position = center;
         }
     }
 
