@@ -12,8 +12,8 @@ export class CachedColor {
     #colorProxy = null;
     #colorString = null;
 
-    constructor(color = null) {
-        this.color = color;
+    constructor(color) {
+        this.color = color ?? new Color();
     }
 
     // MARK: - Properties
@@ -47,11 +47,7 @@ export class CachedColor {
 
     // MARK: - Helpers
     #updateColorString() {
-        if (this.#rawColor !== null) {
-            this.#colorString = this.#rawColor.toRgba();
-        } else {
-            this.#colorString = null;
-        }
+        this.#colorString = this.#rawColor.toRgba();
     }
 
     #updateColorProxy() {
