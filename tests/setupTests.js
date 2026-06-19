@@ -52,6 +52,7 @@ if (typeof window !== 'undefined') {
             rotate: () => {},
             scale: () => {},
             drawImage: () => {},
+            fillRect: () => {},
         };
     };
 
