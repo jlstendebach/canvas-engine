@@ -51,6 +51,7 @@ if (typeof window !== 'undefined') {
             translate: () => {},
             rotate: () => {},
             scale: () => {},
+            drawImage: () => {},
         };
     };
 

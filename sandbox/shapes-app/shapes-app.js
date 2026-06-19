@@ -58,18 +58,20 @@ export class ShapesApp extends CanvasApp {
     // MARK: - Events Handlers
     onMouseDown(type, event) {
         if (event.button === MouseButton.LEFT) {
-            this.setCenter(event.target, event.getParentXY());
+            this.setShapeCenter(event.target, event.getParentXY());
+            event.target.fillStyle.a = 0.5;
         }
         this.refresh();
     }
 
     onMouseDrag(type, event) {
-        this.setCenter(event.target, event.getParentXY());
+        this.setShapeCenter(event.target, event.getParentXY());
         this.refresh();
     }
 
     onMouseUp(type, event) {
-        this.setCenter(event.target, event.getParentXY());
+        this.setShapeCenter(event.target, event.getParentXY());
+        event.target.fillStyle.a = 0.25;
         this.refresh();
     }
 
@@ -80,7 +82,7 @@ export class ShapesApp extends CanvasApp {
         shape.addEventListener(MouseEvent.UP, this.onMouseUp, this);
     }
 
-    setCenter(shape, center) {
+    setShapeCenter(shape, center) {
         if (shape instanceof CircleView) {
             shape.position = center;
         } else if (shape instanceof RectangleView) {
