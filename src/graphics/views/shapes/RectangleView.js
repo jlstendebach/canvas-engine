@@ -2,12 +2,12 @@ import { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class RectangleView extends ShapeView {
-    #size = null;
+    #size = new Vec2();
 
     // MARK: - Initialization 
     constructor(options = {}) {
         super(options);
-        this.#size = options.size ?? new Vec2(10, 10);
+        this.size = options.size ?? new Vec2(10, 10);
     }
 
     // MARK: - Properties 

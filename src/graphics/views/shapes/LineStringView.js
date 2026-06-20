@@ -2,9 +2,9 @@ import { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class LineStringView extends ShapeView {
-    constructor(points) {
-        super()
-        this.points = points || [];
+    constructor(options = {}) {
+        super(options);
+        this.points = options.points ?? [];
     }
 
 

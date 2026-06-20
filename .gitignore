@@ -2,3 +2,4 @@ backup/
 node_modules/
 coverage/
 canvas-engine.code-workspace
+ignore/

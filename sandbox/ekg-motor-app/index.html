@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>EKG Motor App</title>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+
+    <body>
+        <div id="container">
+            <div id="controls">
+                <div class="control-container">
+                    <input type="checkbox" id="animate-toggle" />
+                    <span>Animate</span>
+                </div>
+
+                <div class="control-container">
+                    <span>Threshold 1:</span>
+                    <input type="number" id="threshold-1" />
+                </div>
+
+                <div class="control-container">
+                    <span>Threshold 2:</span>
+                    <input type="number" id="threshold-2" />
+                </div>
+
+                <div class="control-container">
+                    <span>Sample Points:</span>
+                    <input type="number" id="sample-points" step="1" min="1"/>
+                </div>
+            </div>
+            <canvas id="main-canvas"></canvas>
+        </div>
+    </body>
+
+    <script type="module">
+        import { EkgMotorApp } from "./ekg-motor-app.js";
+
+        const app = new EkgMotorApp("#main-canvas");
+
+        // animation toggle
+        const animateToggle = document.querySelector("#animate-toggle");
+        animateToggle.addEventListener("change", () => {
+            app.isAnimating = animateToggle.checked;
+        });
+
+        // threshold 1
+        const threshold1Input = document.querySelector("#threshold-1");
+        threshold1Input.value = app.activationThreshold1;
+        threshold1Input.addEventListener("change", () => {
+            const value = parseFloat(threshold1Input.value);
+            if (isNaN(value)) {
+                return;
+            }
+            app.activationThreshold1 = value;
+        });
+
+        // threshold 2
+        const threshold2Input = document.querySelector("#threshold-2");
+        threshold2Input.value = app.activationThreshold2;
+        threshold2Input.addEventListener("change", () => {
+            const value = parseFloat(threshold2Input.value);
+            if (isNaN(value)) {
+                return;
+            }
+            app.activationThreshold2 = value;
+        });
+
+        // sample points
+        const samplePointsInput = document.querySelector("#sample-points");
+        samplePointsInput.value = app.samplePoints;
+        samplePointsInput.addEventListener("change", () => {
+            const value = parseInt(samplePointsInput.value, 10);
+            if (isNaN(value)) {
+                return;
+            }
+            app.samplePoints = value;
+        });
+
+        // start the app once the window has loaded
+        window.addEventListener("load", function () {
+            window.removeEventListener("load", this);
+            app.start();
+        });
+    </script>
+
+</html>
