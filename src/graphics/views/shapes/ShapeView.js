@@ -1,17 +1,22 @@
-import { View } from "../View.js"
 import { CachedColor } from "../../utils/CachedColor.js";
+import { Color } from "../../utils/Color.js";
+import { View } from "../View.js";
 
 export class ShapeView extends View {
     #fillStyle = new CachedColor();
     #strokeStyle = new CachedColor();
-    #strokeWidth = 1;
-    #strokeDash = [];
+    #strokeWidth;
+    #strokeDash;
 
-    constructor() {
-        super();
+    constructor(options = {}) {
+        super(options);
+        this.fillStyle = options.fillStyle ?? new Color(255, 255, 255);
+        this.strokeStyle = options.strokeStyle ?? new Color(0, 0, 0);
+        this.strokeWidth = options.strokeWidth ?? 1;
+        this.strokeDash = options.strokeDash ?? [];
     }
 
-    // MARK: - Properties ------------------------------------------------------
+    // MARK: - Properties
     set fillStyle(style) { 
         this.#fillStyle.color = style; 
     }
@@ -44,52 +49,18 @@ export class ShapeView extends View {
         return this.#strokeDash; 
     }
 
-    // MARK: - Hit Testing -----------------------------------------------------
+    // MARK: - Hit Testing
     isInBounds(point) {
         // To be implemented by subclasses.
+        void point;
         return false;
     }
 
-    // MARK: - Style -----------------------------------------------------------
-    setFillStyle(style) { 
-        this.#fillStyle.color = style; 
-        return this; 
+    // MARK: - Drawing
+    path(context) { 
+        // To be implemented by subclasses.
+        void context;
     }
-
-    getFillStyle() { 
-        return this.#fillStyle.color; 
-    }
-
-    setStrokeStyle(style) { 
-        this.#strokeStyle.color = style; 
-        return this; 
-    }
-    
-    getStrokeStyle() { 
-        return this.#strokeStyle.color; 
-    }
-
-    setStrokeWidth(width) { 
-        this.#strokeWidth = width; 
-        return this; 
-    }
-    
-    getStrokeWidth() { 
-        return this.#strokeWidth; 
-    }
-
-    setStrokeDash(dash) { 
-        this.#strokeDash = dash; 
-        return this; 
-    }
-    
-    getStrokeDash() { 
-        return this.#strokeDash; 
-    }
-
-
-    // --[ drawing ]------------------------------------------------------------
-    path(context) { }
 
     fill(context) {
         if (this.isFillEnabled()) {
@@ -114,7 +85,7 @@ export class ShapeView extends View {
         this.stroke(context);
     }
 
-    // --[ helpers ]------------------------------------------------------------
+    // MARK: - Helpers
     isStrokeEnabled() {
         return this.#strokeStyle.colorString != null && this.#strokeWidth > 0;
     }

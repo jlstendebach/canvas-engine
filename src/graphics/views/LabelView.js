@@ -19,16 +19,15 @@ LabelViewOptions.OVERFLOW_FLAG_MAX = LabelViewOptions.CLIP * 2 - 1; // 63
 
 export class LabelView extends View {
     // --[ ctor ]---------------------------------------------------------------
-    constructor() {
-        super();
+    constructor(options = {}) {
+        super(options);
         this.isValid = false;
 
-        this.position = new Vec2(0, 0);
         this.size = new Vec2(0, 0);
         this.anchor = new Vec2(0, 0);
         this.angle = 0;
 
-        this.text = "";
+        this.text = options.text ?? "";
         this.lines = [];
 
         this.fontFamily = "Arial";
@@ -38,7 +37,7 @@ export class LabelView extends View {
         this.fontCached = "";
 
         this.lineHeight = 0;
-        this.textAlign = LabelViewOptions.LEFT_ALIGN;
+        this.textAlign = LabelViewOptions.LEFT;
         this.overflowFlags = LabelViewOptions.GROW_X | LabelViewOptions.GROW_Y;
 
         this.fillColor = "black";
@@ -50,8 +49,8 @@ export class LabelView extends View {
 
     // --[ bounds ]-------------------------------------------------------------
     isInBounds(point) {
-        let labelX = this.getX() - this.getAnchorX() * this.getWidth();
-        let labelY = this.getY() - this.getAnchorY() * this.getHeight();
+        let labelX = this.position.x - this.getAnchorX() * this.getWidth();
+        let labelY = this.position.y - this.getAnchorY() * this.getHeight();
 
         return (
             point.x >= labelX
@@ -59,25 +58,6 @@ export class LabelView extends View {
             && point.y >= labelY
             && point.y < labelY + this.getHeight()
         );
-    }
-
-    /************/
-    /* position */
-    /************/
-    setX(x) {
-        this.position.x = x;
-    }
-
-    getX() {
-        return this.position.x;
-    }
-
-    setY(y) {
-        this.position.y = y;
-    }
-
-    getY() {
-        return this.position.y;
     }
 
     /********/
@@ -509,7 +489,6 @@ export class LabelView extends View {
         const anchorX = this.getWidth() * this.getAnchorX();
         const anchorY = this.getHeight() * this.getAnchorY();
 
-        context.translate(this.getX(), this.getY());
         if (this.getAngle() != 0) {
             context.rotate(this.getAngle());
         }

@@ -2,104 +2,81 @@ import { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class PolygonView extends ShapeView {
-    constructor(points) {
-        super();
-        this.position = new Vec2();
-        this.rotation = 0;
-        this.points = points || [];
+    #points = [];
+
+    // MARK: - Initialization
+    constructor(options = {}) {
+        super(options);
+        this.#points = options.points ?? [];
     }
 
-
-    // --[ bounds ]-------------------------------------------------------------
+    // MARK: - Hit Testing
     isInBounds(point) {
-        return false;
-    }
+        const target = point.clone().subtract(this.position);
 
-    setX(x) { this.position.x = x; }
-    getX() { return this.position.x; }
+        let isInside = false;
 
-    setY(y) { this.position.y = y; }
-    getY() { return this.position.y; }
+        for (let i = 0, j = this.#points.length - 1; i < this.#points.length; j = i++) {
+            const p1 = this.#points[i];
+            const p2 = this.#points[j];
 
-    // --[ rotation ]-----------------------------------------------------------
-    setRotation(angle) { this.rotation = angle; }
-    getRotation() { return this.rotation; }
+            // Ensure the target is between the y-coordinates of the edge. If 
+            // the target is above or below both points, it cannot intersect 
+            // with the edge.
+            if ((target.y < p1.y) === (target.y < p2.y)) {
+                continue;
+            }
 
-    // --[ points ]-------------------------------------------------------------
-    setPoints(points) {
-        this.points = points || [];
-    }
+            const side = p1.x + (target.y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) - target.x;
+            if (side === 0) {
+                // The target is on the edge, so we consider it to be inside.
+                return true;
+            }
 
-    addPoint(x, y) {
-        let point = null;
-        if (!isNaN(x) && !isNaN(y)) { // x and y are both numbers
-            point = new Vec2(x, y);
-
-        } else if (typeof x === "object") { // input is a Vec2
-            point = x;
+            if (side > 0) {
+                isInside = !isInside;
+            }
         }
 
+        return isInside;
+    }
 
-        if (point !== null) {
-            this.points.push(point);
+    // MARK: - Points
+    addPoint(point) {
+        if (!(point instanceof Vec2)) {
+            throw new TypeError("Point must be an instance of Vec2");
         }
+        this.#points.push(point);
     }
 
     removePoint(index) {
-        this.points.splice(index, 1);
+        this.#points.splice(index, 1);
     }
 
     removeAllPoints() {
-        this.points = [];
+        this.#points = [];
     }
 
     getPoint(index) {
-        return this.points[index];
+        return this.#points[index];
     }
 
     getPointCount() {
-        return this.points.length;
+        return this.#points.length;
     }
 
 
-    // --[ drawing ]------------------------------------------------------------
+    // MARK: - Drawing
     path(context) {
-        if (this.getPointCount() >= 3) {
-            let p = (this.rotation !== 0)
-                ? Vec2.rotate(this.points[0], this.rotation)
-                : this.points[0];
-
-            context.moveTo(this.position.x + p.x, this.position.y + p.y);
-            for (let i = 1; i < this.getPointCount(); ++i) {
-                p = (this.rotation !== 0)
-                    ? Vec2.rotate(this.points[i], this.rotation)
-                    : this.points[i];
-                context.lineTo(this.position.x + p.x, this.position.y + p.y);
-            }
-            context.closePath();
+        console.log(this.#points.length);
+        if (this.#points.length < 3) {
+            return;
         }
-    }
-
-    /*
-    path(context) {
-      if (this.getPointCount() >= 3) {
-        context.translate(this.position.x, this.position.y);
-        context.rotate(this.rotation);      
-        context.moveTo(this.points[0].x, this.points[0].y);      
-        for (let i = 1; i < this.getPointCount(); ++i) {
-          context.lineTo(this.points[i].x, this.points[i].y);
+        context.moveTo(this.#points[0].x, this.#points[0].y);
+        for (let i = 1; i < this.#points.length; ++i) {
+            context.lineTo(this.#points[i].x, this.#points[i].y);
         }
-        context.closePath();         
-        context.rotate(-this.rotation);            
-        context.translate(-this.position.x, -this.position.y);
-      }
-    }
-    */
-
-    drawSelf(context) {
-        if (this.getPointCount() >= 3) {
-            super.drawSelf(context);
-        }
+        context.closePath();
     }
 
 }

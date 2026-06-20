@@ -24,11 +24,13 @@ export class SimpleApp extends CanvasApp {
     }
 
     initBall() {
-        const ball = new CircleView(50);
-        ball.fillStyle = new Color(0, 0, 200);
-        ball.strokeStyle = new Color(100, 100, 100);
-        ball.strokeWidth = 2;
-        ball.position = Vec2.divideScalar(this.canvas.size, 2);
+        const ball = new CircleView({
+            position: Vec2.divideScalar(this.canvas.size, 2),
+            radius: 50,
+            fillStyle: new Color(0, 0, 200),
+            strokeStyle: new Color(100, 100, 100),
+            strokeWidth: 2,
+        });
         ball.addEventListener(MouseEvent.DOWN, this.onBallGrab, this);
         ball.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
         ball.addEventListener(MouseEvent.UP, this.onBallDrop, this);

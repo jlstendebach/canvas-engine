@@ -2,14 +2,15 @@ import { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class RectangleView extends ShapeView {
-    #size = null;
+    #size = new Vec2();
 
-    constructor(width, height) {
-        super();
-        this.#size = new Vec2(width, height);
+    // MARK: - Initialization 
+    constructor(options = {}) {
+        super(options);
+        this.size = options.size ?? new Vec2(10, 10);
     }
 
-    // MARK: - Properties ------------------------------------------------------
+    // MARK: - Properties 
     set size(size) { 
         this.#size.set(size.x, size.y); 
     }
@@ -18,7 +19,7 @@ export class RectangleView extends ShapeView {
         return this.#size; 
     }
 
-    // --[ bounds ]-------------------------------------------------------------
+    // MARK: - Hit Testing
     isInBounds(point) {
         return (
             point.x >= this.position.x
@@ -28,9 +29,9 @@ export class RectangleView extends ShapeView {
         );
     }
 
-    // --[ drawing ]------------------------------------------------------------
+    // MARK: - Drawing
     path(context) {
-        context.rect(this.position.x, this.position.y, this.#size.x, this.#size.y);
+        context.rect(0, 0, this.#size.x, this.#size.y);
     }
 
 }

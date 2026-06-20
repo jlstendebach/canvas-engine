@@ -1,0 +1,303 @@
+import {
+    CanvasApp,
+    CanvasResizeEvent,
+    CircleView,
+    Color,
+    LabelView,
+    MouseEvent,
+    RectangleView,
+    Vec2
+} from "../../src/index.js";
+
+import { Graph } from "./graph.js";
+
+import { data } from "./data.js";
+//const data = [0, 1, 3, 4, 4, 4, 3, 2, 1, -1, -1, -1]
+
+export class EkgMotorApp extends CanvasApp {
+    // MARK: - Constants
+    DATA_POINTS = 300;
+    DATA_SCALE = 100;
+
+    MOTOR_COUNT = 5;
+
+    PADDING = 50;
+    GRAPH_HEIGHT = 200;
+
+    // MARK: - Variables
+    dataGraph;
+    slopeGraph;
+    activationGraph;
+
+    motorContainer;
+    motors = [];
+
+    isAnimating = false;
+    accumulatedTime = 0;
+    updateEvery = 1000 / 30; // ms
+
+    activationThreshold1 = 3;
+    activationThreshold2 = 10;
+
+    #samplePoints = 3;
+
+    // MARK: - Properties
+    set samplePoints(value) {
+        this.#samplePoints = value;
+        this.slopeGraph.data = this.calculateSlopeData();
+        this.slopeGraph.calculateDataRange();
+    }
+
+    get samplePoints() {
+        return this.#samplePoints;
+    }
+
+    // MARK: - Initialization 
+    constructor(canvasSelectorOrElement) {
+        super(canvasSelectorOrElement);
+        this.initCanvas();
+        this.initDataGraph();
+        this.initSlopeGraph();
+        this.initActivationGraph();
+        this.initMotors();
+
+        this.layoutViews();
+    }
+
+    initCanvas() {
+        this.canvas.fillStyle = new Color(0, 0, 20);
+        this.canvas.addEventListener(CanvasResizeEvent, this.layoutViews, this);
+    }
+
+    initDataGraph() {
+        const scaledData = data.slice(0, this.DATA_POINTS).map(value => value * this.DATA_SCALE);
+
+        this.dataGraph = new Graph({ data: scaledData });
+        this.dataGraph.addEventListener(MouseEvent.MOVE, this.onGraphMouseMove, this);
+        this.canvas.addView(this.dataGraph);
+    }
+
+    initSlopeGraph() {
+        this.slopeGraph = new Graph({
+            data: this.calculateSlopeData(),
+            isSquareWave: true,
+        });
+        this.slopeGraph.addEventListener(MouseEvent.MOVE, this.onGraphMouseMove, this);
+        this.canvas.addView(this.slopeGraph);
+    }
+
+    initActivationGraph() {
+        this.activationGraph = new Graph({
+            data: this.calculateActivationData(),
+            isSquareWave: true,
+        });
+        this.activationGraph.setDataRange(-this.MOTOR_COUNT, 0);
+        this.activationGraph.addEventListener(MouseEvent.MOVE, this.onGraphMouseMove, this);
+        this.canvas.addView(this.activationGraph);
+    }
+
+    initMotors() {
+        const padding = 20;
+        const radius = 20;
+        const spacing = 30;
+
+        this.motorContainer = new RectangleView({
+            fillStyle: this.dataGraph.fillStyle,
+            strokeStyle: this.dataGraph.strokeStyle,
+            strokeWidth: 2,
+            size: new Vec2(
+                radius * 2 * 3 + spacing * 2 + padding * 2,
+                radius * 2 * 2 + spacing * 1 + padding * 2
+            ),
+        });
+        this.canvas.addView(this.motorContainer);
+
+        const motors = [];
+        for (let i = 0; i < this.MOTOR_COUNT; i++) {
+            const motor = new CircleView({
+                radius: radius,
+                fillStyle: this.dataGraph.fillStyle,
+                strokeStyle: this.dataGraph.strokeStyle,
+                strokeWidth: 2,
+            });
+
+            motor.addView(this.createLabel({ text: `M${i + 1}` }));
+
+            motors.push(motor);
+            this.motorContainer.addView(motor);
+        }
+
+        motors[0].position = new Vec2(padding + radius, padding + radius);
+
+        motors[1].position.copy(motors[0].position)
+        motors[1].position.y += radius * 2 + spacing;
+
+        motors[2].position.copy(motors[0].position);
+        motors[2].position.x += radius * 2 + spacing;
+
+        motors[3].position.copy(motors[1].position);
+        motors[3].position.x += radius * 2 + spacing;
+
+        motors[4].position.copy(motors[3].position);
+        motors[4].position.x += radius * 2 + spacing;
+        motors[4].position.y = this.motorContainer.size.y / 2;
+
+        this.motors = motors;
+    }
+
+    // MARK: - Update
+    onUpdate(timestamp, deltaTime) {
+        this.updateGraphValues();
+
+        if (this.isAnimating) {
+            this.accumulatedTime += deltaTime;
+
+            while (this.accumulatedTime > this.updateEvery) {
+                this.accumulatedTime -= this.updateEvery;
+
+                let newData = this.dataGraph.data.slice();
+                let first = newData.shift();
+                newData.push(first);
+                this.dataGraph.data = newData;
+
+                this.slopeGraph.data = this.calculateSlopeData();
+                this.activationGraph.data = this.calculateActivationData();
+
+                this.dataGraph.setCursor(this.dataGraph.getCursor());
+                this.slopeGraph.setCursor(this.slopeGraph.getCursor());
+                this.activationGraph.setCursor(this.activationGraph.getCursor());
+            }
+        }
+    }
+
+    updateGraphValues() {
+        const slopeValue = this.slopeGraph.getValueAtCursor() ?? 0;
+        for (let i = 0; i < this.motors.length; i++) {
+            this.setMotorActivated(i, this.isMotorActivated(i, slopeValue));
+        }
+    }
+
+    setMotorActivated(motorIndex, isActivated) {
+        if (motorIndex < 0 || motorIndex >= this.motors.length) {
+            return;
+        }
+        const motor = this.motors[motorIndex];
+        motor.fillStyle = isActivated
+            ? new Color(18, 211, 140, 0.25)
+            : this.dataGraph.fillStyle;
+        motor.strokeStyle = isActivated
+            ? new Color(110, 242, 194, 1)
+            : this.dataGraph.strokeStyle;
+    }
+
+    isMotorActivated(motorIndex, slope) {
+        switch (motorIndex) {
+            case 0:
+                return this.isBetween(slope, this.activationThreshold1, this.activationThreshold2);
+
+            case 1:
+                return this.isBetween(slope, -this.activationThreshold2, -this.activationThreshold1);
+
+            case 2:
+                return slope > this.activationThreshold2;
+
+            case 3:
+                return slope < -this.activationThreshold2;
+
+            case 4:
+                return Math.abs(slope) < this.activationThreshold1;
+            default: return false;
+        }
+    }
+
+
+    // MARK: - Events
+    onGraphMouseMove(type, event) {
+        this.dataGraph.setCursor(event.x);
+        this.slopeGraph.setCursor(event.x);
+        this.activationGraph.setCursor(event.x);
+    }
+
+    // MARK: - Helpers
+    layoutViews() {
+        // data graph
+        this.dataGraph.position = new Vec2(this.PADDING, this.PADDING);
+        this.dataGraph.size = new Vec2(this.canvas.size.x - this.PADDING * 2, this.GRAPH_HEIGHT);
+
+        // slope graph
+        this.slopeGraph.position = new Vec2(
+            this.PADDING,
+            this.dataGraph.position.y + this.dataGraph.size.y + this.PADDING
+        );
+        this.slopeGraph.size = new Vec2(this.canvas.size.x - this.PADDING * 2, this.GRAPH_HEIGHT);
+
+        // activation graph
+        this.activationGraph.position = new Vec2(
+            this.PADDING,
+            this.slopeGraph.position.y + this.slopeGraph.size.y + this.PADDING
+        );
+        this.activationGraph.size = new Vec2(this.canvas.size.x - this.PADDING * 2, this.GRAPH_HEIGHT);
+
+        // motors
+        this.motorContainer.position = new Vec2(
+            this.canvas.size.x / 2 - this.motorContainer.size.x / 2,
+            this.activationGraph.position.y + this.activationGraph.size.y + this.PADDING
+        );
+    }
+
+    calculateSlopeData() {
+        /*
+        let data = this.dataGraph.data.map((value, index) => {
+            // circular indexing to get previous and next values based on offset
+            const previousIndex = (index - this.samplePoints + this.dataGraph.data.length) % this.dataGraph.data.length;
+            const nextIndex = index % this.dataGraph.data.length;
+            const previousValue = this.dataGraph.data[previousIndex];
+            const nextValue = this.dataGraph.data[nextIndex];
+            return nextValue - previousValue;
+        });
+        return data;
+        */
+
+        const data = [];
+        for (let i = 0; i < this.dataGraph.data.length; i++) {
+            const previousIndex = (((i - this.samplePoints) % this.dataGraph.data.length) + this.dataGraph.data.length) % this.dataGraph.data.length;
+            const previousValue = this.dataGraph.data[previousIndex];
+            const currentValue = this.dataGraph.data[i];
+            data.push(currentValue - previousValue);
+        }
+        return data;
+
+    }
+
+    calculateActivationData() {
+        const data = [];
+        for (let i = 0; i < this.slopeGraph.data.length; i++) {
+            const slopeValue = this.slopeGraph.data[i];
+            let value = 0;
+            for (let motorIndex = 0; motorIndex < this.MOTOR_COUNT; motorIndex++) {
+                if (this.isMotorActivated(motorIndex, slopeValue)) {
+                    value = - motorIndex - 1;
+                    break;
+                }
+            }
+            data.push(value);
+        }
+        return data;
+    }
+
+    isBetween(value, threshold1, threshold2) {
+        return (value < threshold1) !== (value < threshold2);
+    }
+
+    createLabel(options = {}) {
+        const label = new LabelView(options);
+        label.setFillColor("white");
+        label.setFontSize(16);
+        label.setAnchorX(0.5);
+        label.setAnchorY(0.5);
+        label.setShrinkX(true);
+        label.setShrinkY(true);
+        return label;
+    }
+
+}

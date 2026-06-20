@@ -1,18 +1,12 @@
 /**
  * Represents a color with red, green, blue, and alpha components.
- * Values are clamped to valid ranges (r/g/b: 0-255, a: 0-1).
  */
 export class Color {
-    #r = 0;
-    #g = 0;
-    #b = 0;
-    #a = 1.0;
+    r; g; b; a;
 
+    // MARK: - Initialization
     constructor(r = 0, g = 0, b = 0, a = 1.0) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
+        this.set(r, g, b, a);
     }
 
     // MARK: - Factory Methods 
@@ -22,7 +16,7 @@ export class Color {
      * @param {string} hexString - The hex color string.
      * @returns {Color|null} A new Color instance or null if invalid.
      */
-    static fromHexString(hexString) {
+    static fromHex(hexString) {
         if (typeof hexString !== "string") {
             return null;
         }
@@ -59,7 +53,7 @@ export class Color {
      * @param {string} rgbaString - The RGBA/RGB string.
      * @returns {Color|null} A new Color instance or null if invalid.
      */
-    static fromRgbaString(rgbaString) {
+    static fromRgba(rgbaString) {
         if (typeof rgbaString !== "string") {
             return null;
         }
@@ -84,54 +78,12 @@ export class Color {
         );
     }
 
-    /**
-     * Creates a copy of the given Color.
-     * @param {Color} other - The Color to copy.
-     * @returns {Color} A new Color instance with the same values.
-     */
-    static copy(other) {
-        return new Color(other.#r, other.#g, other.#b, other.#a);
-    }
-
-    // MARK: - Properties
-    set r(value) {
-        this.#r = Math.max(0, Math.min(255, value));
-    }
-
-    get r() {
-        return this.#r;
-    }
-
-    set g(value) {
-        this.#g = Math.max(0, Math.min(255, value));
-    }
-
-    get g() {
-        return this.#g;
-    }
-
-    set b(value) {
-        this.#b = Math.max(0, Math.min(255, value));
-    }
-
-    get b() {
-        return this.#b;
-    }
-
-    set a(value) {
-        this.#a = Math.max(0, Math.min(1, value));
-    }
-
-    get a() {
-        return this.#a;
-    }
-
-    // MARK: - Helpers
+    // MARK: - Conversions
     /**
      * Converts the Color to an RGBA string in the format "rgba(r, g, b, a)".
      * @returns {string} The RGBA string representation of the color.
      */
-    toRgbaString() {
+    toRgba() {
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
 
@@ -139,12 +91,29 @@ export class Color {
      * Converts the Color to a hex string in the format "#RRGGBBAA".
      * @returns {string} The hex string representation of the color.
      */
-    toHexString() {
+    toHex() {
         const rHex = this.r.toString(16).padStart(2, '0');
         const gHex = this.g.toString(16).padStart(2, '0');
         const bHex = this.b.toString(16).padStart(2, '0');
         const aHex = Math.round(this.a * 255).toString(16).padStart(2, '0');
         return `#${rHex}${gHex}${bHex}${aHex}`;
+    }
+
+    // MARK: - Utilities
+    /**
+     * Sets the color components.
+     * @param {number} r - Red component
+     * @param {number} g - Green component
+     * @param {number} b - Blue component
+     * @param {number} a - Alpha component
+     * @returns {Color} The current Color instance.
+     */
+    set(r, g, b, a = 1.0) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+        return this;
     }
 
     /**
@@ -158,5 +127,22 @@ export class Color {
             this.g === other.g &&
             this.b === other.b &&
             this.a === other.a;
+    }
+
+    /**
+     * Creates a clone of this Color instance.
+     * @returns {Color} A new Color instance with the same values.
+     */
+    clone() {
+        return new Color(this.r, this.g, this.b, this.a);
+    }
+
+    /**
+     * Copies the values from another Color instance.
+     * @param {Color} other - The Color to copy from.
+     * @returns {Color} The current Color instance.
+     */
+    copy(other) {
+        return this.set(other.r, other.g, other.b, other.a);
     }
 }

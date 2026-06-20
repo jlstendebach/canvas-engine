@@ -1,45 +1,34 @@
-import { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class CircleView extends ShapeView {
-    constructor(r) {
-        super();
-        this.position = new Vec2();
-        this.radius = r;
+    static #TAU = Math.PI * 2;
+    #radius;
+
+    // MARK: - Properties
+    set radius(r) { 
+        this.#radius = r; 
     }
 
+    get radius() { 
+        return this.#radius; 
+    }
 
-    // --[ bounds ]-------------------------------------------------------------
+    // MARK: - Initialization
+    constructor(options = {}) {
+        super(options);
+        this.radius = options.radius ?? 10;
+    }
+
+    // MARK: - Hit Testing
     isInBounds(point) {
         return (
             Math.sqrt((this.position.x - point.x) ** 2 + (this.position.y - point.y) ** 2) <= this.radius
         );
     }
 
-    setX(x) { 
-        this.position.x = x; 
-        return this; 
-    }
-
-    setY(y) { 
-        this.position.y = y;
-        return this; 
-    }
-
-    setPosition(x, y) { 
-        this.position.set(x, y); 
-        return this; 
-    }
-
-    setRadius(r) { 
-        this.radius = r; 
-        return this;
-    }
-
-
-    // --[ drawing ]------------------------------------------------------------
+    // MARK: - Drawing
     path(context) {
-        context.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
+        context.arc(0, 0, this.#radius, 0, CircleView.#TAU);
     }
 
 }

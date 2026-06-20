@@ -1,5 +1,5 @@
+import { EventEmitter } from "@canvas-engine";
 import { describe, expect, jest, test } from "@jest/globals";
-import { EventEmitter } from "../../src/events/EventEmitter.js";
 
 describe("EventEmitter", () => {
     // MARK: - addListener() Tests ---------------------------------------------

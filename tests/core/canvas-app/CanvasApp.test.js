@@ -2,10 +2,8 @@
  * @jest-environment jsdom
  */
 
+import { CanvasApp, CanvasAppState, View } from "@canvas-engine";
 import { afterEach, beforeEach, describe, expect, jest, test } from "@jest/globals";
-import { CanvasApp } from "../../../src/core/canvas-app/CanvasApp.js";
-import { CanvasAppState } from "../../../src/core/canvas-app/CanvasAppState.js";
-import { View } from "../../../src/graphics/views/View.js";
 
 // MARK: - CanvasApp tests
 describe("CanvasApp", () => {
