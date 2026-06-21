@@ -32,20 +32,39 @@ export class EkgMotorApp extends CanvasApp {
     motorContainer;
     motors = [];
 
-    isAnimating = false;
     accumulatedTime = 0;
     updateEvery = 1000 / 30; // ms
 
-    activationThreshold1 = 3;
-    activationThreshold2 = 10;
-
+    #activationThreshold1 = 3;
+    #activationThreshold2 = 10;
     #samplePoints = 3;
 
     // MARK: - Properties
+    set activationThreshold1(value) {
+        this.#activationThreshold1 = value;
+        this.activationGraph.data = this.calculateActivationData();
+        this.updateMotors();
+    }
+
+    get activationThreshold1() {
+        return this.#activationThreshold1;
+    }
+
+    set activationThreshold2(value) {
+        this.#activationThreshold2 = value;
+        this.activationGraph.data = this.calculateActivationData();
+        this.updateMotors();
+    }
+
+    get activationThreshold2() {
+        return this.#activationThreshold2;
+    }
+
     set samplePoints(value) {
         this.#samplePoints = value;
         this.slopeGraph.data = this.calculateSlopeData();
         this.slopeGraph.calculateDataRange();
+        this.activationGraph.data = this.calculateActivationData();
     }
 
     get samplePoints() {
@@ -60,13 +79,12 @@ export class EkgMotorApp extends CanvasApp {
         this.initSlopeGraph();
         this.initActivationGraph();
         this.initMotors();
-
         this.layoutViews();
     }
 
     initCanvas() {
         this.canvas.fillStyle = new Color(0, 0, 20);
-        this.canvas.addEventListener(CanvasResizeEvent, this.layoutViews, this);
+        this.canvas.addEventListener(CanvasResizeEvent, this.onCanvasResize, this);
     }
 
     initDataGraph() {
@@ -147,30 +165,28 @@ export class EkgMotorApp extends CanvasApp {
 
     // MARK: - Update
     onUpdate(timestamp, deltaTime) {
-        this.updateGraphValues();
+        this.accumulatedTime += deltaTime;
 
-        if (this.isAnimating) {
-            this.accumulatedTime += deltaTime;
+        while (this.accumulatedTime > this.updateEvery) {
+            this.accumulatedTime -= this.updateEvery;
 
-            while (this.accumulatedTime > this.updateEvery) {
-                this.accumulatedTime -= this.updateEvery;
+            let newData = this.dataGraph.data.slice();
+            let first = newData.shift();
+            newData.push(first);
+            this.dataGraph.data = newData;
 
-                let newData = this.dataGraph.data.slice();
-                let first = newData.shift();
-                newData.push(first);
-                this.dataGraph.data = newData;
+            this.slopeGraph.data = this.calculateSlopeData();
+            this.activationGraph.data = this.calculateActivationData();
 
-                this.slopeGraph.data = this.calculateSlopeData();
-                this.activationGraph.data = this.calculateActivationData();
+            this.dataGraph.setCursor(this.dataGraph.getCursor());
+            this.slopeGraph.setCursor(this.slopeGraph.getCursor());
+            this.activationGraph.setCursor(this.activationGraph.getCursor());
 
-                this.dataGraph.setCursor(this.dataGraph.getCursor());
-                this.slopeGraph.setCursor(this.slopeGraph.getCursor());
-                this.activationGraph.setCursor(this.activationGraph.getCursor());
-            }
+            this.updateMotors();
         }
     }
 
-    updateGraphValues() {
+    updateMotors() {
         const slopeValue = this.slopeGraph.getValueAtCursor() ?? 0;
         for (let i = 0; i < this.motors.length; i++) {
             this.setMotorActivated(i, this.isMotorActivated(i, slopeValue));
@@ -193,29 +209,33 @@ export class EkgMotorApp extends CanvasApp {
     isMotorActivated(motorIndex, slope) {
         switch (motorIndex) {
             case 0:
-                return this.isBetween(slope, this.activationThreshold1, this.activationThreshold2);
+                return this.isBetween(slope, this.#activationThreshold1, this.#activationThreshold2);
 
             case 1:
-                return this.isBetween(slope, -this.activationThreshold2, -this.activationThreshold1);
+                return this.isBetween(slope, -this.#activationThreshold2, -this.#activationThreshold1);
 
             case 2:
-                return slope > this.activationThreshold2;
+                return slope > this.#activationThreshold2;
 
             case 3:
-                return slope < -this.activationThreshold2;
+                return slope < -this.#activationThreshold2;
 
             case 4:
-                return Math.abs(slope) < this.activationThreshold1;
+                return Math.abs(slope) < this.#activationThreshold1;
             default: return false;
         }
     }
-
 
     // MARK: - Events
     onGraphMouseMove(type, event) {
         this.dataGraph.setCursor(event.x);
         this.slopeGraph.setCursor(event.x);
         this.activationGraph.setCursor(event.x);
+        this.updateMotors();
+    }
+
+    onCanvasResize() {
+        this.layoutViews();
     }
 
     // MARK: - Helpers
@@ -246,27 +266,14 @@ export class EkgMotorApp extends CanvasApp {
     }
 
     calculateSlopeData() {
-        /*
-        let data = this.dataGraph.data.map((value, index) => {
-            // circular indexing to get previous and next values based on offset
-            const previousIndex = (index - this.samplePoints + this.dataGraph.data.length) % this.dataGraph.data.length;
-            const nextIndex = index % this.dataGraph.data.length;
-            const previousValue = this.dataGraph.data[previousIndex];
-            const nextValue = this.dataGraph.data[nextIndex];
-            return nextValue - previousValue;
-        });
-        return data;
-        */
-
         const data = [];
         for (let i = 0; i < this.dataGraph.data.length; i++) {
-            const previousIndex = (((i - this.samplePoints) % this.dataGraph.data.length) + this.dataGraph.data.length) % this.dataGraph.data.length;
+            const previousIndex = this.positiveModulus(i - this.#samplePoints, this.dataGraph.data.length);
             const previousValue = this.dataGraph.data[previousIndex];
             const currentValue = this.dataGraph.data[i];
             data.push(currentValue - previousValue);
         }
         return data;
-
     }
 
     calculateActivationData() {
@@ -287,6 +294,11 @@ export class EkgMotorApp extends CanvasApp {
 
     isBetween(value, threshold1, threshold2) {
         return (value < threshold1) !== (value < threshold2);
+    }
+
+    positiveModulus(value, modulus) {
+        const result = value % modulus;
+        return result < 0 ? result + modulus : result;
     }
 
     createLabel(options = {}) {
