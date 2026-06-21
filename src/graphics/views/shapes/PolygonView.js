@@ -68,7 +68,6 @@ export class PolygonView extends ShapeView {
 
     // MARK: - Drawing
     path(context) {
-        console.log(this.#points.length);
         if (this.#points.length < 3) {
             return;
         }

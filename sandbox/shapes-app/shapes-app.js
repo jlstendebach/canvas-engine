@@ -2,21 +2,27 @@ import {
     CanvasApp,
     CanvasResizeEvent,
     CircleView,
-    Color,
+    Color,    
+    LineStringView,
+    LineView,
     MouseButton,
     MouseEvent,
     PolygonView,
     RectangleView,
+    SceneView,
     Vec2
 } from "../../src/index.js";
 
 import { shapeStyles } from "./shape-styles.js";
 
 export class ShapesApp extends CanvasApp {
+    scene;
+
     // MARK: - Initialization 
     constructor(canvasSelectorOrElement) {
         super(canvasSelectorOrElement);
         this.initCanvas();
+        this.initScene();
         this.initShapes();        
     }
 
@@ -25,10 +31,18 @@ export class ShapesApp extends CanvasApp {
         this.canvas.addEventListener(CanvasResizeEvent, this.refresh, this);
     }
 
+    initScene() {
+        this.scene = new SceneView();
+        this.canvas.addView(this.scene);
+    }
+
     initShapes() {
         this.initCircleView();
         this.initRectangleView();
         this.initPolygonTriangleView();
+        this.initPolygonStarView();
+        this.initLineStringView();
+        this.initLineView();
     }
 
     initCircleView() {
@@ -41,7 +55,7 @@ export class ShapesApp extends CanvasApp {
             strokeWidth: style.strokeWidth
         });
         this.addEventListeners(circle);
-        this.canvas.addView(circle);
+        this.scene.addView(circle);
     }
 
     initRectangleView() {
@@ -54,7 +68,7 @@ export class ShapesApp extends CanvasApp {
             strokeWidth: style.strokeWidth
         });
         this.addEventListeners(rectangle);
-        this.canvas.addView(rectangle);
+        this.scene.addView(rectangle);
     }
 
     initPolygonTriangleView() {
@@ -71,7 +85,61 @@ export class ShapesApp extends CanvasApp {
             strokeWidth: style.strokeWidth
         });
         this.addEventListeners(triangle);
-        this.canvas.addView(triangle);
+        this.scene.addView(triangle);
+    }
+
+    initPolygonStarView() {
+        const points = [];
+        const tau = Math.PI * 2;
+        for (let i = 0; i < 10; i++) {
+            const angle = tau * i / 10;
+            const point = new Vec2(0, 55).rotate(angle);
+            if (i % 2 === 0) {
+                point.multiplyScalar(0.382);
+            }
+            points.push(point);
+        }
+        const style = this.getNextStyle();
+        const star = new PolygonView({
+            position: new Vec2(100, 250),
+            points: points,
+            fillStyle: style.fillStyle,
+            strokeStyle: style.strokeStyle,
+            strokeWidth: style.strokeWidth
+        });
+        this.addEventListeners(star);
+        this.scene.addView(star);
+    }
+
+    initLineStringView() {
+        const style = this.getNextStyle();        
+        const tau = Math.PI * 2;
+        const points = [];
+        const pointCount = 150;
+        for (let i = 0; i < pointCount; i++) {
+            points.push(new Vec2(i, Math.sin(tau*i/pointCount) * 50));
+        }
+        const lineString = new LineStringView({
+            position: new Vec2(200, 250),
+            points: points,
+            strokeStyle: style.strokeStyle,
+            strokeWidth: 4
+        });
+        this.addEventListeners(lineString);
+        this.scene.addView(lineString);
+    }
+
+    initLineView() {
+        const style = this.getNextStyle();
+        const line = new LineView({
+            position: new Vec2(400, 200),
+            vertex1: new Vec2(0, 0),
+            vertex2: new Vec2(100, 100),
+            strokeStyle: style.strokeStyle,
+            strokeWidth: 4
+        });
+        this.addEventListeners(line);
+        this.scene.addView(line);
     }
     
     // MARK: - Events Handlers
@@ -95,11 +163,21 @@ export class ShapesApp extends CanvasApp {
     }
 
     onMouseEnter(type, event) {
+        if (event.target instanceof LineView || event.target instanceof LineStringView) {
+            event.target.strokeStyle.r -= 100;
+            event.target.strokeStyle.g -= 100;
+            event.target.strokeStyle.b -= 100;
+        }
         event.target.fillStyle.a += 0.1;
         this.refresh();
     }
 
     onMouseExit(type, event) {
+        if (event.target instanceof LineView || event.target instanceof LineStringView) {
+            event.target.strokeStyle.r += 100;
+            event.target.strokeStyle.g += 100;
+            event.target.strokeStyle.b += 100;
+        }
         event.target.fillStyle.a -= 0.1;
         this.refresh();
     }
@@ -119,13 +197,18 @@ export class ShapesApp extends CanvasApp {
                 center.x - shape.size.x / 2,
                 center.y - shape.size.y / 2
             );
+        } else if (shape instanceof LineView) {
+            shape.position = new Vec2(
+                center.x - (shape.vertex1.x + shape.vertex2.x) / 2,
+                center.y - (shape.vertex1.y + shape.vertex2.y) / 2
+            );
         } else {
             shape.position = center;
         }
     }
 
     getNextStyle() {
-        return shapeStyles[this.canvas.getViewCount() % shapeStyles.length];
+        return shapeStyles[this.scene.getViewCount() % shapeStyles.length];
     }
 
 }
