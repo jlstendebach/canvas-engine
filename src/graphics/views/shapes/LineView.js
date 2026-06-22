@@ -40,17 +40,14 @@ export class LineView extends ShapeView {
         if (this.points.length < 2) {
             return;
         }
-
-        let point = this.#points[0];
-        context.moveTo(point.x, point.y);
+        context.moveTo(this.#points[0].x, this.#points[0].y);
         for (let i = 1; i < this.#points.length; i++) {
-            point = this.#points[i];
-            context.lineTo(point.x, point.y);
+            context.lineTo(this.#points[i].x, this.#points[i].y);
         }
     }
 
     fill(context) {
-        // No fill for line strings
+        // No fill for lines
         void context;
     }
 
