@@ -3,7 +3,6 @@ import {
     CanvasResizeEvent,
     CircleView,
     Color,    
-    LineStringView,
     LineView,
     MouseButton,
     MouseEvent,
@@ -48,12 +47,12 @@ export class ShapesApp extends CanvasApp {
     initCircleView() {
         const style = this.getNextStyle();
         const circle = new CircleView({
-            position: new Vec2(100, 100),
             radius: 50,
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
+        this.setShapeCenter(circle, this.getNextPosition());
         this.addEventListeners(circle);
         this.scene.addView(circle);
     }
@@ -61,12 +60,12 @@ export class ShapesApp extends CanvasApp {
     initRectangleView() {
         const style = this.getNextStyle();
         const rectangle = new RectangleView({
-            position: new Vec2(200, 50),
             size: new Vec2(150, 100),
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
+        this.setShapeCenter(rectangle, this.getNextPosition());
         this.addEventListeners(rectangle);
         this.scene.addView(rectangle);
     }
@@ -74,7 +73,6 @@ export class ShapesApp extends CanvasApp {
     initPolygonTriangleView() {
         const style = this.getNextStyle();
         const triangle = new PolygonView({
-            position: new Vec2(450, 100),
             points: [
                 new Vec2(0, -50),
                 new Vec2(-50, 50),
@@ -84,6 +82,7 @@ export class ShapesApp extends CanvasApp {
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
+        this.setShapeCenter(triangle, this.getNextPosition());
         this.addEventListeners(triangle);
         this.scene.addView(triangle);
     }
@@ -101,12 +100,12 @@ export class ShapesApp extends CanvasApp {
         }
         const style = this.getNextStyle();
         const star = new PolygonView({
-            position: new Vec2(100, 250),
             points: points,
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
+        this.setShapeCenter(star, this.getNextPosition());
         this.addEventListeners(star);
         this.scene.addView(star);
     }
@@ -119,12 +118,12 @@ export class ShapesApp extends CanvasApp {
         for (let i = 0; i < pointCount; i++) {
             points.push(new Vec2(i, Math.sin(tau*i/pointCount) * 50));
         }
-        const lineString = new LineStringView({
-            position: new Vec2(200, 250),
+        const lineString = new LineView({
             points: points,
             strokeStyle: style.strokeStyle,
             strokeWidth: 4
         });
+        this.setShapeCenter(lineString, this.getNextPosition());
         this.addEventListeners(lineString);
         this.scene.addView(lineString);
     }
@@ -132,12 +131,14 @@ export class ShapesApp extends CanvasApp {
     initLineView() {
         const style = this.getNextStyle();
         const line = new LineView({
-            position: new Vec2(400, 200),
-            vertex1: new Vec2(0, 0),
-            vertex2: new Vec2(100, 100),
+            points: [
+                new Vec2(0, 0),
+                new Vec2(100, 100)
+            ],
             strokeStyle: style.strokeStyle,
             strokeWidth: 4
         });
+        this.setShapeCenter(line, this.getNextPosition());
         this.addEventListeners(line);
         this.scene.addView(line);
     }
@@ -163,7 +164,7 @@ export class ShapesApp extends CanvasApp {
     }
 
     onMouseEnter(type, event) {
-        if (event.target instanceof LineView || event.target instanceof LineStringView) {
+        if (event.target instanceof LineView) {
             event.target.strokeStyle.r -= 100;
             event.target.strokeStyle.g -= 100;
             event.target.strokeStyle.b -= 100;
@@ -173,7 +174,7 @@ export class ShapesApp extends CanvasApp {
     }
 
     onMouseExit(type, event) {
-        if (event.target instanceof LineView || event.target instanceof LineStringView) {
+        if (event.target instanceof LineView) {
             event.target.strokeStyle.r += 100;
             event.target.strokeStyle.g += 100;
             event.target.strokeStyle.b += 100;
@@ -198,9 +199,19 @@ export class ShapesApp extends CanvasApp {
                 center.y - shape.size.y / 2
             );
         } else if (shape instanceof LineView) {
+            let minX = Infinity;
+            let maxX = -Infinity;
+            let minY = Infinity;
+            let maxY = -Infinity;
+            for (const point of shape.points) {
+                minX = Math.min(minX, point.x);
+                maxX = Math.max(maxX, point.x);
+                minY = Math.min(minY, point.y);
+                maxY = Math.max(maxY, point.y);
+            }
             shape.position = new Vec2(
-                center.x - (shape.vertex1.x + shape.vertex2.x) / 2,
-                center.y - (shape.vertex1.y + shape.vertex2.y) / 2
+                center.x - (minX + maxX) / 2,
+                center.y - (minY + maxY) / 2
             );
         } else {
             shape.position = center;
@@ -209,6 +220,18 @@ export class ShapesApp extends CanvasApp {
 
     getNextStyle() {
         return shapeStyles[this.scene.getViewCount() % shapeStyles.length];
+    }
+
+    getNextPosition() {
+        const margin = 100;
+        const columns = 3;
+        const row = Math.floor(this.scene.getViewCount() / columns);
+        const column = this.scene.getViewCount() % columns;
+
+        const x = margin + column * 200;
+        const y = margin + row * 150;
+
+        return new Vec2(x, y);
     }
 
 }

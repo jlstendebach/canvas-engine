@@ -1,19 +1,63 @@
-import { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
+import { Vec2 } from "../../../math/Vec2.js";
 
 export class LineView extends ShapeView {
-    vertex1;
-    vertex2;
+    #points = [];
 
-    constructor(options = {}) {
-        super(options);
-        this.vertex1 = options.vertex1 ?? new Vec2(0, 0);
-        this.vertex2 = options.vertex2 ?? new Vec2(100, 100);
+    // MARK: - Properties
+    set points(points) {
+        if (!Array.isArray(points)) {
+            throw new TypeError("Points must be an array of Vec2 objects.");
+        }
+        this.#points = points;
     }
 
-    isInBounds(point) { 
-        const lineVec = this.vertex2.clone().subtract(this.vertex1);
-        const pointVec = point.clone().subtract(this.position).subtract(this.vertex1);
+    get points() {
+        return this.#points;
+    }
+
+    // MARK: - Initialization
+    constructor(options = {}) {
+        super(options);
+        this.points = options.points ?? [];
+    }
+
+    // MARK: - Hit Testing
+    isInBounds(point) {
+        const localPoint = point.clone().subtract(this.position);
+        for (let i = 0; i < this.#points.length - 1; i++) {
+            const start = this.#points[i];
+            const end = this.#points[i + 1];
+            if (this.#isPointOnLineSegment(localPoint, start, end)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // MARK: - Drawing
+    path(context) {
+        if (this.points.length < 2) {
+            return;
+        }
+
+        let point = this.#points[0];
+        context.moveTo(point.x, point.y);
+        for (let i = 1; i < this.#points.length; i++) {
+            point = this.#points[i];
+            context.lineTo(point.x, point.y);
+        }
+    }
+
+    fill(context) {
+        // No fill for line strings
+        void context;
+    }
+
+    // MARK: - Helpers
+    #isPointOnLineSegment(point, start, end) {
+        const lineVec = end.clone().subtract(start);
+        const pointVec = point.clone().subtract(start);
 
         // If the dot is negative, the point is before the start of the line.
         const dot = pointVec.dot(lineVec);
@@ -37,12 +81,6 @@ export class LineView extends ShapeView {
             return false;
         }
 
-        return true;        
+        return true;  
     }
-
-    path(context) {
-        context.moveTo(this.vertex1.x, this.vertex1.y);
-        context.lineTo(this.vertex2.x, this.vertex2.y);
-    }
-
 }
