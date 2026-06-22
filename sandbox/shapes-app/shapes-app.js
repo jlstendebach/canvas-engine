@@ -9,7 +9,8 @@ import {
     PolygonView,
     RectangleView,
     SceneView,
-    Vec2
+    Vec2,
+    VectorView
 } from "../../src/index.js";
 
 import { shapeStyles } from "./shape-styles.js";
@@ -42,6 +43,7 @@ export class ShapesApp extends CanvasApp {
         this.initPolygonStarView();
         this.initLineStringView();
         this.initLineView();
+        this.initVectorView();
     }
 
     initCircleView() {
@@ -142,6 +144,21 @@ export class ShapesApp extends CanvasApp {
         this.addEventListeners(line);
         this.scene.addView(line);
     }
+
+    initVectorView() {
+        const style = this.getNextStyle();
+        const vector = new VectorView({
+            vector: new Vec2(100, 50),
+            arrowWidth: 20,
+            arrowHeight: 20,
+            fillStyle: style.fillStyle,
+            strokeStyle: style.strokeStyle,
+            strokeWidth: style.strokeWidth,
+        });
+        this.setShapeCenter(vector, this.getNextPosition());
+        this.addEventListeners(vector);
+        this.scene.addView(vector);
+    }
     
     // MARK: - Events Handlers
     onMouseDown(type, event) {
@@ -164,21 +181,13 @@ export class ShapesApp extends CanvasApp {
     }
 
     onMouseEnter(type, event) {
-        if (event.target instanceof LineView) {
-            event.target.strokeStyle.r -= 100;
-            event.target.strokeStyle.g -= 100;
-            event.target.strokeStyle.b -= 100;
-        }
+        event.target.strokeDash = [10, 5];
         event.target.fillStyle.a += 0.1;
         this.refresh();
     }
 
     onMouseExit(type, event) {
-        if (event.target instanceof LineView) {
-            event.target.strokeStyle.r += 100;
-            event.target.strokeStyle.g += 100;
-            event.target.strokeStyle.b += 100;
-        }
+        event.target.strokeDash = [];
         event.target.fillStyle.a -= 0.1;
         this.refresh();
     }
@@ -198,7 +207,7 @@ export class ShapesApp extends CanvasApp {
                 center.x - shape.size.x / 2,
                 center.y - shape.size.y / 2
             );
-        } else if (shape instanceof LineView) {
+        } else if (shape instanceof LineView || shape instanceof PolygonView) {
             let minX = Infinity;
             let maxX = -Infinity;
             let minY = Infinity;
@@ -212,6 +221,11 @@ export class ShapesApp extends CanvasApp {
             shape.position = new Vec2(
                 center.x - (minX + maxX) / 2,
                 center.y - (minY + maxY) / 2
+            );
+        } else if (shape instanceof VectorView) {
+            shape.position = new Vec2(
+                center.x - shape.vector.x / 2,
+                center.y - shape.vector.y / 2
             );
         } else {
             shape.position = center;
