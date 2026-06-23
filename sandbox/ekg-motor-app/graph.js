@@ -1,7 +1,6 @@
 import {
     Color,
     LabelView,
-    LineStringView,
     LineView,
     RectangleView,
     Vec2
@@ -71,14 +70,14 @@ export class Graph extends RectangleView {
     }
 
     initZeroLine() {
-        this.#zeroLine = new LineStringView({ isPickable: false });
+        this.#zeroLine = new LineView({ isPickable: false });
         this.#zeroLine.strokeStyle = Graph.style.zeroLineStroke;
         this.#zeroLine.strokeWidth = 2;
         this.addView(this.#zeroLine);
     }
 
     initGraphLine() {
-        this.#graphLine = new LineStringView({ isPickable: false });
+        this.#graphLine = new LineView({ isPickable: false });
         this.#graphLine.strokeStyle = Graph.style.graphStroke;
         this.#graphLine.strokeWidth = 2;
         this.addView(this.#graphLine);
@@ -86,8 +85,10 @@ export class Graph extends RectangleView {
 
     initCursorLine() {
         this.#cursorLine = new LineView({
-            vertex1: new Vec2(0, 0),
-            vertex2: new Vec2(0, this.size.y),
+            points: [
+                new Vec2(0, 0), 
+                new Vec2(0, this.size.y)
+            ],
             strokeStyle: this.strokeStyle,
             strokeWidth: 2,
         })
@@ -181,8 +182,10 @@ export class Graph extends RectangleView {
         ];
 
         // cursor line
-        this.#cursorLine.vertex1 = new Vec2(0, 0);
-        this.#cursorLine.vertex2 = new Vec2(0, this.size.y);
+        this.#cursorLine.points = [
+            new Vec2(0, 0),
+            new Vec2(0, this.size.y)
+        ];
     }
 
 }
