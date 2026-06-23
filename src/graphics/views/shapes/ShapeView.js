@@ -63,19 +63,21 @@ export class ShapeView extends View {
     }
 
     fill(context) {
-        if (this.isFillEnabled()) {
-            context.fillStyle = this.#fillStyle.colorString;
-            context.fill();
+        if (!this.isFillEnabled()) {
+            return;
         }
+        context.fillStyle = this.#fillStyle.colorString;
+        context.fill();
     }
 
     stroke(context) {
-        if (this.isStrokeEnabled()) {
-            context.lineWidth = this.#strokeWidth;
-            context.strokeStyle = this.#strokeStyle.colorString;
-            context.setLineDash(this.#strokeDash);
-            context.stroke();
+        if (!this.isStrokeEnabled()) {
+            return;
         }
+        context.lineWidth = this.#strokeWidth;
+        context.strokeStyle = this.#strokeStyle.colorString;
+        context.setLineDash(this.#strokeDash);
+        context.stroke();
     }
 
     drawSelf(context) {

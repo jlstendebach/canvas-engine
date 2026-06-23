@@ -21,7 +21,6 @@ export * from "./views/charts/PieChartView.js"
 
 // MARK: - views/shapes
 export * from "./views/shapes/CircleView.js"
-export * from "./views/shapes/LineStringView.js"
 export * from "./views/shapes/LineView.js"
 export * from "./views/shapes/PolygonView.js"
 export * from "./views/shapes/RectangleView.js"

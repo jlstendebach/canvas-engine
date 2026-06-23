@@ -39,8 +39,12 @@
 
         // animation toggle
         const animateToggle = document.querySelector("#animate-toggle");
-        animateToggle.addEventListener("change", () => {
-            app.isAnimating = animateToggle.checked;
+        animateToggle.addEventListener("change", (event) => {
+            if (event.target.checked) {
+                app.resume();
+            } else {
+                app.pause();
+            }
         });
 
         // threshold 1
@@ -80,6 +84,7 @@
         window.addEventListener("load", function () {
             window.removeEventListener("load", this);
             app.start();
+            app.pause();
         });
     </script>
 

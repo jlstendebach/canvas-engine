@@ -1,8 +1,19 @@
-import { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class PolygonView extends ShapeView {
     #points = [];
+
+    // MARK: - Properties
+    set points(points) {
+        if (!Array.isArray(points)) {
+            throw new TypeError("Points must be an array of Vec2 objects.");
+        }
+        this.#points = points;
+    }
+
+    get points() {
+        return this.#points;
+    }
 
     // MARK: - Initialization
     constructor(options = {}) {
@@ -27,13 +38,17 @@ export class PolygonView extends ShapeView {
                 continue;
             }
 
-            const side = p1.x + (target.y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) - target.x;
-            if (side === 0) {
+            // m = (y2 - y1) / (x2 - x1)
+            // x = x1 + (y - y1) / m 
+            //   = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
+            const x = p1.x + ((target.y - p1.y) * (p2.x - p1.x)) / (p2.y - p1.y);
+            if (x === target.x) {
                 // The target is on the edge, so we consider it to be inside.
                 return true;
             }
 
-            if (side > 0) {
+            // Is target to the left of the intersection point?
+            if (target.x < x) {
                 isInside = !isInside;
             }
         }
@@ -41,34 +56,8 @@ export class PolygonView extends ShapeView {
         return isInside;
     }
 
-    // MARK: - Points
-    addPoint(point) {
-        if (!(point instanceof Vec2)) {
-            throw new TypeError("Point must be an instance of Vec2");
-        }
-        this.#points.push(point);
-    }
-
-    removePoint(index) {
-        this.#points.splice(index, 1);
-    }
-
-    removeAllPoints() {
-        this.#points = [];
-    }
-
-    getPoint(index) {
-        return this.#points[index];
-    }
-
-    getPointCount() {
-        return this.#points.length;
-    }
-
-
     // MARK: - Drawing
     path(context) {
-        console.log(this.#points.length);
         if (this.#points.length < 3) {
             return;
         }

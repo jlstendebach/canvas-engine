@@ -1,95 +1,109 @@
 import { Vec2 } from "../../../math/Vec2.js";
-import { View } from "../View.js";
+import { PolygonView } from "./PolygonView.js";
+import { ShapeView } from "./ShapeView.js";
 
-export class VectorView extends View {
-    constructor() {
-        super();
+export class VectorView extends ShapeView {
+    #vector;
+    #vectorProxy;
 
-        this.position = new Vec2(0, 0);
-        this.vector = new Vec2(0, 0);
+    #arrowWidth;
+    #arrowHeight;
 
-        this.strokeWidth = 3;
-        this.isDashed = false;
-        this.arrowWidth = 16;
-        this.arrowHeight = 20;
+    #polygon = new PolygonView();
+    #isPathDirty = true;
 
-        this.color = "#000";
+    // MARK: - Properties
+    set vector(value) { 
+        if (!(value instanceof Vec2)) {
+            throw new TypeError("VectorView.vector must be an instance of Vec2.");
+        }
+        this.#vector = value;
+        this.#isPathDirty = true;
     }
 
-    // --[ bounds ]---------------------------------------------------------------
-    setX(x) { this.position.x = x; }
-    getX() { return this.position.x; }
-
-    setY(y) { this.position.y = y; }
-    getY() { return this.position.y; }
-
-    getMidX() { return this.getX() + this.vector.x / 2; }
-    getMidY() { return this.getY() + this.vector.y / 2; }
-
-    getEndX() { return this.getX() + this.vector.x; }
-    getEndY() { return this.getY() + this.vector.y; }
-
-    isInBounds(point) { return false; }
-
-    // --[ style ]----------------------------------------------------------------
-    setStrokeWidth(w) { this.strokeWidth = w; }
-    getStrokeWidth() { return this.strokeWidth; }
-
-    setStrokeDashed(dashed) { this.isDashed = dashed; }
-    isStrokeDashed() { return this.isDashed; }
-
-    // --[ arrow ]----------------------------------------------------------------
-    setArrowWidth(w) { this.arrowWidth = w; }
-    getArrowWidth() { return this.arrowWidth; }
-
-    setArrowHeight(h) { this.arrowHeight = h; }
-    getArrowHeight() { return this.arrowHeight; }
-
-    // --[ drawing ]--------------------------------------------------------------
-    drawArrow(context) {
-        const arrowMidScale = 0.8;
-
-        const arrowHeight = Math.min(this.vector.length(), this.arrowHeight);
-        const arrowWidth = this.arrowWidth * (arrowHeight / this.arrowHeight);
-
-        const normal = Vec2.normal(this.vector).setLength(arrowWidth / 2);
-        const inverse = Vec2.negate(this.vector).setLength(arrowHeight);
-
-        const p1 = new Vec2(this.getEndX(), this.getEndY());
-        const p2 = Vec2.add(p1, inverse).add(normal);
-        const p3 = Vec2.add(p1, Vec2.scale(inverse, arrowMidScale));
-        const p4 = Vec2.subtract(p2, normal).subtract(normal);
-
-        context.beginPath();
-        context.moveTo(p1.x, p1.y);
-        context.lineTo(p2.x, p2.y);
-        context.lineTo(p3.x, p3.y);
-        context.lineTo(p4.x, p4.y);
-        context.closePath();
-        context.fill();
-
-        return arrowHeight * arrowMidScale;
+    get vector() {
+        return this.#vectorProxy;
     }
 
-    drawLine(context, arrowHeight) {
-        const newMag = this.vector.length() - arrowHeight;
-        const scaled = this.vector.clone().setLength(newMag);
-
-        context.beginPath();
-        context.moveTo(this.getX(), this.getY());
-        context.lineTo(this.getX() + scaled.x, this.getY() + scaled.y);
-        context.stroke();
+    set arrowWidth(value) {
+        this.#arrowWidth = value;
+        this.#isPathDirty = true;
     }
 
-    drawSelf(context) {
-        context.fillStyle = this.color;
-        context.lineCap = "round"
-        context.lineWidth = this.strokeWidth;
-        context.setLineDash(this.isStrokeDashed() ? [this.strokeWidth * 2, this.strokeWidth * 3] : []);
-        context.strokeStyle = this.color;
+    get arrowWidth() {
+        return this.#arrowWidth;
+    }
 
-        let arrowHeight = this.drawArrow(context);
-        this.drawLine(context, arrowHeight);
+    set arrowHeight(value) {
+        this.#arrowHeight = value;
+        this.#isPathDirty = true;
+    }
+
+    get arrowHeight() {
+        return this.#arrowHeight;
+    }
+
+    // MARK: - Initialization
+    constructor(options = {}) {
+        super(options);
+
+        this.#vector = options.vector ?? new Vec2();
+        this.#vectorProxy = new Proxy(this.#vector, {
+            set: (target, prop, value) => {
+                target[prop] = value;
+                this.#isPathDirty = true;
+                return true;
+            }
+        });
+
+        this.#arrowWidth = options.arrowWidth ?? 16;
+        this.#arrowHeight = options.arrowHeight ?? 20;
+    }
+
+    // MARK: - Hit Testing
+    isInBounds(point) { 
+        this.#polygon.position = this.position;
+        return this.#polygon.isInBounds(point);
+    }
+
+    // MARK: - Drawing
+    path(context) {
+        this.#updatePathIfDirty();
+        let point = this.#polygon.points[0];
+        context.moveTo(point.x, point.y);
+        for (let i = 1; i < this.#polygon.points.length; ++i) {
+            point = this.#polygon.points[i];
+            context.lineTo(point.x, point.y);
+        }
+    }
+
+    // MARK: - Helpers
+    #updatePathIfDirty() {
+        if (!this.#isPathDirty) { 
+            return;
+        }
+        this.#isPathDirty = false;
+
+        const vectorLength = this.#vector.length();
+        if (vectorLength < 1) {
+            this.#polygon.points = [];
+            return;
+        }
+
+        const arrowHeight = Math.min(vectorLength, this.#arrowHeight);
+        const arrowWidth = (this.#arrowWidth * arrowHeight) / this.#arrowHeight;
+        const normal = Vec2.normal(this.#vector).scale(arrowWidth / (2 * vectorLength));
+        const lineLength = vectorLength - arrowHeight;
+        const point = this.#vector.clone().setLength(lineLength);
+        
+        this.#polygon.points = [
+            new Vec2(),
+            point.clone(),
+            point.add(normal).clone(),
+            this.#vector.clone(),
+            point.subtract(normal).subtract(normal).clone(),
+            point.add(normal).clone()
+        ]
     }
 
 }
