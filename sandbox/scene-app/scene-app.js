@@ -28,7 +28,7 @@ export class SceneApp extends CanvasApp {
     isBallGrabbed = false;
     isFollowingBall = false;
     
-    // MARK: - Initialization --------------------------------------------------
+    // MARK: - Initialization
     constructor(canvasSelectorOrElement) {
         super(canvasSelectorOrElement);
         this.initCanvas();
@@ -43,9 +43,7 @@ export class SceneApp extends CanvasApp {
 
     initScene() {
         const scene = new SceneView();
-        //scene.position = new Vec2(50, 50);
         scene.size.set(this.canvas.size.width, this.canvas.size.height);
-        //scene.clip = true;
         scene.addEventListener(MouseEvent.WHEEL, this.onSceneZoom, this);
         scene.addEventListener(MouseEvent.DRAG, this.onSceneDragged, this);
         scene.addEventListener(MouseEvent.DOWN, this.onSceneClicked, this);
@@ -53,43 +51,55 @@ export class SceneApp extends CanvasApp {
     }
 
     initBox() {
-        const box = new RectangleView(this.canvas.size.width, this.canvas.size.height);
-        box.fillStyle = new Color(0, 0, 40);
-        box.strokeStyle = new Color(100, 100, 100);
-        box.strokeWidth = 2;
-        box.isPickable = false;
+        const box = new RectangleView({
+            position: this.canvas.size.clone().scale(0.1),
+            size: this.canvas.size.clone().scale(0.8),
+            fillStyle: new Color(0, 0, 40),
+            strokeStyle: new Color(100, 100, 100),
+            strokeWidth: 2,
+            isPickable: false
+        });
         this.box = this.scene.addView(box);
 
-        const boxCorner1 = new CircleView(this.CORNER_RADIUS);
-        boxCorner1.fillStyle = new Color(0, 200, 0);
-        boxCorner1.strokeStyle = new Color(100, 100, 100);
-        boxCorner1.strokeWidth = 2;
-        boxCorner1.position = this.box.position.clone();
+        const boxCorner1 = new CircleView({
+            position: this.box.position.clone(),
+            radius: this.CORNER_RADIUS,
+            fillStyle: new Color(0, 200, 0),
+            strokeStyle: new Color(100, 100, 100),
+            strokeWidth: 2,
+            isPickable: true,
+        });
         boxCorner1.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
         this.boxCorner1 = this.canvas.addView(boxCorner1);
 
-        const boxCorner2 = new CircleView(this.CORNER_RADIUS);
-        boxCorner2.fillStyle = new Color(0, 200, 0);
-        boxCorner2.strokeStyle = new Color(100, 100, 100);
-        boxCorner2.strokeWidth = 2;
-        boxCorner2.position = Vec2.add(this.box.position, this.box.size);
+        const boxCorner2 = new CircleView({
+            position: Vec2.add(this.box.position, this.box.size),
+            radius: this.CORNER_RADIUS,
+            fillStyle: new Color(0, 200, 0),
+            strokeStyle: new Color(100, 100, 100),
+            strokeWidth: 2,
+            isPickable: true,
+        });
         boxCorner2.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
         this.boxCorner2 = this.canvas.addView(boxCorner2);        
     }
 
     initBall() {
-        const ball = new CircleView(50);
-        ball.fillStyle = new Color(0, 0, 200);
-        ball.strokeStyle = new Color(100, 100, 100);
-        ball.strokeWidth = 2;
-        ball.position = new Vec2(100, 100);
+        const ball = new CircleView({
+            radius: 50,
+            fillStyle: new Color(0, 0, 200),
+            strokeStyle: new Color(100, 100, 100),
+            strokeWidth: 2,
+            position: new Vec2(100, 100),
+            isPickable: true
+        });
         ball.addEventListener(MouseEvent.DOWN, this.onBallGrab, this);
         ball.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
         ball.addEventListener(MouseEvent.UP, this.onBallDrop, this);
         this.ball = this.scene.addView(ball);
     }
     
-    // MARK: - Lifecycle -------------------------------------------------------
+    // MARK: - Lifecycle
     onUpdate(timestamp, deltaTime) {
         const timeScale = deltaTime/1000.0;
 
@@ -114,7 +124,7 @@ export class SceneApp extends CanvasApp {
         this.positionBoxCorners();
     }
 
-    // MARK: - UI Events -------------------------------------------------------
+    // MARK: - UI Events
     onSceneZoom(type, event) {
         if (event.dy === 0) {
             return;
@@ -182,7 +192,7 @@ export class SceneApp extends CanvasApp {
         event.target.position = event.getParentXY();
     }
 
-    // MARK: - Helpers ---------------------------------------------------------
+    // MARK: - Helpers
     keepBallInBounds() {
         const scale = 0.90;
         const friction = 0.995;
