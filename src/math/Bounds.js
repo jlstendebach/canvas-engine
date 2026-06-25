@@ -10,18 +10,23 @@ export class Bounds {
     }
 
     // MARK: - Initialization
-    constructor(minX, maxX, minY, maxY) {
+    constructor(
+        minX = Infinity, 
+        minY = Infinity, 
+        maxX = -Infinity, 
+        maxY = -Infinity
+    ) {
         this.minX = minX;
-        this.maxX = maxX;
         this.minY = minY;
+        this.maxX = maxX;
         this.maxY = maxY;
     }
 
     // MARK: - Bounds manipulation
-    set(minX, maxX, minY, maxY) {
+    set(minX, minY, maxX, maxY) {
         this.minX = minX;
-        this.maxX = maxX;
         this.minY = minY;
+        this.maxX = maxX;
         this.maxY = maxY;
     }
 
@@ -32,11 +37,15 @@ export class Bounds {
         this.maxY = -Infinity;
     }
 
-    addPoint(x, y) {
+    addXY(x, y) {
         if (x < this.minX) { this.minX = x; }
         if (y < this.minY) { this.minY = y; }
         if (x > this.maxX) { this.maxX = x; }
         if (y > this.maxY) { this.maxY = y; }
+    }
+
+    addPoint(point) {
+        this.addXY(point.x, point.y);
     }
 
     addBounds(bounds) {
@@ -47,13 +56,17 @@ export class Bounds {
     }
 
     // MARK: - Bounds queries
-    containsPoint(x, y) {
+    containsXY(x, y) {
         return (
             x >= this.minX && 
             x <= this.maxX && 
             y >= this.minY && 
             y <= this.maxY
         );
+    }
+
+    containPoint(point) {
+        return this.containsXY(point.x, point.y);
     }
 
     intersects(other) {
@@ -70,5 +83,17 @@ export class Bounds {
             this.minX >= this.maxX || 
             this.minY >= this.maxY
         );
+    }
+
+    // MARK: - Utilities
+    clone() {
+        return new Bounds(this.minX, this.minY, this.maxX, this.maxY);
+    }
+
+    copy(other) {
+        this.minX = other.minX;
+        this.minY = other.minY;
+        this.maxX = other.maxX;
+        this.maxY = other.maxY;
     }
 }
