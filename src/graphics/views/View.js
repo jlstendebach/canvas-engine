@@ -1,4 +1,5 @@
 import { EventEmitter } from "../../events/EventEmitter.js";
+import { Bounds } from "../../math/Bounds.js";
 import { Vec2 } from "../../math/Vec2.js";
 
 /**
@@ -6,6 +7,10 @@ import { Vec2 } from "../../math/Vec2.js";
  */
 export class View {
     #position = new Vec2();
+
+    #bounds = new Bounds();
+    #isBoundsDirty = true;
+
     #isVisible = true;
     #isPickable = true;
 
@@ -16,16 +21,39 @@ export class View {
     // MARK: - Properties 
     set position(position) {
         this.#position.set(position.x, position.y);
+        this.invalidateParentBounds();
     }
-
     get position() {
         return this.#position;
+    }
+
+    set x(value) {
+        this.#position.x = value;
+        this.invalidateParentBounds();
+    }
+    get x() {
+        return this.#position.x;
+    }
+
+    set y(value) {
+        this.#position.y = value;
+        this.invalidateParentBounds();
+    }
+    get y() {
+        return this.#position.y;
+    }
+
+    get bounds() {
+        if (this.#isBoundsDirty) {
+            this.#bounds = this.calculateBounds();
+            this.#isBoundsDirty = false;
+        }
+        return this.#bounds;
     }
 
     set isVisible(visible) {
         this.#isVisible = visible === true;
     }
-
     get isVisible() {
         return this.#isVisible;
     }
@@ -33,7 +61,6 @@ export class View {
     set isPickable(pickable) {
         this.#isPickable = pickable === true;
     }
-
     get isPickable() {
         return this.#isPickable;
     }
@@ -45,20 +72,53 @@ export class View {
     // MARK: - Initialization 
     constructor(options = {}) {
         this.position = options.position ?? new Vec2();
+        this.position.x = options.x ?? this.position.x;
+        this.position.y = options.y ?? this.position.y;
         this.isVisible = options.isVisible ?? true;
         this.isPickable = options.isPickable ?? true;
     }
 
     // MARK: - Bounds 
+    calculateBounds() {
+        this.#bounds.reset();
+        for (let i = 0; i < this.#views.length; i++) {
+            this.#bounds.addBounds(this.#views[i].getBoundsInParentSpace());
+        }
+        return this.#bounds;
+    }
+
+    invalidateBounds() {
+        this.#isBoundsDirty = true;
+        this.invalidateParentBounds();
+    }
+
+    invalidateParentBounds() {
+        if (this.#parent !== null) {
+            this.#parent.onChildLayoutChanged();
+        }
+    }
+
+    onChildLayoutChanged() {
+        this.invalidateBounds();
+    }
+
+    getBoundsInParentSpace() {
+        const bounds = this.bounds;
+        return new Bounds(
+            bounds.minX + this.#position.x,
+            bounds.minY + this.#position.y,
+            bounds.maxX + this.#position.x,
+            bounds.maxY + this.#position.y
+        );
+    }
+
     /**
      * Checks if a point in parent space is contained within this view.
      * @param {Vec2} point - The point in parent space.
      * @returns {boolean} True if the point is inside this view, false otherwise.
      */
     isInBounds(point) {
-        // Base view has no bounds. Subclasses should override this method.
-        void point;
-        return true;
+        return this.getBoundsInParentSpace().containPoint(point);
     }
 
     /**
