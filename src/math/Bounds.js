@@ -1,12 +1,35 @@
 export class Bounds {
     minX; maxX; minY; maxY;
 
-    get width() {
-        return this.maxX - this.minX;
+    // MARK: - Properties
+    set x(value) { 
+        this.maxX = value + this.width;
+        this.minX = value; 
+    }
+    get x() { 
+        return this.minX; 
     }
 
-    get height() {
-        return this.maxY - this.minY;
+    set y(value) { 
+        this.maxY = value + this.height;
+        this.minY = value; 
+    }
+    get y() { 
+        return this.minY; 
+    }
+
+    set width(value) { 
+        this.maxX = this.minX + value; 
+    }
+    get width() { 
+        return this.maxX - this.minX; 
+    }
+    
+    set height(value) { 
+        this.maxY = this.minY + value; 
+    }
+    get height() { 
+        return this.maxY - this.minY; 
     }
 
     // MARK: - Initialization
@@ -28,6 +51,7 @@ export class Bounds {
         this.minY = minY;
         this.maxX = maxX;
         this.maxY = maxY;
+        return this;
     }
 
     reset() {
@@ -35,6 +59,7 @@ export class Bounds {
         this.maxX = -Infinity;
         this.minY = Infinity;
         this.maxY = -Infinity;
+        return this;
     }
 
     addXY(x, y) {
@@ -42,10 +67,11 @@ export class Bounds {
         if (y < this.minY) { this.minY = y; }
         if (x > this.maxX) { this.maxX = x; }
         if (y > this.maxY) { this.maxY = y; }
+        return this;
     }
 
     addPoint(point) {
-        this.addXY(point.x, point.y);
+        return this.addXY(point.x, point.y);
     }
 
     addBounds(bounds) {
@@ -53,6 +79,7 @@ export class Bounds {
         if (bounds.minY < this.minY) { this.minY = bounds.minY; }
         if (bounds.maxX > this.maxX) { this.maxX = bounds.maxX; }
         if (bounds.maxY > this.maxY) { this.maxY = bounds.maxY; }
+        return this;
     }
 
     // MARK: - Bounds queries
@@ -78,6 +105,15 @@ export class Bounds {
         );
     }
 
+    equals(other) {
+        return (
+            this.minX === other.minX &&
+            this.minY === other.minY &&
+            this.maxX === other.maxX &&
+            this.maxY === other.maxY
+        );
+    }
+
     isEmpty() {
         return (
             this.minX >= this.maxX || 
@@ -95,5 +131,6 @@ export class Bounds {
         this.minY = other.minY;
         this.maxX = other.maxX;
         this.maxY = other.maxY;
+        return this;
     }
 }
