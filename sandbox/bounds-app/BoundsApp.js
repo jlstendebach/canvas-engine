@@ -2,94 +2,13 @@ import {
     CanvasApp,
     CircleView,
     Color,
+    ContainerView,
     MouseButton,
-    MouseEvent,
-    View
+    MouseEvent
 } from "../../src/index.js";
 
-class BoundsDrawer extends View {
-    rootView;
-    depth = 0;
-    maxDepth = 0;
-
-    colors = [
-        new Color(0,   0,   255),
-        new Color(0,   128, 128),
-        new Color(0,   255, 0),
-        new Color(128, 128, 0),
-        new Color(255, 0,   0),
-    ];
-
-    constructor(rootView) {
-        super();
-        this.rootView = rootView;
-        this.isPickable = false;
-    }
-
-    updateMaxDepth(view = this.rootView) {
-        if (view === null) {
-            return;
-        }
-        if (view === this.rootView) {
-            this.maxDepth = 0;
-            this.depth = 0;
-        }
-        this.maxDepth = Math.max(this.depth, this.maxDepth);
-
-        this.depth++;
-        let children = view.getViews();
-        for (let i = 0; i < children.length; i++) {
-            this.updateMaxDepth(children[i]);
-        }
-        this.depth--;
-    }
-
-    getColorForDepth(depth) {
-        const percent = depth / this.maxDepth;
-        const index = percent * (this.colors.length - 1);
-        const index1 = Math.floor(index);
-        const index2 = Math.ceil(index);
-        const t = index - index1;
-        return Color.lerp(this.colors[index1], this.colors[index2], t);
-    }
-
-    getBoundsInWorldSpace(view) {
-        let bounds = view.getBoundsInParentSpace();
-        let current = view.parent;
-        while (current !== null) {
-            bounds = current.localToParentBounds(bounds);
-            current = current.parent;
-        }
-        return bounds;
-    }
-
-
-    draw(context) {
-        this.updateMaxDepth();
-
-        this.depth = 0;
-        this.drawChildBounds(context, this.rootView);
-    }
-
-    drawChildBounds(context, child) {
-        const bounds = this.getBoundsInWorldSpace(child);
-
-        if (!bounds.isEmpty()) {
-            context.strokeStyle = this.getColorForDepth(this.depth).toRgba();
-            context.lineWidth = 2;
-            context.strokeRect(bounds.minX, bounds.minY, bounds.width, bounds.height);
-        }
-        
-        this.depth++;
-
-        let children = child.getViews();
-        for (let i = 0; i < children.length; i++) {
-            this.drawChildBounds(context, children[i]);
-        }
-
-        this.depth--;
-    }
-}
+import { BoundsDrawer } from "./BoundsDrawer.js";
+import { shapeStyles } from "./shapeStyles.js";
 
 
 export class BoundsApp extends CanvasApp {
@@ -101,7 +20,7 @@ export class BoundsApp extends CanvasApp {
     constructor(canvasSelectorOrElement) {
         super(canvasSelectorOrElement);
         this.initCanvas();
-        this.initBall();
+        this.initViews();
 
         this.#boundsDrawer = new BoundsDrawer(this.#container);
         this.canvas.addView(this.#boundsDrawer);
@@ -111,23 +30,25 @@ export class BoundsApp extends CanvasApp {
         this.canvas.fillStyle = new Color(0, 0, 20);
     }
 
-    initBall() {
-        this.#container = new View();
+    initViews() {
+        this.#container = new ContainerView();
         for (let i = 0; i < 5; i++) {
             this.createBall({
                 parent: this.#container,
-                fillStyle: new Color(200, 0, 0),
-                strokeStyle: new Color(100, 100, 100),
+                fillStyle: shapeStyles[0].fillStyle,
+                strokeStyle: shapeStyles[0].strokeStyle,
+                strokeWidth: shapeStyles[0].strokeWidth
             });
         }
         this.canvas.addView(this.#container);
 
-        this.#subcontainer = new View();
+        this.#subcontainer = new ContainerView();
         for (let i = 0; i < 5; i++) {
             this.createBall({
                 parent: this.#subcontainer,
-                fillStyle: new Color(0, 200, 0),
-                strokeStyle: new Color(100, 100, 100),
+                fillStyle: shapeStyles[1].fillStyle,
+                strokeStyle: shapeStyles[1].strokeStyle,
+                strokeWidth: shapeStyles[1].strokeWidth
             });
         }
         this.#container.addView(this.#subcontainer);

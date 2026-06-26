@@ -16,6 +16,7 @@ export class View {
 
     #parent = null;
     #views = [];
+    
     #eventEmitter = new EventEmitter();
 
     // MARK: - Properties 
@@ -87,9 +88,6 @@ export class View {
     // MARK: - Bounds 
     updateBounds(out) {
         out.reset();
-        for (let i = 0; i < this.#views.length; i++) {
-            out.addBounds(this.#views[i].getBoundsInParentSpace());
-        }
     }
 
     invalidateBounds() {
@@ -123,17 +121,14 @@ export class View {
         return point.clone().subtract(this.#position);
     }
 
-    getBoundsInParentSpace() {
-        return this.localToParentBounds(this.bounds);
-    }
-
     /**
      * Checks if a point in local space is contained within this view.
      * @param {Vec2} point - The point in local space.
      * @returns {boolean} True if the point is inside this view, false otherwise.
      */
     containsPoint(point) {
-        return this.bounds.containsPoint(point);
+        void point;
+        return true;
     }
 
     /**
