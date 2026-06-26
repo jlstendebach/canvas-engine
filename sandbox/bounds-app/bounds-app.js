@@ -53,6 +53,17 @@ class BoundsDrawer extends View {
         return Color.lerp(this.colors[index1], this.colors[index2], t);
     }
 
+    getBoundsInWorldSpace(view) {
+        let bounds = view.getBoundsInParentSpace();
+        let current = view.parent;
+        while (current !== null) {
+            bounds = current.localToParentBounds(bounds);
+            current = current.parent;
+        }
+        return bounds;
+    }
+
+
     draw(context) {
         this.updateMaxDepth();
 
@@ -61,7 +72,7 @@ class BoundsDrawer extends View {
     }
 
     drawChildBounds(context, child) {
-        const bounds = child.getBoundsInWorldSpace();
+        const bounds = this.getBoundsInWorldSpace(child);
 
         if (!bounds.isEmpty()) {
             context.strokeStyle = this.getColorForDepth(this.depth).toRgba();

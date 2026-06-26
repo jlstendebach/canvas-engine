@@ -127,19 +127,9 @@ export class View {
         return this.localToParentBounds(this.bounds);
     }
 
-    getBoundsInWorldSpace() {
-        let bounds = this.getBoundsInParentSpace();
-        let current = this.#parent;
-        while (current !== null) {
-            bounds = current.localToParentBounds(bounds);
-            current = current.#parent;
-        }
-        return bounds;
-    }
-
     /**
-     * Checks if a point in parent space is contained within this view.
-     * @param {Vec2} point - The point in parent space.
+     * Checks if a point in local space is contained within this view.
+     * @param {Vec2} point - The point in local space.
      * @returns {boolean} True if the point is inside this view, false otherwise.
      */
     containsPoint(point) {
