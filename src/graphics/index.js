@@ -20,7 +20,6 @@ export * from "./views/shapes/CircleView.js"
 export * from "./views/shapes/LineView.js"
 export * from "./views/shapes/PolygonView.js"
 export * from "./views/shapes/RectangleView.js"
-export * from "./views/shapes/ShapeGroupView.js"
 export * from "./views/shapes/ShapeView.js"
 export * from "./views/shapes/VectorView.js"
 
