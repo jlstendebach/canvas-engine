@@ -13,7 +13,7 @@ export class Vec2FieldView extends View {
     }
 
     // -------------------------------------------------------------------------
-    isInBounds(point) {
+    containsPoint(point) {
         return (
             point.x >= this.getX()
             && point.x < this.getX() + this.getWidth()

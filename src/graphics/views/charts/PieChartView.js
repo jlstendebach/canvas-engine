@@ -148,7 +148,7 @@ export class PieChartView extends View {
     setRadius(radius) { this.radius = radius; }
     getRadius() { return this.radius; }
 
-    isInBounds(point) {        
+    containsPoint(point) {        
         return Vec2.distance(point, new Vec2(this.getX(), this.getY())) < this.getRadius();
     }
 

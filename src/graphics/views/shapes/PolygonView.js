@@ -22,7 +22,7 @@ export class PolygonView extends ShapeView {
     }
 
     // MARK: - Hit Testing
-    isInBounds(point) {
+    containsPoint(point) {
         const target = point.clone().subtract(this.position);
 
         let isInside = false;

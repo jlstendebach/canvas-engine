@@ -61,9 +61,9 @@ export class VectorView extends ShapeView {
     }
 
     // MARK: - Hit Testing
-    isInBounds(point) { 
+    containsPoint(point) { 
         this.#polygon.position = this.position;
-        return this.#polygon.isInBounds(point);
+        return this.#polygon.containsPoint(point);
     }
 
     // MARK: - Drawing

@@ -65,7 +65,7 @@ export class SceneView extends View {
      * @param {Vec2} point - The point in parent space.
      * @returns {boolean} True if the point is in bounds; otherwise false.
      */
-    isInBounds(point) {
+    containsPoint(point) {
         this.#assertType("point", point, Vec2);
         return this.#size.isZero() || (
             point.x >= this.position.x

@@ -23,7 +23,7 @@ export class LineView extends ShapeView {
     }
 
     // MARK: - Hit Testing
-    isInBounds(point) {
+    containsPoint(point) {
         const localPoint = point.clone().subtract(this.position);
         for (let i = 0; i < this.#points.length - 1; i++) {
             const start = this.#points[i];

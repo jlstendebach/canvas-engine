@@ -40,7 +40,7 @@ export class RectangleView extends ShapeView {
         return new Bounds(0, 0, this.width, this.height);
     }
 
-    isInBounds(point) {
+    containsPoint(point) {
         return (
             point.x >= this.position.x
             && point.x < this.position.x + this.#size.x

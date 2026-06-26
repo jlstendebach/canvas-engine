@@ -24,7 +24,7 @@ export class CanvasRootView extends View {
         return new Bounds(-Infinity, -Infinity, Infinity, Infinity);
     }
 
-    isInBounds(point) {
+    containsPoint(point) {
         void point;
         return true;
     }

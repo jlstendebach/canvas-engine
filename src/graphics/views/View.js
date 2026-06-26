@@ -145,7 +145,7 @@ export class View {
      * @param {Vec2} point - The point in parent space.
      * @returns {boolean} True if the point is inside this view, false otherwise.
      */
-    isInBounds(point) {
+    containsPoint(point) {
         return this.bounds.containsPoint(point);
     }
 
@@ -258,7 +258,7 @@ export class View {
         const localPoint = this.parentToLocalPoint(point);
 
         // If the bounds are empty, we can treat this as a passthrough.
-        if (!this.bounds.isEmpty() && !this.isInBounds(localPoint)) {
+        if (!this.bounds.isEmpty() && !this.containsPoint(localPoint)) {
             return null;
         }
 

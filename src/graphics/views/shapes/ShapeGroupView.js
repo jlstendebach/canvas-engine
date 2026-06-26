@@ -6,7 +6,7 @@ export class ShapeGroupView extends ShapeView {
     }
 
     // --[ bounds ]-------------------------------------------------------------
-    isInBounds(point) {
+    containsPoint(point) {
         return false;
     }
 

@@ -28,11 +28,11 @@ export class CircleView extends ShapeView {
         out.set(-this.#radius, -this.#radius, this.#radius, this.#radius);
     }
 
-    isInBounds(point) {
-        if (!super.isInBounds(point)) {
+    containsPoint(point) {
+        if (!super.containsPoint(point)) {
             return false;
         }
-        return point.x * point.x + point.y * point.y <= this.#radius * this.#radius;
+        return point.x*point.x + point.y*point.y <= this.#radius*this.#radius;
     }
 
     // MARK: - Drawing
