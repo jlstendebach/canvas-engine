@@ -14,31 +14,28 @@ export class VectorView extends ShapeView {
 
     // MARK: - Properties
     set vector(value) { 
-        if (!(value instanceof Vec2)) {
-            throw new TypeError("VectorView.vector must be an instance of Vec2.");
-        }
+        if (this.#vector.equals(value)) { return; }
         this.#vector = value;
         this.#isPathDirty = true;
     }
-
     get vector() {
         return this.#vectorProxy;
     }
 
     set arrowWidth(value) {
+        if (this.#arrowWidth === value) { return; }
         this.#arrowWidth = value;
         this.#isPathDirty = true;
     }
-
     get arrowWidth() {
         return this.#arrowWidth;
     }
 
     set arrowHeight(value) {
+        if (this.#arrowHeight === value) { return; }
         this.#arrowHeight = value;
         this.#isPathDirty = true;
     }
-
     get arrowHeight() {
         return this.#arrowHeight;
     }
