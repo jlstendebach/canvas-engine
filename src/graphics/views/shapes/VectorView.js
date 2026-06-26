@@ -61,8 +61,11 @@ export class VectorView extends ShapeView {
     }
 
     // MARK: - Hit Testing
+    updateBounds(out) {
+        this.#polygon.updateBounds(out);
+    }
+
     containsPoint(point) { 
-        this.#polygon.position = this.position;
         return this.#polygon.containsPoint(point);
     }
 
@@ -104,6 +107,9 @@ export class VectorView extends ShapeView {
             point.subtract(normal).subtract(normal).clone(),
             point.add(normal).clone()
         ]
+
+        this.#polygon.invalidateBounds();
+        this.invalidateBounds();
     }
 
 }
