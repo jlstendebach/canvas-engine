@@ -29,7 +29,7 @@ export class CircleView extends ShapeView {
     }
 
     containsPoint(point) {
-        if (!super.containsPoint(point)) {
+        if (!this.bounds.containsPoint(point)) {
             return false;
         }
         return point.x*point.x + point.y*point.y <= this.#radius*this.#radius;
