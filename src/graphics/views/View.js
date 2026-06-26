@@ -158,7 +158,7 @@ export class View {
      */
     localToChild(point) {
         // Base view has no transformations. Subclasses should override this method.
-        return point.clone();
+        return point;
     }
 
     /**
@@ -173,7 +173,7 @@ export class View {
      */
     childToLocal(point) {
         // Base view has no transformations. Subclasses should override this method.
-        return point.clone();
+        return point;
     }
 
     // MARK: - Views 
