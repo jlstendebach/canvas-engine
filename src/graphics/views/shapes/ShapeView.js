@@ -7,6 +7,7 @@ export class ShapeView extends View {
     #strokeStyle = new CachedColor();
     #strokeWidth;
     #strokeDash;
+    #strokeDashOffset;
 
     constructor(options = {}) {
         super(options);
@@ -14,13 +15,13 @@ export class ShapeView extends View {
         this.strokeStyle = options.strokeStyle ?? new Color(0, 0, 0);
         this.strokeWidth = options.strokeWidth ?? 1;
         this.strokeDash = options.strokeDash ?? [];
+        this.strokeDashOffset = options.strokeDashOffset ?? 0;
     }
 
     // MARK: - Properties
     set fillStyle(style) { 
         this.#fillStyle.color = style; 
     }
-    
     get fillStyle() { 
         return this.#fillStyle.color; 
     }
@@ -28,7 +29,6 @@ export class ShapeView extends View {
     set strokeStyle(style) { 
         this.#strokeStyle.color = style; 
     }
-
     get strokeStyle() { 
         return this.#strokeStyle.color; 
     }
@@ -36,7 +36,6 @@ export class ShapeView extends View {
     set strokeWidth(width) { 
         this.#strokeWidth = width; 
     }
-
     get strokeWidth() { 
         return this.#strokeWidth; 
     }
@@ -44,9 +43,15 @@ export class ShapeView extends View {
     set strokeDash(dash) { 
         this.#strokeDash = dash; 
     }
-
     get strokeDash() { 
         return this.#strokeDash; 
+    }
+
+    set strokeDashOffset(offset) { 
+        this.#strokeDashOffset = offset; 
+    }
+    get strokeDashOffset() { 
+        return this.#strokeDashOffset; 
     }
 
     // MARK: - Drawing
@@ -70,6 +75,7 @@ export class ShapeView extends View {
         context.lineWidth = this.#strokeWidth;
         context.strokeStyle = this.#strokeStyle.colorString;
         context.setLineDash(this.#strokeDash);
+        context.lineDashOffset = this.#strokeDashOffset;
         context.stroke();
     }
 
