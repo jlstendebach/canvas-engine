@@ -36,17 +36,12 @@ export class RectangleView extends ShapeView {
     }
 
     // MARK: - Hit Testing
-    calculateBounds() {
-        return new Bounds(0, 0, this.width, this.height);
+    updateBounds(out) {
+        out.set(0, 0, this.width, this.height);
     }
 
     containsPoint(point) {
-        return (
-            point.x >= this.position.x
-            && point.x < this.position.x + this.#size.x
-            && point.y >= this.position.y
-            && point.y < this.position.y + this.#size.y
-        );
+        return this.bounds.containsPoint(point);
     }
 
     // MARK: - Drawing
