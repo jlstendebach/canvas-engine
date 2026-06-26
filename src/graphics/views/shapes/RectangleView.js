@@ -1,4 +1,3 @@
-import { Bounds } from "../../../math/Bounds.js";
 import { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
 
@@ -14,22 +13,28 @@ export class RectangleView extends ShapeView {
     }
 
     // MARK: - Properties 
-    set size(size) { 
-        this.#size.set(size.x, size.y); 
+    set size(value) { 
+        if (this.#size.equals(value)) { return; }
+        this.#size.set(value.x, value.y); 
+        this.invalidateBounds();
     }
     get size() { 
         return this.#size; 
     }
 
     set width(value) {
+        if (this.#size.x === value) { return; }
         this.#size.x = value;
+        this.invalidateBounds();
     }
     get width() {
         return this.#size.x;
     }
 
     set height(value) {
+        if (this.#size.y === value) { return; }
         this.#size.y = value;
+        this.invalidateBounds();
     }
     get height() {
         return this.#size.y;
