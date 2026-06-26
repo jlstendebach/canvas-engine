@@ -20,8 +20,8 @@ export class CanvasRootView extends View {
     }
 
     // MARK: - Bounds
-    calculateBounds() {
-        return new Bounds(-Infinity, -Infinity, Infinity, Infinity);
+    updateBounds(out) {
+        out.set(-Infinity, -Infinity, Infinity, Infinity);
     }
 
     containsPoint(point) {
