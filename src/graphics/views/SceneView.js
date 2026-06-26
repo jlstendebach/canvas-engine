@@ -4,26 +4,55 @@ import { View } from "./View.js";
 
 export class SceneView extends View {
     static #TAU = 2 * Math.PI;
-    #size = new Vec2();
-    #clip = false;
-    #scale = 1;
-    #translation = new Vec2();
-    #rotation = 0;
+    #size;
+    #clip;
+    #scale;
+    #translation;
+    #rotation;
     
+
+    // MARK: - Initialization
+    constructor(options = {}) {
+        super(options);
+        this.size = options.size ?? new Vec2(100, 100);
+        this.clip = options.clip ?? false;
+        this.scale = options.scale ?? 1;
+        this.translation = options.translation ?? new Vec2();
+        this.rotation = options.rotation ?? 0;
+    }
+
     // MARK: - properties
     set size(size) { 
         this.#assertType("size", size, Vec2);
         this.#size = size.clone(); 
-    }
-    
+        this.invalidateBounds();
+    }    
     get size() { 
         return this.#size; 
     }
 
+    set width(value) { 
+        this.#assertFiniteAndPositive("width", value);
+        this.#size.x = value; 
+        this.invalidateBounds();
+    }
+    get width() { 
+        return this.#size.x; 
+    }
+
+    set height(value) { 
+        this.#assertFiniteAndPositive("height", value);
+        this.#size.y = value; 
+        this.invalidateBounds();
+    }
+    get height() { 
+        return this.#size.y; 
+    }
+
     set clip(clip) { 
         this.#clip = (clip === true); 
+        this.invalidateBounds();
     }
-    
     get clip() { 
         return this.#clip; 
     }
@@ -59,6 +88,14 @@ export class SceneView extends View {
     }
 
     // MARK: - bounds
+    updateBounds(out) {
+        if (this.#clip) {
+            out.set(0, 0, this.#size.x, this.#size.y);
+        } else {
+            out.set(-Infinity, -Infinity, Infinity, Infinity);
+        }
+    }
+
     /**
      * Checks whether a point in parent space is inside this scene view.
      * If size is zero, the scene is treated as unbounded.
@@ -66,13 +103,7 @@ export class SceneView extends View {
      * @returns {boolean} True if the point is in bounds; otherwise false.
      */
     containsPoint(point) {
-        this.#assertType("point", point, Vec2);
-        return this.#size.isZero() || (
-            point.x >= this.position.x
-            && point.x < this.position.x + this.#size.x
-            && point.y >= this.position.y
-            && point.y < this.position.y + this.#size.y
-        );
+        return this.bounds.containsPoint(point);
     }
 
     // MARK: - zoom
@@ -171,6 +202,8 @@ export class SceneView extends View {
     drawChildren(context) {
         // clipping
         if (this.#clip && !this.#size.isZero()) {
+
+            console.log("clipping to", this.#size.x, this.#size.y);
             context.beginPath();
             context.rect(0, 0, this.#size.x, this.#size.y);
             context.clip();

@@ -259,9 +259,13 @@ export class View {
             return null;
         }
 
+        // This is a bandaid fix for the SceneView and for the fact that we 
+        // don't have a proper transformation system yet.
+        const childPoint = this.localToChild(localPoint);
+
         // Check children in reverse order (topmost first)
         for (let i = this.#views.length - 1; i >= 0; i--) {
-            const view = this.#views[i].pickView(localPoint);
+            const view = this.#views[i].pickView(childPoint);
             if (view !== null) {
                 return view;
             }
