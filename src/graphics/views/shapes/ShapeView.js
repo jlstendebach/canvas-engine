@@ -49,13 +49,6 @@ export class ShapeView extends View {
         return this.#strokeDash; 
     }
 
-    // MARK: - Hit Testing
-    isInBounds(point) {
-        // To be implemented by subclasses.
-        void point;
-        return false;
-    }
-
     // MARK: - Drawing
     path(context) { 
         // To be implemented by subclasses.

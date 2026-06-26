@@ -20,24 +20,33 @@ export class View {
 
     // MARK: - Properties 
     set position(position) {
+        if (position.equals(this.#position)) {
+            return;
+        }
         this.#position.set(position.x, position.y);
-        this.invalidateParentBounds();
+        this.onLayoutChanged();
     }
     get position() {
         return this.#position;
     }
 
     set x(value) {
+        if (this.#position.x === value) {
+            return;
+        }
         this.#position.x = value;
-        this.invalidateParentBounds();
+        this.onLayoutChanged();
     }
     get x() {
         return this.#position.x;
     }
 
     set y(value) {
+        if (this.#position.y === value) {
+            return;
+        }
         this.#position.y = value;
-        this.invalidateParentBounds();
+        this.onLayoutChanged();
     }
     get y() {
         return this.#position.y;
@@ -45,7 +54,7 @@ export class View {
 
     get bounds() {
         if (this.#isBoundsDirty) {
-            this.#bounds = this.calculateBounds();
+            this.updateBounds(this.#bounds);
             this.#isBoundsDirty = false;
         }
         return this.#bounds;
@@ -79,20 +88,22 @@ export class View {
     }
 
     // MARK: - Bounds 
-    calculateBounds() {
-        this.#bounds.reset();
+    updateBounds(out) {
+        out.reset();
         for (let i = 0; i < this.#views.length; i++) {
-            this.#bounds.addBounds(this.#views[i].getBoundsInParentSpace());
+            out.addBounds(this.#views[i].getBoundsInParentSpace());
         }
-        return this.#bounds;
     }
 
     invalidateBounds() {
+        if (this.#isBoundsDirty) {
+            return;
+        }
         this.#isBoundsDirty = true;
-        this.invalidateParentBounds();
+        this.onLayoutChanged();
     }
 
-    invalidateParentBounds() {
+    onLayoutChanged() {
         if (this.#parent !== null) {
             this.#parent.onChildLayoutChanged();
         }
@@ -102,8 +113,7 @@ export class View {
         this.invalidateBounds();
     }
 
-    getBoundsInParentSpace() {
-        const bounds = this.bounds;
+    localToParentBounds(bounds) {
         return new Bounds(
             bounds.minX + this.#position.x,
             bounds.minY + this.#position.y,
@@ -112,13 +122,31 @@ export class View {
         );
     }
 
+    parentToLocalPoint(point) {
+        return point.clone().subtract(this.#position);
+    }
+
+    getBoundsInParentSpace() {
+        return this.localToParentBounds(this.bounds);
+    }
+
+    getBoundsInWorldSpace() {
+        let bounds = this.getBoundsInParentSpace();
+        let current = this.#parent;
+        while (current !== null) {
+            bounds = current.localToParentBounds(bounds);
+            current = current.#parent;
+        }
+        return bounds;
+    }
+
     /**
      * Checks if a point in parent space is contained within this view.
      * @param {Vec2} point - The point in parent space.
      * @returns {boolean} True if the point is inside this view, false otherwise.
      */
     isInBounds(point) {
-        return this.getBoundsInParentSpace().containPoint(point);
+        return this.bounds.containsPoint(point);
     }
 
     /**
@@ -173,6 +201,7 @@ export class View {
         view.removeFromParent();
         view.#parent = this;
         this.#views.push(view);
+        this.invalidateBounds();
         return view;
     }
 
@@ -188,6 +217,7 @@ export class View {
         }
         view.#parent = null;
         this.#views.splice(index, 1);
+        this.invalidateBounds();
         return true;
     }
 
@@ -199,6 +229,7 @@ export class View {
             this.#views[i].#parent = null;
         }
         this.#views = [];
+        this.invalidateBounds();
     }
 
     /**
@@ -219,21 +250,30 @@ export class View {
         return this.#views.length;
     }
 
-    /**
-     * Picks the topmost visible and pickable child at the given local-space 
-     * point.
-     * @param {Vec2} point - The point in local space.
-     * @returns {View|null} The picked child view, or null if none are found.
-     */
     pickView(point) {
-        const childXY = this.localToChild(point);
+        if (this.#isVisible === false || this.#isPickable === false) {
+            return null;
+        }
+
+        const localPoint = this.parentToLocalPoint(point);
+
+        // If the bounds are empty, we can treat this as a passthrough.
+        if (!this.bounds.isEmpty() && !this.isInBounds(localPoint)) {
+            return null;
+        }
+
+        // Check children in reverse order (topmost first)
         for (let i = this.#views.length - 1; i >= 0; i--) {
-            const view = this.#views[i];
-            if (view.#isVisible && view.#isPickable && view.isInBounds(childXY)) {
+            const view = this.#views[i].pickView(localPoint);
+            if (view !== null) {
                 return view;
             }
         }
-        return null;
+
+        // If the bounds are empty, we treat this as a passthrough, so we return
+        // null. Otherwise, the point is within this view's bounds, so we return 
+        // this view.
+        return this.bounds.isEmpty() ? null : this;
     }
 
     // MARK: - Parent 

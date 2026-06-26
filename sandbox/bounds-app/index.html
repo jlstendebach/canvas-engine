@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <!--[ head ]--------------------------------------------------------------->
+    <head>
+        <title>Bounds App</title>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+
+    <!--[ body ]--------------------------------------------------------------->
+    <body>
+        <div id="container">
+            <canvas id="main-canvas"></canvas>
+        </div>
+    </body>
+
+
+    <!--[ javascript ]--------------------------------------------------------->
+    <script type="module">
+        import { BoundsApp } from "./bounds-app.js";
+
+        window.addEventListener("load", function() {
+            window.removeEventListener("load", this);
+            const app = new BoundsApp("#main-canvas");
+            app.start();
+        });
+    </script>
+</html>

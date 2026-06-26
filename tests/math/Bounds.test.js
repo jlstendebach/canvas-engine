@@ -207,8 +207,8 @@ describe("Bounds", () => {
         });
     });
 
-    // MARK: - containsXY and containPoint tests
-    describe("containsXY and containPoint", () => {
+    // MARK: - containsXY and containsPoint tests
+    describe("containsXY and containsPoint", () => {
         test.each([
             { bounds: new Bounds(0, 0, 0, 0), point: new Vec2(0, 0), expected: true },
             { bounds: new Bounds(0, 0, 10, 10), point: new Vec2(5, 5), expected: true },
@@ -219,7 +219,7 @@ describe("Bounds", () => {
             { bounds: new Bounds(), point: new Vec2(0, 0), expected: false },
         ])("should correctly determine if a point is contained", ({ bounds, point, expected }) => {
             expect(bounds.containsXY(point.x, point.y)).toBe(expected);
-            expect(bounds.containPoint(point)).toBe(expected);
+            expect(bounds.containsPoint(point)).toBe(expected);
         });
     });
 

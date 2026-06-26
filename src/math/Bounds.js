@@ -92,7 +92,7 @@ export class Bounds {
         );
     }
 
-    containPoint(point) {
+    containsPoint(point) {
         return this.containsXY(point.x, point.y);
     }
 

@@ -1,3 +1,4 @@
+import { Bounds } from "../../../math/Bounds.js";
 import { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
 
@@ -8,18 +9,37 @@ export class RectangleView extends ShapeView {
     constructor(options = {}) {
         super(options);
         this.size = options.size ?? new Vec2(10, 10);
+        this.width = options.width ?? this.size.x;
+        this.height = options.height ?? this.size.y;
     }
 
     // MARK: - Properties 
     set size(size) { 
         this.#size.set(size.x, size.y); 
     }
-
     get size() { 
         return this.#size; 
     }
 
+    set width(value) {
+        this.#size.x = value;
+    }
+    get width() {
+        return this.#size.x;
+    }
+
+    set height(value) {
+        this.#size.y = value;
+    }
+    get height() {
+        return this.#size.y;
+    }
+
     // MARK: - Hit Testing
+    calculateBounds() {
+        return new Bounds(0, 0, this.width, this.height);
+    }
+
     isInBounds(point) {
         return (
             point.x >= this.position.x
