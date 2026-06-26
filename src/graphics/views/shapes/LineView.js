@@ -35,6 +35,10 @@ export class LineView extends ShapeView {
     }
 
     containsPoint(point) {
+        if (!this.bounds.containsPoint(point)) {
+            return false;
+        }
+
         for (let i = 0; i < this.#points.length - 1; i++) {
             const start = this.#points[i];
             const end = this.#points[i + 1];
