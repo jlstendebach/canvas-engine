@@ -1,6 +1,6 @@
-import { EventEmitter } from "../../events/EventEmitter.js";
-import { Bounds } from "../../math/Bounds.js";
-import { Vec2 } from "../../math/Vec2.js";
+import { EventEmitter } from "../../../events/EventEmitter.js";
+import { Bounds } from "../../../math/Bounds.js";
+import { Vec2 } from "../../../math/Vec2.js";
 
 /**
  * Base class for all views in the scene graph.

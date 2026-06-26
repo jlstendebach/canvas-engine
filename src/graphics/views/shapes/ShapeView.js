@@ -1,6 +1,6 @@
 import { CachedColor } from "../../utils/CachedColor.js";
 import { Color } from "../../utils/Color.js";
-import { View } from "../View.js";
+import { View } from "../core/View.js";
 
 export class ShapeView extends View {
     #fillStyle = new CachedColor();

@@ -1,5 +1,5 @@
 import { Canvas } from "./Canvas.js";
-import { View } from "../views/View.js";
+import { View } from "../views/core/View.js";
 import { Bounds } from "../../math/Bounds.js";
 
 export class CanvasRootView extends View {

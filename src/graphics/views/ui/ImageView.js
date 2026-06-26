@@ -1,5 +1,5 @@
-import { Vec2 } from "../../math/Vec2.js";
-import { View } from "./View.js";
+import { Vec2 } from "../../../math/Vec2.js";
+import { View } from "../core/View.js";
 
 export class ImageView extends View {
     image = new Image();
