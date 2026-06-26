@@ -20,9 +20,7 @@ export class View {
 
     // MARK: - Properties 
     set position(position) {
-        if (position.equals(this.#position)) {
-            return;
-        }
+        if (position.equals(this.#position)) { return; }
         this.#position.set(position.x, position.y);
         this.onLayoutChanged();
     }
@@ -31,9 +29,7 @@ export class View {
     }
 
     set x(value) {
-        if (this.#position.x === value) {
-            return;
-        }
+        if (this.#position.x === value) { return; }
         this.#position.x = value;
         this.onLayoutChanged();
     }
@@ -42,9 +38,7 @@ export class View {
     }
 
     set y(value) {
-        if (this.#position.y === value) {
-            return;
-        }
+        if (this.#position.y === value) { return; }
         this.#position.y = value;
         this.onLayoutChanged();
     }
@@ -61,7 +55,10 @@ export class View {
     }
 
     set isVisible(visible) {
-        this.#isVisible = visible === true;
+        visible = visible === true;
+        if (this.#isVisible === visible) { return; }
+        this.#isVisible = visible;
+        this.onLayoutChanged();
     }
     get isVisible() {
         return this.#isVisible;
