@@ -25,8 +25,8 @@ export class LineView extends ShapeView {
 
     // MARK: - Hit Testing
     updateBounds(out) {
-        if (this.#points.length === 0) {
-            out.set(0, 0, 0, 0);
+        out.reset();
+        if (this.#points.length < 2) {
             return;
         }
         for (let i = 0; i < this.#points.length; i++) {

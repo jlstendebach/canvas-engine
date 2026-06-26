@@ -28,7 +28,7 @@ export class PolygonView extends ShapeView {
         if (this.#points.length < 3) {
             return;
         }
-        for (let i = 0; i < this.#points.length; ++i) {
+        for (let i = 0; i < this.#points.length; i++) {
             out.addPoint(this.#points[i]);
         }
     }
