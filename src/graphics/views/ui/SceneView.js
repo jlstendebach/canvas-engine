@@ -4,27 +4,33 @@ import { View } from "../core/View.js";
 
 export class SceneView extends View {
     static #TAU = 2 * Math.PI;
-    #size;
-    #clip;
-    #scale;
-    #translation;
-    #rotation;
     
-
+    #size = new Vec2();
+    #clip = false;
+    #scale = 1;
+    #translation = new Vec2();
+    #rotation = 0;
+    
     // MARK: - Initialization
     constructor(options = {}) {
         super(options);
-        this.size = options.size ?? new Vec2(100, 100);
-        this.clip = options.clip ?? false;
-        this.scale = options.scale ?? 1;
-        this.translation = options.translation ?? new Vec2();
-        this.rotation = options.rotation ?? 0;
+        this.#size.set(
+            options.width ?? options.size?.x ?? 0, 
+            options.height ?? options.size?.y ?? 0
+        );
+        this.#clip = options.clip === true;
+        this.#scale = options.scale ?? 1;
+        if (options.translation instanceof Vec2) {
+            this.#translation.copy(options.translation);
+        }
+        this.#rotation = options.rotation ?? 0;
     }
 
-    // MARK: - properties
+    // MARK: - Accessors
     set size(size) { 
         this.#assertType("size", size, Vec2);
-        this.#size = size.clone(); 
+        if (this.#size.equals(size)) { return; }
+        this.#size.copy(size); 
         this.invalidateBounds();
     }    
     get size() { 
@@ -33,6 +39,7 @@ export class SceneView extends View {
 
     set width(value) { 
         this.#assertFiniteAndPositive("width", value);
+        if (this.#size.x === value) { return; }
         this.#size.x = value; 
         this.invalidateBounds();
     }
@@ -42,6 +49,7 @@ export class SceneView extends View {
 
     set height(value) { 
         this.#assertFiniteAndPositive("height", value);
+        if (this.#size.y === value) { return; }
         this.#size.y = value; 
         this.invalidateBounds();
     }
@@ -50,7 +58,9 @@ export class SceneView extends View {
     }
 
     set clip(clip) { 
-        this.#clip = (clip === true); 
+        if (typeof clip !== "boolean") { return; }
+        if (this.#clip === clip) { return; }
+        this.#clip = clip; 
         this.invalidateBounds();
     }
     get clip() { 
@@ -61,16 +71,14 @@ export class SceneView extends View {
         this.#assertFiniteAndPositive("scale", scale);
         this.#scale = scale; 
     }
-    
     get scale() { 
         return this.#scale; 
     }
 
     set translation(translation) { 
         this.#assertType("translation", translation, Vec2);
-        this.#translation = translation.clone(); 
+        this.#translation.copy(translation); 
     }
-
     get translation() { 
         return this.#translation; 
     }
@@ -82,7 +90,6 @@ export class SceneView extends View {
             this.#rotation += SceneView.#TAU;
         }
     }
-
     get rotation() { 
         return this.#rotation; 
     }

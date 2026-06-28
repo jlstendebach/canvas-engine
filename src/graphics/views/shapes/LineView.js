@@ -4,15 +4,11 @@ import { Vec2 } from "../../../math/Vec2.js";
 export class LineView extends ShapeView {
     #points = [];
 
-    // MARK: - Properties
+    // MARK: - Accessors
     set points(points) {
-        if (!Array.isArray(points)) {
-            throw new TypeError("Points must be an array of Vec2 objects.");
-        }
         this.#points = points;
         this.invalidateBounds();
     }
-
     get points() {
         return this.#points;
     }

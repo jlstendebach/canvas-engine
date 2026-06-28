@@ -4,18 +4,10 @@ import { ShapeView } from "./ShapeView.js";
 export class RectangleView extends ShapeView {
     #size = new Vec2();
 
-    // MARK: - Initialization 
-    constructor(options = {}) {
-        super(options);
-        this.size = options.size ?? new Vec2(10, 10);
-        this.width = options.width ?? this.size.x;
-        this.height = options.height ?? this.size.y;
-    }
-
-    // MARK: - Properties 
+    // MARK: - Accessors 
     set size(value) { 
         if (this.#size.equals(value)) { return; }
-        this.#size.set(value.x, value.y); 
+        this.#size.copy(value);
         this.invalidateBounds();
     }
     get size() { 
@@ -23,7 +15,7 @@ export class RectangleView extends ShapeView {
     }
 
     set width(value) {
-        if (this.#size.x === value) { return; }
+        if (this.#size.x === value) { return; }        
         this.#size.x = value;
         this.invalidateBounds();
     }
@@ -38,6 +30,13 @@ export class RectangleView extends ShapeView {
     }
     get height() {
         return this.#size.y;
+    }
+
+    // MARK: - Initialization 
+    constructor(options = {}) {
+        super(options);
+        this.#size.x = options.width ?? options.size?.x ?? 10;
+        this.#size.y = options.height ?? options.size?.y ?? 10;
     }
 
     // MARK: - Hit Testing

@@ -19,32 +19,32 @@ export class View {
     
     #eventEmitter = new EventEmitter();
 
-    // MARK: - Properties 
-    set position(position) {
-        if (position.equals(this.#position)) { return; }
-        this.#position.set(position.x, position.y);
+    // MARK: - Accessors 
+    set position(value) { 
+        if (this.#position.equals(value)) { return; }
+        this.#position.copy(value); 
         this.onLayoutChanged();
     }
-    get position() {
-        return this.#position;
+    get position() { 
+        return this.#position; 
     }
 
-    set x(value) {
+    set x(value) { 
         if (this.#position.x === value) { return; }
-        this.#position.x = value;
+        this.#position.x = value; 
         this.onLayoutChanged();
     }
-    get x() {
-        return this.#position.x;
+    get x() { 
+        return this.#position.x; 
     }
 
-    set y(value) {
+    set y(value) { 
         if (this.#position.y === value) { return; }
-        this.#position.y = value;
+        this.#position.y = value; 
         this.onLayoutChanged();
     }
-    get y() {
-        return this.#position.y;
+    get y() { 
+        return this.#position.y; 
     }
 
     get bounds() {
@@ -55,34 +55,34 @@ export class View {
         return this.#bounds;
     }
 
-    set isVisible(visible) {
-        visible = visible === true;
-        if (this.#isVisible === visible) { return; }
-        this.#isVisible = visible;
+    set isVisible(value) {
+        if (typeof value !== "boolean") { return; }
+        if (this.#isVisible === value) { return; }
+        this.#isVisible = value;
         this.onLayoutChanged();
     }
-    get isVisible() {
-        return this.#isVisible;
+    get isVisible() { 
+        return this.#isVisible; 
     }
 
-    set isPickable(pickable) {
-        this.#isPickable = pickable === true;
+    set isPickable(value) { 
+        if (typeof value !== "boolean") { return; }
+        this.#isPickable = value;
     }
-    get isPickable() {
-        return this.#isPickable;
+    get isPickable() { 
+        return this.#isPickable; 
     }
 
-    get parent() {
-        return this.#parent;
+    get parent() { 
+        return this.#parent; 
     }
 
     // MARK: - Initialization 
     constructor(options = {}) {
-        this.position = options.position ?? new Vec2();
-        this.position.x = options.x ?? this.position.x;
-        this.position.y = options.y ?? this.position.y;
-        this.isVisible = options.isVisible ?? true;
-        this.isPickable = options.isPickable ?? true;
+        this.#position.x = options.x ?? options.position?.x ?? 0;
+        this.#position.y = options.y ?? options.position?.y ?? 0;
+        this.#isVisible = options.isVisible !== false;
+        this.#isPickable = options.isPickable !== false;
     }
 
     // MARK: - Bounds 

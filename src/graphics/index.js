@@ -7,7 +7,6 @@ export * from "./canvas/CanvasRootView.js"
 export * from "./utils/CachedColor.js"
 export * from "./utils/Color.js"
 export * from "./utils/CoordinateSpace.js"
-export * from "./utils/ObservableVec2.js"
 
 // MARK: - views/charts
 export * from "./views/charts/BarChartView.js"

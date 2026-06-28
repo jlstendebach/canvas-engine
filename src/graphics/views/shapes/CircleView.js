@@ -1,8 +1,8 @@
-import { Bounds } from "../../../math/Bounds.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class CircleView extends ShapeView {
     static #TAU = Math.PI * 2;
+    
     #radius;
 
     // MARK: - Properties

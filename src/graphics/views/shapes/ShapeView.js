@@ -9,16 +9,7 @@ export class ShapeView extends View {
     #strokeDash;
     #strokeDashOffset;
 
-    constructor(options = {}) {
-        super(options);
-        this.fillStyle = options.fillStyle ?? new Color(255, 255, 255);
-        this.strokeStyle = options.strokeStyle ?? new Color(0, 0, 0);
-        this.strokeWidth = options.strokeWidth ?? 1;
-        this.strokeDash = options.strokeDash ?? [];
-        this.strokeDashOffset = options.strokeDashOffset ?? 0;
-    }
-
-    // MARK: - Properties
+    // MARK: - Accessors
     set fillStyle(style) { 
         this.#fillStyle.color = style; 
     }
@@ -52,6 +43,16 @@ export class ShapeView extends View {
     }
     get strokeDashOffset() { 
         return this.#strokeDashOffset; 
+    }
+
+    // MARK: - Initialization
+    constructor(options = {}) {
+        super(options);
+        this.fillStyle = options.fillStyle ?? new Color(255, 255, 255);
+        this.strokeStyle = options.strokeStyle ?? new Color(0, 0, 0);
+        this.strokeWidth = options.strokeWidth ?? 1;
+        this.strokeDash = options.strokeDash ?? [];
+        this.strokeDashOffset = options.strokeDashOffset ?? 0;
     }
 
     // MARK: - Drawing
