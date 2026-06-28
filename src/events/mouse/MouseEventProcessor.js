@@ -170,17 +170,9 @@ export class MouseEventProcessor {
 
     // --[ helpers ]------------------------------------------------------------
     findView(event) {
-        let view = event.target;
-        let subview = event.target;
-        let position = new Vec2(event.x, event.y);
-        while (subview != null) {
-            view = subview;
-            position.x -= view.position.x;
-            position.y -= view.position.y;
-            subview = view.pickView(position);    
-            position = view.localToChild(position);
-        }
-        return view;
+        const view = event.target;
+        const point = new Vec2(event.x, event.y);
+        return view.pickView(point) ?? view;
     }
 
     getRelativeXY(event, view) {

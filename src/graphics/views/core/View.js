@@ -1,62 +1,132 @@
-import { EventEmitter } from "../../events/EventEmitter.js";
-import { Vec2 } from "../../math/Vec2.js";
+import { EventEmitter } from "../../../events/EventEmitter.js";
+import { Bounds } from "../../../math/Bounds.js";
+import { Vec2 } from "../../../math/Vec2.js";
 
 /**
  * Base class for all views in the scene graph.
  */
 export class View {
     #position = new Vec2();
+
+    #bounds = new Bounds();
+    #isBoundsDirty = true;
+
     #isVisible = true;
     #isPickable = true;
 
     #parent = null;
     #views = [];
+    
     #eventEmitter = new EventEmitter();
 
-    // MARK: - Properties 
-    set position(position) {
-        this.#position.set(position.x, position.y);
+    // MARK: - Accessors 
+    set position(value) { 
+        if (this.#position.equals(value)) { return; }
+        this.#position.copy(value); 
+        this.onLayoutChanged();
+    }
+    get position() { 
+        return this.#position; 
     }
 
-    get position() {
-        return this.#position;
+    set x(value) { 
+        if (this.#position.x === value) { return; }
+        this.#position.x = value; 
+        this.onLayoutChanged();
+    }
+    get x() { 
+        return this.#position.x; 
     }
 
-    set isVisible(visible) {
-        this.#isVisible = visible === true;
+    set y(value) { 
+        if (this.#position.y === value) { return; }
+        this.#position.y = value; 
+        this.onLayoutChanged();
+    }
+    get y() { 
+        return this.#position.y; 
     }
 
-    get isVisible() {
-        return this.#isVisible;
+    get bounds() {
+        if (this.#isBoundsDirty) {
+            this.updateBounds(this.#bounds);
+            this.#isBoundsDirty = false;
+        }
+        return this.#bounds;
     }
 
-    set isPickable(pickable) {
-        this.#isPickable = pickable === true;
+    set isVisible(value) {
+        if (typeof value !== "boolean") { return; }
+        if (this.#isVisible === value) { return; }
+        this.#isVisible = value;
+        this.onLayoutChanged();
+    }
+    get isVisible() { 
+        return this.#isVisible; 
     }
 
-    get isPickable() {
-        return this.#isPickable;
+    set isPickable(value) { 
+        if (typeof value !== "boolean") { return; }
+        this.#isPickable = value;
+    }
+    get isPickable() { 
+        return this.#isPickable; 
     }
 
-    get parent() {
-        return this.#parent;
+    get parent() { 
+        return this.#parent; 
     }
 
     // MARK: - Initialization 
     constructor(options = {}) {
-        this.position = options.position ?? new Vec2();
-        this.isVisible = options.isVisible ?? true;
-        this.isPickable = options.isPickable ?? true;
+        this.#position.x = options.x ?? options.position?.x ?? 0;
+        this.#position.y = options.y ?? options.position?.y ?? 0;
+        this.#isVisible = options.isVisible !== false;
+        this.#isPickable = options.isPickable !== false;
     }
 
     // MARK: - Bounds 
+    updateBounds(out) {
+        out.reset();
+    }
+
+    invalidateBounds() {
+        if (this.#isBoundsDirty) {
+            return;
+        }
+        this.#isBoundsDirty = true;
+        this.onLayoutChanged();
+    }
+
+    onLayoutChanged() {
+        if (this.#parent !== null) {
+            this.#parent.onChildLayoutChanged();
+        }
+    }
+
+    onChildLayoutChanged() {
+        this.invalidateBounds();
+    }
+
+    localToParentBounds(bounds) {
+        return new Bounds(
+            bounds.minX + this.#position.x,
+            bounds.minY + this.#position.y,
+            bounds.maxX + this.#position.x,
+            bounds.maxY + this.#position.y
+        );
+    }
+
+    parentToLocalPoint(point) {
+        return point.clone().subtract(this.#position);
+    }
+
     /**
-     * Checks if a point in parent space is contained within this view.
-     * @param {Vec2} point - The point in parent space.
+     * Checks if a point in local space is contained within this view.
+     * @param {Vec2} point - The point in local space.
      * @returns {boolean} True if the point is inside this view, false otherwise.
      */
-    isInBounds(point) {
-        // Base view has no bounds. Subclasses should override this method.
+    containsPoint(point) {
         void point;
         return true;
     }
@@ -73,7 +143,7 @@ export class View {
      */
     localToChild(point) {
         // Base view has no transformations. Subclasses should override this method.
-        return point.clone();
+        return point;
     }
 
     /**
@@ -88,7 +158,7 @@ export class View {
      */
     childToLocal(point) {
         // Base view has no transformations. Subclasses should override this method.
-        return point.clone();
+        return point;
     }
 
     // MARK: - Views 
@@ -113,6 +183,7 @@ export class View {
         view.removeFromParent();
         view.#parent = this;
         this.#views.push(view);
+        this.invalidateBounds();
         return view;
     }
 
@@ -128,6 +199,7 @@ export class View {
         }
         view.#parent = null;
         this.#views.splice(index, 1);
+        this.invalidateBounds();
         return true;
     }
 
@@ -139,6 +211,7 @@ export class View {
             this.#views[i].#parent = null;
         }
         this.#views = [];
+        this.invalidateBounds();
     }
 
     /**
@@ -159,21 +232,34 @@ export class View {
         return this.#views.length;
     }
 
-    /**
-     * Picks the topmost visible and pickable child at the given local-space 
-     * point.
-     * @param {Vec2} point - The point in local space.
-     * @returns {View|null} The picked child view, or null if none are found.
-     */
     pickView(point) {
-        const childXY = this.localToChild(point);
+        if (this.#isVisible === false || this.#isPickable === false) {
+            return null;
+        }
+
+        const localPoint = this.parentToLocalPoint(point);
+
+        // If the bounds are empty, we can treat this as a passthrough.
+        if (!this.bounds.isEmpty() && !this.containsPoint(localPoint)) {
+            return null;
+        }
+
+        // This is a bandaid fix for the SceneView and for the fact that we 
+        // don't have a proper transformation system yet.
+        const childPoint = this.localToChild(localPoint);
+
+        // Check children in reverse order (topmost first)
         for (let i = this.#views.length - 1; i >= 0; i--) {
-            const view = this.#views[i];
-            if (view.#isVisible && view.#isPickable && view.isInBounds(childXY)) {
+            const view = this.#views[i].pickView(childPoint);
+            if (view !== null) {
                 return view;
             }
         }
-        return null;
+
+        // If the bounds are empty, we treat this as a passthrough, so we return
+        // null. Otherwise, the point is within this view's bounds, so we return 
+        // this view.
+        return this.bounds.isEmpty() ? null : this;
     }
 
     // MARK: - Parent 

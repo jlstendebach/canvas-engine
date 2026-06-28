@@ -4,8 +4,8 @@ export class Vec2 {
 
     // --[ ctor ]---------------------------------------------------------------
     constructor(x = 0, y = 0) {
-        this.x = parseFloat(x) || 0;
-        this.y = parseFloat(y) || 0;
+        this.x = x;
+        this.y = y;
     }
 
     // --[ aliases ]------------------------------------------------------------
@@ -22,8 +22,8 @@ export class Vec2 {
      * @returns {Vec2} This vector.
      */
     set(x, y) {
-        this.x = parseFloat(x) || 0;
-        this.y = parseFloat(y) || 0;
+        this.x = x;
+        this.y = y;
         return this;
     }
 

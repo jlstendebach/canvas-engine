@@ -46,6 +46,14 @@ export class Canvas {
         return new Vec2(this.#element.width, this.#element.height);
     }
 
+    get width() {
+        return this.#element.width;
+    }
+
+    get height() {
+        return this.#element.height;
+    }
+
     // MARK: - initialization
     constructor(selectorOrElement, contextType = "2d") {
         this.#initCanvas(selectorOrElement);

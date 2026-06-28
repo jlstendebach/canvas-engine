@@ -3,14 +3,11 @@ import { ShapeView } from "./ShapeView.js";
 export class PolygonView extends ShapeView {
     #points = [];
 
-    // MARK: - Properties
+    // MARK: - Accessors
     set points(points) {
-        if (!Array.isArray(points)) {
-            throw new TypeError("Points must be an array of Vec2 objects.");
-        }
         this.#points = points;
+        this.invalidateBounds();
     }
-
     get points() {
         return this.#points;
     }
@@ -18,12 +15,24 @@ export class PolygonView extends ShapeView {
     // MARK: - Initialization
     constructor(options = {}) {
         super(options);
-        this.#points = options.points ?? [];
+        this.points = options.points ?? [];
     }
 
     // MARK: - Hit Testing
-    isInBounds(point) {
-        const target = point.clone().subtract(this.position);
+    updateBounds(out) {
+        out.reset();
+        if (this.#points.length < 3) {
+            return;
+        }
+        for (let i = 0; i < this.#points.length; i++) {
+            out.addPoint(this.#points[i]);
+        }
+    }
+
+    containsPoint(point) {
+        if (!this.bounds.containsPoint(point)) {
+            return false;
+        }
 
         let isInside = false;
 
@@ -34,21 +43,21 @@ export class PolygonView extends ShapeView {
             // Ensure the target is between the y-coordinates of the edge. If 
             // the target is above or below both points, it cannot intersect 
             // with the edge.
-            if ((target.y < p1.y) === (target.y < p2.y)) {
+            if ((point.y < p1.y) === (point.y < p2.y)) {
                 continue;
             }
 
             // m = (y2 - y1) / (x2 - x1)
             // x = x1 + (y - y1) / m 
             //   = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
-            const x = p1.x + ((target.y - p1.y) * (p2.x - p1.x)) / (p2.y - p1.y);
-            if (x === target.x) {
+            const x = p1.x + ((point.y - p1.y) * (p2.x - p1.x)) / (p2.y - p1.y);
+            if (x === point.x) {
                 // The target is on the edge, so we consider it to be inside.
                 return true;
             }
 
             // Is target to the left of the intersection point?
-            if (target.x < x) {
+            if (point.x < x) {
                 isInside = !isInside;
             }
         }

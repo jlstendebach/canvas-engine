@@ -1,29 +1,68 @@
-import { Vec2 } from "../../math/Vec2.js";
-import { CoordinateSpace } from "../utils/CoordinateSpace.js";
-import { View } from "./View.js";
+import { Vec2 } from "../../../math/Vec2.js";
+import { CoordinateSpace } from "../../utils/CoordinateSpace.js";
+import { View } from "../core/View.js";
 
 export class SceneView extends View {
     static #TAU = 2 * Math.PI;
+    
     #size = new Vec2();
     #clip = false;
     #scale = 1;
     #translation = new Vec2();
     #rotation = 0;
     
-    // MARK: - properties
+    // MARK: - Initialization
+    constructor(options = {}) {
+        super(options);
+        this.#size.set(
+            options.width ?? options.size?.x ?? 0, 
+            options.height ?? options.size?.y ?? 0
+        );
+        this.#clip = options.clip === true;
+        this.#scale = options.scale ?? 1;
+        if (options.translation instanceof Vec2) {
+            this.#translation.copy(options.translation);
+        }
+        this.#rotation = options.rotation ?? 0;
+    }
+
+    // MARK: - Accessors
     set size(size) { 
         this.#assertType("size", size, Vec2);
-        this.#size = size.clone(); 
-    }
-    
+        if (this.#size.equals(size)) { return; }
+        this.#size.copy(size); 
+        this.invalidateBounds();
+    }    
     get size() { 
         return this.#size; 
     }
 
-    set clip(clip) { 
-        this.#clip = (clip === true); 
+    set width(value) { 
+        this.#assertFiniteAndPositive("width", value);
+        if (this.#size.x === value) { return; }
+        this.#size.x = value; 
+        this.invalidateBounds();
     }
-    
+    get width() { 
+        return this.#size.x; 
+    }
+
+    set height(value) { 
+        this.#assertFiniteAndPositive("height", value);
+        if (this.#size.y === value) { return; }
+        this.#size.y = value; 
+        this.invalidateBounds();
+    }
+    get height() { 
+        return this.#size.y; 
+    }
+
+    set clip(clip) { 
+        if (typeof clip !== "boolean") { return; }
+        if (this.#clip === clip) { return; }
+        this.#clip = clip; 
+        this.invalidateBounds();
+    }
     get clip() { 
         return this.#clip; 
     }
@@ -32,16 +71,14 @@ export class SceneView extends View {
         this.#assertFiniteAndPositive("scale", scale);
         this.#scale = scale; 
     }
-    
     get scale() { 
         return this.#scale; 
     }
 
     set translation(translation) { 
         this.#assertType("translation", translation, Vec2);
-        this.#translation = translation.clone(); 
+        this.#translation.copy(translation); 
     }
-
     get translation() { 
         return this.#translation; 
     }
@@ -53,26 +90,27 @@ export class SceneView extends View {
             this.#rotation += SceneView.#TAU;
         }
     }
-
     get rotation() { 
         return this.#rotation; 
     }
 
     // MARK: - bounds
+    updateBounds(out) {
+        if (this.#clip) {
+            out.set(0, 0, this.#size.x, this.#size.y);
+        } else {
+            out.set(-Infinity, -Infinity, Infinity, Infinity);
+        }
+    }
+
     /**
      * Checks whether a point in parent space is inside this scene view.
      * If size is zero, the scene is treated as unbounded.
      * @param {Vec2} point - The point in parent space.
      * @returns {boolean} True if the point is in bounds; otherwise false.
      */
-    isInBounds(point) {
-        this.#assertType("point", point, Vec2);
-        return this.#size.isZero() || (
-            point.x >= this.position.x
-            && point.x < this.position.x + this.#size.x
-            && point.y >= this.position.y
-            && point.y < this.position.y + this.#size.y
-        );
+    containsPoint(point) {
+        return this.bounds.containsPoint(point);
     }
 
     // MARK: - zoom
@@ -171,6 +209,8 @@ export class SceneView extends View {
     drawChildren(context) {
         // clipping
         if (this.#clip && !this.#size.isZero()) {
+
+            console.log("clipping to", this.#size.x, this.#size.y);
             context.beginPath();
             context.rect(0, 0, this.#size.x, this.#size.y);
             context.clip();

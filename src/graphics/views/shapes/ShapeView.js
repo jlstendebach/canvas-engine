@@ -1,26 +1,18 @@
 import { CachedColor } from "../../utils/CachedColor.js";
 import { Color } from "../../utils/Color.js";
-import { View } from "../View.js";
+import { View } from "../core/View.js";
 
 export class ShapeView extends View {
     #fillStyle = new CachedColor();
     #strokeStyle = new CachedColor();
     #strokeWidth;
     #strokeDash;
+    #strokeDashOffset;
 
-    constructor(options = {}) {
-        super(options);
-        this.fillStyle = options.fillStyle ?? new Color(255, 255, 255);
-        this.strokeStyle = options.strokeStyle ?? new Color(0, 0, 0);
-        this.strokeWidth = options.strokeWidth ?? 1;
-        this.strokeDash = options.strokeDash ?? [];
-    }
-
-    // MARK: - Properties
+    // MARK: - Accessors
     set fillStyle(style) { 
         this.#fillStyle.color = style; 
     }
-    
     get fillStyle() { 
         return this.#fillStyle.color; 
     }
@@ -28,7 +20,6 @@ export class ShapeView extends View {
     set strokeStyle(style) { 
         this.#strokeStyle.color = style; 
     }
-
     get strokeStyle() { 
         return this.#strokeStyle.color; 
     }
@@ -36,7 +27,6 @@ export class ShapeView extends View {
     set strokeWidth(width) { 
         this.#strokeWidth = width; 
     }
-
     get strokeWidth() { 
         return this.#strokeWidth; 
     }
@@ -44,16 +34,25 @@ export class ShapeView extends View {
     set strokeDash(dash) { 
         this.#strokeDash = dash; 
     }
-
     get strokeDash() { 
         return this.#strokeDash; 
     }
 
-    // MARK: - Hit Testing
-    isInBounds(point) {
-        // To be implemented by subclasses.
-        void point;
-        return false;
+    set strokeDashOffset(offset) { 
+        this.#strokeDashOffset = offset; 
+    }
+    get strokeDashOffset() { 
+        return this.#strokeDashOffset; 
+    }
+
+    // MARK: - Initialization
+    constructor(options = {}) {
+        super(options);
+        this.fillStyle = options.fillStyle ?? new Color(255, 255, 255);
+        this.strokeStyle = options.strokeStyle ?? new Color(0, 0, 0);
+        this.strokeWidth = options.strokeWidth ?? 1;
+        this.strokeDash = options.strokeDash ?? [];
+        this.strokeDashOffset = options.strokeDashOffset ?? 0;
     }
 
     // MARK: - Drawing
@@ -77,6 +76,7 @@ export class ShapeView extends View {
         context.lineWidth = this.#strokeWidth;
         context.strokeStyle = this.#strokeStyle.colorString;
         context.setLineDash(this.#strokeDash);
+        context.lineDashOffset = this.#strokeDashOffset;
         context.stroke();
     }
 

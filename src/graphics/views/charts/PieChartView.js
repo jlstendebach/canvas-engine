@@ -1,7 +1,7 @@
 import { Vec2 } from "../../../math/Vec2.js";
-import { LabelView, LabelViewOptions } from "../LabelView.js";
+import { LabelView, LabelViewOptions } from "../ui/LabelView.js";
 import { RectangleView } from "../shapes/RectangleView.js";
-import { View } from "../View.js";
+import { View } from "../core/View.js";
 
 // ==[ PieChartSlice ]==========================================================
 export class PieChartSlice {
@@ -148,7 +148,7 @@ export class PieChartView extends View {
     setRadius(radius) { this.radius = radius; }
     getRadius() { return this.radius; }
 
-    isInBounds(point) {        
+    containsPoint(point) {        
         return Vec2.distance(point, new Vec2(this.getX(), this.getY())) < this.getRadius();
     }
 

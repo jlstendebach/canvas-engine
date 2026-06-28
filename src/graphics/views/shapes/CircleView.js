@@ -2,13 +2,15 @@ import { ShapeView } from "./ShapeView.js";
 
 export class CircleView extends ShapeView {
     static #TAU = Math.PI * 2;
+    
     #radius;
 
     // MARK: - Properties
     set radius(r) { 
+        if (r === this.#radius) { return; }
         this.#radius = r; 
+        this.invalidateBounds();
     }
-
     get radius() { 
         return this.#radius; 
     }
@@ -20,10 +22,15 @@ export class CircleView extends ShapeView {
     }
 
     // MARK: - Hit Testing
-    isInBounds(point) {
-        return (
-            Math.sqrt((this.position.x - point.x) ** 2 + (this.position.y - point.y) ** 2) <= this.radius
-        );
+    updateBounds(out) {
+        out.set(-this.#radius, -this.#radius, this.#radius, this.#radius);
+    }
+
+    containsPoint(point) {
+        if (!this.bounds.containsPoint(point)) {
+            return false;
+        }
+        return point.x*point.x + point.y*point.y <= this.#radius*this.#radius;
     }
 
     // MARK: - Drawing

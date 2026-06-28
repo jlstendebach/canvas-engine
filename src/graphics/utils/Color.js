@@ -78,6 +78,23 @@ export class Color {
         );
     }
 
+    /**
+     * Linearly interpolates between two colors.
+     * @param {Color} colorA - The starting color.
+     * @param {Color} colorB - The ending color.
+     * @param {number} t - The interpolation factor (0.0 to 1.0).
+     * @returns {Color} The interpolated color.
+     */
+    static lerp(colorA, colorB, t) {
+        const u = 1 - t;
+        return new Color(
+            colorA.r * u + colorB.r * t,
+            colorA.g * u + colorB.g * t,
+            colorA.b * u + colorB.b * t,
+            colorA.a * u + colorB.a * t
+        );
+    }
+
     // MARK: - Conversions
     /**
      * Converts the Color to an RGBA string in the format "rgba(r, g, b, a)".

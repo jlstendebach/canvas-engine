@@ -1,7 +1,7 @@
 import { Vec2 } from "../../../math/Vec2.js";
-import { LabelView, LabelViewOptions } from "../LabelView.js";
+import { LabelView, LabelViewOptions } from "../ui/LabelView.js";
 import { RectangleView } from "../shapes/RectangleView.js";
-import { View } from "../View.js";
+import { View } from "../core/View.js";
 
 // ==[ BarChartTooltip ]========================================================
 export class BarChartTooltip extends RectangleView {
@@ -196,7 +196,7 @@ export class BarChartView extends View {
     setHeight(h) { this.size.y = h; }
     getHeight() { return this.size.y; }
 
-    isInBounds(point) {
+    containsPoint(point) {
         return (
             point.x >= this.getX()
             && point.y >= this.getY()
@@ -832,7 +832,7 @@ export class BarChartView extends View {
 
             for (let i = 0; i < this.barViews.length; ++i) {
                 let bar = this.barViews[i];
-                if (bar.isInBounds(pickVec)) {
+                if (bar.containsPoint(pickVec)) {
                     return this.getBar(i);
                 }
             }
