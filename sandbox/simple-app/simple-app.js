@@ -31,9 +31,9 @@ export class SimpleApp extends CanvasApp {
             strokeStyle: new Color(100, 100, 100),
             strokeWidth: 2,
         });
-        ball.addEventListener(MouseEvent.DOWN, this.onBallGrab, this);
-        ball.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
-        ball.addEventListener(MouseEvent.UP, this.onBallDrop, this);
+        ball.events.on(MouseEvent.DOWN, this.onBallGrab, this);
+        ball.events.on(MouseEvent.DRAG, this.onBallDrag, this);
+        ball.events.on(MouseEvent.UP, this.onBallDrop, this);
         this.canvas.addView(ball);
         this.#ball = ball;
     }

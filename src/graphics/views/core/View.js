@@ -77,6 +77,10 @@ export class View {
         return this.#parent; 
     }
 
+    get events() {
+        return this.#eventEmitter;
+    }
+
     // MARK: - Initialization 
     constructor(options = {}) {
         this.#position.x = options.x ?? options.position?.x ?? 0;
@@ -336,46 +340,14 @@ export class View {
         }
     }
 
-    // MARK: - Events 
-    /**
-     * Registers an event listener on this view.
-     * @param {*} type - The event type.
-     * @param {Function} callback - The callback function.
-     * @param {*} [owner=null] - The object to bind the callback to, if applicable.
-     * @param {boolean} [once=false] - True to remove listener after first invocation.
-     * @returns {boolean} True if the listener was added, false if it was already registered.
-     */
-    addEventListener(type, callback, owner = null, once = false) {
-        return this.#eventEmitter.addListener(type, callback, owner, once);
-    }
-
-    /**
-     * Removes an event listener from this view.
-     * @param {*} type - The event type.
-     * @param {Function} callback - The callback function.
-     * @param {*} [owner=null] - The object the callback is bound to, if applicable.
-     * @returns {boolean} True if a listener was removed, false otherwise.
-     */
-    removeEventListener(type, callback, owner = null) {
-        return this.#eventEmitter.removeListener(type, callback, owner);
-    }
-
-    /**
-     * Removes all event listeners from this view.
-     * @param {*} [type=null] - The event type to remove, or null to remove all types.
-     */
-    removeAllEventListeners(type) {
-        this.#eventEmitter.removeAllListeners(type);
-    }
-
     // MARK: - Mouse Events 
-    onMouseDown(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseUp(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseMove(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseDrag(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseEnter(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseExit(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseWheel(event) { this.#eventEmitter.emit(event.type, event); }
+    onMouseDown(event) { this.events.emit(event.type, event); }
+    onMouseUp(event) { this.events.emit(event.type, event); }
+    onMouseMove(event) { this.events.emit(event.type, event); }
+    onMouseDrag(event) { this.events.emit(event.type, event); }
+    onMouseEnter(event) { this.events.emit(event.type, event); }
+    onMouseExit(event) { this.events.emit(event.type, event); }
+    onMouseWheel(event) { this.events.emit(event.type, event); }
 }
 
 

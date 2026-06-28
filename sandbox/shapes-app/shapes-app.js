@@ -28,7 +28,7 @@ export class ShapesApp extends CanvasApp {
 
     initCanvas() {
         this.canvas.fillStyle = new Color(0, 0, 20);
-        this.canvas.addEventListener(CanvasResizeEvent, this.refresh, this);
+        this.canvas.events.on(CanvasResizeEvent, this.refresh, this);
     }
 
     initScene() {
@@ -194,11 +194,11 @@ export class ShapesApp extends CanvasApp {
 
     // MARK: - Helpers
     addEventListeners(shape) {
-        shape.addEventListener(MouseEvent.DOWN, this.onMouseDown, this);
-        shape.addEventListener(MouseEvent.DRAG, this.onMouseDrag, this);
-        shape.addEventListener(MouseEvent.UP, this.onMouseUp, this);
-        shape.addEventListener(MouseEvent.ENTER, this.onMouseEnter, this);
-        shape.addEventListener(MouseEvent.EXIT, this.onMouseExit, this);
+        shape.events.on(MouseEvent.DOWN, this.onMouseDown, this);
+        shape.events.on(MouseEvent.DRAG, this.onMouseDrag, this);
+        shape.events.on(MouseEvent.UP, this.onMouseUp, this);
+        shape.events.on(MouseEvent.ENTER, this.onMouseEnter, this);
+        shape.events.on(MouseEvent.EXIT, this.onMouseExit, this);
     }
 
     setShapeCenter(shape, center) {

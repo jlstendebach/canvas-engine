@@ -25,8 +25,8 @@ export class CanvasSizesApp extends CanvasApp {
 
     initCanvas() {
         this.canvas.fillStyle = new Color(0, 0, 0);
-        this.canvas.addEventListener(CanvasResizeEvent, this.onCanvasResize.bind(this));
-        this.canvas.addEventListener(MouseEvent.MOVE, this.onCanvasMouseMove.bind(this));
+        this.canvas.events.on(CanvasResizeEvent, this.onCanvasResize.bind(this));
+        this.canvas.events.on(MouseEvent.MOVE, this.onCanvasMouseMove.bind(this));
 
         this.#topLeftBall = this.createBall({color: new Color(100, 0, 0)});
         this.#topRightBall = this.createBall({color: new Color(0, 100, 0)});

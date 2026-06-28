@@ -26,7 +26,7 @@ export class Keyboard {
             /* REPEAT */
             /**********/
             Keyboard.#eventEmitter.emit(
-                KeyboardEvent.REPEAT, 
+                KeyboardEvent.REPEAT,
                 new KeyboardEvent(KeyboardEvent.REPEAT, event.key, event.code)
             );
 
@@ -38,7 +38,7 @@ export class Keyboard {
             /* DOWN */
             /********/
             Keyboard.#eventEmitter.emit(
-                KeyboardEvent.DOWN, 
+                KeyboardEvent.DOWN,
                 new KeyboardEvent(KeyboardEvent.DOWN, event.key, event.code)
             );
         }
@@ -50,13 +50,13 @@ export class Keyboard {
         delete Keyboard.#down[event.code];
 
         /******/
-        /* UP */        
+        /* UP */
         /******/
         Keyboard.#eventEmitter.emit(
-            KeyboardEvent.UP, 
+            KeyboardEvent.UP,
             new KeyboardEvent(KeyboardEvent.UP, event.key, event.code)
         );
-}
+    }
 
     static addEventListener(type, callback, owner = null) {
         if (Keyboard.isValidType(type)) {
@@ -84,7 +84,7 @@ export class Keyboard {
             case KeyboardEvent.UP:
                 return true;
 
-            default: 
+            default:
                 return false;
         }
     }

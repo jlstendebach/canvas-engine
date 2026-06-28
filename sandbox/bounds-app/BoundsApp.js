@@ -42,7 +42,7 @@ export class BoundsApp extends CanvasApp {
                     margin: 0.1 + (0.1 * i)
                 });
             }
-            subcontainer.addEventListener(MouseEvent.DRAG, this.onViewDragged, this);
+            subcontainer.events.on(MouseEvent.DRAG, this.onViewDragged, this);
             parent.addView(subcontainer);
             parent = subcontainer;
 
@@ -73,7 +73,7 @@ export class BoundsApp extends CanvasApp {
             strokeStyle: strokeStyle ?? new Color(100, 100, 100),
             strokeWidth: 2,
         });
-        ball.addEventListener(MouseEvent.DRAG, this.onViewDragged, this);
+        ball.events.on(MouseEvent.DRAG, this.onViewDragged, this);
         parent.addView(ball);
 
         return ball;

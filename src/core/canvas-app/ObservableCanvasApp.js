@@ -12,50 +12,41 @@ import {
 export class ObservableCanvasApp extends CanvasApp {
     #eventEmitter = new EventEmitter();
 
-    // MARK: - events
-    addEventListener(type, callback, owner = null, once = false) {
-        return this.#eventEmitter.addListener(type, callback, owner, once);
-    }
-
-    removeEventListener(type, callback, owner = null) {
-        return this.#eventEmitter.removeListener(type, callback, owner);
-    }
-
-    removeAllEventListeners(type) {
-        this.#eventEmitter.removeAllListeners(type);
+    get events() {
+        return this.#eventEmitter;
     }
 
     // MARK: - lifecycle events
     onStart() {
-        this.#eventEmitter.emit(
+        this.events.emit(
             CanvasAppStartEvent, 
             new CanvasAppStartEvent(this)
         );
     }
 
     onStop() {
-        this.#eventEmitter.emit(
+        this.events.emit(
             CanvasAppStopEvent, 
             new CanvasAppStopEvent(this)
         );
     }
 
     onPause() {
-        this.#eventEmitter.emit(
+        this.events.emit(
             CanvasAppPauseEvent, 
             new CanvasAppPauseEvent(this)
         );
     }
 
     onResume() {
-        this.#eventEmitter.emit(
+        this.events.emit(
             CanvasAppResumeEvent, 
             new CanvasAppResumeEvent(this)
         );
     }
 
     onUpdate(timestamp, deltaTime) { 
-        this.#eventEmitter.emit(
+        this.events.emit(
             CanvasAppUpdateEvent, 
             new CanvasAppUpdateEvent(this, timestamp, deltaTime)
         );
@@ -63,14 +54,14 @@ export class ObservableCanvasApp extends CanvasApp {
 
     onDestroy() {
         try {
-            this.#eventEmitter.emit(
+            this.events.emit(
                 CanvasAppDestroyEvent, 
                 new CanvasAppDestroyEvent(this)
             );
         } catch (error) {
             this.#reportError(error);
         } finally {
-            this.removeAllEventListeners();
+            this.events.removeAllListeners();
         }
     }
 
