@@ -44,9 +44,9 @@ export class SceneApp extends CanvasApp {
     initScene() {
         const scene = new SceneView();
         scene.size.set(this.canvas.size.width, this.canvas.size.height);
-        scene.addEventListener(MouseEvent.WHEEL, this.onSceneZoom, this);
-        scene.addEventListener(MouseEvent.DRAG, this.onSceneDragged, this);
-        scene.addEventListener(MouseEvent.DOWN, this.onSceneClicked, this);
+        scene.events.on(MouseEvent.WHEEL, this.onSceneZoom, this);
+        scene.events.on(MouseEvent.DRAG, this.onSceneDragged, this);
+        scene.events.on(MouseEvent.DOWN, this.onSceneClicked, this);
         this.scene = this.canvas.addView(scene);
     }
 
@@ -69,7 +69,7 @@ export class SceneApp extends CanvasApp {
             strokeWidth: 2,
             isPickable: true,
         });
-        boxCorner1.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
+        boxCorner1.events.on(MouseEvent.DRAG, this.onBallDrag, this);
         this.boxCorner1 = this.canvas.addView(boxCorner1);
 
         const boxCorner2 = new CircleView({
@@ -80,7 +80,7 @@ export class SceneApp extends CanvasApp {
             strokeWidth: 2,
             isPickable: true,
         });
-        boxCorner2.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
+        boxCorner2.events.on(MouseEvent.DRAG, this.onBallDrag, this);
         this.boxCorner2 = this.canvas.addView(boxCorner2);        
     }
 
@@ -93,9 +93,9 @@ export class SceneApp extends CanvasApp {
             position: new Vec2(100, 100),
             isPickable: true
         });
-        ball.addEventListener(MouseEvent.DOWN, this.onBallGrab, this);
-        ball.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
-        ball.addEventListener(MouseEvent.UP, this.onBallDrop, this);
+        ball.events.on(MouseEvent.DOWN, this.onBallGrab, this);
+        ball.events.on(MouseEvent.DRAG, this.onBallDrag, this);
+        ball.events.on(MouseEvent.UP, this.onBallDrop, this);
         this.ball = this.scene.addView(ball);
     }
     

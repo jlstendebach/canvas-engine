@@ -16,35 +16,35 @@ export class View {
 
     #parent = null;
     #views = [];
-    
+
     #eventEmitter = new EventEmitter();
 
     // MARK: - Accessors 
-    set position(value) { 
+    set position(value) {
         if (this.#position.equals(value)) { return; }
-        this.#position.copy(value); 
-        this.onLayoutChanged();
+        this.#position.copy(value);
+        this.parent?.onChildBoundsChanged();
     }
-    get position() { 
-        return this.#position; 
+    get position() {
+        return this.#position;
     }
 
-    set x(value) { 
+    set x(value) {
         if (this.#position.x === value) { return; }
-        this.#position.x = value; 
-        this.onLayoutChanged();
+        this.#position.x = value;
+        this.parent?.onChildBoundsChanged();
     }
-    get x() { 
-        return this.#position.x; 
+    get x() {
+        return this.#position.x;
     }
 
-    set y(value) { 
+    set y(value) {
         if (this.#position.y === value) { return; }
-        this.#position.y = value; 
-        this.onLayoutChanged();
+        this.#position.y = value;
+        this.parent?.onChildBoundsChanged();
     }
-    get y() { 
-        return this.#position.y; 
+    get y() {
+        return this.#position.y;
     }
 
     get bounds() {
@@ -59,22 +59,26 @@ export class View {
         if (typeof value !== "boolean") { return; }
         if (this.#isVisible === value) { return; }
         this.#isVisible = value;
-        this.onLayoutChanged();
+        this.parent?.onChildBoundsChanged();
     }
-    get isVisible() { 
-        return this.#isVisible; 
+    get isVisible() {
+        return this.#isVisible;
     }
 
-    set isPickable(value) { 
+    set isPickable(value) {
         if (typeof value !== "boolean") { return; }
         this.#isPickable = value;
     }
-    get isPickable() { 
-        return this.#isPickable; 
+    get isPickable() {
+        return this.#isPickable;
     }
 
-    get parent() { 
-        return this.#parent; 
+    get parent() {
+        return this.#parent;
+    }
+
+    get events() {
+        return this.#eventEmitter;
     }
 
     // MARK: - Initialization 
@@ -86,6 +90,17 @@ export class View {
     }
 
     // MARK: - Bounds 
+    /**
+     * Checks if a point in local space is contained within this view. 
+     * @param {Vec2} point - The point in local space.
+     * @returns {boolean} True if the point is inside this view, false otherwise.
+     */
+    containsPoint(point) {
+        void point;
+        return true;
+    }
+
+
     updateBounds(out) {
         out.reset();
     }
@@ -95,19 +110,15 @@ export class View {
             return;
         }
         this.#isBoundsDirty = true;
-        this.onLayoutChanged();
+        this.parent?.onChildBoundsChanged();
     }
 
-    onLayoutChanged() {
-        if (this.#parent !== null) {
-            this.#parent.onChildLayoutChanged();
-        }
+    onChildBoundsChanged() {
+        // Subclasses can override this method to respond to child bounds changes.
     }
 
-    onChildLayoutChanged() {
-        this.invalidateBounds();
-    }
 
+    // MARK: - Transformations
     localToParentBounds(bounds) {
         return new Bounds(
             bounds.minX + this.#position.x,
@@ -117,18 +128,21 @@ export class View {
         );
     }
 
-    parentToLocalPoint(point) {
-        return point.clone().subtract(this.#position);
+    parentToLocalBounds(bounds) {
+        return new Bounds(
+            bounds.minX - this.#position.x,
+            bounds.minY - this.#position.y,
+            bounds.maxX - this.#position.x,
+            bounds.maxY - this.#position.y
+        );
     }
 
-    /**
-     * Checks if a point in local space is contained within this view.
-     * @param {Vec2} point - The point in local space.
-     * @returns {boolean} True if the point is inside this view, false otherwise.
-     */
-    containsPoint(point) {
-        void point;
-        return true;
+    localToParentPoint(point) {
+        return Vec2.add(point, this.#position);
+    }
+
+    parentToLocalPoint(point) {
+        return Vec2.subtract(point, this.#position);
     }
 
     /**
@@ -336,46 +350,14 @@ export class View {
         }
     }
 
-    // MARK: - Events 
-    /**
-     * Registers an event listener on this view.
-     * @param {*} type - The event type.
-     * @param {Function} callback - The callback function.
-     * @param {*} [owner=null] - The object to bind the callback to, if applicable.
-     * @param {boolean} [once=false] - True to remove listener after first invocation.
-     * @returns {boolean} True if the listener was added, false if it was already registered.
-     */
-    addEventListener(type, callback, owner = null, once = false) {
-        return this.#eventEmitter.addListener(type, callback, owner, once);
-    }
-
-    /**
-     * Removes an event listener from this view.
-     * @param {*} type - The event type.
-     * @param {Function} callback - The callback function.
-     * @param {*} [owner=null] - The object the callback is bound to, if applicable.
-     * @returns {boolean} True if a listener was removed, false otherwise.
-     */
-    removeEventListener(type, callback, owner = null) {
-        return this.#eventEmitter.removeListener(type, callback, owner);
-    }
-
-    /**
-     * Removes all event listeners from this view.
-     * @param {*} [type=null] - The event type to remove, or null to remove all types.
-     */
-    removeAllEventListeners(type) {
-        this.#eventEmitter.removeAllListeners(type);
-    }
-
     // MARK: - Mouse Events 
-    onMouseDown(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseUp(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseMove(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseDrag(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseEnter(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseExit(event) { this.#eventEmitter.emit(event.type, event); }
-    onMouseWheel(event) { this.#eventEmitter.emit(event.type, event); }
+    onMouseDown(event) { this.events.emit(event.type, event); }
+    onMouseUp(event) { this.events.emit(event.type, event); }
+    onMouseMove(event) { this.events.emit(event.type, event); }
+    onMouseDrag(event) { this.events.emit(event.type, event); }
+    onMouseEnter(event) { this.events.emit(event.type, event); }
+    onMouseExit(event) { this.events.emit(event.type, event); }
+    onMouseWheel(event) { this.events.emit(event.type, event); }
 }
 
 

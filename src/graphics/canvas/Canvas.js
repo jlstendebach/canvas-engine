@@ -15,7 +15,6 @@ export class Canvas {
     #fillStyle = new CachedColor();
 
     #mouseProcessor = new MouseEventProcessor();
-    #eventEmitter = new EventEmitter();
 
     #domAbortController = null;
     #resizeObserver = null;
@@ -52,6 +51,10 @@ export class Canvas {
 
     get height() {
         return this.#element.height;
+    }
+
+    get events() {
+        return this.#rootView.events;
     }
 
     // MARK: - initialization
@@ -110,8 +113,7 @@ export class Canvas {
         try {
             this.#detachDomEvents();
             this.#rootView.removeAllViews();
-            this.#rootView.removeAllEventListeners();
-            this.#eventEmitter.removeAllListeners();
+            this.#rootView.events.removeAllListeners();
         } catch (error) {
             console.error(error);
         } finally {
@@ -121,7 +123,6 @@ export class Canvas {
             this.#rootView = null;
             this.#fillStyle = null;
             this.#mouseProcessor = null;
-            this.#eventEmitter = null;
             this.#domAbortController = null;
         }
     }
@@ -159,26 +160,6 @@ export class Canvas {
         } finally {
             this.#context.restore();
         }
-    }
-
-    // MARK: - events 
-    addEventListener(type, callback, owner = null, once = false) {
-        if (this.#isEventHandledByView(type)) {
-            return this.#rootView.addEventListener(type, callback, owner, once);
-        }
-        return this.#eventEmitter.addListener(type, callback, owner, once);
-    }
-
-    removeEventListener(type, callback, owner = null) {
-        if (this.#isEventHandledByView(type)) {
-            return this.#rootView.removeEventListener(type, callback, owner);
-        }
-        return this.#eventEmitter.removeListener(type, callback, owner);
-    }
-
-    removeAllEventListeners(type) {
-        this.#rootView.removeAllEventListeners(type);
-        this.#eventEmitter.removeAllListeners(type);
     }
 
     // MARK: - event binding
@@ -263,22 +244,6 @@ export class Canvas {
         }
     }
 
-    // MARK: - event helpers
-    #isEventHandledByView(eventType) {
-        switch (eventType) {
-            case MouseEvent.DOWN:
-            case MouseEvent.UP:
-            case MouseEvent.MOVE:
-            case MouseEvent.DRAG:
-            case MouseEvent.ENTER:
-            case MouseEvent.EXIT:
-            case MouseEvent.WHEEL:
-                return true;
-            default:
-                return false;
-        }
-    }
-
     // MARK: - size helpers
     #getComputedSize() {
         const style = getComputedStyle(this.#element)
@@ -342,7 +307,7 @@ export class Canvas {
         this.#context.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height);
 
         // Inform any listeners about the resize event.
-        this.#eventEmitter.emit(CanvasResizeEvent, event);
+        this.events.emit(CanvasResizeEvent, event);
     }
 
     // MARK: - mouse helpers

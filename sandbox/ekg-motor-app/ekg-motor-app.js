@@ -84,14 +84,14 @@ export class EkgMotorApp extends CanvasApp {
 
     initCanvas() {
         this.canvas.fillStyle = new Color(0, 0, 20);
-        this.canvas.addEventListener(CanvasResizeEvent, this.onCanvasResize, this);
+        this.canvas.events.on(CanvasResizeEvent, this.onCanvasResize, this);
     }
 
     initDataGraph() {
         const scaledData = data.slice(0, this.DATA_POINTS).map(value => value * this.DATA_SCALE);
 
         this.dataGraph = new Graph({ data: scaledData });
-        this.dataGraph.addEventListener(MouseEvent.MOVE, this.onGraphMouseMove, this);
+        this.dataGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.dataGraph);
     }
 
@@ -100,7 +100,7 @@ export class EkgMotorApp extends CanvasApp {
             data: this.calculateSlopeData(),
             isSquareWave: true,
         });
-        this.slopeGraph.addEventListener(MouseEvent.MOVE, this.onGraphMouseMove, this);
+        this.slopeGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.slopeGraph);
     }
 
@@ -110,7 +110,7 @@ export class EkgMotorApp extends CanvasApp {
             isSquareWave: true,
         });
         this.activationGraph.setDataRange(-this.MOTOR_COUNT, 0);
-        this.activationGraph.addEventListener(MouseEvent.MOVE, this.onGraphMouseMove, this);
+        this.activationGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.activationGraph);
     }
 
