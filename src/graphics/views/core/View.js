@@ -16,35 +16,35 @@ export class View {
 
     #parent = null;
     #views = [];
-    
+
     #eventEmitter = new EventEmitter();
 
     // MARK: - Accessors 
-    set position(value) { 
+    set position(value) {
         if (this.#position.equals(value)) { return; }
-        this.#position.copy(value); 
-        this.onLayoutChanged();
+        this.#position.copy(value);
+        this.parent?.onChildBoundsChanged();
     }
-    get position() { 
-        return this.#position; 
+    get position() {
+        return this.#position;
     }
 
-    set x(value) { 
+    set x(value) {
         if (this.#position.x === value) { return; }
-        this.#position.x = value; 
-        this.onLayoutChanged();
+        this.#position.x = value;
+        this.parent?.onChildBoundsChanged();
     }
-    get x() { 
-        return this.#position.x; 
+    get x() {
+        return this.#position.x;
     }
 
-    set y(value) { 
+    set y(value) {
         if (this.#position.y === value) { return; }
-        this.#position.y = value; 
-        this.onLayoutChanged();
+        this.#position.y = value;
+        this.parent?.onChildBoundsChanged();
     }
-    get y() { 
-        return this.#position.y; 
+    get y() {
+        return this.#position.y;
     }
 
     get bounds() {
@@ -59,22 +59,22 @@ export class View {
         if (typeof value !== "boolean") { return; }
         if (this.#isVisible === value) { return; }
         this.#isVisible = value;
-        this.onLayoutChanged();
+        this.parent?.onChildBoundsChanged();
     }
-    get isVisible() { 
-        return this.#isVisible; 
+    get isVisible() {
+        return this.#isVisible;
     }
 
-    set isPickable(value) { 
+    set isPickable(value) {
         if (typeof value !== "boolean") { return; }
         this.#isPickable = value;
     }
-    get isPickable() { 
-        return this.#isPickable; 
+    get isPickable() {
+        return this.#isPickable;
     }
 
-    get parent() { 
-        return this.#parent; 
+    get parent() {
+        return this.#parent;
     }
 
     get events() {
@@ -99,30 +99,13 @@ export class View {
             return;
         }
         this.#isBoundsDirty = true;
-        this.onLayoutChanged();
+        this.parent?.onChildBoundsChanged();
+
     }
 
-    onLayoutChanged() {
-        if (this.#parent !== null) {
-            this.#parent.onChildLayoutChanged();
-        }
-    }
-
-    onChildLayoutChanged() {
-        this.invalidateBounds();
-    }
-
-    localToParentBounds(bounds) {
-        return new Bounds(
-            bounds.minX + this.#position.x,
-            bounds.minY + this.#position.y,
-            bounds.maxX + this.#position.x,
-            bounds.maxY + this.#position.y
-        );
-    }
-
-    parentToLocalPoint(point) {
-        return point.clone().subtract(this.#position);
+    onChildBoundsChanged() {
+        // Doesn't do anything by default. Subclasses can override this method 
+        // to respond to child bounds changes.
     }
 
     /**
@@ -133,6 +116,33 @@ export class View {
     containsPoint(point) {
         void point;
         return true;
+    }
+
+    // MARK: - Transformations
+    localToParentBounds(bounds) {
+        return new Bounds(
+            bounds.minX + this.#position.x,
+            bounds.minY + this.#position.y,
+            bounds.maxX + this.#position.x,
+            bounds.maxY + this.#position.y
+        );
+    }
+
+    parentToLocalBounds(bounds) {
+        return new Bounds(
+            bounds.minX - this.#position.x,
+            bounds.minY - this.#position.y,
+            bounds.maxX - this.#position.x,
+            bounds.maxY - this.#position.y
+        );
+    }
+
+    localToParentPoint(point) {
+        return Vec2.add(point, this.#position);
+    }
+
+    parentToLocalPoint(point) {
+        return Vec2.subtract(point, this.#position);
     }
 
     /**
