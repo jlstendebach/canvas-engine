@@ -90,6 +90,17 @@ export class View {
     }
 
     // MARK: - Bounds 
+    /**
+     * Checks if a point in local space is contained within this view. 
+     * @param {Vec2} point - The point in local space.
+     * @returns {boolean} True if the point is inside this view, false otherwise.
+     */
+    containsPoint(point) {
+        void point;
+        return true;
+    }
+
+
     updateBounds(out) {
         out.reset();
     }
@@ -100,23 +111,12 @@ export class View {
         }
         this.#isBoundsDirty = true;
         this.parent?.onChildBoundsChanged();
-
     }
 
     onChildBoundsChanged() {
-        // Doesn't do anything by default. Subclasses can override this method 
-        // to respond to child bounds changes.
+        // Subclasses can override this method to respond to child bounds changes.
     }
 
-    /**
-     * Checks if a point in local space is contained within this view.
-     * @param {Vec2} point - The point in local space.
-     * @returns {boolean} True if the point is inside this view, false otherwise.
-     */
-    containsPoint(point) {
-        void point;
-        return true;
-    }
 
     // MARK: - Transformations
     localToParentBounds(bounds) {
