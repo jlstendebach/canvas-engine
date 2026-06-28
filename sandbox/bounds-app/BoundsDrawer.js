@@ -59,7 +59,6 @@ export class BoundsDrawer extends View {
         return bounds;
     }
 
-
     draw(context) {
         this.updateMaxDepth();
 
@@ -71,9 +70,16 @@ export class BoundsDrawer extends View {
         const bounds = this.getBoundsInWorldSpace(child);
 
         if (!bounds.isEmpty()) {
-            context.strokeStyle = this.getColorForDepth(this.depth).toRgba();
+            const color = this.getColorForDepth(this.depth).clone();
+            color.a = 0.2;
+            context.fillStyle = color.toRgba();
+            color.a = 1;
+            context.strokeStyle = color.toRgba();
             context.lineWidth = 2;
-            context.strokeRect(bounds.minX, bounds.minY, bounds.width, bounds.height);
+            context.beginPath();
+            context.rect(bounds.x, bounds.y, bounds.width, bounds.height);
+            context.fill();
+            context.stroke();
         }
         
         this.depth++;

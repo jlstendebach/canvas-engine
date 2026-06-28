@@ -14,7 +14,6 @@ import { shapeStyles } from "./shapeStyles.js";
 export class BoundsApp extends CanvasApp {
     #boundsDrawer;
     #container;
-    #subcontainer;
 
     // MARK: - Initialization 
     constructor(canvasSelectorOrElement) {
@@ -31,80 +30,52 @@ export class BoundsApp extends CanvasApp {
     }
 
     initViews() {
-        this.#container = new ContainerView();
-        for (let i = 0; i < 5; i++) {
-            this.createBall({
-                parent: this.#container,
-                fillStyle: shapeStyles[0].fillStyle,
-                strokeStyle: shapeStyles[0].strokeStyle,
-                strokeWidth: shapeStyles[0].strokeWidth
-            });
-        }
-        this.canvas.addView(this.#container);
+        let parent = this.canvas;
+        for (let i = 1; i <= 3; i++) {
+            const subcontainer = new ContainerView();
+            for (let j = 0; j < 5; j++) {
+                this.createBall({
+                    parent: subcontainer,
+                    fillStyle: shapeStyles[i].fillStyle,
+                    strokeStyle: shapeStyles[i].strokeStyle,
+                    strokeWidth: shapeStyles[i].strokeWidth,
+                    margin: 0.1 + (0.1 * i)
+                });
+            }
+            subcontainer.addEventListener(MouseEvent.DRAG, this.onViewDragged, this);
+            parent.addView(subcontainer);
+            parent = subcontainer;
 
-        this.#subcontainer = new ContainerView();
-        for (let i = 0; i < 5; i++) {
-            this.createBall({
-                parent: this.#subcontainer,
-                fillStyle: shapeStyles[1].fillStyle,
-                strokeStyle: shapeStyles[1].strokeStyle,
-                strokeWidth: shapeStyles[1].strokeWidth
-            });
+            if (this.#container === undefined) {
+                this.#container = subcontainer;
+            }
         }
-        this.#container.addView(this.#subcontainer);
-        
     }
     
     // MARK: - Events Handlers
-    onBallGrab(type, event) {
-        if (event.button === MouseButton.LEFT) {
-            event.target.position = event.getParentXY();
-        }
-    }
-
-    onBallDrag(type, event) {
-        event.target.position = event.getParentXY();
-    }
-
-    onBallDrop(type, event) {
-        event.target.position = event.getParentXY();
-    }
-
-    // MARK: - Update
-    onUpdate(timestamp, deltaTime) {
-        /*
-        for (let i = 0; i < this.#boundsDrawer.maxDepth; i++) {
-            const color = this.#boundsDrawer.getColorForDepth(i);
-            console.log(`Depth ${i}: ${color.toRgba()}`);
-        }
-            */
+    onViewDragged(type, event) {
+        event.target.x += event.dx;
+        event.target.y += event.dy;
     }
 
     // MARK: - Helpers
-    createBall({ parent, fillStyle, strokeStyle } = {}) {
-        let width = this.canvas.width;
-        let height = this.canvas.height;
-
-        if (parent === this.#container) {
-            width = this.canvas.width * 0.8
-            height = this.canvas.height * 0.8;
-        } else if (parent === this.#subcontainer) {
-            width = this.canvas.width * 0.6;
-            height = this.canvas.height * 0.6;
-        }
+    createBall({ parent, fillStyle, strokeStyle, margin } = {}) {
+        margin = margin ?? 0;
+        const sizePercent = 1 - margin;
+        const width = this.canvas.width * sizePercent;
+        const height = this.canvas.height * sizePercent;
 
         const ball = new CircleView({
-            x: Math.random() * width * 0.8 + width * 0.1, 
-            y: Math.random() * height * 0.8 + height * 0.1,
+            x: width*margin + Math.random()*width*sizePercent, 
+            y: height*margin + Math.random()*height*sizePercent,
             radius: 30,
             fillStyle: fillStyle ?? new Color(0, 0, 200),
             strokeStyle: strokeStyle ?? new Color(100, 100, 100),
             strokeWidth: 2,
         });
-        ball.addEventListener(MouseEvent.DOWN, this.onBallGrab, this);
-        ball.addEventListener(MouseEvent.DRAG, this.onBallDrag, this);
-        ball.addEventListener(MouseEvent.UP, this.onBallDrop, this);
+        ball.addEventListener(MouseEvent.DRAG, this.onViewDragged, this);
         parent.addView(ball);
+
         return ball;
     }
 
