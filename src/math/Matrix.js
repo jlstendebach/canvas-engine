@@ -106,6 +106,30 @@ export class Matrix {
         return this;
     }
 
+    invert() {
+        const a = this.a;
+        const b = this.b;
+        const c = this.c;
+        const d = this.d;
+        const tx = this.tx;
+        const ty = this.ty;
+
+        const determinant = a * d - b * c;
+        if (Math.abs(determinant) < 1e-6) {
+            return this;
+        }
+        const invDet = 1 / determinant;
+
+        this.a = d * invDet;
+        this.b = -b * invDet;
+        this.c = -c * invDet;
+        this.d = a * invDet;
+        this.tx = (c * ty - d * tx) * invDet;
+        this.ty = (b * tx - a * ty) * invDet;
+
+        return this;
+    }
+
     // MARK: - Utilities
     copy(other) {
         return this.set(other.a, other.b, other.c, other.d, other.tx, other.ty);

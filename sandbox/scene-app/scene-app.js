@@ -110,7 +110,8 @@ export class SceneApp extends CanvasApp {
             this.ballVelocity.add(acceleration);
             const velocity = this.ballVelocity.clone()
                 .scale(timeScale);
-            this.ball.position.add(velocity);
+            this.ball.x += velocity.x;
+            this.ball.y += velocity.y;
         }       
 
         this.keepBallInBounds();
@@ -196,27 +197,27 @@ export class SceneApp extends CanvasApp {
     keepBallInBounds() {
         const scale = 0.90;
         const friction = 0.995;
-        const left = this.box.position.x;
-        const right = this.box.position.x + this.box.size.width;
-        const top = this.box.position.y;
-        const bottom = this.box.position.y + this.box.size.height;
+        const left = this.box.x;
+        const right = this.box.x + this.box.size.width;
+        const top = this.box.y;
+        const bottom = this.box.y + this.box.size.height;
 
-        if (this.ball.position.x - this.ball.radius < left) {
-            this.ball.position.x = left + this.ball.radius;
+        if (this.ball.x - this.ball.radius < left) {
+            this.ball.x = left + this.ball.radius;
             this.ballVelocity.x *= -1*scale;
             this.ballVelocity.y *= friction;
-        } else if (this.ball.position.x + this.ball.radius > right) {
-            this.ball.position.x = right - this.ball.radius;
+        } else if (this.ball.x + this.ball.radius > right) {
+            this.ball.x = right - this.ball.radius;
             this.ballVelocity.x *= -1*scale;
             this.ballVelocity.y *= friction;
         }
 
-        if (this.ball.position.y - this.ball.radius < top) {
-            this.ball.position.y = top + this.ball.radius;
+        if (this.ball.y - this.ball.radius < top) {
+            this.ball.y = top + this.ball.radius;
             this.ballVelocity.x *= friction;
             this.ballVelocity.y *= -1*scale;
-        } else if (this.ball.position.y + this.ball.radius > bottom) {
-            this.ball.position.y = bottom - this.ball.radius;
+        } else if (this.ball.y + this.ball.radius > bottom) {
+            this.ball.y = bottom - this.ball.radius;
             this.ballVelocity.x *= friction;
             this.ballVelocity.y *= -1*scale;
         }
