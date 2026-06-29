@@ -63,7 +63,7 @@ export class ImageView extends View {
     }
 
     // --[ draw ]---------------------------------------------------------------
-    drawSelf(context) {
+    onDraw(context) {
         let imageSize = this.getImageSize();
         let sourceWidth = this.sourceSize.x;
         let sourceHeight = this.sourceSize.y;

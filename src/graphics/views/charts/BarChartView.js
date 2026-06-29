@@ -59,9 +59,9 @@ export class BarChartTooltip extends RectangleView {
     setPadding(padding) { this.padding = padding; }
 
     // --[ drawing ]------------------------------------------------------------
-    drawSelf(context) {
+    onDraw(context) {
         this.layout(context);
-        super.drawSelf(context);
+        super.onDraw(context);
     }
 
     // --[ helpers ]------------------------------------------------------------
@@ -724,7 +724,7 @@ export class BarChartView extends View {
         context.stroke();
     }
 
-    drawSelf(context) {
+    onDraw(context) {
         this.layout(context);
         
         context.save();

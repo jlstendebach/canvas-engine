@@ -593,7 +593,7 @@ describe("CanvasApp", () => {
 
         test("errors thrown during drawing are handled", () => {
             class ThrowOnDrawView extends View {
-                drawSelf() {
+                onDraw() {
                     throw new Error("Test error during drawing");
                 }
             }

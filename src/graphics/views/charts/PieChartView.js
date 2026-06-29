@@ -68,9 +68,9 @@ export class PieChartTooltip extends RectangleView {
     setPadding(padding) { this.padding = padding; }
 
     // --[ drawing ]------------------------------------------------------------
-    drawSelf(context) {
+    onDraw(context) {
         this.layout(context);
-        super.drawSelf(context);
+        super.onDraw(context);
     }
 
     // --[ helpers ]------------------------------------------------------------
@@ -448,7 +448,7 @@ export class PieChartView extends View {
         }
     }
 
-    drawSelf(context) {
+    onDraw(context) {
         this.updateSlices();
 
         // Save the context to reverse the translation.

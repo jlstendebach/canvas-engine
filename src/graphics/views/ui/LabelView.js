@@ -478,7 +478,7 @@ export class LabelView extends View {
 
 
     // --[ drawing ]------------------------------------------------------------
-    drawSelf(context) {
+    onDraw(context) {
         context.save();
 
         // Measurement must happen first! Widths or heights referenced prior to 

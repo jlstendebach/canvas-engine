@@ -325,7 +325,7 @@ export class View {
 
         context.save();
         context.translate(this.#position.x, this.#position.y);
-        this.drawSelf(context);
+        this.onDraw(context);
         this.drawChildren(context);
         context.restore();
     }
@@ -335,7 +335,7 @@ export class View {
      * Subclasses should override this method.
      * @param {CanvasRenderingContext2D} context - The canvas drawing context.
      */
-    drawSelf(context) {
+    onDraw(context) {
         // Base view does not draw anything. Subclasses should override this method.
         void context;
     }

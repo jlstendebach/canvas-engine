@@ -80,7 +80,7 @@ export class ShapeView extends View {
         context.stroke();
     }
 
-    drawSelf(context) {
+    onDraw(context) {
         context.beginPath();
         this.path(context);
         this.fill(context);
