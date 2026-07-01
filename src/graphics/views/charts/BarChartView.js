@@ -158,7 +158,6 @@ export class BarChartDataSource {
 export class BarChartView extends View {
     constructor(w, h) {
         super();
-        this.position = new Vec2();
         this.size = new Vec2(w, h);
 
         this.barData = new BarChartDataSource();
@@ -184,11 +183,8 @@ export class BarChartView extends View {
     }
 
     // --[ bounds ]-------------------------------------------------------------
-    setX(x) { this.position.x = x; }
-    getX() { return this.position.x; }
-
-    setY(y) { this.position.y = y; }
-    getY() { return this.position.y; }
+    getX() { return this.x; }
+    getY() { return this.y; }
 
     setWidth(w) { this.size.x = w; }
     getWidth() { return this.size.x; }

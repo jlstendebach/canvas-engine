@@ -21,10 +21,10 @@ export class ImageView extends View {
     // --[ bounds ]-------------------------------------------------------------
     containsPoint(point) {
         return (
-            point.x >= this.position.x &&
-            point.x < this.position.x + this.size.x &&
-            point.y >= this.position.y &&
-            point.y < this.position.y + this.size.y
+            point.x >= 0 &&
+            point.x < this.size.x &&
+            point.y >= 0 &&
+            point.y < this.size.y
         );
     }
 
@@ -82,8 +82,8 @@ export class ImageView extends View {
             this.sourcePosition.y,
             sourceWidth,
             sourceHeight,
-            this.position.x,
-            this.position.y,
+            0,
+            0,
             this.size.x,
             this.size.y
         );

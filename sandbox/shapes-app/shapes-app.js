@@ -203,7 +203,7 @@ export class ShapesApp extends CanvasApp {
 
     setShapeCenter(shape, center) {
         if (shape instanceof RectangleView) {
-            shape.position = new Vec2(
+            shape.setPositionXY(
                 center.x - shape.size.x / 2,
                 center.y - shape.size.y / 2
             );
@@ -218,17 +218,17 @@ export class ShapesApp extends CanvasApp {
                 minY = Math.min(minY, point.y);
                 maxY = Math.max(maxY, point.y);
             }
-            shape.position = new Vec2(
+            shape.setPositionXY(
                 center.x - (minX + maxX) / 2,
                 center.y - (minY + maxY) / 2
             );
         } else if (shape instanceof VectorView) {
-            shape.position = new Vec2(
+            shape.setPositionXY(
                 center.x - shape.vector.x / 2,
                 center.y - shape.vector.y / 2
             );
         } else {
-            shape.position = center;
+            shape.setPosition(center);
         }
     }
 

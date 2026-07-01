@@ -1,6 +1,6 @@
-import { Bounds } from "./Bounds";
-import { Matrix2 } from "./Matrix2";
-import { Vec2 } from "./Vec2";
+import { Bounds } from "./Bounds.js";
+import { Matrix2 } from "./Matrix2.js";
+import { Vec2 } from "./Vec2.js";
 
 // The dirty level of the transform is cascaded, meaning that if a transform is 
 // dirty at a certain level, it is also dirty at all lower levels. For example, 
@@ -24,7 +24,7 @@ export class Transform {
     #scaleY = 1;
     #rotation = 0;
 
-    #onChange;
+    #onInvalidated;
 
     // MARK: - Cached Derived State
     #sin = 0;
@@ -89,9 +89,49 @@ export class Transform {
         this.setRotation(value);
     }
 
+    // MARK: - Matrix Accessors
+    get a() {
+        return this.#getCleanMatrix().a;
+    }
+    get b() {
+        return this.#getCleanMatrix().b;
+    }
+    get c() {
+        return this.#getCleanMatrix().c;
+    }
+    get d() {
+        return this.#getCleanMatrix().d;
+    }
+    get tx() {
+        return this.#getCleanMatrix().tx;
+    }
+    get ty() {
+        return this.#getCleanMatrix().ty;
+    }
+
+    // MARK: - Inverse Matrix Accessors
+    get inverseA() {
+        return this.#getCleanInverseMatrix().a;
+    }
+    get inverseB() {
+        return this.#getCleanInverseMatrix().b;
+    }
+    get inverseC() {
+        return this.#getCleanInverseMatrix().c;
+    }
+    get inverseD() {
+        return this.#getCleanInverseMatrix().d;
+    }
+    get inverseTx() {
+        return this.#getCleanInverseMatrix().tx;
+    }
+    get inverseTy() {
+        return this.#getCleanInverseMatrix().ty;
+    }
+
     // MARK: - Constructor
-    constructor(onChange = null) {
-        this.#onChange = onChange;
+    constructor(onInvalidated = null) {
+        this.#onInvalidated = onInvalidated;
     }
 
     set(x, y, pivotX, pivotY, scaleX, scaleY, rotation) {
@@ -327,6 +367,25 @@ export class Transform {
     }
 
     /**
+     * Invokes the provided callback with a direct reference to this 
+     * `Transform`'s internal clean matrix.
+     *
+     * The matrix reference is owned by this `Transform` and **must not** be 
+     * modified or stored outside the callback. Doing so may break internal 
+     * cache invariants and lead to unexpected behavior.
+     *
+     * Use this as a zero-copy escape hatch when matrix values are needed
+     * immediately without allocating or copying into an output matrix.
+     *
+     * @param {function(Matrix2): void} callback - Invoked synchronously with 
+     * the internal clean matrix. The callback **must not** modify or retain the 
+     * matrix reference.
+     */
+    withMatrix(callback) {
+        callback(this.#getCleanMatrix());
+    }
+
+    /**
      * Creates or copies-out a Matrix instance that represents the inverse of the
      * transformation defined by this Transform. The returned matrix will be the
      * same reference as the `out` parameter if it was provided, or a new Matrix
@@ -341,6 +400,25 @@ export class Transform {
      */
     toInverseMatrix(out = new Matrix2()) {
         return out.copy(this.#getCleanInverseMatrix());
+    }
+
+    /**
+     * Invokes the provided callback with a direct reference to this 
+     * `Transform`'s internal clean inverse matrix.
+     *
+     * The matrix reference is owned by this `Transform` and **must not** be 
+     * modified or stored outside the callback. Doing so may break internal 
+     * cache invariants and lead to unexpected behavior.
+     *
+     * Use this as a zero-copy escape hatch when matrix values are needed
+     * immediately without allocating or copying into an output matrix.
+     *
+     * @param {function(Matrix2): void} callback - Invoked synchronously with 
+     * the internal clean inverse matrix. The callback **must not** modify or 
+     * retain the matrix reference.
+     */
+    withInverseMatrix(callback) {
+        callback(this.#getCleanInverseMatrix());
     }
 
     /**
@@ -367,6 +445,18 @@ export class Transform {
     }
 
     // MARK: - Helpers
+    #markDirty(level) {
+        if (level <= this.#dirtyLevel) { return; }
+
+        const wasClean = this.#dirtyLevel === CLEAN;
+        this.#dirtyLevel = level;
+        this.#isInverseDirty = true;
+
+        if (wasClean) {
+            this.#onInvalidated?.();
+        }
+    }
+
     #getCleanMatrix() {
         this.#updateMatrixIfNeeded();
         return this.#matrix;
@@ -375,14 +465,6 @@ export class Transform {
     #getCleanInverseMatrix() {
         this.#updateInverseMatrixIfNeeded();
         return this.#inverseMatrix;
-    }
-
-    #markDirty(level) {
-        if (level > this.#dirtyLevel) {
-            this.#dirtyLevel = level;
-            this.#isInverseDirty = true;
-            this.#onChange?.();
-        }
     }
 
     #updateMatrixIfNeeded() {

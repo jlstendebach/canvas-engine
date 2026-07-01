@@ -55,8 +55,8 @@ export class MouseEvent {
         let position = this.getLocalXY();
         let view = this.target;
         while (view != null) {
-            position.x += view.position.x;
-            position.y += view.position.y;
+            position.x += view.x;
+            position.y += view.y;
             view = view.parent;
         }
         return position;
@@ -65,8 +65,8 @@ export class MouseEvent {
     getParentXY() {
         let position = this.getLocalXY();
         if (this.target != null) {
-            position.x += this.target.position.x;
-            position.y += this.target.position.y;
+            position.x += this.target.x;
+            position.y += this.target.y;
         }
         return position;
     }

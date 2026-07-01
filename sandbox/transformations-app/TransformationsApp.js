@@ -80,15 +80,14 @@ export class TransformationsApp extends CanvasApp {
         const triangle = new PolygonView({
             position: this.getNextPosition(),
             points: [
-                new Vec2(0, -50),
-                new Vec2(-50, 50),
-                new Vec2(50, 50)
+                Vec2.fromAngle(2*Math.PI * 0/3).scale(50),
+                Vec2.fromAngle(2*Math.PI * 1/3).scale(50),
+                Vec2.fromAngle(2*Math.PI * 2/3).scale(50)
             ],
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
-        this.setPivotToCenter(triangle);
         this.addEventListeners(triangle);
         this.scene.addView(triangle);
         this.shapes.push(triangle);
@@ -113,7 +112,6 @@ export class TransformationsApp extends CanvasApp {
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
-        this.setPivotToCenter(star);
         this.addEventListeners(star);
         this.scene.addView(star);
         this.shapes.push(star);
@@ -185,17 +183,17 @@ export class TransformationsApp extends CanvasApp {
     // MARK: - Events Handlers
     onMouseDown(type, event) {
         if (event.button === MouseButton.LEFT) {
-            event.target.position = event.getParentXY();
+            event.target.setPosition(event.getParentXY());
             event.target.fillStyle.a += 0.1;
         }
     }
 
     onMouseDrag(type, event) {
-        event.target.position = event.getParentXY();
+        event.target.setPosition(event.getParentXY());
     }
 
     onMouseUp(type, event) {
-        event.target.position = event.getParentXY();
+        event.target.setPosition(event.getParentXY());
         event.target.fillStyle.a -= 0.1;
     }
 

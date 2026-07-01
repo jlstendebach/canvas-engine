@@ -1,24 +1,13 @@
 import { EventEmitter } from "../../../events/EventEmitter.js";
 import { Bounds } from "../../../math/Bounds.js";
-import { Matrix2 } from "../../../math/Matrix2.js";
+import { Transform } from "../../../math/Transform.js";
 import { Vec2 } from "../../../math/Vec2.js";
 
 /**
  * Base class for all views in the scene graph.
  */
 export class View {
-    static #TAU = Math.PI * 2;
-
-    #position = new Vec2();
-    #pivot = new Vec2();
-    #rotation = 0;
-    #scale = new Vec2(1, 1);
-
-    #transform = new Matrix2();
-    #isTransformDirty = true;
-
-    #inverseTransform = new Matrix2();
-    #isInverseTransformDirty = true;
+    #transform = new Transform(this.onTransformInvalidated.bind(this));
 
     #bounds = new Bounds();
     #isBoundsDirty = true;
@@ -32,100 +21,61 @@ export class View {
     #eventEmitter = new EventEmitter();
 
     // MARK: - Position Accessors
-    set position(value) {
-        if (this.#position.equals(value)) { return; }
-        this.#position.copy(value);
-        this.invalidateTransform();
-    }
-    get position() {
-        return this.#position;
-    }
-
-    set x(value) {
-        if (this.#position.x === value) { return; }
-        this.#position.x = value;
-        this.invalidateTransform();
-    }
     get x() {
-        return this.#position.x;
+        return this.#transform.x;
+    }
+    set x(value) {
+        this.#transform.x = value;
     }
 
-    set y(value) {
-        if (this.#position.y === value) { return; }
-        this.#position.y = value;
-        this.invalidateTransform();
-    }
     get y() {
-        return this.#position.y;
+        return this.#transform.y;
+    }
+    set y(value) {
+        this.#transform.y = value;
     }
 
     // MARK: - Pivot Accessors
-    set pivotX(value) {
-        if (this.#pivot.x === value) { return; }
-        this.#pivot.x = value;
-        this.invalidateTransform();
-    }
     get pivotX() {
-        return this.#pivot.x;
+        return this.#transform.pivotX;
+    }
+    set pivotX(value) {
+        this.#transform.pivotX = value;
     }
 
-    set pivotY(value) {
-        if (this.#pivot.y === value) { return; }
-        this.#pivot.y = value;
-        this.invalidateTransform();
-    }
     get pivotY() {
-        return this.#pivot.y;
+        return this.#transform.pivotY;
+    }
+    set pivotY(value) {
+        this.#transform.pivotY = value;
     }
 
     // MARK: - Rotation Accessors
-    set rotation(value) {
-        let newValue = value % View.#TAU;
-        if (newValue < 0) {
-            newValue += View.#TAU;
-        }
-        if (this.#rotation === newValue) { return; }
-        this.#rotation = newValue;
-        this.invalidateTransform();
-    }
     get rotation() {
-        return this.#rotation;
+        return this.#transform.rotation;
+    }
+    set rotation(value) {
+        this.#transform.rotation = value;
     }
 
     // MARK: - Scale Accessors
-    set scaleX(value) {
-        if (this.#scale.x === value) { return; }
-        this.#scale.x = value;
-        this.invalidateTransform();
-    }
     get scaleX() {
-        return this.#scale.x;
+        return this.#transform.scaleX;
+    }
+    set scaleX(value) {
+        this.#transform.scaleX = value;
     }
 
-    set scaleY(value) {
-        if (this.#scale.y === value) { return; }
-        this.#scale.y = value;
-        this.invalidateTransform();
-    }
     get scaleY() {
-        return this.#scale.y;
+        return this.#transform.scaleY;
+    }
+    set scaleY(value) {
+        this.#transform.scaleY = value;
     }
 
     // MARK: - Transform Accessors
     get transform() {
-        if (this.#isTransformDirty) {
-            this.updateTransform(this.#transform);
-            this.#isTransformDirty = false;
-        }
         return this.#transform;
-    }
-
-    get inverseTransform() {
-        if (this.#isInverseTransformDirty) {
-            this.#inverseTransform.copy(this.transform).invert();
-            this.#isInverseTransformDirty = false;
-        }
-        return this.#inverseTransform;
     }
 
     // MARK: - Bounds Accessors
@@ -138,22 +88,22 @@ export class View {
     }
 
     // MARK: - Other Accessors
+    get isVisible() {
+        return this.#isVisible;
+    }
     set isVisible(value) {
         if (typeof value !== "boolean") { return; }
         if (this.#isVisible === value) { return; }
         this.#isVisible = value;
-        this.invalidateTransform();
-    }
-    get isVisible() {
-        return this.#isVisible;
+        this.onChildBoundsChanged();
     }
 
+    get isPickable() {
+        return this.#isPickable;
+    }
     set isPickable(value) {
         if (typeof value !== "boolean") { return; }
         this.#isPickable = value;
-    }
-    get isPickable() {
-        return this.#isPickable;
     }
 
     get parent() {
@@ -166,10 +116,126 @@ export class View {
 
     // MARK: - Initialization 
     constructor(options = {}) {
-        this.#position.x = options.x ?? options.position?.x ?? 0;
-        this.#position.y = options.y ?? options.position?.y ?? 0;
+        this.#transform.x = options.x ?? options.position?.x ?? 0;
+        this.#transform.y = options.y ?? options.position?.y ?? 0;
         this.#isVisible = options.isVisible !== false;
         this.#isPickable = options.isPickable !== false;
+    }
+
+    // MARK: - Position
+    getPosition(out = new Vec2()) {
+        return this.#transform.getPosition(out);
+    }
+
+    setX(x) {
+        this.#transform.setX(x);
+        return this;
+    }
+
+    setY(y) {
+        this.#transform.setY(y);
+        return this;
+    }
+
+    setPositionXY(x, y) {
+        this.#transform.setPositionXY(x, y);
+        return this;
+    }
+
+    setPosition(position) {
+        this.#transform.setPosition(position);
+        return this;
+    }
+
+    translateXY(dx, dy) {
+        this.#transform.translateXY(dx, dy);
+        return this;
+    }
+
+    translate(delta) {
+        this.#transform.translate(delta);
+        return this;
+    }
+
+    // MARK: - Pivot
+    getPivot(out = new Vec2()) {
+        return this.#transform.getPivot(out);
+    }
+
+    setPivotX(pivotX) {
+        this.#transform.setPivotX(pivotX);
+        return this;
+    }
+
+    setPivotY(pivotY) {
+        this.#transform.setPivotY(pivotY);
+        return this;
+    }
+
+    setPivotXY(pivotX, pivotY) {
+        this.#transform.setPivotXY(pivotX, pivotY);
+        return this;
+    }
+
+    setPivot(pivot) {
+        this.#transform.setPivot(pivot);
+        return this;
+    }
+
+    offsetPivotXY(dx, dy) {
+        this.#transform.offsetPivotXY(dx, dy);
+        return this;
+    }
+
+    offsetPivot(offset) {
+        this.#transform.offsetPivot(offset);
+        return this;
+    }
+
+    // MARK: - Scale
+    getScale(out = new Vec2()) {
+        return this.#transform.getScale(out);
+    }
+
+    setScaleX(scaleX) {
+        this.#transform.setScaleX(scaleX);
+        return this;
+    }
+
+    setScaleY(scaleY) {
+        this.#transform.setScaleY(scaleY);
+        return this;
+    }
+
+    setScale(scaleOrVector) {
+        this.#transform.setScale(scaleOrVector);
+        return this;
+    }
+
+    setScaleXY(scaleX, scaleY) {
+        this.#transform.setScaleXY(scaleX, scaleY);
+        return this;
+    }
+
+    scaleByXY(factorX, factorY) {
+        this.#transform.scaleByXY(factorX, factorY);
+        return this;
+    }
+
+    scaleBy(factorOrVector) {
+        this.#transform.scaleBy(factorOrVector);
+        return this;
+    }
+
+    // MARK: - Rotation
+    setRotation(radians) {
+        this.#transform.setRotation(radians);
+        return this;
+    }
+
+    rotate(deltaRadians) {
+        this.#transform.rotate(deltaRadians);
+        return this;
     }
 
     // MARK: - Bounds 
@@ -195,46 +261,21 @@ export class View {
         this.parent?.onChildBoundsChanged();
     }
 
-    onChildBoundsChanged() {
-        // Subclasses can override this method to respond to child bounds changes.
-    }
-
     // MARK: - Transformations
-    updateTransform(out) {
-        out.setTransform(
-            this.#position.x,
-            this.#position.y,
-            this.#pivot.x,
-            this.#pivot.y,
-            this.#scale.x,
-            this.#scale.y,
-            this.#rotation
-        );
-    }
-
-    invalidateTransform() {
-        if (this.#isTransformDirty && this.#isInverseTransformDirty) {
-            return;
-        }
-        this.#isTransformDirty = true;
-        this.#isInverseTransformDirty = true;
-        this.parent?.onChildBoundsChanged();
-    }
-
     localToParentBounds(bounds) {
-        return bounds.clone().applyMatrix(this.transform);
+        return this.#transform.transformBounds(bounds);
     }
 
     parentToLocalBounds(bounds) {
-        return bounds.clone().applyMatrix(this.inverseTransform);
+        return this.#transform.inverseTransformBounds(bounds);
     }
 
     localToParentPoint(point) {
-        return this.transform.transformPoint(point);
+        return this.#transform.transformPoint(point);
     }
 
     parentToLocalPoint(point) {
-        return this.inverseTransform.transformPoint(point);
+        return this.#transform.inverseTransformPoint(point);
     }
 
     /**
@@ -415,14 +456,14 @@ export class View {
             return;
         }
 
-        const transform = this.transform;
-
         context.save();
-        context.transform(
-            transform.a, transform.b,
-            transform.c, transform.d,
-            transform.tx, transform.ty
-        );
+        this.#transform.withMatrix((matrix) => {
+            context.transform(
+                matrix.a, matrix.b,
+                matrix.c, matrix.d,
+                matrix.tx, matrix.ty
+            );
+        });
         this.onDraw(context);
         this.drawChildren(context);
         context.restore();
@@ -446,6 +487,15 @@ export class View {
         for (let i = 0; i < this.#views.length; i++) {
             this.#views[i].draw(context);
         }
+    }
+
+    // MARK: - Event Handlers
+    onChildBoundsChanged() {
+        // Subclasses can override this method to respond to child bounds changes.
+    }
+
+    onTransformInvalidated() {
+        this.parent?.onChildBoundsChanged();
     }
 
     // MARK: - Mouse Events 

@@ -145,20 +145,20 @@ export class EkgMotorApp extends CanvasApp {
             this.motorContainer.addView(motor);
         }
 
-        motors[0].position = new Vec2(padding + radius, padding + radius);
+        motors[0].x = padding + radius;
+        motors[0].y = padding + radius;
 
-        motors[1].position.copy(motors[0].position)
-        motors[1].position.y += radius * 2 + spacing;
+        motors[1].x = motors[0].x;
+        motors[1].y = motors[0].y + radius * 2 + spacing;
 
-        motors[2].position.copy(motors[0].position);
-        motors[2].position.x += radius * 2 + spacing;
+        motors[2].x = motors[0].x + radius * 2 + spacing;
+        motors[2].y = motors[0].y;
 
-        motors[3].position.copy(motors[1].position);
-        motors[3].position.x += radius * 2 + spacing;
+        motors[3].x = motors[1].x + radius * 2 + spacing;
+        motors[3].y = motors[1].y;
 
-        motors[4].position.copy(motors[3].position);
-        motors[4].position.x += radius * 2 + spacing;
-        motors[4].position.y = this.motorContainer.size.y / 2;
+        motors[4].x = motors[3].x + radius * 2 + spacing;
+        motors[4].y = this.motorContainer.size.y / 2;
 
         this.motors = motors;
     }
@@ -241,27 +241,27 @@ export class EkgMotorApp extends CanvasApp {
     // MARK: - Helpers
     layoutViews() {
         // data graph
-        this.dataGraph.position = new Vec2(this.PADDING, this.PADDING);
+        this.dataGraph.setPositionXY(this.PADDING, this.PADDING);
         this.dataGraph.size = new Vec2(this.canvas.size.x - this.PADDING * 2, this.GRAPH_HEIGHT);
 
         // slope graph
-        this.slopeGraph.position = new Vec2(
+        this.slopeGraph.setPositionXY(
             this.PADDING,
-            this.dataGraph.position.y + this.dataGraph.size.y + this.PADDING
+            this.dataGraph.y + this.dataGraph.size.y + this.PADDING
         );
         this.slopeGraph.size = new Vec2(this.canvas.size.x - this.PADDING * 2, this.GRAPH_HEIGHT);
 
         // activation graph
-        this.activationGraph.position = new Vec2(
+        this.activationGraph.setPositionXY(
             this.PADDING,
-            this.slopeGraph.position.y + this.slopeGraph.size.y + this.PADDING
+            this.slopeGraph.y + this.slopeGraph.size.y + this.PADDING
         );
         this.activationGraph.size = new Vec2(this.canvas.size.x - this.PADDING * 2, this.GRAPH_HEIGHT);
 
         // motors
-        this.motorContainer.position = new Vec2(
+        this.motorContainer.setPositionXY(
             this.canvas.size.x / 2 - this.motorContainer.size.x / 2,
-            this.activationGraph.position.y + this.activationGraph.size.y + this.PADDING
+            this.activationGraph.y + this.activationGraph.size.y + this.PADDING
         );
     }
 

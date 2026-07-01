@@ -142,14 +142,14 @@ export class Graph extends RectangleView {
     }
 
     setCursor(x) {
-        this.#cursorLine.position.x = x;
+        this.#cursorLine.x = x;
         const value = this.getValue(x) ?? 0;
-        this.#valueLabel.position = new Vec2(x, this.size.y + 15);
+        this.#valueLabel.setPositionXY(x, this.size.y + 15);
         this.#valueLabel.setText(value.toFixed(1));
     }
 
     getCursor() {
-        return this.#cursorLine.position.x;
+        return this.#cursorLine.x;
     }
 
     // MARK: - Helpers
