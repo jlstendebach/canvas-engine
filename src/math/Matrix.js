@@ -1,3 +1,4 @@
+import { Bounds } from "./Bounds.js";
 import { Vec2 } from "./Vec2.js";
 
 export class Matrix {
@@ -71,14 +72,57 @@ export class Matrix {
         return this;
     }
 
-    transformXY(x, y, out = new Vec2()) {
-        out.x = (x * this.a) + (y * this.c) + this.tx;
-        out.y = (x * this.b) + (y * this.d) + this.ty;
-        return out;
+    transformPoint(point, out = new Vec2()) {
+        return this.transformPointXY(point.x, point.y, out);
     }
 
-    transformPoint(point, out = new Vec2()) {
-        return this.transformXY(point.x, point.y, out);
+    transformPointXY(x, y, out = new Vec2()) {
+        return out.set(
+            this.tx + (x * this.a) + (y * this.c),
+            this.ty + (x * this.b) + (y * this.d)
+        );
+    }
+
+    transformVector(vector, out = new Vec2()) {
+        return this.transformVectorXY(vector.x, vector.y, out);
+    }
+
+    transformVectorXY(x, y, out = new Vec2()) {
+        return out.set(
+            (x * this.a) + (y * this.c),
+            (x * this.b) + (y * this.d)
+        );
+    }
+
+    transformBounds(bounds, out = new Bounds()) {
+        const minX = bounds.minX;
+        const minY = bounds.minY;
+        const maxX = bounds.maxX;
+        const maxY = bounds.maxY;
+
+        const a = this.a;
+        const b = this.b;
+        const c = this.c;
+        const d = this.d;
+        const tx = this.tx;
+        const ty = this.ty;        
+
+        return out
+            .reset()
+            .addXY(a * minX + c * minY + tx, b * minX + d * minY + ty)
+            .addXY(a * maxX + c * minY + tx, b * maxX + d * minY + ty)
+            .addXY(a * maxX + c * maxY + tx, b * maxX + d * maxY + ty)
+            .addXY(a * minX + c * maxY + tx, b * minX + d * maxY + ty);
+    }
+
+    identity() {
+        this.a = 1;
+        this.b = 0;
+        this.c = 0;
+        this.d = 1;
+        this.tx = 0;
+        this.ty = 0;
+        return this;
     }
 
     multiply(other) {
@@ -115,7 +159,7 @@ export class Matrix {
         const ty = this.ty;
 
         const determinant = a * d - b * c;
-        if (Math.abs(determinant) < 1e-6) {
+        if (determinant === 0) {
             return this;
         }
         const invDet = 1 / determinant;

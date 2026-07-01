@@ -1,3 +1,5 @@
+import { Vec2 } from "./Vec2.js";
+
 export class Bounds {
     minX; maxX; minY; maxY;
 
@@ -88,22 +90,6 @@ export class Bounds {
         if (bounds.minY < this.minY) { this.minY = bounds.minY; }
         if (bounds.maxX > this.maxX) { this.maxX = bounds.maxX; }
         if (bounds.maxY > this.maxY) { this.maxY = bounds.maxY; }
-        return this;
-    }
-
-    applyMatrix(matrix) {
-        const minX = this.minX;
-        const minY = this.minY;
-        const maxX = this.maxX;
-        const maxY = this.maxY;
-
-        this.reset();
-
-        this.addPoint(matrix.transformXY(minX, minY));
-        this.addPoint(matrix.transformXY(maxX, minY));
-        this.addPoint(matrix.transformXY(maxX, maxY));
-        this.addPoint(matrix.transformXY(minX, maxY));
-
         return this;
     }
 
