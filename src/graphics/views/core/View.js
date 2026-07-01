@@ -1,6 +1,6 @@
 import { EventEmitter } from "../../../events/EventEmitter.js";
 import { Bounds } from "../../../math/Bounds.js";
-import { Matrix } from "../../../math/Matrix.js";
+import { Matrix2 } from "../../../math/Matrix2.js";
 import { Vec2 } from "../../../math/Vec2.js";
 
 /**
@@ -14,10 +14,10 @@ export class View {
     #rotation = 0;
     #scale = new Vec2(1, 1);
 
-    #transform = new Matrix();
+    #transform = new Matrix2();
     #isTransformDirty = true;
 
-    #inverseTransform = new Matrix();
+    #inverseTransform = new Matrix2();
     #isInverseTransformDirty = true;
 
     #bounds = new Bounds();

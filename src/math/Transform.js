@@ -1,5 +1,5 @@
 import { Bounds } from "./Bounds";
-import { Matrix } from "./Matrix";
+import { Matrix2 } from "./Matrix2";
 import { Vec2 } from "./Vec2";
 
 // The dirty level of the transform is cascaded, meaning that if a transform is 
@@ -29,8 +29,8 @@ export class Transform {
     // MARK: - Cached Derived State
     #sin = 0;
     #cos = 1;
-    #matrix = new Matrix();
-    #inverseMatrix = new Matrix();
+    #matrix = new Matrix2();
+    #inverseMatrix = new Matrix2();
 
     // MARK: - Invalidation
     #dirtyLevel = CLEAN;
@@ -322,7 +322,7 @@ export class Transform {
      *     reference as the `out` parameter if it was provided, or a new Matrix 
      *     instance if not.
      */
-    toMatrix(out = new Matrix()) {
+    toMatrix(out = new Matrix2()) {
         return out.copy(this.#getCleanMatrix());
     }
 
@@ -339,7 +339,7 @@ export class Transform {
      *     the same reference as the `out` parameter if it was provided, or a new
      *     Matrix instance if not.
      */
-    toInverseMatrix(out = new Matrix()) {
+    toInverseMatrix(out = new Matrix2()) {
         return out.copy(this.#getCleanInverseMatrix());
     }
 
