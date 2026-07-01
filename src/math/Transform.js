@@ -119,6 +119,10 @@ export class Transform {
     }
 
     // MARK: - Position
+    getPosition(out = new Vec2()) {
+        return out.set(this.#x, this.#y);
+    }
+
     setX(x) {
         if (this.#x === x) { return this; }
         this.#x = x;
@@ -133,14 +137,6 @@ export class Transform {
         return this;
     }
 
-    getPosition(out = new Vec2()) {
-        return out.set(this.#x, this.#y);
-    }
-
-    setPosition(position) {
-        return this.setPositionXY(position.x, position.y);
-    }
-
     setPositionXY(x, y) {
         if (this.#x === x && this.#y === y) { return this; }
         this.#x = x;
@@ -149,8 +145,8 @@ export class Transform {
         return this;
     }
 
-    translate(delta) {
-        return this.translateXY(delta.x, delta.y);
+    setPosition(position) {
+        return this.setPositionXY(position.x, position.y);
     }
 
     translateXY(dx, dy) {
@@ -161,7 +157,15 @@ export class Transform {
         return this;
     }
 
+    translate(delta) {
+        return this.translateXY(delta.x, delta.y);
+    }
+
     // MARK: - Pivot
+    getPivot(out = new Vec2()) {
+        return out.set(this.#pivotX, this.#pivotY);
+    }
+
     setPivotX(pivotX) {
         if (this.#pivotX === pivotX) { return this; }
         this.#pivotX = pivotX;
@@ -176,14 +180,6 @@ export class Transform {
         return this;
     }
 
-    getPivot(out = new Vec2()) {
-        return out.set(this.#pivotX, this.#pivotY);
-    }
-
-    setPivot(pivot) {
-        return this.setPivotXY(pivot.x, pivot.y);
-    }
-
     setPivotXY(pivotX, pivotY) {
         if (this.#pivotX === pivotX && this.#pivotY === pivotY) { return this; }
         this.#pivotX = pivotX;
@@ -192,8 +188,8 @@ export class Transform {
         return this;
     }
 
-    offsetPivot(offset) {
-        return this.offsetPivotXY(offset.x, offset.y);
+    setPivot(pivot) {
+        return this.setPivotXY(pivot.x, pivot.y);
     }
 
     offsetPivotXY(dx, dy) {
@@ -204,7 +200,15 @@ export class Transform {
         return this;
     }
 
+    offsetPivot(offset) {
+        return this.offsetPivotXY(offset.x, offset.y);
+    }
+
     // MARK: - Scale
+    getScale(out = new Vec2()) {
+        return out.set(this.#scaleX, this.#scaleY);
+    }
+
     setScaleX(scaleX) {
         if (this.#scaleX === scaleX) { return this; }
         this.#scaleX = scaleX;
@@ -217,10 +221,6 @@ export class Transform {
         this.#scaleY = scaleY;
         this.#markDirty(LINEAR);
         return this;
-    }
-
-    getScale(out = new Vec2()) {
-        return out.set(this.#scaleX, this.#scaleY);
     }
 
     setScale(scaleOrVector) {
@@ -237,18 +237,18 @@ export class Transform {
         return this;
     }
 
-    scaleBy(factorOrVector) {
-        return (typeof factorOrVector === 'number')
-            ? this.scaleByXY(factorOrVector, factorOrVector)
-            : this.scaleByXY(factorOrVector.x, factorOrVector.y);
-    }
-
     scaleByXY(factorX, factorY) {
         if (factorX === 1 && factorY === 1) { return this; }
         this.#scaleX *= factorX;
         this.#scaleY *= factorY;
         this.#markDirty(LINEAR);
         return this;
+    }
+
+    scaleBy(factorOrVector) {
+        return (typeof factorOrVector === 'number')
+            ? this.scaleByXY(factorOrVector, factorOrVector)
+            : this.scaleByXY(factorOrVector.x, factorOrVector.y);
     }
 
     // MARK: - Rotation
@@ -267,20 +267,20 @@ export class Transform {
     }
 
     // MARK: - Transformations
-    transformPoint(point, out = new Vec2()) {
-        return this.#getCleanMatrix().transformPoint(point, out);
-    }
-
     transformPointXY(x, y, out = new Vec2()) {
         return this.#getCleanMatrix().transformPointXY(x, y, out);
     }
 
-    transformVector(vector, out = new Vec2()) {
-        return this.#getCleanMatrix().transformVector(vector, out);
+    transformPoint(point, out = new Vec2()) {
+        return this.#getCleanMatrix().transformPoint(point, out);
     }
 
     transformVectorXY(x, y, out = new Vec2()) {
         return this.#getCleanMatrix().transformVectorXY(x, y, out);
+    }
+
+    transformVector(vector, out = new Vec2()) {
+        return this.#getCleanMatrix().transformVector(vector, out);
     }
 
     transformBounds(bounds, out = new Bounds()) {
@@ -288,20 +288,20 @@ export class Transform {
     }
 
     // MARK: - Inverse Transformations
-    inverseTransformPoint(point, out = new Vec2()) {
-        return this.#getCleanInverseMatrix().transformPoint(point, out);
-    }
-
     inverseTransformPointXY(x, y, out = new Vec2()) {
         return this.#getCleanInverseMatrix().transformPointXY(x, y, out);
     }
 
-    inverseTransformVector(vector, out = new Vec2()) {
-        return this.#getCleanInverseMatrix().transformVector(vector, out);
+    inverseTransformPoint(point, out = new Vec2()) {
+        return this.#getCleanInverseMatrix().transformPoint(point, out);
     }
 
     inverseTransformVectorXY(x, y, out = new Vec2()) {
         return this.#getCleanInverseMatrix().transformVectorXY(x, y, out);
+    }
+
+    inverseTransformVector(vector, out = new Vec2()) {
+        return this.#getCleanInverseMatrix().transformVector(vector, out);
     }
 
     inverseTransformBounds(bounds, out = new Bounds()) {
