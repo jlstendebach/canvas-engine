@@ -15,7 +15,10 @@ const TRIG = 3;
 const TAU = Math.PI * 2;
 
 export class Transform {
+    // -------------------------------------------------------------------------
     // MARK: - Authored State
+    // -------------------------------------------------------------------------
+
     #x = 0;
     #y = 0;
     #pivotX = 0;
@@ -26,17 +29,26 @@ export class Transform {
 
     #onInvalidated;
 
+    // -------------------------------------------------------------------------
     // MARK: - Cached Derived State
+    // -------------------------------------------------------------------------
+
     #sin = 0;
     #cos = 1;
     #matrix = new Matrix2();
     #inverseMatrix = new Matrix2();
 
+    // -------------------------------------------------------------------------
     // MARK: - Invalidation
+    // -------------------------------------------------------------------------
+
     #dirtyLevel = CLEAN;
     #isInverseDirty = false;
 
+    // -------------------------------------------------------------------------
     // MARK: - Position Accessors
+    // -------------------------------------------------------------------------
+
     get x() {
         return this.#x;
     }
@@ -51,7 +63,10 @@ export class Transform {
         this.setY(value);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Pivot Accessors
+    // -------------------------------------------------------------------------
+
     get pivotX() {
         return this.#pivotX;
     }
@@ -66,7 +81,10 @@ export class Transform {
         this.setPivotY(value);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Scale Accessors
+    // -------------------------------------------------------------------------
+
     get scaleX() {
         return this.#scaleX;
     }
@@ -81,7 +99,10 @@ export class Transform {
         this.setScaleY(value);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Rotation Accessors
+    // -------------------------------------------------------------------------
+
     get rotation() {
         return this.#rotation;
     }
@@ -89,7 +110,10 @@ export class Transform {
         this.setRotation(value);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Matrix Accessors
+    // -------------------------------------------------------------------------
+
     get a() {
         return this.#getCleanMatrix().a;
     }
@@ -109,7 +133,10 @@ export class Transform {
         return this.#getCleanMatrix().ty;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Inverse Matrix Accessors
+    // -------------------------------------------------------------------------
+
     get inverseA() {
         return this.#getCleanInverseMatrix().a;
     }
@@ -129,7 +156,10 @@ export class Transform {
         return this.#getCleanInverseMatrix().ty;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Constructor
+    // -------------------------------------------------------------------------
+
     constructor(onInvalidated = null) {
         this.#onInvalidated = onInvalidated;
     }
@@ -158,7 +188,10 @@ export class Transform {
         return this;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Position
+    // -------------------------------------------------------------------------
+
     getPosition(out = new Vec2()) {
         return out.set(this.#x, this.#y);
     }
@@ -201,7 +234,10 @@ export class Transform {
         return this.translateXY(delta.x, delta.y);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Pivot
+    // -------------------------------------------------------------------------
+
     getPivot(out = new Vec2()) {
         return out.set(this.#pivotX, this.#pivotY);
     }
@@ -244,7 +280,10 @@ export class Transform {
         return this.offsetPivotXY(offset.x, offset.y);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Scale
+    // -------------------------------------------------------------------------
+
     getScale(out = new Vec2()) {
         return out.set(this.#scaleX, this.#scaleY);
     }
@@ -306,7 +345,10 @@ export class Transform {
         return this.setRotation(this.#rotation + deltaRadians);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Transformations
+    // -------------------------------------------------------------------------
+
     transformPointXY(x, y, out = new Vec2()) {
         return this.#getCleanMatrix().transformPointXY(x, y, out);
     }
@@ -327,7 +369,10 @@ export class Transform {
         return this.#getCleanMatrix().transformBounds(bounds, out);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Inverse Transformations
+    // -------------------------------------------------------------------------
+
     inverseTransformPointXY(x, y, out = new Vec2()) {
         return this.#getCleanInverseMatrix().transformPointXY(x, y, out);
     }
@@ -348,7 +393,10 @@ export class Transform {
         return this.#getCleanInverseMatrix().transformBounds(bounds, out);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Utilities
+    // -------------------------------------------------------------------------
+
     /**
      * Creates or copies-out a Matrix instance that represents the 
      * transformation defined by this Transform. The returned matrix will be the
@@ -444,7 +492,10 @@ export class Transform {
         return new Transform().copy(this);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Helpers
+    // -------------------------------------------------------------------------
+
     #markDirty(level) {
         if (level <= this.#dirtyLevel) { return; }
 
