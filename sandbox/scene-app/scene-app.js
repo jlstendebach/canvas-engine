@@ -62,7 +62,7 @@ export class SceneApp extends CanvasApp {
         this.box = this.scene.addView(box);
 
         const boxCorner1 = new CircleView({
-            position: this.box.position.clone(),
+            position: this.box.getPosition(),
             radius: this.CORNER_RADIUS,
             fillStyle: new Color(0, 200, 0),
             strokeStyle: new Color(100, 100, 100),
@@ -73,7 +73,7 @@ export class SceneApp extends CanvasApp {
         this.boxCorner1 = this.canvas.addView(boxCorner1);
 
         const boxCorner2 = new CircleView({
-            position: Vec2.add(this.box.position, this.box.size),
+            position: Vec2.add(this.box.getPosition(), this.box.size),
             radius: this.CORNER_RADIUS,
             fillStyle: new Color(0, 200, 0),
             strokeStyle: new Color(100, 100, 100),
@@ -110,15 +110,16 @@ export class SceneApp extends CanvasApp {
             this.ballVelocity.add(acceleration);
             const velocity = this.ballVelocity.clone()
                 .scale(timeScale);
-            this.ball.position.add(velocity);
+            this.ball.x += velocity.x;
+            this.ball.y += velocity.y;
         }       
 
         this.keepBallInBounds();
-        this.ballLastPosition = this.ball.position.clone();
+        this.ballLastPosition = this.ball.getPosition();
         this.ballTimer.start();    
 
         if (this.isFollowingBall && this.isBallGrabbed == false) {
-            this.scene.centerOn(this.ball.position, CoordinateSpace.CHILD);
+            this.scene.centerOn(this.ball.getPosition(), CoordinateSpace.CHILD);
         }
 
         this.positionBoxCorners();
@@ -140,7 +141,7 @@ export class SceneApp extends CanvasApp {
                 this.scene.translate(new Vec2(event.dx, event.dy));
 
             } else if (event.button == MouseButton.RIGHT) {
-                const childSpaceAnchor = this.box.position.clone().add(this.box.size.clone().divideScalar(2));
+                const childSpaceAnchor = this.box.getPosition().add(this.box.size.clone().divideScalar(2));
                 const localSpaceAnchor = this.isFollowingBall
                     ? this.canvas.size.clone().divideScalar(2)
                     : this.scene.childToLocal(childSpaceAnchor);
@@ -167,17 +168,17 @@ export class SceneApp extends CanvasApp {
             this.ballVelocity.set(0, 0);
             this.isBallGrabbed = true;
         }
-        event.target.position = event.getParentXY();
+        event.target.setPosition(event.getParentXY());
     }
 
     onBallDrag(type, event) {
-        event.target.position = event.getParentXY();
+        event.target.setPosition(event.getParentXY());
 
         if (event.target == this.boxCorner1) {
-            this.box.position = this.scene.localToChild(this.boxCorner1.position);
-            this.box.size = this.scene.localToChild(this.boxCorner2.position).subtract(this.box.position);
+            this.box.setPosition(this.scene.localToChild(this.boxCorner1.getPosition()));
+            this.box.size = this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition());
         } else if (event.target == this.boxCorner2) {
-            this.box.size = this.scene.localToChild(this.boxCorner2.position).subtract(this.box.position);
+            this.box.size = this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition());
         }
     }
 
@@ -189,42 +190,42 @@ export class SceneApp extends CanvasApp {
                 .clampLength(0, this.MAX_THROW_SPEED);
             this.isBallGrabbed = false;
         }
-        event.target.position = event.getParentXY();
+        event.target.setPosition(event.getParentXY());
     }
 
     // MARK: - Helpers
     keepBallInBounds() {
         const scale = 0.90;
         const friction = 0.995;
-        const left = this.box.position.x;
-        const right = this.box.position.x + this.box.size.width;
-        const top = this.box.position.y;
-        const bottom = this.box.position.y + this.box.size.height;
+        const left = this.box.x;
+        const right = this.box.x + this.box.size.width;
+        const top = this.box.y;
+        const bottom = this.box.y + this.box.size.height;
 
-        if (this.ball.position.x - this.ball.radius < left) {
-            this.ball.position.x = left + this.ball.radius;
+        if (this.ball.x - this.ball.radius < left) {
+            this.ball.x = left + this.ball.radius;
             this.ballVelocity.x *= -1*scale;
             this.ballVelocity.y *= friction;
-        } else if (this.ball.position.x + this.ball.radius > right) {
-            this.ball.position.x = right - this.ball.radius;
+        } else if (this.ball.x + this.ball.radius > right) {
+            this.ball.x = right - this.ball.radius;
             this.ballVelocity.x *= -1*scale;
             this.ballVelocity.y *= friction;
         }
 
-        if (this.ball.position.y - this.ball.radius < top) {
-            this.ball.position.y = top + this.ball.radius;
+        if (this.ball.y - this.ball.radius < top) {
+            this.ball.y = top + this.ball.radius;
             this.ballVelocity.x *= friction;
             this.ballVelocity.y *= -1*scale;
-        } else if (this.ball.position.y + this.ball.radius > bottom) {
-            this.ball.position.y = bottom - this.ball.radius;
+        } else if (this.ball.y + this.ball.radius > bottom) {
+            this.ball.y = bottom - this.ball.radius;
             this.ballVelocity.x *= friction;
             this.ballVelocity.y *= -1*scale;
         }
     }
 
     positionBoxCorners() {
-        this.boxCorner1.position = this.scene.childToLocal(this.box.position);
-        this.boxCorner2.position = this.scene.childToLocal(this.box.position.clone().add(this.box.size));
+        this.boxCorner1.setPosition(this.scene.childToLocal(this.box.getPosition()));
+        this.boxCorner2.setPosition(this.scene.childToLocal(this.box.getPosition().add(this.box.size)));
     }
 
 }

@@ -56,11 +56,11 @@ export class CanvasSizesApp extends CanvasApp {
 
     // MARK: - helpers
     updateBallPositions() {
-        this.#topLeftBall.position.set(50, 50);
-        this.#topRightBall.position.set(this.canvas.size.width - 50, 50);
-        this.#bottomRightBall.position.set(this.canvas.size.width - 50, this.canvas.size.height - 50);
-        this.#bottomLeftBall.position.set(50, this.canvas.size.height - 50);
-        this.#centerBall.position.set(this.canvas.size.width / 2, this.canvas.size.height / 2);
+        this.#topLeftBall.setPositionXY(50, 50);
+        this.#topRightBall.setPositionXY(this.canvas.size.width - 50, 50);
+        this.#bottomRightBall.setPositionXY(this.canvas.size.width - 50, this.canvas.size.height - 50);
+        this.#bottomLeftBall.setPositionXY(50, this.canvas.size.height - 50);
+        this.#centerBall.setPositionXY(this.canvas.size.width / 2, this.canvas.size.height / 2);
     }
 
     createBall({x = 0, y = 0, radius = 20, color = new Color(0, 0, 200)} = {}) {

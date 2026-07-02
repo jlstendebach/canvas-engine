@@ -1,3 +1,5 @@
+import { Vec2 } from "./Vec2.js";
+
 export class Bounds {
     minX; maxX; minY; maxY;
 
@@ -32,6 +34,15 @@ export class Bounds {
         return this.maxY - this.minY; 
     }
 
+    get centerX() {
+        return (this.minX + this.maxX) / 2;
+    }
+
+    get centerY() {
+        return (this.minY + this.maxY) / 2;
+    }
+
+
     // MARK: - Initialization
     constructor(
         minX = Infinity, 
@@ -62,7 +73,7 @@ export class Bounds {
         return this;
     }
 
-    addXY(x, y) {
+    addPointXY(x, y) {
         if (x < this.minX) { this.minX = x; }
         if (y < this.minY) { this.minY = y; }
         if (x > this.maxX) { this.maxX = x; }
@@ -71,7 +82,7 @@ export class Bounds {
     }
 
     addPoint(point) {
-        return this.addXY(point.x, point.y);
+        return this.addPointXY(point.x, point.y);
     }
 
     addBounds(bounds) {
@@ -83,7 +94,7 @@ export class Bounds {
     }
 
     // MARK: - Bounds queries
-    containsXY(x, y) {
+    containsPointXY(x, y) {
         return (
             x >= this.minX && 
             x <= this.maxX && 
@@ -93,7 +104,7 @@ export class Bounds {
     }
 
     containsPoint(point) {
-        return this.containsXY(point.x, point.y);
+        return this.containsPointXY(point.x, point.y);
     }
 
     intersects(other) {

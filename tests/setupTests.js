@@ -51,6 +51,7 @@ if (typeof window !== 'undefined') {
             save: () => {},
             scale: () => {},
             stroke: () => {},
+            transform: () => {},
             translate: () => {},
             viewport: () => {},
         };

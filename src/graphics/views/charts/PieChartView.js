@@ -68,9 +68,9 @@ export class PieChartTooltip extends RectangleView {
     setPadding(padding) { this.padding = padding; }
 
     // --[ drawing ]------------------------------------------------------------
-    drawSelf(context) {
+    onDraw(context) {
         this.layout(context);
-        super.drawSelf(context);
+        super.onDraw(context);
     }
 
     // --[ helpers ]------------------------------------------------------------
@@ -106,7 +106,6 @@ export class PieChartTooltip extends RectangleView {
 export class PieChartView extends View {
     constructor() {
         super();
-        this.position = new Vec2(0, 0);
         this.radius = 200;
         this.startAngle = -Math.PI / 2;
 
@@ -139,11 +138,8 @@ export class PieChartView extends View {
 
 
     // --[ bounds ]-------------------------------------------------------------
-    setX(x) { this.position.x = x; }
-    getX() { return this.position.x; }
-
-    setY(y) { this.position.y = y; }
-    getY() { return this.position.y; }
+    getX() { return this.x; }
+    getY() { return this.y; }
 
     setRadius(radius) { this.radius = radius; }
     getRadius() { return this.radius; }
@@ -448,7 +444,7 @@ export class PieChartView extends View {
         }
     }
 
-    drawSelf(context) {
+    onDraw(context) {
         this.updateSlices();
 
         // Save the context to reverse the translation.

@@ -3,12 +3,11 @@ import {
     CircleView,
     Color,
     ContainerView,
-    MouseButton,
     MouseEvent
 } from "../../src/index.js";
 
-import { BoundsDrawer } from "./BoundsDrawer.js";
-import { shapeStyles } from "./shapeStyles.js";
+import { BoundsDrawer } from "../common/BoundsDrawer.js";
+import { shapeStyles } from "../common/shapeStyles.js";
 
 
 export class BoundsApp extends CanvasApp {

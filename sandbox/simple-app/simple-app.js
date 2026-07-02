@@ -42,24 +42,24 @@ export class SimpleApp extends CanvasApp {
     onBallGrab(type, event) {
         if (event.button === MouseButton.LEFT) {
             this.#isBallGrabbed = true;
-            event.target.position = event.getParentXY();
+            event.target.setPosition(event.getParentXY());
         }
     }
 
     onBallDrag(type, event) {
-        event.target.position = event.getParentXY();
+        event.target.setPosition(event.getParentXY());
     }
 
     onBallDrop(type, event) {
-        event.target.position = event.getParentXY();
+        event.target.setPosition(event.getParentXY());
         this.#isBallGrabbed = false;
     }
 
     // MARK: - Update
     onUpdate(timestamp, deltaTime) {
         if (!this.#isBallGrabbed) {
-            this.#ball.position.x += this.#ballVelocity.x * deltaTime / 1000;
-            this.#ball.position.y += this.#ballVelocity.y * deltaTime / 1000;
+            this.#ball.x += this.#ballVelocity.x * deltaTime / 1000;
+            this.#ball.y += this.#ballVelocity.y * deltaTime / 1000;
             this.#keepBallInBounds();
         }
     }
@@ -68,19 +68,19 @@ export class SimpleApp extends CanvasApp {
     #keepBallInBounds() {
         const size = this.canvas.size;
 
-        if (this.#ball.position.x - this.#ball.radius < 0) {
-            this.#ball.position.x = this.#ball.radius;
+        if (this.#ball.x - this.#ball.radius < 0) {
+            this.#ball.x = this.#ball.radius;
             this.#ballVelocity.x *= -1;
-        } else if (this.#ball.position.x + this.#ball.radius > size.x) {
-            this.#ball.position.x = size.x - this.#ball.radius;
+        } else if (this.#ball.x + this.#ball.radius > size.x) {
+            this.#ball.x = size.x - this.#ball.radius;
             this.#ballVelocity.x *= -1;
         }
 
-        if (this.#ball.position.y - this.#ball.radius < 0) {
-            this.#ball.position.y = this.#ball.radius;
+        if (this.#ball.y - this.#ball.radius < 0) {
+            this.#ball.y = this.#ball.radius;
             this.#ballVelocity.y *= -1;
-        } else if (this.#ball.position.y + this.#ball.radius > size.y) {
-            this.#ball.position.y = size.y - this.#ball.radius;
+        } else if (this.#ball.y + this.#ball.radius > size.y) {
+            this.#ball.y = size.y - this.#ball.radius;
             this.#ballVelocity.y *= -1;
         }
     }

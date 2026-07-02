@@ -108,8 +108,8 @@ describe("Bounds", () => {
         });
     });
 
-    // MARK: - addXY and addPoint tests
-    describe("addXY and addPoint", () => {
+    // MARK: - addPointXY and addPoint tests
+    describe("addPointXY and addPoint", () => {
         test.each([
             { 
                 initial: new Bounds(), 
@@ -143,7 +143,7 @@ describe("Bounds", () => {
             }
         ])("should expand bounds correctly", ({ initial, point, expected }) => {
             const boundsXY = initial.clone();
-            boundsXY.addXY(point.x, point.y);
+            boundsXY.addPointXY(point.x, point.y);
             expect(boundsXY.equals(expected)).toBe(true);
 
             const boundsPoint = initial.clone();
@@ -153,7 +153,7 @@ describe("Bounds", () => {
 
         test("should return this for chaining", () => {
             const bounds = new Bounds();
-            const resultXY = bounds.addXY(1, 2);
+            const resultXY = bounds.addPointXY(1, 2);
             expect(resultXY).toBe(bounds);
 
             const resultPoint = bounds.addPoint(new Vec2(3, 4));
@@ -207,8 +207,8 @@ describe("Bounds", () => {
         });
     });
 
-    // MARK: - containsXY and containsPoint tests
-    describe("containsXY and containsPoint", () => {
+    // MARK: - containsPointXY and containsPoint tests
+    describe("containsPointXY and containsPoint", () => {
         test.each([
             { bounds: new Bounds(0, 0, 0, 0), point: new Vec2(0, 0), expected: true },
             { bounds: new Bounds(0, 0, 10, 10), point: new Vec2(5, 5), expected: true },
@@ -218,7 +218,7 @@ describe("Bounds", () => {
             { bounds: new Bounds(0, 0, 10, 10), point: new Vec2(5, 11), expected: false },
             { bounds: new Bounds(), point: new Vec2(0, 0), expected: false },
         ])("should correctly determine if a point is contained", ({ bounds, point, expected }) => {
-            expect(bounds.containsXY(point.x, point.y)).toBe(expected);
+            expect(bounds.containsPointXY(point.x, point.y)).toBe(expected);
             expect(bounds.containsPoint(point)).toBe(expected);
         });
     });

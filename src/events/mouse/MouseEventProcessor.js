@@ -188,25 +188,25 @@ export class MouseEventProcessor {
         let position = new Vec2(event.x, event.y);
         let delta = new Vec2(event.x - event.dx, event.y - event.dy); 
         for (let i = views.length-1; i >= 0; i--) {
-            position.x -= views[i].position.x;
-            position.y -= views[i].position.y;
+            position.x -= views[i].x;
+            position.y -= views[i].y;
             position = views[i].localToChild(position);
-            delta.x -= views[i].position.x;
-            delta.y -= views[i].position.y;
+            delta.x -= views[i].x;
+            delta.y -= views[i].y;
             delta = views[i].localToChild(delta);
         }
         delta = Vec2.subtract(position, delta);
 
-        position.x -= view.position.x;
-        position.y -= view.position.y;
+        position.x -= view.x;
+        position.y -= view.y;
 
         return [position, delta];
 
         /*
         let position = new Vec2();
         while (view != event.target && view != null) {
-            position.x += view.position.x;
-            position.y += view.position.y;
+            position.x += view.x;
+            position.y += view.y;
             view = view.parent;
         }
         return new Vec2(event.x - position.x, event.y - position.y);

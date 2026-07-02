@@ -49,8 +49,8 @@ export class LabelView extends View {
 
     // --[ bounds ]-------------------------------------------------------------
     containsPoint(point) {
-        let labelX = this.position.x - this.getAnchorX() * this.getWidth();
-        let labelY = this.position.y - this.getAnchorY() * this.getHeight();
+        let labelX = this.x - this.getAnchorX() * this.getWidth();
+        let labelY = this.y - this.getAnchorY() * this.getHeight();
 
         return (
             point.x >= labelX
@@ -478,7 +478,7 @@ export class LabelView extends View {
 
 
     // --[ drawing ]------------------------------------------------------------
-    drawSelf(context) {
+    onDraw(context) {
         context.save();
 
         // Measurement must happen first! Widths or heights referenced prior to 

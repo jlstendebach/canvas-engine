@@ -5,7 +5,8 @@ describe("CircleView", () => {
     describe("constructor", () => {
         test("initializes with default options", () => {
             const view = new CircleView();
-            expect(view.position).toEqual(new Vec2());
+            expect(view.x).toEqual(0);
+            expect(view.y).toEqual(0);
             expect(view.isVisible).toBe(true);
             expect(view.isPickable).toBe(true);
             expect(view.fillStyle).toEqual(new Color(255, 255, 255));
@@ -26,7 +27,8 @@ describe("CircleView", () => {
                 strokeDash: [5, 5],
                 radius: 20
             });
-            expect(view.position).toEqual(new Vec2(10, 20));
+            expect(view.x).toEqual(10);
+            expect(view.y).toEqual(20);
             expect(view.isVisible).toBe(false);
             expect(view.isPickable).toBe(false);
             expect(view.fillStyle).toEqual(new Color(128, 128, 128));
