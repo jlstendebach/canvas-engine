@@ -20,65 +20,83 @@ export class View {
 
     #eventEmitter = new EventEmitter();
 
+    // -------------------------------------------------------------------------
     // MARK: - Position Accessors
+    // -------------------------------------------------------------------------
+
     get x() {
         return this.#transform.x;
     }
     set x(value) {
-        this.#transform.x = value;
+        this.setX(value);
     }
 
     get y() {
         return this.#transform.y;
     }
     set y(value) {
-        this.#transform.y = value;
+        this.setY(value);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Pivot Accessors
+    // -------------------------------------------------------------------------
+
     get pivotX() {
         return this.#transform.pivotX;
     }
     set pivotX(value) {
-        this.#transform.pivotX = value;
+        this.setPivotX(value);
     }
 
     get pivotY() {
         return this.#transform.pivotY;
     }
     set pivotY(value) {
-        this.#transform.pivotY = value;
+        this.setPivotY(value);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Rotation Accessors
+    // -------------------------------------------------------------------------
+
     get rotation() {
         return this.#transform.rotation;
     }
     set rotation(value) {
-        this.#transform.rotation = value;
+        this.setRotation(value);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Scale Accessors
+    // -------------------------------------------------------------------------
+
     get scaleX() {
         return this.#transform.scaleX;
     }
     set scaleX(value) {
-        this.#transform.scaleX = value;
+        this.setScaleX(value);
     }
 
     get scaleY() {
         return this.#transform.scaleY;
     }
     set scaleY(value) {
-        this.#transform.scaleY = value;
+        this.setScaleY(value);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Transform Accessors
+    // -------------------------------------------------------------------------
+
     get transform() {
         return this.#transform;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Bounds Accessors
+    // -------------------------------------------------------------------------
+
     get bounds() {
         if (this.#isBoundsDirty) {
             this.updateBounds(this.#bounds);
@@ -87,7 +105,10 @@ export class View {
         return this.#bounds;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Other Accessors
+    // -------------------------------------------------------------------------
+
     get isVisible() {
         return this.#isVisible;
     }
@@ -95,7 +116,7 @@ export class View {
         if (typeof value !== "boolean") { return; }
         if (this.#isVisible === value) { return; }
         this.#isVisible = value;
-        this.onChildBoundsChanged();
+        this.onChildBoundsInvalidated();
     }
 
     get isPickable() {
@@ -114,7 +135,10 @@ export class View {
         return this.#eventEmitter;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Initialization 
+    // -------------------------------------------------------------------------
+
     constructor(options = {}) {
         this.#transform.x = options.x ?? options.position?.x ?? 0;
         this.#transform.y = options.y ?? options.position?.y ?? 0;
@@ -122,7 +146,10 @@ export class View {
         this.#isPickable = options.isPickable !== false;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Position
+    // -------------------------------------------------------------------------
+
     getPosition(out = new Vec2()) {
         return this.#transform.getPosition(out);
     }
@@ -157,7 +184,10 @@ export class View {
         return this;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Pivot
+    // -------------------------------------------------------------------------
+
     getPivot(out = new Vec2()) {
         return this.#transform.getPivot(out);
     }
@@ -192,7 +222,10 @@ export class View {
         return this;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Scale
+    // -------------------------------------------------------------------------
+
     getScale(out = new Vec2()) {
         return this.#transform.getScale(out);
     }
@@ -227,7 +260,10 @@ export class View {
         return this;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Rotation
+    // -------------------------------------------------------------------------
+
     setRotation(radians) {
         this.#transform.setRotation(radians);
         return this;
@@ -238,7 +274,10 @@ export class View {
         return this;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Bounds 
+    // -------------------------------------------------------------------------
+
     /**
      * Checks if a point in local space is contained within this view. 
      * @param {Vec2} point - The point in local space.
@@ -258,57 +297,76 @@ export class View {
             return;
         }
         this.#isBoundsDirty = true;
-        this.parent?.onChildBoundsChanged();
+        this.parent?.onChildBoundsInvalidated();
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Transformations
-    localToParentBounds(bounds) {
-        return this.#transform.transformBounds(bounds);
+    // -------------------------------------------------------------------------
+
+    localToParentPointXY(x, y, out = new Vec2()) {
+        return this.#transform.transformPointXY(x, y, out);
     }
 
-    parentToLocalBounds(bounds) {
-        return this.#transform.inverseTransformBounds(bounds);
+    localToParentPoint(point, out = new Vec2()) {
+        return this.#transform.transformPoint(point, out);
     }
 
-    localToParentPoint(point) {
-        return this.#transform.transformPoint(point);
+    localToParentVectorXY(x, y, out = new Vec2()) {
+        return this.#transform.transformVectorXY(x, y, out);
     }
 
-    parentToLocalPoint(point) {
-        return this.#transform.inverseTransformPoint(point);
+    localToParentVector(vector, out = new Vec2()) {
+        return this.#transform.transformVector(vector, out);
+    }
+
+    localToParentBounds(bounds, out = new Bounds()) {
+        return this.#transform.transformBounds(bounds, out);
+    }
+
+
+    parentToLocalPointXY(x, y, out = new Vec2()) {
+        return this.#transform.inverseTransformPointXY(x, y, out);
+    }
+
+    parentToLocalPoint(point, out = new Vec2()) {
+        return this.#transform.inverseTransformPoint(point, out);
+    }
+
+    parentToLocalVectorXY(x, y, out = new Vec2()) {
+        return this.#transform.inverseTransformVectorXY(x, y, out);
+    }
+
+    parentToLocalVector(vector, out = new Vec2()) {
+        return this.#transform.inverseTransformVector(vector, out);
+    }
+
+    parentToLocalBounds(bounds, out = new Bounds()) {
+        return this.#transform.inverseTransformBounds(bounds, out);
     }
 
     /**
-     * Converts a point from local space to child space. If there are no 
-     * transformations, then local space and child space are the same.
-     * - "Local space" is the coordinate space of this view. It is relative to 
-     *   this view's origin. A value of (0, 0) represents the origin of this view.
-     * - "Child space" is the coordinate space of the children before any 
-     *   transformations. 
-     * @param {Vec2} point - The point in local space to convert.
-     * @returns {Vec2} The point in child space.
+     * Holdover from the old transformation system. This method is only being 
+     * kept for compatibility with the SceneView. It should be removed once the
+     * SceneView is refactored to use the new transformation system.
      */
     localToChild(point) {
-        // Base view has no transformations. Subclasses should override this method.
         return point;
     }
 
     /**
-     * Converts a point from child space to local space. If there are no 
-     * transformations, then local space and child space are the same.
-     * - "Local space" is the coordinate space of this view. It is relative to 
-     *   this view's origin. A value of (0, 0) represents the origin of this view.
-     * - "Child space" is the coordinate space of the children before any 
-     *   transformations. 
-     * @param {Vec2} point - The point in child space to convert.
-     * @returns {Vec2} The point in local space.
+     * Holdover from the old transformation system. This method is only being 
+     * kept for compatibility with the SceneView. It should be removed once the
+     * SceneView is refactored to use the new transformation system.
      */
     childToLocal(point) {
-        // Base view has no transformations. Subclasses should override this method.
         return point;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Views 
+    // -------------------------------------------------------------------------
+
     /**
      * Adds a child view to this view. If the view already has a parent, it is 
      * removed from that parent first.
@@ -357,7 +415,7 @@ export class View {
         for (let i = 0; i < this.#views.length; i++) {
             this.#views[i].#parent = null;
         }
-        this.#views = [];
+        this.#views.length = 0;
         this.invalidateBounds();
     }
 
@@ -384,10 +442,11 @@ export class View {
             return null;
         }
 
+        const bounds = this.bounds;
         const localPoint = this.parentToLocalPoint(point);
 
         // If the bounds are empty, we can treat this as a passthrough.
-        if (!this.bounds.isEmpty() && !this.containsPoint(localPoint)) {
+        if (!bounds.isEmpty() && !this.containsPoint(localPoint)) {
             return null;
         }
 
@@ -406,10 +465,13 @@ export class View {
         // If the bounds are empty, we treat this as a passthrough, so we return
         // null. Otherwise, the point is within this view's bounds, so we return 
         // this view.
-        return this.bounds.isEmpty() ? null : this;
+        return bounds.isEmpty() ? null : this;
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Parent 
+    // -------------------------------------------------------------------------
+
     /**
      * Removes this view from its parent.
      */
@@ -446,27 +508,27 @@ export class View {
         return view.isDescendantOf(this);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Drawing 
+    // -------------------------------------------------------------------------
+
     /**
      * Draws this view and its descendants when visible.
      * @param {CanvasRenderingContext2D} context - The canvas drawing context.
      */
     draw(context) {
-        if (this.#isVisible === false) {
-            return;
-        }
+        if (this.#isVisible === false) { return; }
 
         context.save();
-        this.#transform.withMatrix((matrix) => {
-            context.transform(
-                matrix.a, matrix.b,
-                matrix.c, matrix.d,
-                matrix.tx, matrix.ty
-            );
-        });
-        this.onDraw(context);
-        this.drawChildren(context);
-        context.restore();
+        try {
+            this.#transform.withMatrix((m) => {
+                context.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
+            });
+            this.onDraw(context);
+            this.drawChildren(context);
+        } finally {
+            context.restore();
+        }
     }
 
     /**
@@ -489,16 +551,22 @@ export class View {
         }
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Event Handlers
-    onChildBoundsChanged() {
+    // -------------------------------------------------------------------------
+
+    onChildBoundsInvalidated() {
         // Subclasses can override this method to respond to child bounds changes.
     }
 
     onTransformInvalidated() {
-        this.parent?.onChildBoundsChanged();
+        this.parent?.onChildBoundsInvalidated();
     }
 
-    // MARK: - Mouse Events 
+    // -------------------------------------------------------------------------
+    // MARK: - Mouse Events
+    // -------------------------------------------------------------------------
+
     onMouseDown(event) { this.events.emit(event.type, event); }
     onMouseUp(event) { this.events.emit(event.type, event); }
     onMouseMove(event) { this.events.emit(event.type, event); }
@@ -507,5 +575,3 @@ export class View {
     onMouseExit(event) { this.events.emit(event.type, event); }
     onMouseWheel(event) { this.events.emit(event.type, event); }
 }
-
-

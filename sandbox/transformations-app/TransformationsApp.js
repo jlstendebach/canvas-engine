@@ -77,12 +77,13 @@ export class TransformationsApp extends CanvasApp {
 
     initPolygonTriangleView() {
         const style = this.getNextStyle();
+        const tau = Math.PI * 2;
         const triangle = new PolygonView({
             position: this.getNextPosition(),
             points: [
-                Vec2.fromAngle(2*Math.PI * 0/3).scale(50),
-                Vec2.fromAngle(2*Math.PI * 1/3).scale(50),
-                Vec2.fromAngle(2*Math.PI * 2/3).scale(50)
+                Vec2.fromAngle(tau * 0/3).scale(50),
+                Vec2.fromAngle(tau * 1/3).scale(50),
+                Vec2.fromAngle(tau * 2/3).scale(50)
             ],
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,

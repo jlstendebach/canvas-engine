@@ -11,11 +11,11 @@ export class ContainerView extends View {
         }
     }
 
-    onChildBoundsChanged() {
-        this.invalidateBounds();
-    }
-
     containsPoint(point) {
         return this.bounds.containsPoint(point);
+    }
+
+    onChildBoundsInvalidated() {
+        this.invalidateBounds();
     }
 }
