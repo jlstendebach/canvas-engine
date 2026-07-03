@@ -4,28 +4,25 @@ export class PointList {
     #points = [];
     #onChange;
 
-    get length() {
-        return this.#points.length / 2;
-    }
-
     constructor(onChange = null) {
         this.#onChange = onChange;
     }
 
     // MARK: - Getters
+    getPointCount() {
+        return this.#points.length / 2;
+    }
+
     getPoint(index, out = new Point()) {
-        this.#assertIndex(index);
         const actualIndex = index * 2;
         return out.set(this.#points[actualIndex], this.#points[actualIndex + 1]);
     }
 
     getPointX(index) {
-        this.#assertIndex(index);
         return this.#points[index * 2];
     }
 
     getPointY(index) {
-        this.#assertIndex(index);
         return this.#points[index * 2 + 1];
     }
 
@@ -81,16 +78,26 @@ export class PointList {
         this.#onChange?.();
     }
 
+    // MARK: - Unsafe Access
+    /**
+     * WARNING: For performance reasons, this returns the raw underlying array.
+     * Treat this as READ-ONLY. Do not push, pop, or mutate the points.
+     * @returns {readonly number[]}
+     */
+    getRawPoints() {
+        return this.#points;
+    }
+
     // MARK: - Helpers
     #assertIndex(index) {
-        if (!Number.isInteger(index) || index < 0 || index >= this.length) {
-            throw new RangeError(`Point index out of bounds: ${index} (length: ${this.length})`);
+        if (!Number.isInteger(index) || index < 0 || index >= this.getPointCount()) {
+            throw new RangeError(`Point index out of bounds: ${index} (length: ${this.getPointCount()})`);
         }
     }
 
     #assertInsertIndex(index) {
-        if (!Number.isInteger(index) || index < 0 || index > this.length) {
-            throw new RangeError(`Insert index out of bounds: ${index} (length: ${this.length})`);
+        if (!Number.isInteger(index) || index < 0 || index > this.getPointCount()) {
+            throw new RangeError(`Insert index out of bounds: ${index} (length: ${this.getPointCount()})`);
         }
-    }    
+    }
 }

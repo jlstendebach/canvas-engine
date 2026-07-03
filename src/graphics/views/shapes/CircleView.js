@@ -6,10 +6,10 @@ export class CircleView extends ShapeView {
     #radius;
 
     // MARK: - Accessors
-    get radius() { 
-        return this.#radius; 
+    get radius() {
+        return this.#radius;
     }
-    set radius(value) { 
+    set radius(value) {
         this.setRadius(value);
     }
 
@@ -20,7 +20,7 @@ export class CircleView extends ShapeView {
     }
 
     // MARK: - Radius
-    setRadius(radius) {    
+    setRadius(radius) {
         if (radius === this.#radius) { return; }
         this.#radius = radius;
         this.invalidateBounds();
@@ -36,7 +36,7 @@ export class CircleView extends ShapeView {
         if (!this.bounds.containsPoint(point)) {
             return false;
         }
-        return point.x*point.x + point.y*point.y <= this.#radius*this.#radius;
+        return point.x * point.x + point.y * point.y <= this.#radius * this.#radius;
     }
 
     // MARK: - Drawing
