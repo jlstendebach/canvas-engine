@@ -2,12 +2,13 @@ import {
     CanvasApp,
     CanvasResizeEvent,
     CircleView,
-    Color,    
+    Color,
     LineView,
     MouseButton,
     MouseEvent,
     PolygonView,
     RectangleView,
+    RoundRectangleView,
     SceneView,
     Vec2,
     VectorView
@@ -39,6 +40,7 @@ export class ShapesApp extends CanvasApp {
     initShapes() {
         this.initCircleView();
         this.initRectangleView();
+        this.initRoundRectangleView();
         this.initPolygonTriangleView();
         this.initPolygonStarView();
         this.initLineStringView();
@@ -70,6 +72,24 @@ export class ShapesApp extends CanvasApp {
         this.setShapeCenter(rectangle, this.getNextPosition());
         this.addEventListeners(rectangle);
         this.scene.addView(rectangle);
+    }
+
+    initRoundRectangleView() {
+        const style = this.getNextStyle();
+        const roundRectangle = new RoundRectangleView({
+            width: 150,
+            height: 100,
+            topLeftRadius: 10,
+            topRightRadius: 20,
+            bottomRightRadius: 30,
+            bottomLeftRadius: 40,
+            fillStyle: style.fillStyle,
+            strokeStyle: style.strokeStyle,
+            strokeWidth: style.strokeWidth
+        });
+        this.setShapeCenter(roundRectangle, this.getNextPosition());
+        this.addEventListeners(roundRectangle);
+        this.scene.addView(roundRectangle);
     }
 
     initPolygonTriangleView() {
@@ -204,8 +224,8 @@ export class ShapesApp extends CanvasApp {
     setShapeCenter(shape, center) {
         if (shape instanceof RectangleView) {
             shape.setPositionXY(
-                center.x - shape.size.x / 2,
-                center.y - shape.size.y / 2
+                center.x - shape.width / 2,
+                center.y - shape.height / 2
             );
         } else if (shape instanceof LineView || shape instanceof PolygonView) {
             let minX = Infinity;

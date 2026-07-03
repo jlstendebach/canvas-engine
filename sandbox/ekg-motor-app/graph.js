@@ -30,18 +30,6 @@ export class Graph extends RectangleView {
     }
 
     // MARK: - Properties
-    set size(value) {
-        super.size = value;
-
-        if (#updateLines in this) {
-            this.#updateLines();
-        }
-    }
-
-    get size() {
-        return super.size;
-    }
-    
     set data(value) {
         this.#data = value;
         this.#updateLines();
@@ -87,7 +75,7 @@ export class Graph extends RectangleView {
         this.#cursorLine = new LineView({
             points: [
                 new Vec2(0, 0), 
-                new Vec2(0, this.size.y)
+                new Vec2(0, this.height)
             ],
             strokeStyle: this.strokeStyle,
             strokeWidth: 2,
@@ -112,12 +100,12 @@ export class Graph extends RectangleView {
     // MARK: - Data Query
     getValue(x) {
         if (this.#isSquareWave) {
-            const percent = x / this.size.x;
+            const percent = x / this.width;
             const index = Math.floor(percent * (this.#data.length));
             return this.#data[index];
 
         } else {
-            const percent = x / this.size.x;
+            const percent = x / this.width;
             const index1 = Math.floor(percent * (this.#data.length - 1));
             const index2 = Math.ceil(percent * (this.#data.length - 1));
             const value1 = this.#data[index1];
@@ -144,7 +132,7 @@ export class Graph extends RectangleView {
     setCursor(x) {
         this.#cursorLine.x = x;
         const value = this.getValue(x) ?? 0;
-        this.#valueLabel.setPositionXY(x, this.size.y + 15);
+        this.#valueLabel.setPositionXY(x, this.height + 15);
         this.#valueLabel.setText(value.toFixed(1));
     }
 
@@ -154,7 +142,7 @@ export class Graph extends RectangleView {
 
     // MARK: - Helpers
     #updateLines() {
-        const height = this.size.y - this.#verticalPadding * 2;
+        const height = this.height - this.#verticalPadding * 2;
 
         // graph line
         this.#graphLine.points = [];
@@ -164,12 +152,12 @@ export class Graph extends RectangleView {
                 ? i / (this.#data.length) 
                 : i / (this.#data.length - 1);
             const yPercent = (value - this.#minDataValue) / (this.#maxDataValue - this.#minDataValue);
-            const x = xPercent * this.size.x;
-            const y = this.size.y - this.#verticalPadding - yPercent * height;
+            const x = xPercent * this.width;
+            const y = this.height - this.#verticalPadding - yPercent * height;
             this.#graphLine.points.push(new Vec2(x, y));
             if (this.#isSquareWave) {
                 const nextXPercent = (i + 1) / (this.#data.length);
-                const nextX = nextXPercent * this.size.x;
+                const nextX = nextXPercent * this.width;
                 this.#graphLine.points.push(new Vec2(nextX, y));
             }
         }
@@ -177,15 +165,20 @@ export class Graph extends RectangleView {
         // zero line
         const yPercent = (-this.#minDataValue) / (this.#maxDataValue - this.#minDataValue);
         this.#zeroLine.points = [
-            new Vec2(0, this.size.y - this.#verticalPadding - yPercent * height),
-            new Vec2(this.size.x, this.size.y - this.#verticalPadding - yPercent * height)
+            new Vec2(0, this.height - this.#verticalPadding - yPercent * height),
+            new Vec2(this.width, this.height - this.#verticalPadding - yPercent * height)
         ];
 
         // cursor line
         this.#cursorLine.points = [
             new Vec2(0, 0),
-            new Vec2(0, this.size.y)
+            new Vec2(0, this.height)
         ];
+    }
+
+    // MARK: - Events
+    onSizeChanged() {
+        this.#updateLines();
     }
 
 }
