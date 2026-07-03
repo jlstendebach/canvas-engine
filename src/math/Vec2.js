@@ -8,12 +8,6 @@ export class Vec2 {
         this.y = y;
     }
 
-    // --[ aliases ]------------------------------------------------------------
-    get width() { return this.x; }
-    set width(width) { this.x = width; }
-    get height() { return this.y; }
-    set height(height) { this.y = height; }
-
     // --[ in-place operations ]------------------------------------------------
     /**
      * Sets the x and y components of this vector.
