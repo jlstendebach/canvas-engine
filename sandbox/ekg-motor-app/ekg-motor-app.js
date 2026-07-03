@@ -123,10 +123,8 @@ export class EkgMotorApp extends CanvasApp {
             fillStyle: this.dataGraph.fillStyle,
             strokeStyle: this.dataGraph.strokeStyle,
             strokeWidth: 2,
-            size: new Vec2(
-                radius * 2 * 3 + spacing * 2 + padding * 2,
-                radius * 2 * 2 + spacing * 1 + padding * 2
-            ),
+            width: radius * 2 * 3 + spacing * 2 + padding * 2,
+            height: radius * 2 * 2 + spacing * 1 + padding * 2,
         });
         this.canvas.addView(this.motorContainer);
 

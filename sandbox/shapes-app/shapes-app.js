@@ -64,7 +64,8 @@ export class ShapesApp extends CanvasApp {
     initRectangleView() {
         const style = this.getNextStyle();
         const rectangle = new RectangleView({
-            size: new Vec2(150, 100),
+            width: 150,
+            height: 100,
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth

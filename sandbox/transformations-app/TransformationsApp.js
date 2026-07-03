@@ -64,7 +64,8 @@ export class TransformationsApp extends CanvasApp {
         const style = this.getNextStyle();
         const rectangle = new RectangleView({
             position: this.getNextPosition(),
-            size: new Vec2(150, 100),
+            width: 150,
+            height: 100,
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth

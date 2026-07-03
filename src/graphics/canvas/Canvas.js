@@ -3,6 +3,7 @@ import { MouseEvent } from "../../events/mouse/MouseEvent.js";
 import { MouseEventProcessor } from "../../events/mouse/MouseEventProcessor.js";
 import { Vec2 } from "../../math/Vec2.js";
 import { CachedColor } from "../utils/CachedColor.js";
+import { Size } from "../utils/Size.js";
 import { CanvasResizeEvent } from "./CanvasEvents.js";
 import { CanvasRootView } from "./CanvasRootView.js";
 
@@ -134,7 +135,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Size
     // -------------------------------------------------------------------------
-    getSize(out = new Vec2()) {
+    getSize(out = new Size()) {
         return out.set(this.#element.width, this.#element.height);
     }
 
@@ -266,7 +267,7 @@ export class Canvas {
     #getComputedSize() {
         const style = getComputedStyle(this.#element)
         const getStyleFloat = (property) => parseFloat(style.getPropertyValue(property)) || 0;
-        const size = new Vec2(getStyleFloat("width"), getStyleFloat("height"));
+        const size = new Size(getStyleFloat("width"), getStyleFloat("height"));
 
         // A box-sizing of border-box includes the padding and border in the 
         // element's width and height, so we must subtract those values.
@@ -275,8 +276,8 @@ export class Canvas {
             const paddingY = getStyleFloat("padding-top") + getStyleFloat("padding-bottom");
             const borderX = getStyleFloat("border-left-width") + getStyleFloat("border-right-width");
             const borderY = getStyleFloat("border-top-width") + getStyleFloat("border-bottom-width");
-            size.x -= (paddingX + borderX);
-            size.y -= (paddingY + borderY);
+            size.width -= (paddingX + borderX);
+            size.height -= (paddingY + borderY);
         }
 
         // HTMLCanvasElement converts width and height values to integers, so we
@@ -288,7 +289,7 @@ export class Canvas {
     #updateSize() {
         const size = this.#getComputedSize();
 
-        if (this.#element.width === size.x && this.#element.height === size.y) {
+        if (this.#element.width === size.width && this.#element.height === size.height) {
             // Size is already correct, exit early.
             return;
         }
@@ -308,17 +309,17 @@ export class Canvas {
             this,                 // app
             this.#element.width,  // oldWidth
             this.#element.height, // oldHeight
-            size.x,               // width
-            size.y                // height
+            size.width,           // width
+            size.height           // height
         );
 
         // Set the new size.
-        this.#element.width = size.x;
-        this.#element.height = size.y;
+        this.#element.width = size.width;
+        this.#element.height = size.height;
         if (this.#context instanceof WebGL2RenderingContext ||
             this.#context instanceof WebGLRenderingContext
         ) {
-            this.#context.viewport(0, 0, size.x, size.y);
+            this.#context.viewport(0, 0, size.width, size.height);
         }
 
         // Draw the previous content back onto the resized canvas.

@@ -175,10 +175,15 @@ export class SceneApp extends CanvasApp {
         event.target.setPosition(event.getParentXY());
 
         if (event.target == this.boxCorner1) {
-            this.box.setPosition(this.scene.localToChild(this.boxCorner1.getPosition()));
-            this.box.setSize(this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition()));
+            const newPosition = this.scene.localToChild(this.boxCorner1.getPosition());
+            const newSize = this.scene.localToChild(this.boxCorner2.getPosition()).subtract(newPosition);
+
+            this.box.setPosition(newPosition);
+            this.box.setSizeWH(newSize.x, newSize.y);
+
         } else if (event.target == this.boxCorner2) {
-            this.box.setSize(this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition()));
+            const newSize = this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition());
+            this.box.setSizeWH(newSize.x, newSize.y);
         }
     }
 

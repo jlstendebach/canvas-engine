@@ -5,20 +5,25 @@ export class CircleView extends ShapeView {
     
     #radius;
 
-    // MARK: - Properties
-    set radius(r) { 
-        if (r === this.#radius) { return; }
-        this.#radius = r; 
-        this.invalidateBounds();
-    }
+    // MARK: - Accessors
     get radius() { 
         return this.#radius; 
+    }
+    set radius(value) { 
+        this.setRadius(value);
     }
 
     // MARK: - Initialization
     constructor(options = {}) {
         super(options);
         this.radius = options.radius ?? 10;
+    }
+
+    // MARK: - Radius
+    setRadius(radius) {    
+        if (radius === this.#radius) { return; }
+        this.#radius = radius;
+        this.invalidateBounds();
     }
 
     // MARK: - Hit Testing

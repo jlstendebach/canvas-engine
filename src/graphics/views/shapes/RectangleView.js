@@ -1,4 +1,4 @@
-import { Vec2 } from "../../../math/Vec2.js";
+import { Size } from "../../utils/Size.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class RectangleView extends ShapeView {
@@ -28,7 +28,7 @@ export class RectangleView extends ShapeView {
     }
 
     // MARK: - Size
-    getSize(out = new Vec2()) {
+    getSize(out = new Size()) {
         return out.set(this.#width, this.#height);
     }
 
@@ -36,17 +36,19 @@ export class RectangleView extends ShapeView {
         if (this.#width === width && this.#height === height) { return this; }
         this.#width = width;
         this.#height = height;
+        this.invalidateBounds();
         this.onSizeChanged();
         return this;
     }
 
     setSize(size) {
-        return this.setSizeWH(size.x, size.y);
+        return this.setSizeWH(size.width, size.height);
     }
 
     setWidth(width) {
         if (this.#width === width) { return this; }
         this.#width = width;
+        this.invalidateBounds();
         this.onSizeChanged();
         return this;
     }
@@ -54,6 +56,7 @@ export class RectangleView extends ShapeView {
     setHeight(height) {
         if (this.#height === height) { return this; }
         this.#height = height;
+        this.invalidateBounds();
         this.onSizeChanged();
         return this;
     }
@@ -73,8 +76,6 @@ export class RectangleView extends ShapeView {
     }
 
     // MARK: - Events
-    onSizeChanged() {
-        this.invalidateBounds();
-    }
+    onSizeChanged() {}
 
 }

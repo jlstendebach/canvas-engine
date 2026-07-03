@@ -15,9 +15,9 @@ export * from "./views/charts/BarChartView.js"
 export * from "./views/charts/PieChartView.js"
 
 // MARK: - views/core
-export * from "./views/core/View.js"
 export * from "./views/core/ContainerView.js"
-    
+export * from "./views/core/View.js"
+
 // MARK: - views/shapes
 export * from "./views/shapes/CircleView.js"
 export * from "./views/shapes/LineView.js"
