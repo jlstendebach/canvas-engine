@@ -1,8 +1,8 @@
 import { ShapeView } from "./ShapeView.js";
 
+const TAU = Math.PI * 2;
+
 export class CircleView extends ShapeView {
-    static #TAU = Math.PI * 2;
-    
     #radius;
 
     // MARK: - Accessors
@@ -24,6 +24,7 @@ export class CircleView extends ShapeView {
         if (radius === this.#radius) { return; }
         this.#radius = radius;
         this.invalidateBounds();
+        return this;
     }
 
     // MARK: - Hit Testing
@@ -40,7 +41,7 @@ export class CircleView extends ShapeView {
 
     // MARK: - Drawing
     path(context) {
-        context.arc(0, 0, this.#radius, 0, CircleView.#TAU);
+        context.arc(0, 0, this.#radius, 0, TAU);
     }
 
 }
