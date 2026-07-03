@@ -158,7 +158,7 @@ export class EkgMotorApp extends CanvasApp {
         motors[3].y = motors[1].y;
 
         motors[4].x = motors[3].x + radius * 2 + spacing;
-        motors[4].y = this.motorContainer.size.y / 2;
+        motors[4].y = this.motorContainer.height / 2;
 
         this.motors = motors;
     }
@@ -242,26 +242,26 @@ export class EkgMotorApp extends CanvasApp {
     layoutViews() {
         // data graph
         this.dataGraph.setPositionXY(this.PADDING, this.PADDING);
-        this.dataGraph.size = new Vec2(this.canvas.size.x - this.PADDING * 2, this.GRAPH_HEIGHT);
+        this.dataGraph.setSizeWH(this.canvas.width - this.PADDING * 2, this.GRAPH_HEIGHT);
 
         // slope graph
         this.slopeGraph.setPositionXY(
             this.PADDING,
-            this.dataGraph.y + this.dataGraph.size.y + this.PADDING
+            this.dataGraph.y + this.dataGraph.height + this.PADDING
         );
-        this.slopeGraph.size = new Vec2(this.canvas.size.x - this.PADDING * 2, this.GRAPH_HEIGHT);
+        this.slopeGraph.setSizeWH(this.canvas.width - this.PADDING * 2, this.GRAPH_HEIGHT);
 
         // activation graph
         this.activationGraph.setPositionXY(
             this.PADDING,
-            this.slopeGraph.y + this.slopeGraph.size.y + this.PADDING
+            this.slopeGraph.y + this.slopeGraph.height + this.PADDING
         );
-        this.activationGraph.size = new Vec2(this.canvas.size.x - this.PADDING * 2, this.GRAPH_HEIGHT);
+        this.activationGraph.setSizeWH(this.canvas.width - this.PADDING * 2, this.GRAPH_HEIGHT);
 
         // motors
         this.motorContainer.setPositionXY(
-            this.canvas.size.x / 2 - this.motorContainer.size.x / 2,
-            this.activationGraph.y + this.activationGraph.size.y + this.PADDING
+            this.canvas.width / 2 - this.motorContainer.width / 2,
+            this.activationGraph.y + this.activationGraph.height + this.PADDING
         );
     }
 

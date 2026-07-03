@@ -73,7 +73,7 @@ export class SceneApp extends CanvasApp {
         this.boxCorner1 = this.canvas.addView(boxCorner1);
 
         const boxCorner2 = new CircleView({
-            position: Vec2.add(this.box.getPosition(), this.box.size),
+            position: Vec2.add(this.box.getPosition(), this.box.getSize()),
             radius: this.CORNER_RADIUS,
             fillStyle: new Color(0, 200, 0),
             strokeStyle: new Color(100, 100, 100),
@@ -141,7 +141,7 @@ export class SceneApp extends CanvasApp {
                 this.scene.translate(new Vec2(event.dx, event.dy));
 
             } else if (event.button == MouseButton.RIGHT) {
-                const childSpaceAnchor = this.box.getPosition().add(this.box.size.clone().divideScalar(2));
+                const childSpaceAnchor = this.box.getPosition().add(this.box.getSize().divideScalar(2));
                 const localSpaceAnchor = this.isFollowingBall
                     ? this.canvas.size.clone().divideScalar(2)
                     : this.scene.childToLocal(childSpaceAnchor);
@@ -176,9 +176,9 @@ export class SceneApp extends CanvasApp {
 
         if (event.target == this.boxCorner1) {
             this.box.setPosition(this.scene.localToChild(this.boxCorner1.getPosition()));
-            this.box.size = this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition());
+            this.box.setSize(this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition()));
         } else if (event.target == this.boxCorner2) {
-            this.box.size = this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition());
+            this.box.setSize(this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition()));
         }
     }
 
@@ -198,9 +198,9 @@ export class SceneApp extends CanvasApp {
         const scale = 0.90;
         const friction = 0.995;
         const left = this.box.x;
-        const right = this.box.x + this.box.size.width;
+        const right = this.box.x + this.box.width;
         const top = this.box.y;
-        const bottom = this.box.y + this.box.size.height;
+        const bottom = this.box.y + this.box.height;
 
         if (this.ball.x - this.ball.radius < left) {
             this.ball.x = left + this.ball.radius;
@@ -225,7 +225,7 @@ export class SceneApp extends CanvasApp {
 
     positionBoxCorners() {
         this.boxCorner1.setPosition(this.scene.childToLocal(this.box.getPosition()));
-        this.boxCorner2.setPosition(this.scene.childToLocal(this.box.getPosition().add(this.box.size)));
+        this.boxCorner2.setPosition(this.scene.childToLocal(this.box.getPosition().add(this.box.getSize())));
     }
 
 }

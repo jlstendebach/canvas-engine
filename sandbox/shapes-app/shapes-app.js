@@ -204,8 +204,8 @@ export class ShapesApp extends CanvasApp {
     setShapeCenter(shape, center) {
         if (shape instanceof RectangleView) {
             shape.setPositionXY(
-                center.x - shape.size.x / 2,
-                center.y - shape.size.y / 2
+                center.x - shape.width / 2,
+                center.y - shape.height / 2
             );
         } else if (shape instanceof LineView || shape instanceof PolygonView) {
             let minX = Infinity;

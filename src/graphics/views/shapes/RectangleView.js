@@ -2,46 +2,65 @@ import { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class RectangleView extends ShapeView {
-    #size = new Vec2();
+    #width = 10;
+    #height = 10;
 
     // MARK: - Accessors 
-    set size(value) { 
-        if (this.#size.equals(value)) { return; }
-        this.#size.copy(value);
-        this.invalidateBounds();
-    }
-    get size() { 
-        return this.#size; 
-    }
-
-    set width(value) {
-        if (this.#size.x === value) { return; }        
-        this.#size.x = value;
-        this.invalidateBounds();
-    }
     get width() {
-        return this.#size.x;
+        return this.#width;
+    }    
+    set width(value) {
+        this.setWidth(value);
     }
 
-    set height(value) {
-        if (this.#size.y === value) { return; }
-        this.#size.y = value;
-        this.invalidateBounds();
-    }
     get height() {
-        return this.#size.y;
+        return this.#height;
+    }
+    set height(value) {
+        this.setHeight(value);
     }
 
     // MARK: - Initialization 
     constructor(options = {}) {
         super(options);
-        this.#size.x = options.width ?? options.size?.x ?? 10;
-        this.#size.y = options.height ?? options.size?.y ?? 10;
+        this.#width = options.width ?? options.size?.x ?? 10;
+        this.#height = options.height ?? options.size?.y ?? 10;
+    }
+
+    // MARK: - Size
+    getSize(out = new Vec2()) {
+        return out.set(this.#width, this.#height);
+    }
+
+    setSizeWH(width, height) {
+        if (this.#width === width && this.#height === height) { return this; }
+        this.#width = width;
+        this.#height = height;
+        this.onSizeChanged();
+        return this;
+    }
+
+    setSize(size) {
+        return this.setSizeWH(size.x, size.y);
+    }
+
+    setWidth(width) {
+        if (this.#width === width) { return this; }
+        this.#width = width;
+        this.onSizeChanged();
+        return this;
+    }
+
+    setHeight(height) {
+        if (this.#height === height) { return this; }
+        this.#height = height;
+        this.onSizeChanged();
+        return this;
     }
 
     // MARK: - Hit Testing
     updateBounds(out) {
-        out.set(0, 0, this.width, this.height);
+        out.set(0, 0, this.#width, this.#height);
     }
 
     containsPoint(point) {
@@ -50,7 +69,12 @@ export class RectangleView extends ShapeView {
 
     // MARK: - Drawing
     path(context) {
-        context.rect(0, 0, this.#size.x, this.#size.y);
+        context.rect(0, 0, this.#width, this.#height);
+    }
+
+    // MARK: - Events
+    onSizeChanged() {
+        this.invalidateBounds();
     }
 
 }

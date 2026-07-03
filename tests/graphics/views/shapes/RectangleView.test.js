@@ -13,7 +13,8 @@ describe("RectangleView", () => {
             expect(view.strokeStyle).toEqual(new Color(0, 0, 0));
             expect(view.strokeWidth).toBe(1);
             expect(view.strokeDash).toEqual([]);
-            expect(view.size).toEqual(new Vec2(10, 10));
+            expect(view.width).toBe(10);
+            expect(view.height).toBe(10);
         });
 
         test("initializes with custom options", () => {
@@ -35,7 +36,8 @@ describe("RectangleView", () => {
             expect(view.strokeStyle).toEqual(new Color(64, 64, 64));
             expect(view.strokeWidth).toBe(2);
             expect(view.strokeDash).toEqual([5, 5]);
-            expect(view.size).toEqual(new Vec2(20, 30));
+            expect(view.width).toBe(20);
+            expect(view.height).toBe(30);
         });
     });
 });
