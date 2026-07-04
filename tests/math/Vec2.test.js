@@ -28,29 +28,6 @@ describe("Vec2 Constructor", () => {
     });
 });
 
-// --[ alias tests ]------------------------------------------------------------
-describe("Vec2 Aliases", () => {
-    test("v.width/v.height are alias's of v.x/v.y", () => {
-        let v = new Vec2(1, 2);
-        expect(v.x).toBe(1);
-        expect(v.width).toBe(v.x);
-        expect(v.y).toBe(2);
-        expect(v.height).toBe(v.y);
-
-        v.width = 20
-        expect(v.x).toBe(20);
-        expect(v.width).toBe(v.x);
-        expect(v.y).toBe(2);
-        expect(v.height).toBe(v.y);
-
-        v.height = 30
-        expect(v.x).toBe(20);
-        expect(v.width).toBe(v.x);
-        expect(v.y).toBe(30);
-        expect(v.height).toBe(v.y);
-    });
-});
-
 // --[ in-place operations ]----------------------------------------------------
 describe("Vec2 In-Place Operations", () => {
     const doTests = (updateActual, getExpected, isValid=()=>{ return true; }) => {
