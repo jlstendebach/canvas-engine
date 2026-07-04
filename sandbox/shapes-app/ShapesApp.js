@@ -8,14 +8,15 @@ import {
     Point,
     PolygonView,
     RectangleView,
+    RoundRectangleView,
     SceneView,
     Vec2,
     VectorView
 } from "../../src/index.js";
 
-import { shapeStyles } from "./shapeStyles.js";
+import { shapeStyles } from "../common/shapeStyles.js";
 
-export class TransformationsApp extends CanvasApp {
+export class ShapesApp extends CanvasApp {
     scene;
     shapes = [];
 
@@ -39,6 +40,7 @@ export class TransformationsApp extends CanvasApp {
     initShapes() {
         this.initCircleView();
         this.initRectangleView();
+        this.initRoundRectangleView();
         this.initPolygonTriangleView();
         this.initPolygonStarView();
         this.initLineStringView();
@@ -75,6 +77,27 @@ export class TransformationsApp extends CanvasApp {
         this.addEventListeners(rectangle);
         this.scene.addView(rectangle);
         this.shapes.push(rectangle);
+    }
+
+    initRoundRectangleView() {
+        const style = this.getNextStyle();
+        const roundRectangle = new RoundRectangleView({
+            width: 150,
+            height: 100,
+            topLeftRadius: 10,
+            topRightRadius: 20,
+            bottomRightRadius: 30,
+            bottomLeftRadius: 40,
+            fillStyle: style.fillStyle,
+            strokeStyle: style.strokeStyle,
+            strokeWidth: style.strokeWidth
+        });
+        roundRectangle
+            .setPosition(this.getNextPosition())
+            .setPivotXY(roundRectangle.bounds.centerX, roundRectangle.bounds.centerY);
+        this.addEventListeners(roundRectangle);
+        this.scene.addView(roundRectangle);
+        this.shapes.push(roundRectangle);
     }
 
     initPolygonTriangleView() {
