@@ -76,8 +76,8 @@ export class Graph extends RectangleView {
             strokeStyle: this.strokeStyle,
             strokeWidth: 2,
         })
-            .addPoint(0, 0)
-            .addPoint(0, this.height);
+            .addPointXY(0, 0)
+            .addPointXY(0, this.height);
         this.addView(this.#cursorLine);
     }
 
@@ -152,11 +152,11 @@ export class Graph extends RectangleView {
             const yPercent = (value - this.#minDataValue) / (this.#maxDataValue - this.#minDataValue);
             const x = xPercent * this.width;
             const y = this.height - this.#verticalPadding - yPercent * height;
-            this.#graphLine.addPoint(x, y);
+            this.#graphLine.addPointXY(x, y);
             if (this.#isSquareWave) {
                 const nextXPercent = (i + 1) / (this.#data.length);
                 const nextX = nextXPercent * this.width;
-                this.#graphLine.addPoint(nextX, y);
+                this.#graphLine.addPointXY(nextX, y);
             }
         }
 
@@ -164,13 +164,13 @@ export class Graph extends RectangleView {
         const yPercent = (-this.#minDataValue) / (this.#maxDataValue - this.#minDataValue);
         this.#zeroLine
             .clearPoints()
-            .addPoint(0, this.height - this.#verticalPadding - yPercent * height)
-            .addPoint(this.width, this.height - this.#verticalPadding - yPercent * height);
+            .addPointXY(0, this.height - this.#verticalPadding - yPercent * height)
+            .addPointXY(this.width, this.height - this.#verticalPadding - yPercent * height);
 
         // cursor line
         this.#cursorLine.clearPoints()
-            .addPoint(0, 0)
-            .addPoint(0, this.height);
+            .addPointXY(0, 0)
+            .addPointXY(0, this.height);
     }
 
     // MARK: - Events
