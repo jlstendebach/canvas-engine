@@ -5,11 +5,10 @@ import {
     Color,
     LabelView,
     MouseEvent,
-    RectangleView,
-    Vec2
+    RectangleView
 } from "../../src/index.js";
 
-import { Graph } from "./graph.js";
+import { Graph } from "./Graph.js";
 
 import { data } from "./data.js";
 //const data = [0, 1, 3, 4, 4, 4, 3, 2, 1, -1, -1, -1]

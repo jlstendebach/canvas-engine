@@ -2,8 +2,7 @@ import {
     Color,
     LabelView,
     LineView,
-    RectangleView,
-    Vec2
+    RectangleView
 } from "../../src/index.js";
 
 
