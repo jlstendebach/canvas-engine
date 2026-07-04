@@ -5,6 +5,7 @@ import {
     LineView,
     MouseButton,
     MouseEvent,
+    Point,
     PolygonView,
     RectangleView,
     SceneView,
@@ -78,18 +79,23 @@ export class TransformationsApp extends CanvasApp {
 
     initPolygonTriangleView() {
         const style = this.getNextStyle();
-        const tau = Math.PI * 2;
         const triangle = new PolygonView({
             position: this.getNextPosition(),
-            points: [
-                Vec2.fromAngle(tau * 0/3).scale(50),
-                Vec2.fromAngle(tau * 1/3).scale(50),
-                Vec2.fromAngle(tau * 2/3).scale(50)
-            ],
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
+
+        const tau = Math.PI * 2;
+        const p1 = Point.fromAngle(tau * 0/3).scale(50);
+        const p2 = Point.fromAngle(tau * 1/3).scale(50);
+        const p3 = Point.fromAngle(tau * 2/3).scale(50);
+
+        triangle
+            .addPoint(p1.x, p1.y)
+            .addPoint(p2.x, p2.y)
+            .addPoint(p3.x, p3.y);
+
         this.addEventListeners(triangle);
         this.scene.addView(triangle);
         this.shapes.push(triangle);
