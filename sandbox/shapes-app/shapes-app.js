@@ -56,7 +56,7 @@ export class ShapesApp extends CanvasApp {
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
-        this.setShapeCenter(circle, this.getNextPosition());
+        circle.setPosition(this.getNextPosition());
         this.addEventListeners(circle);
         this.scene.addView(circle);
     }
@@ -70,7 +70,9 @@ export class ShapesApp extends CanvasApp {
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
-        this.setShapeCenter(rectangle, this.getNextPosition());
+        rectangle
+            .setPosition(this.getNextPosition())
+            .setPivotXY(rectangle.bounds.centerX, rectangle.bounds.centerY);
         this.addEventListeners(rectangle);
         this.scene.addView(rectangle);
     }
@@ -88,7 +90,9 @@ export class ShapesApp extends CanvasApp {
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
-        this.setShapeCenter(roundRectangle, this.getNextPosition());
+        roundRectangle
+            .setPosition(this.getNextPosition())
+            .setPivotXY(roundRectangle.bounds.centerX, roundRectangle.bounds.centerY);
         this.addEventListeners(roundRectangle);
         this.scene.addView(roundRectangle);
     }
@@ -105,7 +109,7 @@ export class ShapesApp extends CanvasApp {
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
-        this.setShapeCenter(triangle, this.getNextPosition());
+        triangle.setPosition(this.getNextPosition());
         this.addEventListeners(triangle);
         this.scene.addView(triangle);
     }
@@ -128,7 +132,7 @@ export class ShapesApp extends CanvasApp {
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
-        this.setShapeCenter(star, this.getNextPosition());
+        star.setPosition(this.getNextPosition());
         this.addEventListeners(star);
         this.scene.addView(star);
     }
@@ -136,17 +140,17 @@ export class ShapesApp extends CanvasApp {
     initLineStringView() {
         const style = this.getNextStyle();        
         const tau = Math.PI * 2;
-        const points = [];
-        const pointCount = 150;
-        for (let i = 0; i < pointCount; i++) {
-            points.push(new Vec2(i, Math.sin(tau*i/pointCount) * 50));
-        }
         const lineString = new LineView({
-            points: points,
             strokeStyle: style.strokeStyle,
             strokeWidth: 4
         });
-        this.setShapeCenter(lineString, this.getNextPosition());
+        const pointCount = 150;
+        for (let i = 0; i < pointCount; i++) {
+            lineString.addPoint(i, Math.sin(tau*i/pointCount) * 50);
+        }
+        lineString.setPosition(this.getNextPosition())
+            .setPivotXY(lineString.bounds.centerX, lineString.bounds.centerY);
+
         this.addEventListeners(lineString);
         this.scene.addView(lineString);
     }
@@ -154,14 +158,14 @@ export class ShapesApp extends CanvasApp {
     initLineView() {
         const style = this.getNextStyle();
         const line = new LineView({
-            points: [
-                new Vec2(0, 0),
-                new Vec2(100, 100)
-            ],
             strokeStyle: style.strokeStyle,
             strokeWidth: 4
         });
-        this.setShapeCenter(line, this.getNextPosition());
+        line.setPosition(this.getNextPosition())
+            .addPoint(0, 0)
+            .addPoint(100, 100)
+            .setPivotXY(line.bounds.centerX, line.bounds.centerY);
+
         this.addEventListeners(line);
         this.scene.addView(line);
     }
@@ -176,7 +180,9 @@ export class ShapesApp extends CanvasApp {
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth,
         });
-        this.setShapeCenter(vector, this.getNextPosition());
+        vector
+            .setPosition(this.getNextPosition())
+            .setPivotXY(vector.bounds.centerX, vector.bounds.centerY);
         this.addEventListeners(vector);
         this.scene.addView(vector);
     }
@@ -184,19 +190,19 @@ export class ShapesApp extends CanvasApp {
     // MARK: - Events Handlers
     onMouseDown(type, event) {
         if (event.button === MouseButton.LEFT) {
-            this.setShapeCenter(event.target, event.getParentXY());
+            event.target.setPosition(event.getParentXY());
             event.target.fillStyle.a += 0.1;
         }
         this.refresh();
     }
 
     onMouseDrag(type, event) {
-        this.setShapeCenter(event.target, event.getParentXY());
+        event.target.setPosition(event.getParentXY());
         this.refresh();
     }
 
     onMouseUp(type, event) {
-        this.setShapeCenter(event.target, event.getParentXY());
+        event.target.setPosition(event.getParentXY());
         event.target.fillStyle.a -= 0.1;
         this.refresh();
     }
@@ -220,37 +226,6 @@ export class ShapesApp extends CanvasApp {
         shape.events.on(MouseEvent.UP, this.onMouseUp, this);
         shape.events.on(MouseEvent.ENTER, this.onMouseEnter, this);
         shape.events.on(MouseEvent.EXIT, this.onMouseExit, this);
-    }
-
-    setShapeCenter(shape, center) {
-        if (shape instanceof RectangleView) {
-            shape.setPositionXY(
-                center.x - shape.width / 2,
-                center.y - shape.height / 2
-            );
-        } else if (shape instanceof LineView || shape instanceof PolygonView) {
-            let minX = Infinity;
-            let maxX = -Infinity;
-            let minY = Infinity;
-            let maxY = -Infinity;
-            for (const point of shape.points) {
-                minX = Math.min(minX, point.x);
-                maxX = Math.max(maxX, point.x);
-                minY = Math.min(minY, point.y);
-                maxY = Math.max(maxY, point.y);
-            }
-            shape.setPositionXY(
-                center.x - (minX + maxX) / 2,
-                center.y - (minY + maxY) / 2
-            );
-        } else if (shape instanceof VectorView) {
-            shape.setPositionXY(
-                center.x - shape.vector.x / 2,
-                center.y - shape.vector.y / 2
-            );
-        } else {
-            shape.setPosition(center);
-        }
     }
 
     getNextStyle() {

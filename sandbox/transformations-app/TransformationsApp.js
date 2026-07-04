@@ -121,18 +121,18 @@ export class TransformationsApp extends CanvasApp {
 
     initLineStringView() {
         const style = this.getNextStyle();        
-        const tau = Math.PI * 2;
-        const points = [];
-        const pointCount = 150;
-        for (let i = 0; i < pointCount; i++) {
-            points.push(new Vec2(i, Math.sin(tau*i/pointCount) * 50));
-        }
         const lineString = new LineView({
             position: this.getNextPosition(),
-            points: points,
             strokeStyle: style.strokeStyle,
             strokeWidth: 4
         });
+
+        const tau = Math.PI * 2;
+        const pointCount = 150;
+        for (let i = 0; i < pointCount; i++) {
+            lineString.addPoint(i, Math.sin(tau*i/pointCount) * 50);
+        }
+
         this.setPivotToCenter(lineString);
         this.addEventListeners(lineString);
         this.scene.addView(lineString);
@@ -143,13 +143,12 @@ export class TransformationsApp extends CanvasApp {
         const style = this.getNextStyle();
         const line = new LineView({
             position: this.getNextPosition(),
-            points: [
-                new Vec2(0, 0),
-                new Vec2(100, 100)
-            ],
             strokeStyle: style.strokeStyle,
             strokeWidth: 4
         });
+
+        line.addPoint(0, 0).addPoint(100, 100);
+
         this.setPivotToCenter(line);
         this.addEventListeners(line);
         this.scene.addView(line);

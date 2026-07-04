@@ -48,10 +48,10 @@ export class CanvasSizesApp extends CanvasApp {
     }
 
     onCanvasMouseMove(type, event) {
-        if (this.#mousePath.points.length >= this.#maxMousePathLength) {
-            this.#mousePath.points.shift();
+        if (this.#mousePath.getPointCount() >= this.#maxMousePathLength) {
+            this.#mousePath.removePoint(0);
         }
-        this.#mousePath.points.push(new Vec2(event.x, event.y));
+        this.#mousePath.addPoint(event.x, event.y);
     }
 
     // MARK: - helpers
