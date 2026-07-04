@@ -87,14 +87,10 @@ export class TransformationsApp extends CanvasApp {
         });
 
         const tau = Math.PI * 2;
-        const p1 = Point.fromAngle(tau * 0/3).scale(50);
-        const p2 = Point.fromAngle(tau * 1/3).scale(50);
-        const p3 = Point.fromAngle(tau * 2/3).scale(50);
-
         triangle
-            .addPointXY(p1.x, p1.y)
-            .addPointXY(p2.x, p2.y)
-            .addPointXY(p3.x, p3.y);
+            .addPoint(Point.fromAngle(tau * 0/3).scale(50))
+            .addPoint(Point.fromAngle(tau * 1/3).scale(50))
+            .addPoint(Point.fromAngle(tau * 2/3).scale(50));
 
         this.addEventListeners(triangle);
         this.scene.addView(triangle);

@@ -6,6 +6,7 @@ import {
     LineView,
     MouseButton,
     MouseEvent,
+    Point,
     PolygonView,
     RectangleView,
     RoundRectangleView,
@@ -100,15 +101,18 @@ export class ShapesApp extends CanvasApp {
     initPolygonTriangleView() {
         const style = this.getNextStyle();
         const triangle = new PolygonView({
+            position: this.getNextPosition(),
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
+
+        const tau = Math.PI * 2;
         triangle
-            .setPosition(this.getNextPosition())
-            .addPointXY(0, -50)
-            .addPointXY(50, 50)
-            .addPointXY(-50, 50);
+            .addPoint(Point.fromAngle(tau * 0/3).scale(50))
+            .addPoint(Point.fromAngle(tau * 1/3).scale(50))
+            .addPoint(Point.fromAngle(tau * 2/3).scale(50));
+
         this.addEventListeners(triangle);
         this.scene.addView(triangle);
     }
