@@ -2,8 +2,7 @@ import {
     Color,
     LabelView,
     LineView,
-    RectangleView,
-    Vec2
+    RectangleView
 } from "../../src/index.js";
 
 
@@ -73,13 +72,11 @@ export class Graph extends RectangleView {
 
     initCursorLine() {
         this.#cursorLine = new LineView({
-            points: [
-                new Vec2(0, 0), 
-                new Vec2(0, this.height)
-            ],
             strokeStyle: this.strokeStyle,
             strokeWidth: 2,
         })
+            .addPointXY(0, 0)
+            .addPointXY(0, this.height);
         this.addView(this.#cursorLine);
     }
 
@@ -145,7 +142,7 @@ export class Graph extends RectangleView {
         const height = this.height - this.#verticalPadding * 2;
 
         // graph line
-        this.#graphLine.points = [];
+        this.#graphLine.clearPoints();
         for (let i = 0; i < this.#data.length; i++) {
             const value = this.#data[i];
             const xPercent = this.#isSquareWave 
@@ -154,26 +151,25 @@ export class Graph extends RectangleView {
             const yPercent = (value - this.#minDataValue) / (this.#maxDataValue - this.#minDataValue);
             const x = xPercent * this.width;
             const y = this.height - this.#verticalPadding - yPercent * height;
-            this.#graphLine.points.push(new Vec2(x, y));
+            this.#graphLine.addPointXY(x, y);
             if (this.#isSquareWave) {
                 const nextXPercent = (i + 1) / (this.#data.length);
                 const nextX = nextXPercent * this.width;
-                this.#graphLine.points.push(new Vec2(nextX, y));
+                this.#graphLine.addPointXY(nextX, y);
             }
         }
 
         // zero line
         const yPercent = (-this.#minDataValue) / (this.#maxDataValue - this.#minDataValue);
-        this.#zeroLine.points = [
-            new Vec2(0, this.height - this.#verticalPadding - yPercent * height),
-            new Vec2(this.width, this.height - this.#verticalPadding - yPercent * height)
-        ];
+        this.#zeroLine
+            .clearPoints()
+            .addPointXY(0, this.height - this.#verticalPadding - yPercent * height)
+            .addPointXY(this.width, this.height - this.#verticalPadding - yPercent * height);
 
         // cursor line
-        this.#cursorLine.points = [
-            new Vec2(0, 0),
-            new Vec2(0, this.height)
-        ];
+        this.#cursorLine.clearPoints()
+            .addPointXY(0, 0)
+            .addPointXY(0, this.height);
     }
 
     // MARK: - Events

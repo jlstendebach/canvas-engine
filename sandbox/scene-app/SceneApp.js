@@ -43,7 +43,7 @@ export class SceneApp extends CanvasApp {
 
     initScene() {
         const scene = new SceneView();
-        scene.size.set(this.canvas.size.width, this.canvas.size.height);
+        scene.size.set(this.canvas.width, this.canvas.height);
         scene.events.on(MouseEvent.WHEEL, this.onSceneZoom, this);
         scene.events.on(MouseEvent.DRAG, this.onSceneDragged, this);
         scene.events.on(MouseEvent.DOWN, this.onSceneClicked, this);
@@ -52,8 +52,8 @@ export class SceneApp extends CanvasApp {
 
     initBox() {
         const box = new RectangleView({
-            position: this.canvas.size.clone().scale(0.1),
-            size: this.canvas.size.clone().scale(0.8),
+            position: this.canvas.getSize().scale(0.1),
+            size: this.canvas.getSize().scale(0.8),
             fillStyle: new Color(0, 0, 40),
             strokeStyle: new Color(100, 100, 100),
             strokeWidth: 2,
@@ -143,7 +143,7 @@ export class SceneApp extends CanvasApp {
             } else if (event.button == MouseButton.RIGHT) {
                 const childSpaceAnchor = this.box.getPosition().add(this.box.getSize().divideScalar(2));
                 const localSpaceAnchor = this.isFollowingBall
-                    ? this.canvas.size.clone().divideScalar(2)
+                    ? this.canvas.getSize().divideScalar(2)
                     : this.scene.childToLocal(childSpaceAnchor);
 
                 const lastPosition = new Vec2(event.x - event.dx, event.y - event.dy).subtract(localSpaceAnchor);
@@ -175,10 +175,15 @@ export class SceneApp extends CanvasApp {
         event.target.setPosition(event.getParentXY());
 
         if (event.target == this.boxCorner1) {
-            this.box.setPosition(this.scene.localToChild(this.boxCorner1.getPosition()));
-            this.box.setSize(this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition()));
+            const newPosition = this.scene.localToChild(this.boxCorner1.getPosition());
+            const newSize = this.scene.localToChild(this.boxCorner2.getPosition()).subtract(newPosition);
+
+            this.box.setPosition(newPosition);
+            this.box.setSizeWH(newSize.x, newSize.y);
+
         } else if (event.target == this.boxCorner2) {
-            this.box.setSize(this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition()));
+            const newSize = this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition());
+            this.box.setSizeWH(newSize.x, newSize.y);
         }
     }
 

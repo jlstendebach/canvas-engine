@@ -48,19 +48,19 @@ export class CanvasSizesApp extends CanvasApp {
     }
 
     onCanvasMouseMove(type, event) {
-        if (this.#mousePath.points.length >= this.#maxMousePathLength) {
-            this.#mousePath.points.shift();
+        if (this.#mousePath.getPointCount() >= this.#maxMousePathLength) {
+            this.#mousePath.removePoint(0);
         }
-        this.#mousePath.points.push(new Vec2(event.x, event.y));
+        this.#mousePath.addPointXY(event.x, event.y);
     }
 
     // MARK: - helpers
     updateBallPositions() {
         this.#topLeftBall.setPositionXY(50, 50);
-        this.#topRightBall.setPositionXY(this.canvas.size.width - 50, 50);
-        this.#bottomRightBall.setPositionXY(this.canvas.size.width - 50, this.canvas.size.height - 50);
-        this.#bottomLeftBall.setPositionXY(50, this.canvas.size.height - 50);
-        this.#centerBall.setPositionXY(this.canvas.size.width / 2, this.canvas.size.height / 2);
+        this.#topRightBall.setPositionXY(this.canvas.width - 50, 50);
+        this.#bottomRightBall.setPositionXY(this.canvas.width - 50, this.canvas.height - 50);
+        this.#bottomLeftBall.setPositionXY(50, this.canvas.height - 50);
+        this.#centerBall.setPositionXY(this.canvas.width / 2, this.canvas.height / 2);
     }
 
     createBall({x = 0, y = 0, radius = 20, color = new Color(0, 0, 200)} = {}) {

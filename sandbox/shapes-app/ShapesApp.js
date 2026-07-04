@@ -5,16 +5,18 @@ import {
     LineView,
     MouseButton,
     MouseEvent,
+    Point,
     PolygonView,
     RectangleView,
+    RoundRectangleView,
     SceneView,
     Vec2,
     VectorView
 } from "../../src/index.js";
 
-import { shapeStyles } from "./shapeStyles.js";
+import { shapeStyles } from "../common/shapeStyles.js";
 
-export class TransformationsApp extends CanvasApp {
+export class ShapesApp extends CanvasApp {
     scene;
     shapes = [];
 
@@ -38,6 +40,7 @@ export class TransformationsApp extends CanvasApp {
     initShapes() {
         this.initCircleView();
         this.initRectangleView();
+        this.initRoundRectangleView();
         this.initPolygonTriangleView();
         this.initPolygonStarView();
         this.initLineStringView();
@@ -64,7 +67,8 @@ export class TransformationsApp extends CanvasApp {
         const style = this.getNextStyle();
         const rectangle = new RectangleView({
             position: this.getNextPosition(),
-            size: new Vec2(150, 100),
+            width: 150,
+            height: 100,
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
@@ -75,27 +79,57 @@ export class TransformationsApp extends CanvasApp {
         this.shapes.push(rectangle);
     }
 
-    initPolygonTriangleView() {
+    initRoundRectangleView() {
         const style = this.getNextStyle();
-        const tau = Math.PI * 2;
-        const triangle = new PolygonView({
-            position: this.getNextPosition(),
-            points: [
-                Vec2.fromAngle(tau * 0/3).scale(50),
-                Vec2.fromAngle(tau * 1/3).scale(50),
-                Vec2.fromAngle(tau * 2/3).scale(50)
-            ],
+        const roundRectangle = new RoundRectangleView({
+            width: 150,
+            height: 100,
+            topLeftRadius: 10,
+            topRightRadius: 20,
+            bottomRightRadius: 30,
+            bottomLeftRadius: 40,
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
+        roundRectangle
+            .setPosition(this.getNextPosition())
+            .setPivotXY(roundRectangle.bounds.centerX, roundRectangle.bounds.centerY);
+        this.addEventListeners(roundRectangle);
+        this.scene.addView(roundRectangle);
+        this.shapes.push(roundRectangle);
+    }
+
+    initPolygonTriangleView() {
+        const style = this.getNextStyle();
+        const triangle = new PolygonView({
+            position: this.getNextPosition(),
+            fillStyle: style.fillStyle,
+            strokeStyle: style.strokeStyle,
+            strokeWidth: style.strokeWidth
+        });
+
+        const tau = Math.PI * 2;
+        triangle.setPoints([
+            Point.fromAngle(tau * 0/3).scale(50),
+            Point.fromAngle(tau * 1/3).scale(50),
+            Point.fromAngle(tau * 2/3).scale(50)
+        ]);
+
         this.addEventListeners(triangle);
         this.scene.addView(triangle);
         this.shapes.push(triangle);
     }
 
     initPolygonStarView() {
-        const points = [];
+        const style = this.getNextStyle();
+        const star = new PolygonView({
+            position: this.getNextPosition(),
+            fillStyle: style.fillStyle,
+            strokeStyle: style.strokeStyle,
+            strokeWidth: style.strokeWidth
+        });
+
         const tau = Math.PI * 2;
         for (let i = 0; i < 10; i++) {
             const angle = tau * i / 10;
@@ -103,16 +137,9 @@ export class TransformationsApp extends CanvasApp {
             if (i % 2 === 0) {
                 point.multiplyScalar(0.382);
             }
-            points.push(point);
+            star.addPointXY(point.x, point.y);
         }
-        const style = this.getNextStyle();
-        const star = new PolygonView({
-            position: this.getNextPosition(),
-            points: points,
-            fillStyle: style.fillStyle,
-            strokeStyle: style.strokeStyle,
-            strokeWidth: style.strokeWidth
-        });
+
         this.addEventListeners(star);
         this.scene.addView(star);
         this.shapes.push(star);
@@ -120,18 +147,18 @@ export class TransformationsApp extends CanvasApp {
 
     initLineStringView() {
         const style = this.getNextStyle();        
-        const tau = Math.PI * 2;
-        const points = [];
-        const pointCount = 150;
-        for (let i = 0; i < pointCount; i++) {
-            points.push(new Vec2(i, Math.sin(tau*i/pointCount) * 50));
-        }
         const lineString = new LineView({
             position: this.getNextPosition(),
-            points: points,
             strokeStyle: style.strokeStyle,
             strokeWidth: 4
         });
+
+        const tau = Math.PI * 2;
+        const pointCount = 150;
+        for (let i = 0; i < pointCount; i++) {
+            lineString.addPointXY(i, Math.sin(tau*i/pointCount) * 50);
+        }
+
         this.setPivotToCenter(lineString);
         this.addEventListeners(lineString);
         this.scene.addView(lineString);
@@ -142,13 +169,15 @@ export class TransformationsApp extends CanvasApp {
         const style = this.getNextStyle();
         const line = new LineView({
             position: this.getNextPosition(),
-            points: [
-                new Vec2(0, 0),
-                new Vec2(100, 100)
-            ],
             strokeStyle: style.strokeStyle,
             strokeWidth: 4
         });
+
+        line.setPointsXY([
+            0, 0,
+            100, 100
+        ]);
+
         this.setPivotToCenter(line);
         this.addEventListeners(line);
         this.scene.addView(line);

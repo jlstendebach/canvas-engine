@@ -1,56 +1,128 @@
+import { Point } from "../../utils/Point.js";
+import { PointList } from "../../utils/PointList.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class PolygonView extends ShapeView {
-    #points = [];
+    #pointList = new PointList(this.invalidateBounds.bind(this));
 
-    // MARK: - Accessors
-    set points(points) {
-        this.#points = points;
-        this.invalidateBounds();
-    }
-    get points() {
-        return this.#points;
+    // MARK: - Getters
+    getPointCount() {
+        return this.#pointList.getPointCount();
     }
 
-    // MARK: - Initialization
-    constructor(options = {}) {
-        super(options);
-        this.points = options.points ?? [];
+    getPoint(index, out = new Point()) {
+        return this.#pointList.getPoint(index, out);
+    }
+
+    getPointX(index) {
+        return this.#pointList.getPointX(index);
+    }
+
+    getPointY(index) {
+        return this.#pointList.getPointY(index);
+    }
+
+    // MARK: - Setters
+    setPointXY(index, x, y) {
+        this.#pointList.setPointXY(index, x, y);
+        return this;
+    }
+
+    setPointX(index, x) {
+        this.#pointList.setPointX(index, x);
+        return this;
+    }
+
+    setPointY(index, y) {
+        this.#pointList.setPointY(index, y);
+        return this;
+    }
+
+    setPoint(index, point) {
+        this.#pointList.setPoint(index, point);
+        return this;
+    }
+
+    setPointsXY(points) {
+        this.#pointList.setPointsXY(points);
+        return this;
+    }
+
+    setPoints(points) {
+        this.#pointList.setPoints(points);
+        return this;
+    }    
+
+    // MARK: - Modifiers
+    addPointXY(x, y) {
+        this.#pointList.addPointXY(x, y);
+        return this;
+    }
+
+    addPoint(point) {
+        this.#pointList.addPoint(point);
+        return this;
+    }
+
+    insertPointXY(index, x, y) {
+        this.#pointList.insertPointXY(index, x, y);
+        return this;
+    }
+
+    insertPoint(index, point) {
+        this.#pointList.insertPoint(index, point);
+        return this;
+    }
+
+    removePoint(index) {
+        this.#pointList.removePoint(index);
+        return this;
+    }
+
+    clearPoints() {
+        this.#pointList.clearPoints();
+        return this;
     }
 
     // MARK: - Hit Testing
     updateBounds(out) {
+        const rawPoints = this.#pointList.getRawPoints();
+        const length = rawPoints.length;
         out.reset();
-        if (this.#points.length < 3) {
-            return;
-        }
-        for (let i = 0; i < this.#points.length; i++) {
-            out.addPoint(this.#points[i]);
+        if (length < 6) { return; }
+
+        for (let i = 0; i < length; i += 2) {
+            out.addPointXY(rawPoints[i], rawPoints[i + 1]);
         }
     }
 
     containsPoint(point) {
-        if (!this.bounds.containsPoint(point)) {
-            return false;
-        }
+        const rawPoints = this.#pointList.getRawPoints();
+        const length = rawPoints.length;
+        if (length < 6) { return false; }
+        if (!this.bounds.containsPoint(point)) { return false; }
 
         let isInside = false;
 
-        for (let i = 0, j = this.#points.length - 1; i < this.#points.length; j = i++) {
-            const p1 = this.#points[i];
-            const p2 = this.#points[j];
+        let j = length - 2;
+        for (let i = 0; i < length; i += 2) {
+            const x2 = rawPoints[i];
+            const y2 = rawPoints[i + 1];
+            const x1 = rawPoints[j];
+            const y1 = rawPoints[j + 1];
+            j = i;
 
             // Ensure the target is between the y-coordinates of the edge. If 
             // the target is above or below both points, it cannot intersect 
             // with the edge.
-            if ((point.y < p1.y) === (point.y < p2.y)) {
+            if ((point.y < y1) === (point.y < y2)) {
                 continue;
             }
 
             // m = (y2 - y1) / (x2 - x1)
             // x = x1 + (y - y1) / m 
             //   = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
-            const x = p1.x + ((point.y - p1.y) * (p2.x - p1.x)) / (p2.y - p1.y);
+            const x = x1 + ((point.y - y1) * (x2 - x1)) / (y2 - y1);
             if (x === point.x) {
                 // The target is on the edge, so we consider it to be inside.
                 return true;
@@ -67,12 +139,13 @@ export class PolygonView extends ShapeView {
 
     // MARK: - Drawing
     path(context) {
-        if (this.#points.length < 3) {
-            return;
-        }
-        context.moveTo(this.#points[0].x, this.#points[0].y);
-        for (let i = 1; i < this.#points.length; ++i) {
-            context.lineTo(this.#points[i].x, this.#points[i].y);
+        const rawPoints = this.#pointList.getRawPoints();
+        const length = rawPoints.length;
+        if (length < 6) { return; }
+
+        context.moveTo(rawPoints[0], rawPoints[1]);
+        for (let i = 2; i < length; i += 2) {
+            context.lineTo(rawPoints[i], rawPoints[i + 1]);
         }
         context.closePath();
     }

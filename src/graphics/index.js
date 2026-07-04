@@ -7,15 +7,18 @@ export * from "./canvas/CanvasRootView.js"
 export * from "./utils/CachedColor.js"
 export * from "./utils/Color.js"
 export * from "./utils/CoordinateSpace.js"
+export * from "./utils/Point.js"
+export * from "./utils/PointList.js"
+export * from "./utils/Size.js"
 
 // MARK: - views/charts
 export * from "./views/charts/BarChartView.js"
 export * from "./views/charts/PieChartView.js"
 
 // MARK: - views/core
-export * from "./views/core/View.js"
 export * from "./views/core/ContainerView.js"
-    
+export * from "./views/core/View.js"
+
 // MARK: - views/shapes
 export * from "./views/shapes/CircleView.js"
 export * from "./views/shapes/LineView.js"

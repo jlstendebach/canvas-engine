@@ -25,7 +25,8 @@ export class SimpleApp extends CanvasApp {
 
     initBall() {
         const ball = new CircleView({
-            position: Vec2.divideScalar(this.canvas.size, 2),
+            x: this.canvas.width / 2,
+            y: this.canvas.height / 2,
             radius: 50,
             fillStyle: new Color(0, 0, 200),
             strokeStyle: new Color(100, 100, 100),
@@ -66,21 +67,22 @@ export class SimpleApp extends CanvasApp {
 
     // MARK: - Helpers
     #keepBallInBounds() {
-        const size = this.canvas.size;
+        const width = this.canvas.width;
+        const height = this.canvas.height;
 
         if (this.#ball.x - this.#ball.radius < 0) {
             this.#ball.x = this.#ball.radius;
             this.#ballVelocity.x *= -1;
-        } else if (this.#ball.x + this.#ball.radius > size.x) {
-            this.#ball.x = size.x - this.#ball.radius;
+        } else if (this.#ball.x + this.#ball.radius > width) {
+            this.#ball.x = width - this.#ball.radius;
             this.#ballVelocity.x *= -1;
         }
 
         if (this.#ball.y - this.#ball.radius < 0) {
             this.#ball.y = this.#ball.radius;
             this.#ballVelocity.y *= -1;
-        } else if (this.#ball.y + this.#ball.radius > size.y) {
-            this.#ball.y = size.y - this.#ball.radius;
+        } else if (this.#ball.y + this.#ball.radius > height) {
+            this.#ball.y = height - this.#ball.radius;
             this.#ballVelocity.y *= -1;
         }
     }

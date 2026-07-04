@@ -1,9 +1,9 @@
-import { EventEmitter } from "../../events/EventEmitter.js";
 import { MouseButton } from "../../events/mouse/MouseButton.js";
 import { MouseEvent } from "../../events/mouse/MouseEvent.js";
 import { MouseEventProcessor } from "../../events/mouse/MouseEventProcessor.js";
 import { Vec2 } from "../../math/Vec2.js";
 import { CachedColor } from "../utils/CachedColor.js";
+import { Size } from "../utils/Size.js";
 import { CanvasResizeEvent } from "./CanvasEvents.js";
 import { CanvasRootView } from "./CanvasRootView.js";
 
@@ -20,7 +20,9 @@ export class Canvas {
     #resizeObserver = null;
     #mutationObserver = null;
 
-    // MARK: - properties 
+    // -------------------------------------------------------------------------
+    // MARK: - Accessors 
+    // -------------------------------------------------------------------------
     get element() {
         return this.#element;
     }
@@ -33,16 +35,11 @@ export class Canvas {
         return this.#rootView;
     }
 
-    set fillStyle(style) {
-        this.#fillStyle.color = style;
-    }
-
     get fillStyle() {
         return this.#fillStyle.color;
     }
-
-    get size() {
-        return new Vec2(this.#element.width, this.#element.height);
+    set fillStyle(style) {
+        this.#fillStyle.color = style;
     }
 
     get width() {
@@ -57,7 +54,9 @@ export class Canvas {
         return this.#rootView.events;
     }
 
-    // MARK: - initialization
+    // -------------------------------------------------------------------------
+    // MARK: - Initialization
+    // -------------------------------------------------------------------------
     constructor(selectorOrElement, contextType = "2d") {
         this.#initCanvas(selectorOrElement);
         this.#initContext(contextType);
@@ -90,7 +89,7 @@ export class Canvas {
         if (typeof contextType !== "string") {
             throw new TypeError("Context type must be a string.");
         }
-        
+
         const validContextTypes = ["2d", "webgl", "webgl2", "webgpu", "bitmaprenderer"];
         if (!validContextTypes.includes(contextType)) {
             throw new Error(`Invalid context type: ${contextType}`);
@@ -104,7 +103,9 @@ export class Canvas {
         this.#contextType = contextType;
     }
 
-    // MARK: - destruction
+    // -------------------------------------------------------------------------
+    // MARK: - Destruction
+    // -------------------------------------------------------------------------
     destroy() {
         if (this.isDestroyed()) {
             return;
@@ -129,9 +130,18 @@ export class Canvas {
 
     isDestroyed() {
         return this.#rootView === null;
-    }    
+    }
 
-    // MARK: - drawing
+    // -------------------------------------------------------------------------
+    // MARK: - Size
+    // -------------------------------------------------------------------------
+    getSize(out = new Size()) {
+        return out.set(this.#element.width, this.#element.height);
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Children
+    // -------------------------------------------------------------------------
     addView(view) {
         return this.#rootView.addView(view);
     }
@@ -148,6 +158,9 @@ export class Canvas {
         return this.#rootView.getViewCount();
     }
 
+    // -------------------------------------------------------------------------
+    // MARK: - Drawing
+    // -------------------------------------------------------------------------
     draw() {
         this.#context.save();
         try {
@@ -162,7 +175,9 @@ export class Canvas {
         }
     }
 
-    // MARK: - event binding
+    // -------------------------------------------------------------------------
+    // MARK: - Event Binding
+    // -------------------------------------------------------------------------
     #attachDomEvents() {
         if (this.#domAbortController) {
             return;
@@ -183,11 +198,11 @@ export class Canvas {
         // Resize events
         this.#resizeObserver = new ResizeObserver(() => this.#updateSize());
         this.#resizeObserver.observe(this.#element);
-        
+
         // CSS changes
         this.#mutationObserver = new MutationObserver(() => this.#updateSize());
-        this.#mutationObserver.observe(this.#element, { 
-            attributes: true, 
+        this.#mutationObserver.observe(this.#element, {
+            attributes: true,
             attributeFilter: ["style", "class"]
         });
     }
@@ -208,7 +223,9 @@ export class Canvas {
         this.#mutationObserver = null;
     }
 
-    // MARK: - event handlers
+    // -------------------------------------------------------------------------
+    // MARK: - Event Handlers
+    // -------------------------------------------------------------------------
     #onMouseDown(event) {
         const mouseEvent = this.#createMouseEvent(MouseEvent.DOWN, event);
         if (mouseEvent) {
@@ -244,21 +261,23 @@ export class Canvas {
         }
     }
 
-    // MARK: - size helpers
+    // -------------------------------------------------------------------------
+    // MARK: - Size Helpers
+    // -------------------------------------------------------------------------
     #getComputedSize() {
         const style = getComputedStyle(this.#element)
         const getStyleFloat = (property) => parseFloat(style.getPropertyValue(property)) || 0;
-        const size = new Vec2(getStyleFloat("width"), getStyleFloat("height"));
+        const size = new Size(getStyleFloat("width"), getStyleFloat("height"));
 
         // A box-sizing of border-box includes the padding and border in the 
         // element's width and height, so we must subtract those values.
         if (style.boxSizing === "border-box") {
             const paddingX = getStyleFloat("padding-left") + getStyleFloat("padding-right");
-            const paddingY = getStyleFloat("padding-top") + getStyleFloat("padding-bottom");        
+            const paddingY = getStyleFloat("padding-top") + getStyleFloat("padding-bottom");
             const borderX = getStyleFloat("border-left-width") + getStyleFloat("border-right-width");
             const borderY = getStyleFloat("border-top-width") + getStyleFloat("border-bottom-width");
-            size.x -= (paddingX + borderX);
-            size.y -= (paddingY + borderY);
+            size.width -= (paddingX + borderX);
+            size.height -= (paddingY + borderY);
         }
 
         // HTMLCanvasElement converts width and height values to integers, so we
@@ -270,7 +289,7 @@ export class Canvas {
     #updateSize() {
         const size = this.#getComputedSize();
 
-        if (this.#element.width === size.x && this.#element.height === size.y) {
+        if (this.#element.width === size.width && this.#element.height === size.height) {
             // Size is already correct, exit early.
             return;
         }
@@ -290,17 +309,17 @@ export class Canvas {
             this,                 // app
             this.#element.width,  // oldWidth
             this.#element.height, // oldHeight
-            size.x,               // width
-            size.y                // height
+            size.width,           // width
+            size.height           // height
         );
 
         // Set the new size.
-        this.#element.width = size.x;
-        this.#element.height = size.y;        
+        this.#element.width = size.width;
+        this.#element.height = size.height;
         if (this.#context instanceof WebGL2RenderingContext ||
             this.#context instanceof WebGLRenderingContext
         ) {
-            this.#context.viewport(0, 0, size.x, size.y);
+            this.#context.viewport(0, 0, size.width, size.height);
         }
 
         // Draw the previous content back onto the resized canvas.
@@ -310,18 +329,20 @@ export class Canvas {
         this.events.emit(CanvasResizeEvent, event);
     }
 
-    // MARK: - mouse helpers
+    // -------------------------------------------------------------------------
+    // MARK: - Mouse Helpers
+    // -------------------------------------------------------------------------
     #createMouseEvent(type, event) {
         const style = getComputedStyle(this.#element)
         const paddingX = parseFloat(style.getPropertyValue("padding-left")) || 0;
-        const paddingY = parseFloat(style.getPropertyValue("padding-top")) || 0;        
+        const paddingY = parseFloat(style.getPropertyValue("padding-top")) || 0;
         const coords = new Vec2(event.offsetX - paddingX, event.offsetY - paddingY).round();
 
         if (type !== MouseEvent.EXIT) {
             if (
-                coords.x < 0 || 
+                coords.x < 0 ||
                 coords.y < 0 ||
-                coords.x >= this.#element.width || 
+                coords.x >= this.#element.width ||
                 coords.y >= this.#element.height
             ) {
                 return null;

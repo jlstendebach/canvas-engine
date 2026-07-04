@@ -5,11 +5,10 @@ import {
     Color,
     LabelView,
     MouseEvent,
-    RectangleView,
-    Vec2
+    RectangleView
 } from "../../src/index.js";
 
-import { Graph } from "./graph.js";
+import { Graph } from "./Graph.js";
 
 import { data } from "./data.js";
 //const data = [0, 1, 3, 4, 4, 4, 3, 2, 1, -1, -1, -1]
@@ -123,10 +122,8 @@ export class EkgMotorApp extends CanvasApp {
             fillStyle: this.dataGraph.fillStyle,
             strokeStyle: this.dataGraph.strokeStyle,
             strokeWidth: 2,
-            size: new Vec2(
-                radius * 2 * 3 + spacing * 2 + padding * 2,
-                radius * 2 * 2 + spacing * 1 + padding * 2
-            ),
+            width: radius * 2 * 3 + spacing * 2 + padding * 2,
+            height: radius * 2 * 2 + spacing * 1 + padding * 2,
         });
         this.canvas.addView(this.motorContainer);
 
