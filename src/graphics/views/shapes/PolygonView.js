@@ -80,11 +80,11 @@ export class PolygonView extends ShapeView {
         let isInside = false;
 
         let j = length - 2;
-        for (let i = 0; i < length; i++) {
-            const x1 = rawPoints[i];
-            const y1 = rawPoints[i + 1];
-            const x2 = rawPoints[j];
-            const y2 = rawPoints[j + 1];
+        for (let i = 0; i < length; i += 2) {
+            const x2 = rawPoints[i];
+            const y2 = rawPoints[i + 1];
+            const x1 = rawPoints[j];
+            const y1 = rawPoints[j + 1];
             j = i;
 
             // Ensure the target is between the y-coordinates of the edge. If 
