@@ -27,7 +27,7 @@ export class PointList {
     }
 
     // MARK: - Setters
-    setPoint(index, x, y) {
+    setPointXY(index, x, y) {
         this.#assertIndex(index);
         const actualIndex = index * 2;
         if (this.#points[actualIndex] === x && this.#points[actualIndex + 1] === y) {
@@ -54,16 +54,28 @@ export class PointList {
         this.#onChange?.();
     }
 
+    setPoint(index, point) {
+        this.setPointXY(index, point.x, point.y);
+    }
+
     // MARK: - Modifiers
-    addPoint(x, y) {
+    addPointXY(x, y) {
         this.#points.push(x, y);
         this.#onChange?.();
     }
 
-    insertPoint(index, x, y) {
+    addPoint(point) {
+        this.addPointXY(point.x, point.y);
+    }
+
+    insertPointXY(index, x, y) {
         this.#assertInsertIndex(index);
         this.#points.splice(index * 2, 0, x, y);
         this.#onChange?.();
+    }
+
+    insertPoint(index, point) {
+        this.insertPointXY(index, point.x, point.y);
     }
 
     removePoint(index) {

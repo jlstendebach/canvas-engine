@@ -23,8 +23,8 @@ export class PolygonView extends ShapeView {
     }
 
     // MARK: - Setters
-    setPoint(index, x, y) {
-        this.#pointList.setPoint(index, x, y);
+    setPointXY(index, x, y) {
+        this.#pointList.setPointXY(index, x, y);
         return this;
     }
 
@@ -38,14 +38,29 @@ export class PolygonView extends ShapeView {
         return this;
     }
 
-    // MARK: - Modifiers
-    addPoint(x, y) {
-        this.#pointList.addPoint(x, y);
+    setPoint(index, point) {
+        this.#pointList.setPoint(index, point);
         return this;
     }
 
-    insertPoint(index, x, y) {
-        this.#pointList.insertPoint(index, x, y);
+    // MARK: - Modifiers
+    addPointXY(x, y) {
+        this.#pointList.addPointXY(x, y);
+        return this;
+    }
+
+    addPoint(point) {
+        this.#pointList.addPoint(point);
+        return this;
+    }
+
+    insertPointXY(index, x, y) {
+        this.#pointList.insertPointXY(index, x, y);
+        return this;
+    }
+
+    insertPoint(index, point) {
+        this.#pointList.insertPoint(index, point);
         return this;
     }
 

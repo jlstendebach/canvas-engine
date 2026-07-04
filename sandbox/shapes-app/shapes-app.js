@@ -106,9 +106,9 @@ export class ShapesApp extends CanvasApp {
         });
         triangle
             .setPosition(this.getNextPosition())
-            .addPoint(0, -50)
-            .addPoint(50, 50)
-            .addPoint(-50, 50);
+            .addPointXY(0, -50)
+            .addPointXY(50, 50)
+            .addPointXY(-50, 50);
         this.addEventListeners(triangle);
         this.scene.addView(triangle);
     }
@@ -129,7 +129,7 @@ export class ShapesApp extends CanvasApp {
             if (i % 2 === 0) {
                 point.multiplyScalar(0.382);
             }
-            star.addPoint(point.x, point.y);
+            star.addPointXY(point.x, point.y);
         }
 
         this.addEventListeners(star);
@@ -145,7 +145,7 @@ export class ShapesApp extends CanvasApp {
         });
         const pointCount = 150;
         for (let i = 0; i < pointCount; i++) {
-            lineString.addPoint(i, Math.sin(tau * i / pointCount) * 50);
+            lineString.addPointXY(i, Math.sin(tau * i / pointCount) * 50);
         }
         lineString
             .setPosition(this.getNextPosition())
@@ -162,8 +162,8 @@ export class ShapesApp extends CanvasApp {
             strokeWidth: 4
         });
         line.setPosition(this.getNextPosition())
-            .addPoint(0, 0)
-            .addPoint(100, 100)
+            .addPointXY(0, 0)
+            .addPointXY(100, 100)
             .setPivotXY(line.bounds.centerX, line.bounds.centerY);
 
         this.addEventListeners(line);

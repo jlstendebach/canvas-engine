@@ -24,8 +24,8 @@ export class LineView extends ShapeView {
     }
 
     // MARK: - Setters
-    setPoint(index, x, y) {
-        this.#pointList.setPoint(index, x, y);
+    setPointXY(index, x, y) {
+        this.#pointList.setPointXY(index, x, y);
         return this;
     }
 
@@ -40,13 +40,13 @@ export class LineView extends ShapeView {
     }
 
     // MARK: - Modifiers
-    addPoint(x, y) {
-        this.#pointList.addPoint(x, y);
+    addPointXY(x, y) {
+        this.#pointList.addPointXY(x, y);
         return this;
     }
 
-    insertPoint(index, x, y) {
-        this.#pointList.insertPoint(index, x, y);
+    insertPointXY(index, x, y) {
+        this.#pointList.insertPointXY(index, x, y);
         return this;
     }
 

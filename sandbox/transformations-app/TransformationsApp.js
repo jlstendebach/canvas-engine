@@ -92,9 +92,9 @@ export class TransformationsApp extends CanvasApp {
         const p3 = Point.fromAngle(tau * 2/3).scale(50);
 
         triangle
-            .addPoint(p1.x, p1.y)
-            .addPoint(p2.x, p2.y)
-            .addPoint(p3.x, p3.y);
+            .addPointXY(p1.x, p1.y)
+            .addPointXY(p2.x, p2.y)
+            .addPointXY(p3.x, p3.y);
 
         this.addEventListeners(triangle);
         this.scene.addView(triangle);
@@ -117,7 +117,7 @@ export class TransformationsApp extends CanvasApp {
             if (i % 2 === 0) {
                 point.multiplyScalar(0.382);
             }
-            star.addPoint(point.x, point.y);
+            star.addPointXY(point.x, point.y);
         }
 
 
@@ -137,7 +137,7 @@ export class TransformationsApp extends CanvasApp {
         const tau = Math.PI * 2;
         const pointCount = 150;
         for (let i = 0; i < pointCount; i++) {
-            lineString.addPoint(i, Math.sin(tau*i/pointCount) * 50);
+            lineString.addPointXY(i, Math.sin(tau*i/pointCount) * 50);
         }
 
         this.setPivotToCenter(lineString);
@@ -154,7 +154,7 @@ export class TransformationsApp extends CanvasApp {
             strokeWidth: 4
         });
 
-        line.addPoint(0, 0).addPoint(100, 100);
+        line.addPointXY(0, 0).addPointXY(100, 100);
 
         this.setPivotToCenter(line);
         this.addEventListeners(line);
