@@ -23,23 +23,13 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Accessors 
     // -------------------------------------------------------------------------
-    get element() {
-        return this.#element;
-    }
-
-    get context() {
-        return this.#context;
-    }
 
     get rootView() {
         return this.#rootView;
     }
 
-    get fillStyle() {
-        return this.#fillStyle.color;
-    }
-    set fillStyle(style) {
-        this.#fillStyle.color = style;
+    get events() {
+        return this.#rootView.events;
     }
 
     get width() {
@@ -50,13 +40,17 @@ export class Canvas {
         return this.#element.height;
     }
 
-    get events() {
-        return this.#rootView.events;
+    get fillStyle() {
+        return this.#fillStyle.color;
+    }
+    set fillStyle(style) {
+        this.setFillStyle(style);
     }
 
     // -------------------------------------------------------------------------
     // MARK: - Initialization
     // -------------------------------------------------------------------------
+
     constructor(selectorOrElement, contextType = "2d") {
         this.#initCanvas(selectorOrElement);
         this.#initContext(contextType);
@@ -106,6 +100,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Destruction
     // -------------------------------------------------------------------------
+
     destroy() {
         if (this.isDestroyed()) {
             return;
@@ -135,23 +130,37 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Size
     // -------------------------------------------------------------------------
+    
     getSize(out = new Size()) {
         return out.set(this.#element.width, this.#element.height);
     }
 
     // -------------------------------------------------------------------------
+    // MARK: - Fill Style
+    // -------------------------------------------------------------------------
+    
+    setFillStyle(color) {
+        this.#fillStyle.color.copy(color);
+        return this;
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: - Children
     // -------------------------------------------------------------------------
+
     addView(view) {
-        return this.#rootView.addView(view);
+        this.#rootView.addView(view);
+        return this;
     }
 
     removeView(view) {
-        return this.#rootView.removeView(view);
+        this.#rootView.removeView(view);
+        return this;
     }
 
     removeAllViews() {
         this.#rootView.removeAllViews();
+        return this;
     }
 
     getViewCount() {
@@ -161,6 +170,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Drawing
     // -------------------------------------------------------------------------
+
     draw() {
         this.#context.save();
         try {
@@ -178,6 +188,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Event Binding
     // -------------------------------------------------------------------------
+
     #attachDomEvents() {
         if (this.#domAbortController) {
             return;
@@ -226,6 +237,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Event Handlers
     // -------------------------------------------------------------------------
+
     #onMouseDown(event) {
         const mouseEvent = this.#createMouseEvent(MouseEvent.DOWN, event);
         if (mouseEvent) {
@@ -264,6 +276,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Size Helpers
     // -------------------------------------------------------------------------
+
     #getComputedSize() {
         const style = getComputedStyle(this.#element)
         const getStyleFloat = (property) => parseFloat(style.getPropertyValue(property)) || 0;
@@ -332,6 +345,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Mouse Helpers
     // -------------------------------------------------------------------------
+
     #createMouseEvent(type, event) {
         const style = getComputedStyle(this.#element)
         const paddingX = parseFloat(style.getPropertyValue("padding-left")) || 0;
