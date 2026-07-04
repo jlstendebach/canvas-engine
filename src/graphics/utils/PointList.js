@@ -58,6 +58,23 @@ export class PointList {
         this.setPointXY(index, point.x, point.y);
     }
 
+    setPointsXY(points) {
+        this.#points.length = 0;
+        for (let i = 0; i <= points.length - 2; i += 2) {
+            this.#points.push(points[i], points[i + 1]);
+        }
+        this.#onChange?.();
+    }
+
+    setPoints(points) {
+        this.#points.length = 0;
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            this.#points.push(point.x, point.y);
+        }
+        this.#onChange?.();
+    }
+
     // MARK: - Modifiers
     addPointXY(x, y) {
         this.#points.push(x, y);

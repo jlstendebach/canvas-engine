@@ -43,6 +43,16 @@ export class PolygonView extends ShapeView {
         return this;
     }
 
+    setPointsXY(points) {
+        this.#pointList.setPointsXY(points);
+        return this;
+    }
+
+    setPoints(points) {
+        this.#pointList.setPoints(points);
+        return this;
+    }    
+
     // MARK: - Modifiers
     addPointXY(x, y) {
         this.#pointList.addPointXY(x, y);
