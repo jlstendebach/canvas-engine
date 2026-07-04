@@ -96,7 +96,14 @@ export class TransformationsApp extends CanvasApp {
     }
 
     initPolygonStarView() {
-        const points = [];
+        const style = this.getNextStyle();
+        const star = new PolygonView({
+            position: this.getNextPosition(),
+            fillStyle: style.fillStyle,
+            strokeStyle: style.strokeStyle,
+            strokeWidth: style.strokeWidth
+        });
+
         const tau = Math.PI * 2;
         for (let i = 0; i < 10; i++) {
             const angle = tau * i / 10;
@@ -104,16 +111,10 @@ export class TransformationsApp extends CanvasApp {
             if (i % 2 === 0) {
                 point.multiplyScalar(0.382);
             }
-            points.push(point);
+            star.addPoint(point.x, point.y);
         }
-        const style = this.getNextStyle();
-        const star = new PolygonView({
-            position: this.getNextPosition(),
-            points: points,
-            fillStyle: style.fillStyle,
-            strokeStyle: style.strokeStyle,
-            strokeWidth: style.strokeWidth
-        });
+
+
         this.addEventListeners(star);
         this.scene.addView(star);
         this.shapes.push(star);

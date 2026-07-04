@@ -24,7 +24,7 @@ export class ShapesApp extends CanvasApp {
         super(canvasSelectorOrElement);
         this.initCanvas();
         this.initScene();
-        this.initShapes();        
+        this.initShapes();
     }
 
     initCanvas() {
@@ -100,22 +100,28 @@ export class ShapesApp extends CanvasApp {
     initPolygonTriangleView() {
         const style = this.getNextStyle();
         const triangle = new PolygonView({
-            points: [
-                new Vec2(0, -50),
-                new Vec2(-50, 50),
-                new Vec2(50, 50)
-            ],
             fillStyle: style.fillStyle,
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth
         });
-        triangle.setPosition(this.getNextPosition());
+        triangle
+            .setPosition(this.getNextPosition())
+            .addPoint(0, -50)
+            .addPoint(50, 50)
+            .addPoint(-50, 50);
         this.addEventListeners(triangle);
         this.scene.addView(triangle);
     }
 
     initPolygonStarView() {
-        const points = [];
+        const style = this.getNextStyle();
+        const star = new PolygonView({
+            fillStyle: style.fillStyle,
+            strokeStyle: style.strokeStyle,
+            strokeWidth: style.strokeWidth
+        });
+        star.setPosition(this.getNextPosition());
+
         const tau = Math.PI * 2;
         for (let i = 0; i < 10; i++) {
             const angle = tau * i / 10;
@@ -123,22 +129,15 @@ export class ShapesApp extends CanvasApp {
             if (i % 2 === 0) {
                 point.multiplyScalar(0.382);
             }
-            points.push(point);
+            star.addPoint(point.x, point.y);
         }
-        const style = this.getNextStyle();
-        const star = new PolygonView({
-            points: points,
-            fillStyle: style.fillStyle,
-            strokeStyle: style.strokeStyle,
-            strokeWidth: style.strokeWidth
-        });
-        star.setPosition(this.getNextPosition());
+
         this.addEventListeners(star);
         this.scene.addView(star);
     }
 
     initLineStringView() {
-        const style = this.getNextStyle();        
+        const style = this.getNextStyle();
         const tau = Math.PI * 2;
         const lineString = new LineView({
             strokeStyle: style.strokeStyle,
@@ -146,9 +145,10 @@ export class ShapesApp extends CanvasApp {
         });
         const pointCount = 150;
         for (let i = 0; i < pointCount; i++) {
-            lineString.addPoint(i, Math.sin(tau*i/pointCount) * 50);
+            lineString.addPoint(i, Math.sin(tau * i / pointCount) * 50);
         }
-        lineString.setPosition(this.getNextPosition())
+        lineString
+            .setPosition(this.getNextPosition())
             .setPivotXY(lineString.bounds.centerX, lineString.bounds.centerY);
 
         this.addEventListeners(lineString);
@@ -186,7 +186,7 @@ export class ShapesApp extends CanvasApp {
         this.addEventListeners(vector);
         this.scene.addView(vector);
     }
-    
+
     // MARK: - Events Handlers
     onMouseDown(type, event) {
         if (event.button === MouseButton.LEFT) {
