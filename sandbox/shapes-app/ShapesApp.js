@@ -110,10 +110,11 @@ export class ShapesApp extends CanvasApp {
         });
 
         const tau = Math.PI * 2;
-        triangle
-            .addPoint(Point.fromAngle(tau * 0/3).scale(50))
-            .addPoint(Point.fromAngle(tau * 1/3).scale(50))
-            .addPoint(Point.fromAngle(tau * 2/3).scale(50));
+        triangle.setPoints([
+            Point.fromAngle(tau * 0/3).scale(50),
+            Point.fromAngle(tau * 1/3).scale(50),
+            Point.fromAngle(tau * 2/3).scale(50)
+        ]);
 
         this.addEventListeners(triangle);
         this.scene.addView(triangle);
@@ -138,7 +139,6 @@ export class ShapesApp extends CanvasApp {
             }
             star.addPointXY(point.x, point.y);
         }
-
 
         this.addEventListeners(star);
         this.scene.addView(star);
@@ -173,7 +173,10 @@ export class ShapesApp extends CanvasApp {
             strokeWidth: 4
         });
 
-        line.addPointXY(0, 0).addPointXY(100, 100);
+        line.setPointsXY([
+            0, 0,
+            100, 100
+        ]);
 
         this.setPivotToCenter(line);
         this.addEventListeners(line);
