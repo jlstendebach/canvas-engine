@@ -11,35 +11,35 @@ export class ShapeView extends View {
 
     // MARK: - Accessors
     set fillStyle(style) { 
-        this.#fillStyle.color = style; 
+        this.setFillStyle(style);
     }
     get fillStyle() { 
         return this.#fillStyle.color; 
     }
 
     set strokeStyle(style) { 
-        this.#strokeStyle.color = style; 
+        this.setStrokeStyle(style);
     }
     get strokeStyle() { 
         return this.#strokeStyle.color; 
     }
 
     set strokeWidth(width) { 
-        this.#strokeWidth = width; 
+        this.setStrokeWidth(width);
     }
     get strokeWidth() { 
         return this.#strokeWidth; 
     }
 
     set strokeDash(dash) { 
-        this.#strokeDash = dash; 
+        this.setStrokeDash(dash);
     }
     get strokeDash() { 
         return this.#strokeDash; 
     }
 
     set strokeDashOffset(offset) { 
-        this.#strokeDashOffset = offset; 
+        this.setStrokeDashOffset(offset);
     }
     get strokeDashOffset() { 
         return this.#strokeDashOffset; 
@@ -53,6 +53,32 @@ export class ShapeView extends View {
         this.strokeWidth = options.strokeWidth ?? 1;
         this.strokeDash = options.strokeDash ?? [];
         this.strokeDashOffset = options.strokeDashOffset ?? 0;
+    }
+
+    // MARK: - Style
+    setFillStyle(style) {
+        this.#fillStyle.color.copy(style);
+        return this;
+    }
+
+    setStrokeStyle(style) {
+        this.#strokeStyle.color.copy(style);
+        return this;
+    }
+
+    setStrokeWidth(width) {
+        this.#strokeWidth = width;
+        return this;
+    }
+
+    setStrokeDash(dash) {
+        this.#strokeDash = dash;
+        return this;
+    }
+
+    setStrokeDashOffset(offset) {
+        this.#strokeDashOffset = offset;
+        return this;
     }
 
     // MARK: - Drawing
