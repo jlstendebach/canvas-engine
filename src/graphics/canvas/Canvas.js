@@ -350,14 +350,15 @@ export class Canvas {
         const style = getComputedStyle(this.#element)
         const paddingX = parseFloat(style.getPropertyValue("padding-left")) || 0;
         const paddingY = parseFloat(style.getPropertyValue("padding-top")) || 0;
-        const coords = new Vec2(event.offsetX - paddingX, event.offsetY - paddingY).round();
+        const x = Math.round(event.offsetX - paddingX);
+        const y = Math.round(event.offsetY - paddingY);
 
         if (type !== MouseEvent.EXIT) {
             if (
-                coords.x < 0 ||
-                coords.y < 0 ||
-                coords.x >= this.#element.width ||
-                coords.y >= this.#element.height
+                x < 0 ||
+                y < 0 ||
+                x >= this.#element.width ||
+                y >= this.#element.height
             ) {
                 return null;
             }
@@ -374,8 +375,8 @@ export class Canvas {
 
         return new MouseEvent(
             type,                                // type
-            coords.x,                            // x
-            coords.y,                            // y
+            x,                                   // x
+            y,                                   // y
             dx,                                  // dx
             dy,                                  // dy            
             MouseButton.fromIndex(event.button), // button
