@@ -318,13 +318,11 @@ export class View {
         // Remove from current parent if it exists
         if (this.#parent !== null) {
             this.#parent.removeView(this);
-            this.#parent = null;
         }
 
         // Add to new parent if it exists
         if (parent !== null) {
             parent.addView(this);
-            this.#parent = parent;
         }
 
         return this;
