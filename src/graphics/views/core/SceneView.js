@@ -81,7 +81,7 @@ export class SceneView extends View {
     }
 
     setSizeWH(width, height) { 
-        if (this.#width === width && this.#height === height) { return; }
+        if (this.#width === width && this.#height === height) { return this; }
         this.#width = width;
         this.#height = height;
         this.invalidateBounds();
@@ -93,14 +93,14 @@ export class SceneView extends View {
     }
 
     setWidth(width) {
-        if (this.#width === width) { return; }
+        if (this.#width === width) { return this; }
         this.#width = width;
         this.invalidateBounds();
         return this;
     }
 
     setHeight(height) {
-        if (this.#height === height) { return; }
+        if (this.#height === height) { return this; }
         this.#height = height;
         this.invalidateBounds();
         return this;
@@ -108,8 +108,8 @@ export class SceneView extends View {
 
     // MARK: - Clip
     setClip(clip) {
-        if (typeof clip !== "boolean") { return; }
-        if (this.#clip === clip) { return; }
+        if (typeof clip !== "boolean") { return this; }
+        if (this.#clip === clip) { return this; }
         this.#clip = clip; 
         this.invalidateBounds();
         return this;
