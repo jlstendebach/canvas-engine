@@ -10,32 +10,33 @@ export class VectorView extends ShapeView {
     #polygon = new PolygonView();
     #isPathDirty = true;
 
-    // MARK: - Properties
-    set vector(value) { 
-        if (this.#vector.equals(value)) { return; }
-        this.#vector.copy(value);
-        this.#invalidatePath();
+    // MARK: - Accessors
+    get vectorX() {
+        return this.#vector.x;
     }
-    get vector() {
-        return this.#vector;
+    set vectorX(value) {
+        this.setVectorX(value);
     }
 
-    set arrowWidth(value) {
-        if (this.#arrowWidth === value) { return; }
-        this.#arrowWidth = value;
-        this.#isPathDirty = true;
+    get vectorY() {
+        return this.#vector.y;
     }
+    set vectorY(value) {
+        this.setVectorY(value);
+    }
+
     get arrowWidth() {
         return this.#arrowWidth;
     }
-
-    set arrowHeight(value) {
-        if (this.#arrowHeight === value) { return; }
-        this.#arrowHeight = value;
-        this.#isPathDirty = true;
+    set arrowWidth(value) {
+        this.setArrowWidth(value);
     }
+
     get arrowHeight() {
         return this.#arrowHeight;
+    }
+    set arrowHeight(value) {
+        this.setArrowHeight(value);
     }
 
     // MARK: - Initialization
@@ -47,35 +48,82 @@ export class VectorView extends ShapeView {
         this.#arrowHeight = options.arrowHeight ?? 20;
     }
 
+    // MARK: - Vector
+    getVector(out = new Vec2()) {
+        return out.copy(this.#vector);
+    }
+
+    setVectorXY(x, y) {
+        if (this.#vector.x === x && this.#vector.y === y) { return this; }
+        this.#vector.set(x, y);
+        this.#invalidatePath();
+        return this;
+    }
+
+    setVectorX(x) {
+        if (this.#vector.x === x) { return this; }
+        this.#vector.x = x;
+        this.#invalidatePath();
+        return this;
+    }
+
+    setVectorY(y) {
+        if (this.#vector.y === y) { return this; }
+        this.#vector.y = y;
+        this.#invalidatePath();
+        return this;
+    }
+
+    setVector(vector) {
+        return this.setVectorXY(vector.x, vector.y);
+    }
+
+    setVectorLength(length) {
+        this.#vector.setLength(length);
+        this.#invalidatePath();
+        return this;
+    }
+
+    // MARK: - Arrow
+    setArrowWidth(width) {
+        if (this.#arrowWidth === width) { return this; }
+        this.#arrowWidth = width;
+        this.#invalidatePath();
+        return this;
+    }
+
+    setArrowHeight(height) {
+        if (this.#arrowHeight === height) { return this; }
+        this.#arrowHeight = height;
+        this.#invalidatePath();
+        return this;
+    }
+
     // MARK: - Hit Testing
     updateBounds(out) {
+        this.#updatePathIfDirty();
         this.#polygon.updateBounds(out);
     }
 
     containsPoint(point) { 
+        this.#polygon.transform.copy(this.transform);
         return this.#polygon.containsPoint(point);
     }
 
     // MARK: - Drawing
     path(context) {
         this.#updatePathIfDirty();
-        let point = this.#polygon.points[0];
-        context.moveTo(point.x, point.y);
-        for (let i = 1; i < this.#polygon.points.length; ++i) {
-            point = this.#polygon.points[i];
-            context.lineTo(point.x, point.y);
-        }
+        this.#polygon.path(context);
     }
 
     // MARK: - Helpers
     #invalidatePath() {
         this.#isPathDirty = true;
+        this.invalidateBounds();
     }
 
     #updatePathIfDirty() {
-        if (!this.#isPathDirty) { 
-            return;
-        }
+        if (!this.#isPathDirty) { return; }
         this.#isPathDirty = false;
 
         const vector = this.#vector.clone();
@@ -91,17 +139,16 @@ export class VectorView extends ShapeView {
         const lineLength = vectorLength - arrowHeight;
         const point = vector.clone().setLength(lineLength);
         
-        this.#polygon.points = [
+        const points = [
             new Vec2(),
             point.clone(),
             point.add(normal).clone(),
             vector.clone(),
             point.subtract(normal).subtract(normal).clone(),
             point.add(normal).clone()
-        ]
+        ];
 
-        this.#polygon.invalidateBounds();
-        this.invalidateBounds();
+        this.#polygon.setPoints(points);
     }
 
 }

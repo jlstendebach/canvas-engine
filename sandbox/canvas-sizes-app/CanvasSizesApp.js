@@ -44,6 +44,7 @@ export class CanvasSizesApp extends CanvasApp {
     
     // MARK: - event handlers
     onCanvasResize(type, event) {
+        void type, event;
         this.updateBallPositions();
     }
 

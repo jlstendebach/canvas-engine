@@ -195,7 +195,7 @@ export class ShapesApp extends CanvasApp {
             strokeStyle: style.strokeStyle,
             strokeWidth: style.strokeWidth,
         });
-        this.setPivotToCenter(vector);
+        this.setPivotToCenter(vector);        
         this.addEventListeners(vector);
         this.scene.addView(vector);
         this.shapes.push(vector);
@@ -258,8 +258,11 @@ export class ShapesApp extends CanvasApp {
     }
 
     setPivotToCenter(shape) {
-        shape.pivotX = shape.bounds.centerX;
-        shape.pivotY = shape.bounds.centerY;
+        if (shape.bounds.isEmpty()) {
+            console.warn("Cannot set pivot to center of shape with empty bounds.");
+        }
+        shape.pivotX = shape.bounds.centerX || 0;
+        shape.pivotY = shape.bounds.centerY || 0;
     }
 
     getNextStyle() {

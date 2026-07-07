@@ -7,17 +7,20 @@ import { Vec2 } from "../../../math/Vec2.js";
  * Base class for all views in the scene graph.
  */
 export class View {
-    #transform = new Transform(this.onTransformInvalidated.bind(this));
-
-    #bounds = new Bounds();
-    #isBoundsDirty = true;
-
+    // Authored states
     #isVisible = true;
     #isPickable = true;
+    #transform = new Transform(this.onTransformInvalidated.bind(this));
 
+    // Scene graph hierarchy
     #parent = null;
     #views = [];
 
+    // Derived states
+    #bounds = new Bounds();
+    #isBoundsDirty = true;
+
+    // Services
     #eventEmitter = new EventEmitter();
 
     // -------------------------------------------------------------------------
@@ -113,18 +116,14 @@ export class View {
         return this.#isVisible;
     }
     set isVisible(value) {
-        if (typeof value !== "boolean") { return; }
-        if (this.#isVisible === value) { return; }
-        this.#isVisible = value;
-        this.onChildBoundsInvalidated();
+        this.setVisible(value);
     }
 
     get isPickable() {
         return this.#isPickable;
     }
     set isPickable(value) {
-        if (typeof value !== "boolean") { return; }
-        this.#isPickable = value;
+        this.setPickable(value);
     }
 
     get parent() {
@@ -144,6 +143,24 @@ export class View {
         this.#transform.y = options.y ?? options.position?.y ?? 0;
         this.#isVisible = options.isVisible !== false;
         this.#isPickable = options.isPickable !== false;
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Visibility and Pickability
+    // -------------------------------------------------------------------------
+
+    setVisible(isVisible) {
+        if (typeof isVisible !== "boolean") { return this; }
+        if (this.#isVisible === isVisible) { return this; }
+        this.#isVisible = isVisible;
+        this.onChildBoundsInvalidated();
+        return this;
+    }
+
+    setPickable(isPickable) {
+        if (typeof isPickable !== "boolean") { return this; }
+        this.#isPickable = isPickable;
+        return this;
     }
 
     // -------------------------------------------------------------------------
@@ -275,141 +292,128 @@ export class View {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Bounds 
+    // MARK: - Parent 
     // -------------------------------------------------------------------------
 
     /**
-     * Checks if a point in local space is contained within this view. 
-     * @param {Vec2} point - The point in local space.
-     * @returns {boolean} True if the point is inside this view, false otherwise.
+     * Convenience method that calls the parent view's addView method. If the 
+     * parent is not provided, is null, or is the same as the current parent, 
+     * this method does nothing.
+     * @param {View} parent - The parent view to add this view to.
+     * @returns {View} This.
      */
-    containsPoint(point) {
-        void point;
-        return true;
+    addToParent(parent) {
+        if (!parent) { return this; }
+        if (parent === this.#parent) { return this; }
+        parent.addView(this);
+        return this;
     }
 
-    updateBounds(out) {
-        out.reset();
-    }
+    /**
+     * Convenience method that calls the parent view's removeView method to 
+     * remove this view from its parent. If this view has no parent, this method
+     * does nothing.
+     * @returns {View} This.
+     */
+    removeFromParent() {
+        if (!this.#parent) { return this; }
+        this.#parent.removeView(this);
+        return this;
+    }    
 
-    invalidateBounds() {
-        if (this.#isBoundsDirty) {
-            return;
+    /**
+     * Checks if this view is a descendant of the given view.
+     * @param {View} view - The view to check.
+     * @returns {boolean} True if this view is a descendant of the given view, false otherwise.
+     */
+    isDescendantOf(view) {
+        let current = this.#parent;
+        while (current !== null) {
+            if (current === view) {
+                return true;
+            }
+            current = current.#parent;
         }
-        this.#isBoundsDirty = true;
-        this.parent?.onChildBoundsInvalidated();
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: - Transformations
-    // -------------------------------------------------------------------------
-
-    localToParentPointXY(x, y, out = new Vec2()) {
-        return this.#transform.transformPointXY(x, y, out);
-    }
-
-    localToParentPoint(point, out = new Vec2()) {
-        return this.#transform.transformPoint(point, out);
-    }
-
-    localToParentVectorXY(x, y, out = new Vec2()) {
-        return this.#transform.transformVectorXY(x, y, out);
-    }
-
-    localToParentVector(vector, out = new Vec2()) {
-        return this.#transform.transformVector(vector, out);
-    }
-
-    localToParentBounds(bounds, out = new Bounds()) {
-        return this.#transform.transformBounds(bounds, out);
-    }
-
-
-    parentToLocalPointXY(x, y, out = new Vec2()) {
-        return this.#transform.inverseTransformPointXY(x, y, out);
-    }
-
-    parentToLocalPoint(point, out = new Vec2()) {
-        return this.#transform.inverseTransformPoint(point, out);
-    }
-
-    parentToLocalVectorXY(x, y, out = new Vec2()) {
-        return this.#transform.inverseTransformVectorXY(x, y, out);
-    }
-
-    parentToLocalVector(vector, out = new Vec2()) {
-        return this.#transform.inverseTransformVector(vector, out);
-    }
-
-    parentToLocalBounds(bounds, out = new Bounds()) {
-        return this.#transform.inverseTransformBounds(bounds, out);
+        return false;
     }
 
     /**
-     * Holdover from the old transformation system. This method is only being 
-     * kept for compatibility with the SceneView. It should be removed once the
-     * SceneView is refactored to use the new transformation system.
+     * Checks if this view is an ancestor of the given view.
+     * @param {View} view - The view to check.
+     * @returns {boolean} True if this view is an ancestor of the given view, false otherwise.
      */
-    localToChild(point) {
-        return point;
-    }
-
-    /**
-     * Holdover from the old transformation system. This method is only being 
-     * kept for compatibility with the SceneView. It should be removed once the
-     * SceneView is refactored to use the new transformation system.
-     */
-    childToLocal(point) {
-        return point;
+    isAncestorOf(view) {
+        return view.isDescendantOf(this);
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Views 
+    // MARK: - Children 
     // -------------------------------------------------------------------------
 
     /**
-     * Adds a child view to this view. If the view already has a parent, it is 
-     * removed from that parent first.
+     * Adds a child view to this view if it is not already a child of this view. 
+     * If it is, this method does nothing. If the view already has a parent that
+     * is not this view, it is removed from that parent first.
      * @param {View} view - The child view to add.
-     * @returns {View} The added view.
-     * @throws {TypeError} If view is not an instance of View.
+     * @returns {View} This.
      * @throws {Error} If adding self or an ancestor view.
      */
     addView(view) {
-        if (!(view instanceof View)) {
-            throw new TypeError("addView expects an instance of View");
-        }
+        if (view.#parent === this) { return this; }
+
+        // Ensure we aren't adding this view to itself even indirectly.
         if (view === this) {
             throw new Error("Cannot add a view to itself");
         }
-        if (this.isDescendantOf(view)) {
+        if (view.isAncestorOf(this)) {
             throw new Error("Cannot add an ancestor view as a child");
         }
-        view.removeFromParent();
-        view.#parent = this;
+
+        // Remove the view from its current parent if it has one.
+        if (view.#parent !== null) {
+            view.#parent.removeView(view);
+        }
+
+        // Add the view.
         this.#views.push(view);
+        view.#parent = this;
+
+        // The child view may have changed the bounds of this view.
         this.invalidateBounds();
-        return view;
+        return this;
     }
 
     /**
-     * Removes a child view from this view.
+     * Removes a child view from this view if it is a child. If the view is not 
+     * a child, this method does nothing.
      * @param {View} view - The child view to remove.
-     * @returns {boolean} True if the view was removed, false if the view was not a child of this view.
+     * @returns {View} This.
      */
     removeView(view) {
+        if (view.#parent !== this) { return this; }
+
+        // Find the index of the view in the child views array.
         const index = this.#views.indexOf(view);
-        if (index === -1) {
-            return false;
+        if (index === -1) { 
+            // This should never happen because the view's parent reference 
+            // indicates it is a child, but if it does, we still want to remove 
+            // the parent reference.
+            view.#parent = null;
+            return this; 
         }
-        view.#parent = null;
+
+        // Remove the view.
         this.#views.splice(index, 1);
+        view.#parent = null;
+
+        // The child view may have changed the bounds of this view.
         this.invalidateBounds();
-        return true;
+        return this;
     }
 
     /**
      * Removes all child views from this view.
+     * @returns {View} This.
      */
     removeAllViews() {
         for (let i = 0; i < this.#views.length; i++) {
@@ -417,6 +421,7 @@ export class View {
         }
         this.#views.length = 0;
         this.invalidateBounds();
+        return this;
     }
 
     /**
@@ -469,43 +474,90 @@ export class View {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Parent 
+    // MARK: - Transformations
+    // -------------------------------------------------------------------------
+
+    localToParentPointXY(x, y, out = new Vec2()) {
+        return this.#transform.transformPointXY(x, y, out);
+    }
+
+    localToParentPoint(point, out = new Vec2()) {
+        return this.#transform.transformPoint(point, out);
+    }
+
+    localToParentVectorXY(x, y, out = new Vec2()) {
+        return this.#transform.transformVectorXY(x, y, out);
+    }
+
+    localToParentVector(vector, out = new Vec2()) {
+        return this.#transform.transformVector(vector, out);
+    }
+
+    localToParentBounds(bounds, out = new Bounds()) {
+        return this.#transform.transformBounds(bounds, out);
+    }
+
+    parentToLocalPointXY(x, y, out = new Vec2()) {
+        return this.#transform.inverseTransformPointXY(x, y, out);
+    }
+
+    parentToLocalPoint(point, out = new Vec2()) {
+        return this.#transform.inverseTransformPoint(point, out);
+    }
+
+    parentToLocalVectorXY(x, y, out = new Vec2()) {
+        return this.#transform.inverseTransformVectorXY(x, y, out);
+    }
+
+    parentToLocalVector(vector, out = new Vec2()) {
+        return this.#transform.inverseTransformVector(vector, out);
+    }
+
+    parentToLocalBounds(bounds, out = new Bounds()) {
+        return this.#transform.inverseTransformBounds(bounds, out);
+    }
+
+    /**
+     * Holdover from the old transformation system. This method is only being 
+     * kept for compatibility with the SceneView. It should be removed once the
+     * SceneView is refactored to use the new transformation system.
+     */
+    localToChild(point) {
+        return point;
+    }
+
+    /**
+     * Holdover from the old transformation system. This method is only being 
+     * kept for compatibility with the SceneView. It should be removed once the
+     * SceneView is refactored to use the new transformation system.
+     */
+    childToLocal(point) {
+        return point;
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Bounds 
     // -------------------------------------------------------------------------
 
     /**
-     * Removes this view from its parent.
+     * Checks if a point in local space is contained within this view. 
+     * @param {Vec2} point - The point in local space.
+     * @returns {boolean} True if the point is inside this view, false otherwise.
      */
-    removeFromParent() {
-        if (this.#parent === null) {
-            return;
-        }
-        this.#parent.removeView(this);
-        this.#parent = null;
+    containsPoint(point) {
+        void point;
+        return true;
     }
 
-    /**
-     * Checks if this view is a descendant of the given view.
-     * @param {View} view - The view to check.
-     * @returns {boolean} True if this view is a descendant of the given view, false otherwise.
-     */
-    isDescendantOf(view) {
-        let current = this.#parent;
-        while (current !== null) {
-            if (current === view) {
-                return true;
-            }
-            current = current.#parent;
-        }
-        return false;
+    updateBounds(out) {
+        out.reset();
     }
 
-    /**
-     * Checks if this view is an ancestor of the given view.
-     * @param {View} view - The view to check.
-     * @returns {boolean} True if this view is an ancestor of the given view, false otherwise.
-     */
-    isAncestorOf(view) {
-        return view.isDescendantOf(this);
+    invalidateBounds() {
+        if (this.#isBoundsDirty) { return this;}
+        this.#isBoundsDirty = true;
+        this.parent?.onChildBoundsInvalidated();
+        return this;
     }
 
     // -------------------------------------------------------------------------

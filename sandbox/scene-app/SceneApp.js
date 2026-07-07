@@ -42,61 +42,58 @@ export class SceneApp extends CanvasApp {
     }
 
     initScene() {
-        const scene = new SceneView();
-        scene.size.set(this.canvas.width, this.canvas.height);
+        const scene = new SceneView()
+            .setSize(this.canvas.getSize())
+            .addToParent(this.canvas);
         scene.events.on(MouseEvent.WHEEL, this.onSceneZoom, this);
         scene.events.on(MouseEvent.DRAG, this.onSceneDragged, this);
         scene.events.on(MouseEvent.DOWN, this.onSceneClicked, this);
-        this.scene = this.canvas.addView(scene);
+        this.scene = scene;
     }
 
     initBox() {
-        const box = new RectangleView({
-            position: this.canvas.getSize().scale(0.1),
-            size: this.canvas.getSize().scale(0.8),
-            fillStyle: new Color(0, 0, 40),
-            strokeStyle: new Color(100, 100, 100),
-            strokeWidth: 2,
-            isPickable: false
-        });
-        this.box = this.scene.addView(box);
+        this.box = new RectangleView()
+            .setPosition(this.canvas.getSize().scale(0.1))
+            .setSize(this.canvas.getSize().scale(0.8))
+            .setFillStyle(new Color(0, 0, 40))
+            .setStrokeStyle(new Color(100, 100, 100))
+            .setStrokeWidth(2)
+            .setPickable(false)
+            .addToParent(this.scene);
 
-        const boxCorner1 = new CircleView({
-            position: this.box.getPosition(),
-            radius: this.CORNER_RADIUS,
-            fillStyle: new Color(0, 200, 0),
-            strokeStyle: new Color(100, 100, 100),
-            strokeWidth: 2,
-            isPickable: true,
-        });
-        boxCorner1.events.on(MouseEvent.DRAG, this.onBallDrag, this);
-        this.boxCorner1 = this.canvas.addView(boxCorner1);
+        this.boxCorner1 = new CircleView()
+            .setPosition(this.box.getPosition())
+            .setRadius(this.CORNER_RADIUS)
+            .setFillStyle(new Color(0, 200, 0))
+            .setStrokeStyle(new Color(100, 100, 100))
+            .setStrokeWidth(2)
+            .setPickable(true)
+            .addToParent(this.scene);
+        this.boxCorner1.events.on(MouseEvent.DRAG, this.onBallDrag, this);
 
-        const boxCorner2 = new CircleView({
-            position: Vec2.add(this.box.getPosition(), this.box.getSize()),
-            radius: this.CORNER_RADIUS,
-            fillStyle: new Color(0, 200, 0),
-            strokeStyle: new Color(100, 100, 100),
-            strokeWidth: 2,
-            isPickable: true,
-        });
-        boxCorner2.events.on(MouseEvent.DRAG, this.onBallDrag, this);
-        this.boxCorner2 = this.canvas.addView(boxCorner2);        
+        this.boxCorner2 = new CircleView()
+            .setPosition(this.box.getPosition().add(this.box.getSize()))
+            .setRadius(this.CORNER_RADIUS)
+            .setFillStyle(new Color(0, 200, 0))
+            .setStrokeStyle(new Color(100, 100, 100))
+            .setStrokeWidth(2)
+            .setPickable(true)
+            .addToParent(this.scene);
+        this.boxCorner2.events.on(MouseEvent.DRAG, this.onBallDrag, this);
     }
 
     initBall() {
-        const ball = new CircleView({
-            radius: 50,
-            fillStyle: new Color(0, 0, 200),
-            strokeStyle: new Color(100, 100, 100),
-            strokeWidth: 2,
-            position: new Vec2(100, 100),
-            isPickable: true
-        });
-        ball.events.on(MouseEvent.DOWN, this.onBallGrab, this);
-        ball.events.on(MouseEvent.DRAG, this.onBallDrag, this);
-        ball.events.on(MouseEvent.UP, this.onBallDrop, this);
-        this.ball = this.scene.addView(ball);
+        this.ball = new CircleView()
+            .setPositionXY(100, 100)
+            .setRadius(50)
+            .setFillStyle(new Color(0, 0, 200))
+            .setStrokeStyle(new Color(100, 100, 100))
+            .setStrokeWidth(2)
+            .setPickable(true)
+            .addToParent(this.scene);
+        this.ball.events.on(MouseEvent.DOWN, this.onBallGrab, this);
+        this.ball.events.on(MouseEvent.DRAG, this.onBallDrag, this);
+        this.ball.events.on(MouseEvent.UP, this.onBallDrop, this);
     }
     
     // MARK: - Lifecycle

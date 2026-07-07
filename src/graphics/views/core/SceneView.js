@@ -1,11 +1,13 @@
 import { Vec2 } from "../../../math/Vec2.js";
 import { CoordinateSpace } from "../../utils/CoordinateSpace.js";
+import { Size } from "../../utils/Size.js";
 import { View } from "../core/View.js";
 
 export class SceneView extends View {
     static #TAU = 2 * Math.PI;
     
-    #size = new Vec2();
+    #width = 0;
+    #height = 0;
     #clip = false;
     #scale = 1;
     #translation = new Vec2();
@@ -14,10 +16,8 @@ export class SceneView extends View {
     // MARK: - Initialization
     constructor(options = {}) {
         super(options);
-        this.#size.set(
-            options.width ?? options.size?.x ?? 0, 
-            options.height ?? options.size?.y ?? 0
-        );
+        this.#width = options.width ?? options.size?.x ?? 0;
+        this.#height = options.height ?? options.size?.y ?? 0;
         this.#clip = options.clip === true;
         this.#scale = options.scale ?? 1;
         if (options.translation instanceof Vec2) {
@@ -27,44 +27,25 @@ export class SceneView extends View {
     }
 
     // MARK: - Accessors
-    set size(size) { 
-        this.#assertType("size", size, Vec2);
-        if (this.#size.equals(size)) { return; }
-        this.#size.copy(size); 
-        this.invalidateBounds();
-    }    
-    get size() { 
-        return this.#size; 
-    }
-
-    set width(value) { 
-        this.#assertFiniteAndPositive("width", value);
-        if (this.#size.x === value) { return; }
-        this.#size.x = value; 
-        this.invalidateBounds();
-    }
     get width() { 
-        return this.#size.x; 
+        return this.#width; 
+    }
+    set width(value) { 
+        this.setWidth(value);
     }
 
-    set height(value) { 
-        this.#assertFiniteAndPositive("height", value);
-        if (this.#size.y === value) { return; }
-        this.#size.y = value; 
-        this.invalidateBounds();
-    }
     get height() { 
-        return this.#size.y; 
+        return this.#height; 
+    }
+    set height(value) { 
+        this.setHeight(value);
     }
 
-    set clip(clip) { 
-        if (typeof clip !== "boolean") { return; }
-        if (this.#clip === clip) { return; }
-        this.#clip = clip; 
-        this.invalidateBounds();
-    }
     get clip() { 
         return this.#clip; 
+    }
+    set clip(clip) { 
+        this.setClip(clip);
     }
 
     set scale(scale) { 
@@ -94,10 +75,51 @@ export class SceneView extends View {
         return this.#rotation; 
     }
 
+    // MARK: - Size
+    getSize(out = new Size()) { 
+        return out.set(this.#width, this.#height);
+    }
+
+    setSizeWH(width, height) { 
+        if (this.#width === width && this.#height === height) { return this; }
+        this.#width = width;
+        this.#height = height;
+        this.invalidateBounds();
+        return this;
+    }
+
+    setSize(size) {
+        return this.setSizeWH(size.width, size.height);
+    }
+
+    setWidth(width) {
+        if (this.#width === width) { return this; }
+        this.#width = width;
+        this.invalidateBounds();
+        return this;
+    }
+
+    setHeight(height) {
+        if (this.#height === height) { return this; }
+        this.#height = height;
+        this.invalidateBounds();
+        return this;
+    }
+
+    // MARK: - Clip
+    setClip(clip) {
+        if (typeof clip !== "boolean") { return this; }
+        if (this.#clip === clip) { return this; }
+        this.#clip = clip; 
+        this.invalidateBounds();
+        return this;
+    }
+
+
     // MARK: - bounds
     updateBounds(out) {
         if (this.#clip) {
-            out.set(0, 0, this.#size.x, this.#size.y);
+            out.set(0, 0, this.#width, this.#height);
         } else {
             out.set(-Infinity, -Infinity, Infinity, Infinity);
         }
@@ -176,7 +198,7 @@ export class SceneView extends View {
         const targetLocal = coordinateSpace === CoordinateSpace.CHILD            
             ? this.childToLocal(target)
             : target;
-        const translation = this.#size.clone()
+        const translation = new Vec2(this.#width, this.#height)
             .divideScalar(2)
             .subtract(targetLocal);
         this.translate(translation);
@@ -206,13 +228,11 @@ export class SceneView extends View {
     }
 
     // MARK: - drawing
-    drawChildren(context) {
+    onDraw(context) {
         // clipping
-        if (this.#clip && !this.#size.isZero()) {
-
-            console.log("clipping to", this.#size.x, this.#size.y);
+        if (this.#clip && this.#width > 0 && this.#height > 0) {
             context.beginPath();
-            context.rect(0, 0, this.#size.x, this.#size.y);
+            context.rect(0, 0, this.#width, this.#height);
             context.clip();
         }
 
@@ -226,9 +246,6 @@ export class SceneView extends View {
         if (this.#isTranslated()) {
             context.translate(this.#translation.x, this.#translation.y);
         }
-
-        // draw children
-        super.drawChildren(context);
     }
     
     // MARK: - helpers

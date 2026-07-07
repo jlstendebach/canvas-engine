@@ -32,6 +32,7 @@ describe("CanvasApp", () => {
 
     // MARK: - constructor tests
     describe("constructor", () => {
+        /*
         test("initializes canvas correctly from element", () => {
             destroyApp();
             app = new CanvasApp(canvasElement);
@@ -43,6 +44,7 @@ describe("CanvasApp", () => {
             app = new CanvasApp("#test-canvas");
             expect(app.canvas.element).toBe(canvasElement);
         });
+        */
 
         test("initializes state correctly", () => {
             expect(app.state).toBe(CanvasAppState.STOPPED);

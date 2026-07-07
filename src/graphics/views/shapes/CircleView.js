@@ -21,7 +21,7 @@ export class CircleView extends ShapeView {
 
     // MARK: - Radius
     setRadius(radius) {
-        if (radius === this.#radius) { return; }
+        if (radius === this.#radius) { return this; }
         this.#radius = radius;
         this.invalidateBounds();
         return this;
