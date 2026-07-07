@@ -129,9 +129,6 @@ export class View {
     get parent() {
         return this.#parent;
     }
-    set parent(value) {
-        this.setParent(value);
-    }
 
     get events() {
         return this.#eventEmitter;
@@ -153,15 +150,15 @@ export class View {
     // -------------------------------------------------------------------------
 
     setVisible(isVisible) {
-        if (typeof isVisible !== "boolean") { return; }
-        if (this.#isVisible === isVisible) { return; }
+        if (typeof isVisible !== "boolean") { return this; }
+        if (this.#isVisible === isVisible) { return this; }
         this.#isVisible = isVisible;
         this.onChildBoundsInvalidated();
         return this;
     }
 
     setPickable(isPickable) {
-        if (typeof isPickable !== "boolean") { return; }
+        if (typeof isPickable !== "boolean") { return this; }
         this.#isPickable = isPickable;
         return this;
     }
@@ -299,34 +296,30 @@ export class View {
     // -------------------------------------------------------------------------
 
     /**
-     * Attempts to remove this view from its current parent and add it to the 
-     * new parent. If the new parent is null, this view will just be removed 
-     * from its current parent.
-     * 
-     * **Note:** This method is a convenience method that calls `removeView` on
-     * the current parent and `addView` on the new parent. As such, it should 
-     * not be called directly from within `addView` or `removeView` as it will 
-     * cause an infinite loop.
-     * 
-     * @param {View|null} parent - The new parent view, or null to remove from the current parent.
+     * Convenience method that calls the parent view's addView method. If the 
+     * parent is not provided, is null, or is the same as the current parent, 
+     * this method does nothing.
+     * @param {View} parent - The parent view to add this view to.
      * @returns {View} This.
-     * @throws {Error} If settings parent to self or a descendant view.
      */
-    setParent(parent) {
+    addToParent(parent) {
+        if (!parent) { return this; }
         if (parent === this.#parent) { return this; }
-
-        // Remove from current parent if it exists
-        if (this.#parent !== null) {
-            this.#parent.removeView(this);
-        }
-
-        // Add to new parent if it exists
-        if (parent !== null) {
-            parent.addView(this);
-        }
-
+        parent.addView(this);
         return this;
     }
+
+    /**
+     * Convenience method that calls the parent view's removeView method to 
+     * remove this view from its parent. If this view has no parent, this method
+     * does nothing.
+     * @returns {View} This.
+     */
+    removeFromParent() {
+        if (!this.#parent) { return this; }
+        this.#parent.removeView(this);
+        return this;
+    }    
 
     /**
      * Checks if this view is a descendant of the given view.
@@ -561,11 +554,10 @@ export class View {
     }
 
     invalidateBounds() {
-        if (this.#isBoundsDirty) {
-            return;
-        }
+        if (this.#isBoundsDirty) { return this;}
         this.#isBoundsDirty = true;
         this.parent?.onChildBoundsInvalidated();
+        return this;
     }
 
     // -------------------------------------------------------------------------

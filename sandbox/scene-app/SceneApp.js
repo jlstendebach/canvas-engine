@@ -44,7 +44,7 @@ export class SceneApp extends CanvasApp {
     initScene() {
         const scene = new SceneView()
             .setSize(this.canvas.getSize())
-            .setParent(this.canvas);
+            .addToParent(this.canvas);
         scene.events.on(MouseEvent.WHEEL, this.onSceneZoom, this);
         scene.events.on(MouseEvent.DRAG, this.onSceneDragged, this);
         scene.events.on(MouseEvent.DOWN, this.onSceneClicked, this);
@@ -59,7 +59,7 @@ export class SceneApp extends CanvasApp {
             .setStrokeStyle(new Color(100, 100, 100))
             .setStrokeWidth(2)
             .setPickable(false)
-            .setParent(this.scene);
+            .addToParent(this.scene);
 
         this.boxCorner1 = new CircleView()
             .setPosition(this.box.getPosition())
@@ -68,7 +68,7 @@ export class SceneApp extends CanvasApp {
             .setStrokeStyle(new Color(100, 100, 100))
             .setStrokeWidth(2)
             .setPickable(true)
-            .setParent(this.canvas);
+            .addToParent(this.scene);
         this.boxCorner1.events.on(MouseEvent.DRAG, this.onBallDrag, this);
 
         this.boxCorner2 = new CircleView()
@@ -78,7 +78,7 @@ export class SceneApp extends CanvasApp {
             .setStrokeStyle(new Color(100, 100, 100))
             .setStrokeWidth(2)
             .setPickable(true)
-            .setParent(this.canvas);
+            .addToParent(this.scene);
         this.boxCorner2.events.on(MouseEvent.DRAG, this.onBallDrag, this);
     }
 
@@ -90,8 +90,7 @@ export class SceneApp extends CanvasApp {
             .setStrokeStyle(new Color(100, 100, 100))
             .setStrokeWidth(2)
             .setPickable(true)
-            .setParent(this.scene);
-
+            .addToParent(this.scene);
         this.ball.events.on(MouseEvent.DOWN, this.onBallGrab, this);
         this.ball.events.on(MouseEvent.DRAG, this.onBallDrag, this);
         this.ball.events.on(MouseEvent.UP, this.onBallDrop, this);
