@@ -3,15 +3,25 @@ import { MouseButton } from "./MouseButton.js"
 import { MouseEvent } from "./MouseEvent.js"
 
 export class MouseEventProcessor {
-    constructor() {
-        this.mouseDownViews = new Map();
-        this.mouseDownViews.set(MouseButton.LEFT, null);
-        this.mouseDownViews.set(MouseButton.RIGHT, null);
-        this.mouseDownViews.set(MouseButton.MIDDLE, null);
-        this.mouseDownViews.set(MouseButton.MOUSE4, null);
-        this.mouseDownViews.set(MouseButton.MOUSE5, null);
-        this.mouseDragButton = null;
-        this.mouseOverView = null;
+    #canvasElement = null;
+    #rootView = null;
+
+    #domAbortController = null;
+
+    #mouseDownViews = new Map([
+        [MouseButton.LEFT, null],
+        [MouseButton.RIGHT, null],
+        [MouseButton.MIDDLE, null],
+        [MouseButton.MOUSE4, null],
+        [MouseButton.MOUSE5, null]
+    ]);
+    #mouseDragButton = null;
+    #mouseOverView = null;
+
+    // MARK: - Initialization
+    constructor(canvasElement, rootView) {
+        this.#canvasElement = canvasElement;
+        this.#rootView = rootView;
     }
 
     // --[ events ]-------------------------------------------------------------
@@ -31,14 +41,14 @@ export class MouseEventProcessor {
         event.target.onMouseDown(event);
 
         // Store the view and button to respond to other mouse events later.
-        this.mouseDownViews.set(event.button, target);
-        if (this.mouseDragButton == null) {
-            this.mouseDragButton = event.button;
+        this.#mouseDownViews.set(event.button, target);
+        if (this.#mouseDragButton == null) {
+            this.#mouseDragButton = event.button;
         }
     }
 
     onMouseUp(event) {
-        let mouseDownView = this.mouseDownViews.get(event.button);
+        let mouseDownView = this.#mouseDownViews.get(event.button);
         if (mouseDownView != null) {
             let related = this.findView(event);
             let [position, delta] = this.getRelativeXY(event, mouseDownView);
@@ -56,14 +66,14 @@ export class MouseEventProcessor {
         }
 
         // Reset the mouseDownView so we don't respond to mouse up events.
-        this.mouseDownViews.set(event.button, null);
-        if (this.mouseDragButton === event.button) {
-            this.mouseDragButton = null;
+        this.#mouseDownViews.set(event.button, null);
+        if (this.#mouseDragButton === event.button) {
+            this.#mouseDragButton = null;
         }
     }
 
     onMouseMove(event) {
-        let mouseDragView = this.mouseDownViews.get(this.mouseDragButton);
+        let mouseDragView = this.#mouseDownViews.get(this.#mouseDragButton);
         if (mouseDragView != null) {
             let related = this.findView(event);
             let [position, delta] = this.getRelativeXY(event, mouseDragView);
@@ -77,15 +87,15 @@ export class MouseEventProcessor {
             dragEvent.y = position.y;
             dragEvent.dx = delta.x;
             dragEvent.dy = delta.y;
-            dragEvent.button = this.mouseDragButton;
+            dragEvent.button = this.#mouseDragButton;
             dragEvent.target = mouseDragView;
-            dragEvent.related = related;            
-            dragEvent.target.onMouseDrag(dragEvent);    
+            dragEvent.related = related;
+            dragEvent.target.onMouseDrag(dragEvent);
 
-        } 
+        }
 
         let view = this.findView(event);
-        if (this.mouseOverView == view) {
+        if (this.#mouseOverView == view) {
             if (view != mouseDragView) {
                 let [position, delta] = this.getRelativeXY(event, view);
 
@@ -100,11 +110,11 @@ export class MouseEventProcessor {
                 moveEvent.dy = delta.y;
                 moveEvent.target = view;
                 moveEvent.related = null;
-                moveEvent.target.onMouseMove(moveEvent);    
+                moveEvent.target.onMouseMove(moveEvent);
             }
 
         } else {
-            let exitView = this.mouseOverView;
+            let exitView = this.#mouseOverView;
             let enterView = view;
 
             /****************/
@@ -119,7 +129,7 @@ export class MouseEventProcessor {
             enterEvent.dy = delta.y;
             enterEvent.target = enterView;
             enterEvent.related = exitView;
-            enterEvent.target.onMouseEnter(enterEvent);                
+            enterEvent.target.onMouseEnter(enterEvent);
 
             /***************/
             /* onMouseExit */
@@ -134,21 +144,21 @@ export class MouseEventProcessor {
                 exitEvent.dy = delta.y;
                 exitEvent.target = exitView;
                 exitEvent.related = enterView;
-                exitEvent.target.onMouseExit(exitEvent);                
+                exitEvent.target.onMouseExit(exitEvent);
             }
 
             // Update the mouseOverView for the next event.
-            this.mouseOverView = view
+            this.#mouseOverView = view
         }
     }
 
     onMouseOut(event) {
-        for (let [button, view] of this.mouseDownViews.entries()) {
+        for (let [button, view] of this.#mouseDownViews.entries()) {
             if (!view) {
                 continue;
             }
             this.onMouseUp(event);
-            this.mouseDownViews.set(button, null);
+            this.#mouseDownViews.set(button, null);
         }
     }
 
@@ -166,7 +176,7 @@ export class MouseEventProcessor {
         event.target = target;
         event.related = null;
         event.target.onMouseWheel(event);
-    }    
+    }
 
     // --[ helpers ]------------------------------------------------------------
     findView(event) {
@@ -184,10 +194,10 @@ export class MouseEventProcessor {
             views.push(parent);
             parent = parent.parent;
         }
-        
+
         let position = new Vec2(event.x, event.y);
-        let delta = new Vec2(event.x - event.dx, event.y - event.dy); 
-        for (let i = views.length-1; i >= 0; i--) {
+        let delta = new Vec2(event.x - event.dx, event.y - event.dy);
+        for (let i = views.length - 1; i >= 0; i--) {
             position.x -= views[i].x;
             position.y -= views[i].y;
             position = views[i].localToChild(position);
@@ -211,6 +221,112 @@ export class MouseEventProcessor {
         }
         return new Vec2(event.x - position.x, event.y - position.y);
         */
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Event Binding
+    // -------------------------------------------------------------------------
+
+    attachDomEvents() {
+        if (this.#domAbortController) { return; }
+        this.#domAbortController = new AbortController();
+        const options = { signal: this.#domAbortController.signal };
+
+        // Mouse events
+        this.#canvasElement.addEventListener("mousedown", this.#onMouseDown.bind(this), options);
+        this.#canvasElement.addEventListener("mouseup", this.#onMouseUp.bind(this), options);
+        this.#canvasElement.addEventListener("mouseout", this.#onMouseOut.bind(this), options);
+        this.#canvasElement.addEventListener("mousemove", this.#onMouseMove.bind(this), options);
+        this.#canvasElement.addEventListener("wheel", this.#onMouseWheel.bind(this), options);
+    }
+
+    detachDomEvents() {
+        if (!this.#domAbortController) { return; }
+        this.#domAbortController.abort();
+        this.#domAbortController = null;
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Event Handlers
+    // -------------------------------------------------------------------------
+
+    #onMouseDown(event) {
+        const mouseEvent = this.#createMouseEvent(MouseEvent.DOWN, event);
+        if (mouseEvent) {
+            this.onMouseDown(mouseEvent);
+        }
+    }
+
+    #onMouseUp(event) {
+        const mouseEvent = this.#createMouseEvent(MouseEvent.UP, event);
+        if (mouseEvent) {
+            this.onMouseUp(mouseEvent);
+        }
+    }
+
+    #onMouseMove(event) {
+        const mouseEvent = this.#createMouseEvent(MouseEvent.MOVE, event);
+        if (mouseEvent) {
+            this.onMouseMove(mouseEvent);
+        }
+    }
+
+    #onMouseOut(event) {
+        const mouseEvent = this.#createMouseEvent(MouseEvent.EXIT, event);
+        if (mouseEvent) {
+            this.onMouseOut(mouseEvent);
+        }
+    }
+
+    #onMouseWheel(event) {
+        const mouseEvent = this.#createMouseEvent(MouseEvent.WHEEL, event);
+        if (mouseEvent) {
+            this.onMouseWheel(mouseEvent);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Helpers
+    // -------------------------------------------------------------------------
+
+    #createMouseEvent(type, event) {
+        const style = getComputedStyle(this.#canvasElement)
+        const paddingX = parseFloat(style.getPropertyValue("padding-left")) || 0;
+        const paddingY = parseFloat(style.getPropertyValue("padding-top")) || 0;
+        const x = Math.round(event.offsetX - paddingX);
+        const y = Math.round(event.offsetY - paddingY);
+
+        if (type !== MouseEvent.EXIT) {
+            if (
+                x < 0 ||
+                y < 0 ||
+                x >= this.#canvasElement.width ||
+                y >= this.#canvasElement.height
+            ) {
+                return null;
+            }
+        }
+
+        let dx, dy;
+        if (type == MouseEvent.WHEEL) {
+            dx = event.deltaX;
+            dy = event.deltaY;
+        } else {
+            dx = event.movementX;
+            dy = event.movementY;
+        }
+
+        return new MouseEvent(
+            type,                                // type
+            x,                                   // x
+            y,                                   // y
+            dx,                                  // dx
+            dy,                                  // dy            
+            MouseButton.fromIndex(event.button), // button
+            event.buttons,                       // buttons
+            this.#rootView,                      // target
+            null                                 // related
+        );
     }
 
 }
