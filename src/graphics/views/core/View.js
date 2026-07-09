@@ -455,13 +455,9 @@ export class View {
             return null;
         }
 
-        // This is a bandaid fix for the SceneView and for the fact that we 
-        // don't have a proper transformation system yet.
-        const childPoint = this.localToChild(localPoint);
-
         // Check children in reverse order (topmost first)
         for (let i = this.#views.length - 1; i >= 0; i--) {
-            const view = this.#views[i].pickView(childPoint);
+            const view = this.#views[i].pickView(localPoint);
             if (view !== null) {
                 return view;
             }
@@ -515,24 +511,6 @@ export class View {
 
     parentToLocalBounds(bounds, out = new Bounds()) {
         return this.#transform.inverseTransformBounds(bounds, out);
-    }
-
-    /**
-     * Holdover from the old transformation system. This method is only being 
-     * kept for compatibility with the SceneView. It should be removed once the
-     * SceneView is refactored to use the new transformation system.
-     */
-    localToChild(point) {
-        return point;
-    }
-
-    /**
-     * Holdover from the old transformation system. This method is only being 
-     * kept for compatibility with the SceneView. It should be removed once the
-     * SceneView is refactored to use the new transformation system.
-     */
-    childToLocal(point) {
-        return point;
     }
 
     // -------------------------------------------------------------------------

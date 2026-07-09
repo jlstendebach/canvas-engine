@@ -1,77 +1,91 @@
-import { Vec2 } from "../../math/Vec2.js";
-
 export class MouseEvent {
-    static get DOWN()  { return "MouseDownEvent"; }
-    static get UP()    { return "MouseUpEvent"; }
-    static get MOVE()  { return "MouseMoveEvent"; }
-    static get DRAG()  { return "MouseDragEvent"; }
+    static get DOWN() { return "MouseDownEvent"; }
+    static get UP() { return "MouseUpEvent"; }
+    static get MOVE() { return "MouseMoveEvent"; }
+    static get DRAG() { return "MouseDragEvent"; }
     static get ENTER() { return "MouseEnterEvent"; }
-    static get EXIT()  { return "MouseExitEvent"; }
+    static get EXIT() { return "MouseExitEvent"; }
     static get WHEEL() { return "MouseWheelEvent"; }
 
-    type = null; // String
-    x = 0; // Int
-    y = 0; // Int
-    dx = 0; // Int
-    dy = 0; // Int
-    button = 0; // Int
-    buttons = 0; // Int
-    target = null; // View
-    related = null; // View
+    type = null;
 
-    // --[ init ]---------------------------------------------------------------
-    constructor(type, x, y, dx, dy, button, buttons, target, related = null) {
-        this.type = type;
-        this.x = parseInt(x) || 0;
-        this.y = parseInt(y) || 0;
-        this.dx = parseInt(dx) || 0;
-        this.dy = parseInt(dy) || 0;
-        this.button = parseInt(button) || 0;
-        this.buttons = parseInt(buttons) || 0;
-        this.target = target;
-        this.related = related;
+    global = {
+        x: 0,
+        y: 0,
+        movementX: 0,
+        movementY: 0
+    }
+    parent = {
+        x: 0,
+        y: 0,
+        movementX: 0,
+        movementY: 0
+    }
+    local = {
+        x: 0,
+        y: 0,
+        movementX: 0,
+        movementY: 0
     }
 
-    // --[ helpers ]------------------------------------------------------------
+    wheelX = 0;
+    wheelY = 0;
+    wheelZ = 0;
+
+    button = 0;
+    buttons = 0;
+    target = null;
+    related = null;
+
+    // MARK: - Initialization
+    constructor(type) {
+        this.type = type;
+    }
+
+    // MARK: - Utilities
     clone() {
-        return new MouseEvent(
-            this.type,
-            this.x, 
-            this.y, 
-            this.dx, 
-            this.dy,
-            this.button, 
-            this.buttons,
-            this.target, 
-            this.related
-        );
+        const event = new MouseEvent(this.type);
+        event.global.x = this.global.x;
+        event.global.y = this.global.y;
+        event.global.movementX = this.global.movementX;
+        event.global.movementY = this.global.movementY;
+        event.parent.x = this.parent.x;
+        event.parent.y = this.parent.y;
+        event.parent.movementX = this.parent.movementX;
+        event.parent.movementY = this.parent.movementY;
+        event.local.x = this.local.x;
+        event.local.y = this.local.y;
+        event.local.movementX = this.local.movementX;
+        event.local.movementY = this.local.movementY;
+        event.button = this.button;
+        event.buttons = this.buttons;
+        event.target = this.target;
+        event.related = this.related;
+        return event;
+    }
+
+    copy(other) {
+        this.global.x = other.global.x;
+        this.global.y = other.global.y;
+        this.global.movementX = other.global.movementX;
+        this.global.movementY = other.global.movementY;
+        this.parent.x = other.parent.x;
+        this.parent.y = other.parent.y;
+        this.parent.movementX = other.parent.movementX;
+        this.parent.movementY = other.parent.movementY;
+        this.local.x = other.local.x;
+        this.local.y = other.local.y;
+        this.local.movementX = other.local.movementX;
+        this.local.movementY = other.local.movementY;
+        this.button = other.button;
+        this.buttons = other.buttons;
+        this.target = other.target;
+        this.related = other.related;
+        return this;
     }
 
     isPressed(button) {
         return (this.button & button) != 0;
     }
 
-    getGlobalXY() {
-        let position = this.getLocalXY();
-        let view = this.target;
-        while (view != null) {
-            position.x += view.x;
-            position.y += view.y;
-            view = view.parent;
-        }
-        return position;
-    }
-
-    getParentXY() {
-        let position = this.getLocalXY();
-        if (this.target != null) {
-            position.x += this.target.x;
-            position.y += this.target.y;
-        }
-        return position;
-    }
-
-    getLocalXY() {
-        return new Vec2(this.x, this.y);
-    }
 }

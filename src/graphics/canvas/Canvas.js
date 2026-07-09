@@ -98,9 +98,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
 
     destroy() {
-        if (this.isDestroyed()) {
-            return;
-        }
+        if (this.isDestroyed()) { return; }
 
         try {
             this.#detachDomEvents();

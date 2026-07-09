@@ -213,17 +213,17 @@ export class ShapesApp extends CanvasApp {
     // MARK: - Events Handlers
     onMouseDown(type, event) {
         if (event.button === MouseButton.LEFT) {
-            event.target.setPosition(event.getParentXY());
+            event.target.setPositionXY(event.parentX, event.parentY);
             event.target.fillStyle.a += 0.1;
         }
     }
 
     onMouseDrag(type, event) {
-        event.target.setPosition(event.getParentXY());
+        event.target.setPositionXY(event.parentX, event.parentY);
     }
 
     onMouseUp(type, event) {
-        event.target.setPosition(event.getParentXY());
+        event.target.setPositionXY(event.parentX, event.parentY);
         event.target.fillStyle.a -= 0.1;
     }
 

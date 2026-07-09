@@ -165,11 +165,13 @@ export class SceneApp extends CanvasApp {
             this.ballVelocity.set(0, 0);
             this.isBallGrabbed = true;
         }
-        event.target.setPosition(event.getParentXY());
+        event.target.x = event.parentX;
+        event.target.y = event.parentY;
     }
 
     onBallDrag(type, event) {
-        event.target.setPosition(event.getParentXY());
+        event.target.x = event.parentX;
+        event.target.y = event.parentY;
 
         if (event.target == this.boxCorner1) {
             const newPosition = this.scene.localToChild(this.boxCorner1.getPosition());
@@ -186,13 +188,14 @@ export class SceneApp extends CanvasApp {
 
     onBallDrop(type, event) {
         if (event.target == this.ball) {
-            this.ballVelocity = event.getParentXY().clone()
+            this.ballVelocity = new Vec2(event.localX, event.localY)
                 .subtract(this.ballLastPosition)
                 .scale(1000.0/this.ballTimer.getTime())
                 .clampLength(0, this.MAX_THROW_SPEED);
             this.isBallGrabbed = false;
         }
-        event.target.setPosition(event.getParentXY());
+        event.target.x = event.parentX;
+        event.target.y = event.parentY;
     }
 
     // MARK: - Helpers
