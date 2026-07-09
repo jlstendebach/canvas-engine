@@ -9,24 +9,20 @@ export class MouseEvent {
 
     type = null;
 
-    global = {
-        x: 0,
-        y: 0,
-        movementX: 0,
-        movementY: 0
-    }
-    parent = {
-        x: 0,
-        y: 0,
-        movementX: 0,
-        movementY: 0
-    }
-    local = {
-        x: 0,
-        y: 0,
-        movementX: 0,
-        movementY: 0
-    }
+    canvasX = 0;
+    canvasY = 0;
+    canvasMovementX = 0;
+    canvasMovementY = 0;
+
+    parentX = 0;
+    parentY = 0;
+    parentMovementX = 0;
+    parentMovementY = 0;
+
+    x = 0;
+    y = 0;
+    movementX = 0;
+    movementY = 0;
 
     wheelX = 0;
     wheelY = 0;
@@ -45,18 +41,18 @@ export class MouseEvent {
     // MARK: - Utilities
     clone() {
         const event = new MouseEvent(this.type);
-        event.global.x = this.global.x;
-        event.global.y = this.global.y;
-        event.global.movementX = this.global.movementX;
-        event.global.movementY = this.global.movementY;
-        event.parent.x = this.parent.x;
-        event.parent.y = this.parent.y;
-        event.parent.movementX = this.parent.movementX;
-        event.parent.movementY = this.parent.movementY;
-        event.local.x = this.local.x;
-        event.local.y = this.local.y;
-        event.local.movementX = this.local.movementX;
-        event.local.movementY = this.local.movementY;
+        event.canvasX = this.canvasX;
+        event.canvasY = this.canvasY;
+        event.canvasMovementX = this.canvasMovementX;
+        event.canvasMovementY = this.canvasMovementY;
+        event.parentX = this.parentX;
+        event.parentY = this.parentY;
+        event.parentMovementX = this.parentMovementX;
+        event.parentMovementY = this.parentMovementY;
+        event.x = this.x;
+        event.y = this.y;
+        event.movementX = this.movementX;
+        event.movementY = this.movementY;
         event.button = this.button;
         event.buttons = this.buttons;
         event.target = this.target;
@@ -65,18 +61,18 @@ export class MouseEvent {
     }
 
     copy(other) {
-        this.global.x = other.global.x;
-        this.global.y = other.global.y;
-        this.global.movementX = other.global.movementX;
-        this.global.movementY = other.global.movementY;
-        this.parent.x = other.parent.x;
-        this.parent.y = other.parent.y;
-        this.parent.movementX = other.parent.movementX;
-        this.parent.movementY = other.parent.movementY;
-        this.local.x = other.local.x;
-        this.local.y = other.local.y;
-        this.local.movementX = other.local.movementX;
-        this.local.movementY = other.local.movementY;
+        this.canvasX = other.canvasX;
+        this.canvasY = other.canvasY;
+        this.canvasMovementX = other.canvasMovementX;
+        this.canvasMovementY = other.canvasMovementY;
+        this.parentX = other.parentX;
+        this.parentY = other.parentY;
+        this.parentMovementX = other.parentMovementX;
+        this.parentMovementY = other.parentMovementY;
+        this.x = other.x;
+        this.y = other.y;
+        this.movementX = other.movementX;
+        this.movementY = other.movementY;
         this.button = other.button;
         this.buttons = other.buttons;
         this.target = other.target;
@@ -85,7 +81,7 @@ export class MouseEvent {
     }
 
     isPressed(button) {
-        return (this.button & button) != 0;
+        return (this.button & button) !== 0;
     }
 
 }

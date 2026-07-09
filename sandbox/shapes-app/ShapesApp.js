@@ -238,10 +238,8 @@ export class ShapesApp extends CanvasApp {
     }
 
     onMouseWheel(type, event) {
-        if (event.dy === 0) {
-            return;
-        }
-        const direction = event.dy / Math.abs(event.dy);
+        if (event.wheelY === 0) { return; }
+        const direction = Math.sign(event.wheelY);
         const factor =  1 - direction / 20;
         event.target.scaleX *= factor;
         event.target.scaleY *= factor;

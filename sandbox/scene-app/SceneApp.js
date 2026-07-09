@@ -124,10 +124,8 @@ export class SceneApp extends CanvasApp {
 
     // MARK: - UI Events
     onSceneZoom(type, event) {
-        if (event.dy === 0) {
-            return;
-        }
-        const direction = event.dy / Math.abs(event.dy);
+        if (event.wheelY === 0) { return; }
+        const direction = Math.sign(event.wheelY);
         const factor =  1 - direction / 20;
         this.scene.zoom(factor, new Vec2(event.x, event.y));
     }
@@ -135,7 +133,7 @@ export class SceneApp extends CanvasApp {
     onSceneDragged(type, event) {
         try {
             if (event.button == MouseButton.LEFT) {
-                this.scene.translate(new Vec2(event.dx, event.dy));
+                this.scene.translate(new Vec2(event.parentMovementX, event.parentMovementY));
 
             } else if (event.button == MouseButton.RIGHT) {
                 const childSpaceAnchor = this.box.getPosition().add(this.box.getSize().divideScalar(2));
@@ -143,7 +141,10 @@ export class SceneApp extends CanvasApp {
                     ? this.canvas.getSize().divideScalar(2)
                     : this.scene.childToLocal(childSpaceAnchor);
 
-                const lastPosition = new Vec2(event.x - event.dx, event.y - event.dy).subtract(localSpaceAnchor);
+                const lastPosition = new Vec2(
+                    event.x - event.movementX, 
+                    event.y - event.movementY
+                ).subtract(localSpaceAnchor);
                 const currentPosition = new Vec2(event.x, event.y).subtract(localSpaceAnchor);
                 const rotation = lastPosition.angleTau(currentPosition);
 
@@ -160,7 +161,7 @@ export class SceneApp extends CanvasApp {
         }
     }
 
-    onBallGrab(type, event) {
+    onBallGrab(type, event) {        
         if (event.target == this.ball) {
             this.ballVelocity.set(0, 0);
             this.isBallGrabbed = true;

@@ -217,22 +217,22 @@ export class MouseEventProcessor {
         const mouseEvent = new MouseEvent(type);
 
         // Global position        
-        mouseEvent.global.x = x;
-        mouseEvent.global.y = y;
-        mouseEvent.global.movementX = event.movementX;
-        mouseEvent.global.movementY = event.movementY;
+        mouseEvent.canvasX = x;
+        mouseEvent.canvasY = y;
+        mouseEvent.canvasMovementX = event.movementX;
+        mouseEvent.canvasMovementY = event.movementY;
 
         // Target's parent position
-        mouseEvent.parent.x = x;
-        mouseEvent.parent.y = y;
-        mouseEvent.parent.movementX = event.movementX;
-        mouseEvent.parent.movementY = event.movementY;
+        mouseEvent.parentX = x;
+        mouseEvent.parentY = y;
+        mouseEvent.parentMovementX = event.movementX;
+        mouseEvent.parentMovementY = event.movementY;
 
         // Target's local position
-        mouseEvent.local.x = x;
-        mouseEvent.local.y = y;
-        mouseEvent.local.movementX = event.movementX;
-        mouseEvent.local.movementY = event.movementY;
+        mouseEvent.x = x;
+        mouseEvent.y = y;
+        mouseEvent.movementX = event.movementX;
+        mouseEvent.movementY = event.movementY;
 
         // Wheel
         mouseEvent.wheelX = event.deltaX;
@@ -252,7 +252,7 @@ export class MouseEventProcessor {
 
     #findView(event) {
         const view = event.target;
-        const point = new Vec2(event.global.x, event.global.y);
+        const point = new Vec2(event.canvasX, event.canvasY);
         return view.pickView(point) ?? view;
     }
 
@@ -266,25 +266,25 @@ export class MouseEventProcessor {
             view = view.parent;
         }
 
-        const position = new Vec2(event.global.x, event.global.y);
-        const movement = new Vec2(event.global.movementX, event.global.movementY);
+        const position = new Vec2(event.canvasX, event.canvasY);
+        const movement = new Vec2(event.canvasMovementX, event.canvasMovementY);
         for (let i = views.length - 1; i >= 0; i--) {
             const view = views[i];
             view.parentToLocalPoint(position, position);
             view.parentToLocalVector(movement, movement);
 
             if (i === 1) {
-                event.parent.x = position.x;
-                event.parent.y = position.y;
-                event.parent.movementX = movement.x;
-                event.parent.movementY = movement.y;
+                event.parentX = position.x;
+                event.parentY = position.y;
+                event.parentMovementX = movement.x;
+                event.parentMovementY = movement.y;
             }
         }
 
-        event.local.x = position.x;
-        event.local.y = position.y;
-        event.local.movementX = movement.x;
-        event.local.movementY = movement.y;
+        event.x = position.x;
+        event.y = position.y;
+        event.movementX = movement.x;
+        event.movementY = movement.y;
     }
 
 }
