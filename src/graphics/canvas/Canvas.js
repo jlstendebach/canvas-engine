@@ -188,9 +188,6 @@ export class Canvas {
             this.#mouseProcessor.attachDomEvents();
         }
 
-        // Disable context menu on right click
-        this.#element.oncontextmenu = () => false;
-
         // Resize events
         if (!this.#resizeObserver) {
             this.#resizeObserver = new ResizeObserver(() => this.#updateSize());
@@ -212,9 +209,6 @@ export class Canvas {
             this.#mouseProcessor.detachDomEvents();
             this.#mouseProcessor = null;
         }
-
-        // Restore default context menu behavior
-        this.#element.oncontextmenu = null;
 
         if (this.#resizeObserver) {
             this.#resizeObserver.disconnect();

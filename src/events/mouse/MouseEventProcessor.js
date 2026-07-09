@@ -18,6 +18,9 @@ export class MouseEventProcessor {
     #mouseDragButton = null;
     #mouseOverView = null;
 
+    #mouseX = -1;
+    #mouseY = -1;
+
     // MARK: - Initialization
     constructor(canvasElement, rootView) {
         this.#canvasElement = canvasElement;
@@ -25,66 +28,172 @@ export class MouseEventProcessor {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Event Handlers
+    // MARK: - Event Binding
     // -------------------------------------------------------------------------
 
-    onMouseDown(domEvent) {
-        const mouseEvent = this.#convertDomEvent(MouseEvent.DOWN, domEvent);
-        if (!mouseEvent) { return; }
+    attachDomEvents() {
+        if (this.#domAbortController) { return; }
+        this.#domAbortController = new AbortController();
+        const options = { signal: this.#domAbortController.signal };
 
-        /***************/
-        /* onMouseDown */
-        /***************/
-        mouseEvent.target = this.#findView(mouseEvent);
-        mouseEvent.related = null;
-        this.#updateRelativePositions(mouseEvent);
+        // Mouse events
+        /*
+        this.#canvasElement.addEventListener("mousedown", this.onMouseDown.bind(this), options);
+        this.#canvasElement.addEventListener("mouseup", this.onMouseUp.bind(this), options);
+        this.#canvasElement.addEventListener("mousemove", this.onMouseMove.bind(this), options);
+        this.#canvasElement.addEventListener("mouseout", this.onMouseOut.bind(this), options);
+        this.#canvasElement.addEventListener("wheel", this.onMouseWheel.bind(this), options);
+        */
+        for (const eventType of [
+            "mousedown",
+            "mouseup",
+            "mousemove",
+            "mouseout",
+            "wheel"
+        ]) {
+            this.#canvasElement.addEventListener(
+                eventType,
+                this.#handleMouseEvent.bind(this, eventType),
+                options
+            );
+        }
 
-        // Call the handler for the target
-        mouseEvent.target.onMouseDown(mouseEvent);
+        // Disable context menu on right click
+        this.#canvasElement.oncontextmenu = () => false;
+    }
 
-        // Store the view and button to respond to other mouse events later.
-        this.#mouseDownViews.set(mouseEvent.button, mouseEvent.target);
-        if (this.#mouseDragButton == null) {
-            this.#mouseDragButton = mouseEvent.button;
+    detachDomEvents() {
+        if (!this.#domAbortController) { return; }
+        this.#domAbortController.abort();
+        this.#domAbortController = null;
+
+        // Restore default context menu behavior
+        this.#canvasElement.oncontextmenu = null;
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Event Forwarding
+    // -------------------------------------------------------------------------
+
+    #handleMouseEvent(type, domEvent) {
+        const mouseEvent = this.#createMouseEvent(domEvent);
+        const isInsideCanvas = this.#isInsideCanvas(mouseEvent.canvasX, mouseEvent.canvasY);
+        const wasInsideCanvas = this.#isInsideCanvas(this.#mouseX, this.#mouseY);
+
+        this.#mouseX = mouseEvent.canvasX;
+        this.#mouseY = mouseEvent.canvasY;
+
+        // Mouse was and still is outside of the canvas.
+        if (!wasInsideCanvas && !isInsideCanvas) {
+            return;
+        }
+
+        // Clamp the mouse position to the canvas bounds.
+        mouseEvent.canvasX = this.#clampX(mouseEvent.canvasX);
+        mouseEvent.canvasY = this.#clampY(mouseEvent.canvasY);
+
+        // Dispatch the event to the appropriate handler.
+        if (isInsideCanvas && !wasInsideCanvas) {
+            this.#onMouseEnter(mouseEvent);
+        }
+
+        switch (type) {
+            case "mousedown": this.#onMouseDown(mouseEvent); break;
+            case "mouseup": this.#onMouseUp(mouseEvent); break;
+            case "mousemove": this.#onMouseMove(mouseEvent); break;
+            case "wheel": this.#onMouseWheel(mouseEvent); break;
+        }
+
+        if (!isInsideCanvas && wasInsideCanvas) {
+            this.#onMouseExit(mouseEvent);
         }
     }
 
-    onMouseUp(domEvent) {
-        const mouseEvent = this.#convertDomEvent(MouseEvent.UP, domEvent);
-        if (!mouseEvent) { return; }
+    // -------------------------------------------------------------------------
+    // MARK: - Event Handlers
+    // -------------------------------------------------------------------------
 
-        /*************/
-        /* onMouseUp */
-        /*************/
-        const mouseDownView = this.#mouseDownViews.get(mouseEvent.button);
-        if (mouseDownView != null) {
-            mouseEvent.target = mouseDownView;
-            mouseEvent.related = this.#findView(mouseEvent);
-            this.#updateRelativePositions(mouseEvent);
+    #onMouseEnter(event) {
+        this.#onMouseMove(event);
+    }
+
+    #onMouseExit(event) {
+        // Reset
+        for (const [button, view] of this.#mouseDownViews.entries()) {
+            if (view == null) { continue; }
+            this.#mouseDownViews.set(button, null);
+
+            event.type = MouseEvent.UP;
+            event.target = view;
+            event.related = null;
+            this.#updateRelativePositions(event);
 
             // Call the handler for the target
-            mouseEvent.target.onMouseUp(mouseEvent);
+            event.target.onMouseUp(event);
+        }
+
+        /***************/
+        /* onMouseExit */
+        /***************/
+        if (this.#mouseOverView != null) {
+            const exitEvent = event.clone();
+            exitEvent.type = MouseEvent.EXIT;
+            exitEvent.target = this.#mouseOverView;
+            exitEvent.related = null;
+            this.#updateRelativePositions(exitEvent);
+
+            // Call the handler for the target
+            exitEvent.target.onMouseExit(exitEvent);
+        }
+
+        this.#mouseDragButton = null;
+        this.#mouseOverView = null;
+    }
+
+    #onMouseDown(event) {
+        event.type = MouseEvent.DOWN;
+        event.target = this.#findView(event);
+        event.related = null;
+        this.#updateRelativePositions(event);
+
+        // Call the handler for the target
+        event.target.onMouseDown(event);
+
+        // Store the view and button to respond to other mouse events later.
+        this.#mouseDownViews.set(event.button, event.target);
+        if (this.#mouseDragButton == null) {
+            this.#mouseDragButton = event.button;
+        }
+    }
+
+    #onMouseUp(event) {
+        const mouseDownView = this.#mouseDownViews.get(event.button);
+        if (mouseDownView != null) {
+            event.type = MouseEvent.UP;
+            event.target = mouseDownView;
+            event.related = this.#findView(event);
+            this.#updateRelativePositions(event);
+
+            // Call the handler for the target
+            event.target.onMouseUp(event);
         }
 
         // Reset the mouseDownView so it no longer responds to mouse up events.
-        this.#mouseDownViews.set(mouseEvent.button, null);
-        if (this.#mouseDragButton === mouseEvent.button) {
+        this.#mouseDownViews.set(event.button, null);
+        if (this.#mouseDragButton === event.button) {
             this.#mouseDragButton = null;
         }
     }
 
-    onMouseMove(domEvent) {
-        const mouseEvent = this.#convertDomEvent(MouseEvent.MOVE, domEvent);
-        if (!mouseEvent) { return; }
-
-        const view = this.#findView(mouseEvent);
+    #onMouseMove(event) {
+        const view = this.#findView(event);
 
         /***************/
         /* onMouseDrag */
         /***************/
         const mouseDragView = this.#mouseDownViews.get(this.#mouseDragButton);
         if (mouseDragView != null) {
-            const dragEvent = mouseEvent.clone();
+            const dragEvent = event.clone();
             dragEvent.type = MouseEvent.DRAG;
             dragEvent.target = mouseDragView;
             dragEvent.related = view;
@@ -100,12 +209,13 @@ export class MouseEventProcessor {
         /***************/
         if (this.#mouseOverView === view) {
             if (view !== mouseDragView) {
-                mouseEvent.target = view;
-                mouseEvent.related = null;
-                this.#updateRelativePositions(mouseEvent);
+                event.type = MouseEvent.MOVE;
+                event.target = view;
+                event.related = null;
+                this.#updateRelativePositions(event);
 
                 // Call the handler for the target
-                mouseEvent.target.onMouseMove(mouseEvent);
+                event.target.onMouseMove(event);
             }
             return;
         }
@@ -113,23 +223,11 @@ export class MouseEventProcessor {
         const exitView = this.#mouseOverView;
         const enterView = view;
 
-        /****************/
-        /* onMouseEnter */
-        /****************/
-        const enterEvent = mouseEvent.clone();
-        enterEvent.type = MouseEvent.ENTER;
-        enterEvent.target = enterView;
-        enterEvent.related = exitView;
-        this.#updateRelativePositions(enterEvent);
-
-        // Call the handler for the target
-        enterEvent.target.onMouseEnter(enterEvent);
-
         /***************/
         /* onMouseExit */
         /***************/
         if (exitView != null) {
-            const exitEvent = mouseEvent.clone();
+            const exitEvent = event.clone();
             exitEvent.type = MouseEvent.EXIT;
             exitEvent.target = exitView;
             exitEvent.related = enterView;
@@ -139,109 +237,89 @@ export class MouseEventProcessor {
             exitEvent.target.onMouseExit(exitEvent);
         }
 
+        /****************/
+        /* onMouseEnter */
+        /****************/
+        const enterEvent = event.clone();
+        enterEvent.type = MouseEvent.ENTER;
+        enterEvent.target = enterView;
+        enterEvent.related = exitView;
+        this.#updateRelativePositions(enterEvent);
+
+        // Call the handler for the target
+        enterEvent.target.onMouseEnter(enterEvent);
+
         // Update the mouseOverView for the next event.
         this.#mouseOverView = view;
     }
 
-    onMouseOut(domEvent) {
-        const mouseEvent = this.#convertDomEvent(MouseEvent.EXIT, domEvent);
-        if (!mouseEvent) { return; }
+    #onMouseWheel(event) {
+        event.type = MouseEvent.WHEEL;
+        event.target = this.#findView(event);
+        event.related = null;
+        this.#updateRelativePositions(event);
 
-        for (let [button, view] of this.#mouseDownViews.entries()) {
-            if (!view) { continue; }
-            this.onMouseUp(domEvent);
-            this.#mouseDownViews.set(button, null);
-        }
-    }
-
-    onMouseWheel(domEvent) {
-        const mouseEvent = this.#convertDomEvent(MouseEvent.WHEEL, domEvent);
-        if (!mouseEvent) { return; }
-
-        /*******************/
-        /* MouseWheelEvent */
-        /*******************/
-
-        mouseEvent.target = this.#findView(mouseEvent);
-        mouseEvent.related = null;
-        this.#updateRelativePositions(mouseEvent);
-
-        mouseEvent.target.onMouseWheel(mouseEvent);
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: - Event Binding
-    // -------------------------------------------------------------------------
-
-    attachDomEvents() {
-        if (this.#domAbortController) { return; }
-        this.#domAbortController = new AbortController();
-        const options = { signal: this.#domAbortController.signal };
-
-        // Mouse events
-        this.#canvasElement.addEventListener("mousedown", this.onMouseDown.bind(this), options);
-        this.#canvasElement.addEventListener("mouseup", this.onMouseUp.bind(this), options);
-        this.#canvasElement.addEventListener("mouseout", this.onMouseOut.bind(this), options);
-        this.#canvasElement.addEventListener("mousemove", this.onMouseMove.bind(this), options);
-        this.#canvasElement.addEventListener("wheel", this.onMouseWheel.bind(this), options);
-    }
-
-    detachDomEvents() {
-        if (!this.#domAbortController) { return; }
-        this.#domAbortController.abort();
-        this.#domAbortController = null;
+        // Call the handler for the target
+        event.target.onMouseWheel(event);
     }
 
     // -------------------------------------------------------------------------
     // MARK: - Helpers
     // -------------------------------------------------------------------------
 
-    #convertDomEvent(type, event) {
+    #isInsideCanvas(x, y) {
+        return (
+            x >= 0 &&
+            y >= 0 &&
+            x < this.#canvasElement.width &&
+            y < this.#canvasElement.height
+        );
+    }
+
+    #clampX(x) {
+        return Math.max(0, Math.min(x, this.#canvasElement.width - 1));
+    }
+
+    #clampY(y) {
+        return Math.max(0, Math.min(y, this.#canvasElement.height - 1));
+    }
+
+    #createMouseEvent(domEvent) {
         const style = getComputedStyle(this.#canvasElement)
         const paddingX = parseFloat(style.getPropertyValue("padding-left")) || 0;
         const paddingY = parseFloat(style.getPropertyValue("padding-top")) || 0;
-        const x = Math.round(event.offsetX - paddingX);
-        const y = Math.round(event.offsetY - paddingY);
+        const x = Math.round(domEvent.offsetX - paddingX);
+        const y = Math.round(domEvent.offsetY - paddingY);
 
-        if (type !== MouseEvent.EXIT) {
-            if (
-                x < 0 ||
-                y < 0 ||
-                x >= this.#canvasElement.width ||
-                y >= this.#canvasElement.height
-            ) {
-                return null;
-            }
-        }
-
-        const mouseEvent = new MouseEvent(type);
+        // Create the MouseEvent
+        const mouseEvent = new MouseEvent();
 
         // Global position        
         mouseEvent.canvasX = x;
         mouseEvent.canvasY = y;
-        mouseEvent.canvasMovementX = event.movementX;
-        mouseEvent.canvasMovementY = event.movementY;
+        mouseEvent.canvasMovementX = domEvent.movementX;
+        mouseEvent.canvasMovementY = domEvent.movementY;
 
         // Target's parent position
         mouseEvent.parentX = x;
         mouseEvent.parentY = y;
-        mouseEvent.parentMovementX = event.movementX;
-        mouseEvent.parentMovementY = event.movementY;
+        mouseEvent.parentMovementX = domEvent.movementX;
+        mouseEvent.parentMovementY = domEvent.movementY;
 
         // Target's local position
         mouseEvent.x = x;
         mouseEvent.y = y;
-        mouseEvent.movementX = event.movementX;
-        mouseEvent.movementY = event.movementY;
+        mouseEvent.movementX = domEvent.movementX;
+        mouseEvent.movementY = domEvent.movementY;
 
         // Wheel
-        mouseEvent.wheelX = event.deltaX;
-        mouseEvent.wheelY = event.deltaY;
-        mouseEvent.wheelZ = event.deltaZ;
+        mouseEvent.wheelX = domEvent.deltaX;
+        mouseEvent.wheelY = domEvent.deltaY;
+        mouseEvent.wheelZ = domEvent.deltaZ;
 
         // Buttons
-        mouseEvent.button = MouseButton.fromIndex(event.button);
-        mouseEvent.buttons = event.buttons;
+        mouseEvent.button = MouseButton.fromIndex(domEvent.button);
+        mouseEvent.buttons = domEvent.buttons;
 
         // Target and related views
         mouseEvent.target = this.#rootView;
