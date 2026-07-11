@@ -43,16 +43,16 @@ export class SimpleApp extends CanvasApp {
     onBallGrab(type, event) {
         if (event.button === MouseButton.LEFT) {
             this.#isBallGrabbed = true;
-            event.target.setPosition(event.getParentXY());
+            event.target.setPositionXY(event.parentX, event.parentY);
         }
     }
 
     onBallDrag(type, event) {
-        event.target.setPosition(event.getParentXY());
+        event.target.setPositionXY(event.parentX, event.parentY);
     }
 
     onBallDrop(type, event) {
-        event.target.setPosition(event.getParentXY());
+        event.target.setPositionXY(event.parentX, event.parentY);
         this.#isBallGrabbed = false;
     }
 

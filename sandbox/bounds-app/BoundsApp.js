@@ -9,7 +9,6 @@ import {
 import { BoundsDrawer } from "../common/BoundsDrawer.js";
 import { shapeStyles } from "../common/shapeStyles.js";
 
-
 export class BoundsApp extends CanvasApp {
     #boundsDrawer;
     #container;
@@ -53,8 +52,8 @@ export class BoundsApp extends CanvasApp {
     
     // MARK: - Events Handlers
     onViewDragged(type, event) {
-        event.target.x += event.dx;
-        event.target.y += event.dy;
+        event.target.x += event.parentMovementX;
+        event.target.y += event.parentMovementY;
     }
 
     // MARK: - Helpers

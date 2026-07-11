@@ -3,214 +3,386 @@ import { MouseButton } from "./MouseButton.js"
 import { MouseEvent } from "./MouseEvent.js"
 
 export class MouseEventProcessor {
-    constructor() {
-        this.mouseDownViews = new Map();
-        this.mouseDownViews.set(MouseButton.LEFT, null);
-        this.mouseDownViews.set(MouseButton.RIGHT, null);
-        this.mouseDownViews.set(MouseButton.MIDDLE, null);
-        this.mouseDownViews.set(MouseButton.MOUSE4, null);
-        this.mouseDownViews.set(MouseButton.MOUSE5, null);
-        this.mouseDragButton = null;
-        this.mouseOverView = null;
+    #canvasElement = null;
+    #rootView = null;
+
+
+    #mouseDownViews = new Map([
+        [MouseButton.LEFT, null],
+        [MouseButton.RIGHT, null],
+        [MouseButton.MIDDLE, null],
+        [MouseButton.MOUSE4, null],
+        [MouseButton.MOUSE5, null]
+    ]);
+    #mouseDragButton = null;
+    #mouseOverView = null;
+
+    #mouseX = -1;
+    #mouseY = -1;
+
+    // Event tracking management
+    #domAbortController = null;
+    #mutationObserver = null;
+
+    // Cached objects for performance
+    #computedStyle = null;
+    #isComputedStyleDirty = true;
+
+    // Temporary objects to avoid creating new objects for every event.
+    #baseEvent = new MouseEvent();
+    #tempEvent = new MouseEvent();
+    #tempPosition = new Vec2();
+    #tempMovement = new Vec2();
+    #tempViewList = [];
+
+    // MARK: - Initialization
+    constructor(canvasElement, rootView) {
+        this.#canvasElement = canvasElement;
+        this.#rootView = rootView;
     }
 
-    // --[ events ]-------------------------------------------------------------
-    onMouseDown(event) {
-        let target = this.findView(event);
-        let [position, delta] = this.getRelativeXY(event, target);
+    // -------------------------------------------------------------------------
+    // MARK: - Event Binding
+    // -------------------------------------------------------------------------
+
+    attachDomEvents() {
+        // Mouse events
+        if (!this.#domAbortController) {
+            this.#domAbortController = new AbortController();
+            const options = { signal: this.#domAbortController.signal };
+
+            for (const eventType of [
+                "mousedown",
+                "mouseup",
+                "mousemove",
+                "mouseout",
+                "wheel"
+            ]) {
+                this.#canvasElement.addEventListener(
+                    eventType,
+                    this.#handleMouseEvent.bind(this, eventType),
+                    options
+                );
+            }
+        }
+
+        // Disable context menu on right click
+        this.#canvasElement.oncontextmenu = () => false;
+
+        // CSS changes
+        if (!this.#mutationObserver) {
+            this.#mutationObserver = new MutationObserver(() => this.#isComputedStyleDirty = true);
+            this.#mutationObserver.observe(this.#canvasElement, {
+                attributes: true,
+                attributeFilter: ["style", "class"]
+            });
+        }
+    }
+
+    detachDomEvents() {
+        if (this.#domAbortController) {
+            this.#domAbortController.abort();
+            this.#domAbortController = null;
+        }
+
+        // Restore default context menu behavior
+        this.#canvasElement.oncontextmenu = null;
+
+        if (this.#mutationObserver) {
+            this.#mutationObserver.disconnect();
+            this.#mutationObserver = null;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Event Forwarding
+    // -------------------------------------------------------------------------
+
+    #handleMouseEvent(type, domEvent) {
+        const mouseEvent = this.#getMouseEvent(domEvent);
+        const isInsideCanvas = this.#isInsideCanvas(mouseEvent.canvasX, mouseEvent.canvasY);
+        const wasInsideCanvas = this.#isInsideCanvas(this.#mouseX, this.#mouseY);
+
+        this.#mouseX = mouseEvent.canvasX;
+        this.#mouseY = mouseEvent.canvasY;
+
+        // Mouse was and still is outside of the canvas.
+        if (!wasInsideCanvas && !isInsideCanvas) {
+            return;
+        }
+
+        // Clamp the mouse position to the canvas bounds.
+        mouseEvent.canvasX = this.#clampX(this.#mouseX);
+        mouseEvent.canvasY = this.#clampY(this.#mouseY);
+
+        // Dispatch the event to the appropriate handler.
+        if (isInsideCanvas && !wasInsideCanvas) {
+            this.#onMouseEnter(mouseEvent);
+        }
+
+        switch (type) {
+            case "mousedown": this.#onMouseDown(mouseEvent); break;
+            case "mouseup": this.#onMouseUp(mouseEvent); break;
+            case "mousemove": this.#onMouseMove(mouseEvent); break;
+            case "wheel": this.#onMouseWheel(mouseEvent); break;
+        }
+
+        if (!isInsideCanvas && wasInsideCanvas) {
+            this.#onMouseExit(mouseEvent);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Event Handlers
+    // -------------------------------------------------------------------------
+
+    #onMouseEnter(event) {
+        this.#onMouseMove(event);
+    }
+
+    #onMouseExit(event) {
+        // Reset
+        for (const [button, view] of this.#mouseDownViews.entries()) {
+            if (view == null) { continue; }
+            this.#mouseDownViews.set(button, null);
+
+            const upEvent = this.#tempEvent.copy(event);
+            upEvent.type = MouseEvent.UP;
+            upEvent.button = button;
+            upEvent.target = view;
+            upEvent.related = null;
+            this.#updateRelativePositions(upEvent);
+            upEvent.target.onMouseUp(upEvent);
+        }
 
         /***************/
-        /* onMouseDown */
+        /* onMouseExit */
         /***************/
-        event = event.clone();
-        event.type = MouseEvent.DOWN;
-        event.x = position.x;
-        event.y = position.y;
-        event.target = target;
-        event.related = null;
-        event.target.onMouseDown(event);
+        if (this.#mouseOverView != null) {
+            const exitEvent = this.#tempEvent.copy(event);
+            exitEvent.type = MouseEvent.EXIT;
+            exitEvent.target = this.#mouseOverView;
+            exitEvent.related = null;
+            this.#updateRelativePositions(exitEvent);
+            exitEvent.target.onMouseExit(exitEvent);
+        }
+
+        this.#mouseDragButton = null;
+        this.#mouseOverView = null;
+    }
+
+    #onMouseDown(event) {
+        const downEvent = this.#tempEvent.copy(event);
+        downEvent.type = MouseEvent.DOWN;
+        downEvent.target = this.#findView(downEvent);
+        downEvent.related = null;
+        this.#updateRelativePositions(downEvent);
+        downEvent.target.onMouseDown(downEvent);
 
         // Store the view and button to respond to other mouse events later.
-        this.mouseDownViews.set(event.button, target);
-        if (this.mouseDragButton == null) {
-            this.mouseDragButton = event.button;
+        this.#mouseDownViews.set(downEvent.button, downEvent.target);
+        if (this.#mouseDragButton == null) {
+            this.#mouseDragButton = downEvent.button;
         }
     }
 
-    onMouseUp(event) {
-        let mouseDownView = this.mouseDownViews.get(event.button);
+    #onMouseUp(event) {
+        const mouseDownView = this.#mouseDownViews.get(event.button);
         if (mouseDownView != null) {
-            let related = this.findView(event);
-            let [position, delta] = this.getRelativeXY(event, mouseDownView);
-
-            /*************/
-            /* onMouseUp */
-            /*************/
-            event = event.clone();
-            event.type = MouseEvent.UP;
-            event.x = position.x;
-            event.y = position.y;
-            event.target = mouseDownView;
-            event.related = related;
-            event.target.onMouseUp(event);
+            const upEvent = this.#tempEvent.copy(event);
+            upEvent.type = MouseEvent.UP;
+            upEvent.target = mouseDownView;
+            upEvent.related = this.#findView(upEvent);
+            this.#updateRelativePositions(upEvent);
+            upEvent.target.onMouseUp(upEvent);
         }
 
-        // Reset the mouseDownView so we don't respond to mouse up events.
-        this.mouseDownViews.set(event.button, null);
-        if (this.mouseDragButton === event.button) {
-            this.mouseDragButton = null;
+        // Reset the mouseDownView so it no longer responds to mouse up events.
+        this.#mouseDownViews.set(event.button, null);
+        if (this.#mouseDragButton === event.button) {
+            this.#mouseDragButton = null;
         }
     }
 
-    onMouseMove(event) {
-        let mouseDragView = this.mouseDownViews.get(this.mouseDragButton);
+    #onMouseMove(event) {
+        const view = this.#findView(event);
+
+        /***************/
+        /* onMouseDrag */
+        /***************/
+        const mouseDragView = this.#mouseDownViews.get(this.#mouseDragButton);
         if (mouseDragView != null) {
-            let related = this.findView(event);
-            let [position, delta] = this.getRelativeXY(event, mouseDragView);
-
-            /***************/
-            /* onMouseDrag */
-            /***************/
-            let dragEvent = event.clone();
+            const dragEvent = this.#tempEvent.copy(event);
             dragEvent.type = MouseEvent.DRAG;
-            dragEvent.x = position.x;
-            dragEvent.y = position.y;
-            dragEvent.dx = delta.x;
-            dragEvent.dy = delta.y;
-            dragEvent.button = this.mouseDragButton;
             dragEvent.target = mouseDragView;
-            dragEvent.related = related;            
-            dragEvent.target.onMouseDrag(dragEvent);    
+            dragEvent.related = view;
+            dragEvent.button = this.#mouseDragButton;
+            this.#updateRelativePositions(dragEvent);
+            dragEvent.target.onMouseDrag(dragEvent);
+        }
 
-        } 
-
-        let view = this.findView(event);
-        if (this.mouseOverView == view) {
-            if (view != mouseDragView) {
-                let [position, delta] = this.getRelativeXY(event, view);
-
-                /***************/
-                /* onMouseMove */
-                /***************/
-                let moveEvent = event.clone();
+        /***************/
+        /* onMouseMove */
+        /***************/
+        if (this.#mouseOverView === view) {
+            if (view !== mouseDragView) {
+                const moveEvent = this.#tempEvent.copy(event);
                 moveEvent.type = MouseEvent.MOVE;
-                moveEvent.x = position.x;
-                moveEvent.y = position.y;
-                moveEvent.dx = delta.x;
-                moveEvent.dy = delta.y;
                 moveEvent.target = view;
                 moveEvent.related = null;
-                moveEvent.target.onMouseMove(moveEvent);    
+                this.#updateRelativePositions(moveEvent);
+                moveEvent.target.onMouseMove(moveEvent);
             }
-
-        } else {
-            let exitView = this.mouseOverView;
-            let enterView = view;
-
-            /****************/
-            /* onMouseEnter */
-            /****************/
-            let [enterPosition, delta] = this.getRelativeXY(event, enterView);
-            let enterEvent = event.clone();
-            enterEvent.type = MouseEvent.ENTER;
-            enterEvent.x = enterPosition.x;
-            enterEvent.y = enterPosition.y;
-            enterEvent.dx = delta.x;
-            enterEvent.dy = delta.y;
-            enterEvent.target = enterView;
-            enterEvent.related = exitView;
-            enterEvent.target.onMouseEnter(enterEvent);                
-
-            /***************/
-            /* onMouseExit */
-            /***************/
-            if (exitView != null) {
-                let [exitPosition, delta] = this.getRelativeXY(event, exitView);
-                let exitEvent = event.clone();
-                exitEvent.type = MouseEvent.EXIT;
-                exitEvent.x = exitPosition.x;
-                exitEvent.y = exitPosition.y;
-                exitEvent.dx = delta.x;
-                exitEvent.dy = delta.y;
-                exitEvent.target = exitView;
-                exitEvent.related = enterView;
-                exitEvent.target.onMouseExit(exitEvent);                
-            }
-
-            // Update the mouseOverView for the next event.
-            this.mouseOverView = view
+            return;
         }
+
+        const exitView = this.#mouseOverView;
+        const enterView = view;
+
+        /***************/
+        /* onMouseExit */
+        /***************/
+        if (exitView != null) {
+            const exitEvent = this.#tempEvent.copy(event);
+            exitEvent.type = MouseEvent.EXIT;
+            exitEvent.target = exitView;
+            exitEvent.related = enterView;
+            this.#updateRelativePositions(exitEvent);
+            exitEvent.target.onMouseExit(exitEvent);
+        }
+
+        /****************/
+        /* onMouseEnter */
+        /****************/
+        const enterEvent = this.#tempEvent.copy(event);
+        enterEvent.type = MouseEvent.ENTER;
+        enterEvent.target = enterView;
+        enterEvent.related = exitView;
+        this.#updateRelativePositions(enterEvent);
+        enterEvent.target.onMouseEnter(enterEvent);
+
+        // Update the mouseOverView for the next event.
+        this.#mouseOverView = view;
     }
 
-    onMouseOut(event) {
-        for (let [button, view] of this.mouseDownViews.entries()) {
-            if (!view) {
-                continue;
-            }
-            this.onMouseUp(event);
-            this.mouseDownViews.set(button, null);
-        }
+    #onMouseWheel(event) {
+        const wheelEvent = this.#tempEvent.copy(event);
+        wheelEvent.type = MouseEvent.WHEEL;
+        wheelEvent.target = this.#findView(wheelEvent);
+        wheelEvent.related = null;
+        this.#updateRelativePositions(wheelEvent);
+        wheelEvent.target.onMouseWheel(wheelEvent);
     }
 
-    onMouseWheel(event) {
-        let target = this.findView(event);
-        let [position, delta] = this.getRelativeXY(event, target);
+    // -------------------------------------------------------------------------
+    // MARK: - Event Helpers
+    // -------------------------------------------------------------------------
 
-        /*******************/
-        /* MouseWheelEvent */
-        /*******************/
-        event = event.clone();
-        event.type = MouseEvent.WHEEL;
-        event.x = position.x;
-        event.y = position.y;
-        event.target = target;
-        event.related = null;
-        event.target.onMouseWheel(event);
-    }    
+    #getMouseEvent(domEvent) {
+        if (this.#isComputedStyleDirty) {
+            this.#computedStyle = getComputedStyle(this.#canvasElement);
+            this.#isComputedStyleDirty = false;
+        }
 
-    // --[ helpers ]------------------------------------------------------------
-    findView(event) {
+        const style = this.#computedStyle;
+        const paddingX = parseFloat(style.getPropertyValue("padding-left")) || 0;
+        const paddingY = parseFloat(style.getPropertyValue("padding-top")) || 0;
+        const x = Math.round(domEvent.offsetX - paddingX);
+        const y = Math.round(domEvent.offsetY - paddingY);
+
+        // Reset the base event to default values.
+        this.#baseEvent.type = null;
+
+        // Global position        
+        this.#baseEvent.canvasX = x;
+        this.#baseEvent.canvasY = y;
+        this.#baseEvent.canvasMovementX = domEvent.movementX;
+        this.#baseEvent.canvasMovementY = domEvent.movementY;
+
+        // Target's parent position
+        this.#baseEvent.parentX = x;
+        this.#baseEvent.parentY = y;
+        this.#baseEvent.parentMovementX = domEvent.movementX;
+        this.#baseEvent.parentMovementY = domEvent.movementY;
+
+        // Target's local position
+        this.#baseEvent.x = x;
+        this.#baseEvent.y = y;
+        this.#baseEvent.movementX = domEvent.movementX;
+        this.#baseEvent.movementY = domEvent.movementY;
+
+        // Wheel
+        this.#baseEvent.wheelX = domEvent.deltaX;
+        this.#baseEvent.wheelY = domEvent.deltaY;
+        this.#baseEvent.wheelZ = domEvent.deltaZ;
+
+        // Buttons
+        this.#baseEvent.button = MouseButton.fromIndex(domEvent.button);
+        this.#baseEvent.buttons = domEvent.buttons;
+
+        // Target and related views
+        this.#baseEvent.target = this.#rootView;
+        this.#baseEvent.related = null;
+
+        return this.#baseEvent;
+    }
+
+    #findView(event) {
         const view = event.target;
-        const point = new Vec2(event.x, event.y);
-        return view.pickView(point) ?? view;
+        this.#tempPosition.set(event.canvasX, event.canvasY);
+        return view.pickView(this.#tempPosition) ?? view;
     }
 
-    getRelativeXY(event, view) {
-        // I have a strong feeling that this can be optimized, but this works 
-        // as expected for now.
-        let views = [];
-        let parent = view.parent;
-        while (parent != event.target && parent != null) {
-            views.push(parent);
-            parent = parent.parent;
-        }
-        
-        let position = new Vec2(event.x, event.y);
-        let delta = new Vec2(event.x - event.dx, event.y - event.dy); 
-        for (let i = views.length-1; i >= 0; i--) {
-            position.x -= views[i].x;
-            position.y -= views[i].y;
-            position = views[i].localToChild(position);
-            delta.x -= views[i].x;
-            delta.y -= views[i].y;
-            delta = views[i].localToChild(delta);
-        }
-        delta = Vec2.subtract(position, delta);
-
-        position.x -= view.x;
-        position.y -= view.y;
-
-        return [position, delta];
-
-        /*
-        let position = new Vec2();
-        while (view != event.target && view != null) {
-            position.x += view.x;
-            position.y += view.y;
+    #updateRelativePositions(event) {
+        // Build a list of views from the target up to the root view so that we 
+        // can traverse the hierarchy down to the target view.
+        const views = this.#tempViewList;
+        views.length = 0;
+        let view = event.target;
+        while (view) {
+            views.push(view);
             view = view.parent;
         }
-        return new Vec2(event.x - position.x, event.y - position.y);
-        */
+
+        this.#tempPosition.set(event.canvasX, event.canvasY);
+        this.#tempMovement.set(event.canvasMovementX, event.canvasMovementY);
+        for (let i = views.length - 1; i >= 0; i--) {
+            const view = views[i];
+            view.parentToLocalPoint(this.#tempPosition, this.#tempPosition);
+            view.parentToLocalVector(this.#tempMovement, this.#tempMovement);
+
+            if (i === 1) {
+                event.parentX = this.#tempPosition.x;
+                event.parentY = this.#tempPosition.y;
+                event.parentMovementX = this.#tempMovement.x;
+                event.parentMovementY = this.#tempMovement.y;
+            }
+        }
+
+        event.x = this.#tempPosition.x;
+        event.y = this.#tempPosition.y;
+        event.movementX = this.#tempMovement.x;
+        event.movementY = this.#tempMovement.y;
     }
 
+    // -------------------------------------------------------------------------
+    // MARK: - Canvas Helpers 
+    // -------------------------------------------------------------------------
+
+    #isInsideCanvas(x, y) {
+        return (
+            x >= 0 &&
+            y >= 0 &&
+            x < this.#canvasElement.width &&
+            y < this.#canvasElement.height
+        );
+    }
+
+    #clampX(x) {
+        return Math.max(0, Math.min(x, this.#canvasElement.width - 1));
+    }
+
+    #clampY(y) {
+        return Math.max(0, Math.min(y, this.#canvasElement.height - 1));
+    }
 }

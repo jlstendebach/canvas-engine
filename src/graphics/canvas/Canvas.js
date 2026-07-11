@@ -1,7 +1,4 @@
-import { MouseButton } from "../../events/mouse/MouseButton.js";
-import { MouseEvent } from "../../events/mouse/MouseEvent.js";
 import { MouseEventProcessor } from "../../events/mouse/MouseEventProcessor.js";
-import { Vec2 } from "../../math/Vec2.js";
 import { CachedColor } from "../utils/CachedColor.js";
 import { Size } from "../utils/Size.js";
 import { CanvasResizeEvent } from "./CanvasEvents.js";
@@ -14,9 +11,8 @@ export class Canvas {
     #rootView = new CanvasRootView(this);
     #fillStyle = new CachedColor();
 
-    #mouseProcessor = new MouseEventProcessor();
+    #mouseProcessor;
 
-    #domAbortController = null;
     #resizeObserver = null;
     #mutationObserver = null;
 
@@ -102,9 +98,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
 
     destroy() {
-        if (this.isDestroyed()) {
-            return;
-        }
+        if (this.isDestroyed()) { return; }
 
         try {
             this.#detachDomEvents();
@@ -119,7 +113,6 @@ export class Canvas {
             this.#rootView = null;
             this.#fillStyle = null;
             this.#mouseProcessor = null;
-            this.#domAbortController = null;
         }
     }
 
@@ -130,7 +123,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Size
     // -------------------------------------------------------------------------
-    
+
     getSize(out = new Size()) {
         return out.set(this.#element.width, this.#element.height);
     }
@@ -138,7 +131,7 @@ export class Canvas {
     // -------------------------------------------------------------------------
     // MARK: - Fill Style
     // -------------------------------------------------------------------------
-    
+
     setFillStyle(color) {
         this.#fillStyle.color.copy(color);
         return this;
@@ -190,86 +183,41 @@ export class Canvas {
     // -------------------------------------------------------------------------
 
     #attachDomEvents() {
-        if (this.#domAbortController) {
-            return;
+        if (!this.#mouseProcessor) {
+            this.#mouseProcessor = new MouseEventProcessor(this.#element, this.#rootView);
+            this.#mouseProcessor.attachDomEvents();
         }
-        this.#domAbortController = new AbortController();
-        const options = { signal: this.#domAbortController.signal };
-
-        // Mouse events
-        this.#element.addEventListener("mousedown", this.#onMouseDown.bind(this), options);
-        this.#element.addEventListener("mouseup", this.#onMouseUp.bind(this), options);
-        this.#element.addEventListener("mouseout", this.#onMouseOut.bind(this), options);
-        this.#element.addEventListener("mousemove", this.#onMouseMove.bind(this), options);
-        this.#element.addEventListener("wheel", this.#onMouseWheel.bind(this), options);
-
-        // Other events
-        this.#element.oncontextmenu = () => false; // disable context menu on right click
 
         // Resize events
-        this.#resizeObserver = new ResizeObserver(() => this.#updateSize());
-        this.#resizeObserver.observe(this.#element);
+        if (!this.#resizeObserver) {
+            this.#resizeObserver = new ResizeObserver(() => this.#updateSize());
+            this.#resizeObserver.observe(this.#element);
+        }
 
         // CSS changes
-        this.#mutationObserver = new MutationObserver(() => this.#updateSize());
-        this.#mutationObserver.observe(this.#element, {
-            attributes: true,
-            attributeFilter: ["style", "class"]
-        });
+        if (!this.#mutationObserver) {
+            this.#mutationObserver = new MutationObserver(() => this.#updateSize());
+            this.#mutationObserver.observe(this.#element, {
+                attributes: true,
+                attributeFilter: ["style", "class"]
+            });
+        }
     }
 
     #detachDomEvents() {
-        if (!this.#domAbortController) {
-            return;
+        if (this.#mouseProcessor) {
+            this.#mouseProcessor.detachDomEvents();
+            this.#mouseProcessor = null;
         }
-        this.#domAbortController.abort();
-        this.#domAbortController = null;
 
-        this.#element.oncontextmenu = null; // restore default context menu behavior
-
-        this.#resizeObserver.disconnect();
-        this.#resizeObserver = null;
-
-        this.#mutationObserver.disconnect();
-        this.#mutationObserver = null;
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: - Event Handlers
-    // -------------------------------------------------------------------------
-
-    #onMouseDown(event) {
-        const mouseEvent = this.#createMouseEvent(MouseEvent.DOWN, event);
-        if (mouseEvent) {
-            this.#mouseProcessor.onMouseDown(mouseEvent);
+        if (this.#resizeObserver) {
+            this.#resizeObserver.disconnect();
+            this.#resizeObserver = null;
         }
-    }
 
-    #onMouseUp(event) {
-        const mouseEvent = this.#createMouseEvent(MouseEvent.UP, event);
-        if (mouseEvent) {
-            this.#mouseProcessor.onMouseUp(mouseEvent);
-        }
-    }
-
-    #onMouseMove(event) {
-        const mouseEvent = this.#createMouseEvent(MouseEvent.MOVE, event);
-        if (mouseEvent) {
-            this.#mouseProcessor.onMouseMove(mouseEvent);
-        }
-    }
-
-    #onMouseOut(event) {
-        const mouseEvent = this.#createMouseEvent(MouseEvent.EXIT, event);
-        if (mouseEvent) {
-            this.#mouseProcessor.onMouseOut(mouseEvent);
-        }
-    }
-
-    #onMouseWheel(event) {
-        const mouseEvent = this.#createMouseEvent(MouseEvent.WHEEL, event);
-        if (mouseEvent) {
-            this.#mouseProcessor.onMouseWheel(mouseEvent);
+        if (this.#mutationObserver) {
+            this.#mutationObserver.disconnect();
+            this.#mutationObserver = null;
         }
     }
 
@@ -340,50 +288,6 @@ export class Canvas {
 
         // Inform any listeners about the resize event.
         this.events.emit(CanvasResizeEvent, event);
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: - Mouse Helpers
-    // -------------------------------------------------------------------------
-
-    #createMouseEvent(type, event) {
-        const style = getComputedStyle(this.#element)
-        const paddingX = parseFloat(style.getPropertyValue("padding-left")) || 0;
-        const paddingY = parseFloat(style.getPropertyValue("padding-top")) || 0;
-        const x = Math.round(event.offsetX - paddingX);
-        const y = Math.round(event.offsetY - paddingY);
-
-        if (type !== MouseEvent.EXIT) {
-            if (
-                x < 0 ||
-                y < 0 ||
-                x >= this.#element.width ||
-                y >= this.#element.height
-            ) {
-                return null;
-            }
-        }
-
-        let dx, dy;
-        if (type == MouseEvent.WHEEL) {
-            dx = event.deltaX;
-            dy = event.deltaY;
-        } else {
-            dx = event.movementX;
-            dy = event.movementY;
-        }
-
-        return new MouseEvent(
-            type,                                // type
-            x,                                   // x
-            y,                                   // y
-            dx,                                  // dx
-            dy,                                  // dy            
-            MouseButton.fromIndex(event.button), // button
-            event.buttons,                       // buttons
-            this.#rootView,                      // target
-            null                                 // related
-        );
     }
 
 }
