@@ -22,7 +22,6 @@ export class MouseEventProcessor {
 
     // Event tracking management
     #domAbortController = null;
-    #resizeObserver = null;
     #mutationObserver = null;
 
     // Cached objects for performance
@@ -70,12 +69,6 @@ export class MouseEventProcessor {
         // Disable context menu on right click
         this.#canvasElement.oncontextmenu = () => false;
 
-        // Resize events
-        if (!this.#resizeObserver) {
-            this.#resizeObserver = new ResizeObserver(() => this.#isComputedStyleDirty = true);
-            this.#resizeObserver.observe(this.#canvasElement);
-        }
-
         // CSS changes
         if (!this.#mutationObserver) {
             this.#mutationObserver = new MutationObserver(() => this.#isComputedStyleDirty = true);
@@ -95,16 +88,10 @@ export class MouseEventProcessor {
         // Restore default context menu behavior
         this.#canvasElement.oncontextmenu = null;
 
-        if (this.#resizeObserver) {
-            this.#resizeObserver.disconnect();
-            this.#resizeObserver = null;
-        }
-
         if (this.#mutationObserver) {
             this.#mutationObserver.disconnect();
             this.#mutationObserver = null;
         }
-
     }
 
     // -------------------------------------------------------------------------
