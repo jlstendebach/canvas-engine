@@ -17,7 +17,7 @@ export * from "./views/charts/PieChartView.js"
 
 // MARK: - views/core
 export * from "./views/core/ContainerView.js"
-export * from "./views/core/SceneView.js"
+export * from "./views/core/scene-view/SceneView.js"
 export * from "./views/core/View.js"
 
 // MARK: - views/shapes
@@ -32,3 +32,4 @@ export * from "./views/shapes/VectorView.js"
 // MARK: - views/ui
 export * from "./views/ui/ImageView.js"
 export * from "./views/ui/LabelView.js"
+
