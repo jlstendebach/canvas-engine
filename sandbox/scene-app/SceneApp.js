@@ -27,6 +27,13 @@ export class SceneApp extends CanvasApp {
     ballTimer = new Timer();
     isBallGrabbed = false;
     isFollowingBall = false;
+
+    redBall = new CircleView()
+        .setRadius(5)
+        .setFillStyle(new Color(200, 0, 0))
+        .setStrokeStyle(new Color(100, 100, 100))
+        .setStrokeWidth(2)
+        .setPickable(false);
     
     // MARK: - Initialization
     constructor(canvasSelectorOrElement) {
@@ -35,6 +42,8 @@ export class SceneApp extends CanvasApp {
         this.initScene();
         this.initBox();
         this.initBall();
+
+        this.redBall.addToParent(this.canvas);
     }
 
     initCanvas() {
@@ -42,8 +51,7 @@ export class SceneApp extends CanvasApp {
     }
 
     initScene() {
-        const scene = new SceneView()
-            .setSize(this.canvas.getSize())
+        const scene = new SceneView(this.canvas.width, this.canvas.height)
             .addToParent(this.canvas);
         scene.events.on(MouseEvent.WHEEL, this.onSceneZoom, this);
         scene.events.on(MouseEvent.DRAG, this.onSceneDragged, this);
@@ -68,7 +76,7 @@ export class SceneApp extends CanvasApp {
             .setStrokeStyle(new Color(100, 100, 100))
             .setStrokeWidth(2)
             .setPickable(true)
-            .addToParent(this.scene);
+            .addToParent(this.canvas);
         this.boxCorner1.events.on(MouseEvent.DRAG, this.onBallDrag, this);
 
         this.boxCorner2 = new CircleView()
@@ -78,7 +86,7 @@ export class SceneApp extends CanvasApp {
             .setStrokeStyle(new Color(100, 100, 100))
             .setStrokeWidth(2)
             .setPickable(true)
-            .addToParent(this.scene);
+            .addToParent(this.canvas);
         this.boxCorner2.events.on(MouseEvent.DRAG, this.onBallDrag, this);
     }
 
@@ -101,9 +109,11 @@ export class SceneApp extends CanvasApp {
         const timeScale = deltaTime/1000.0;
 
         if (this.isBallGrabbed == false) {
-            const acceleration = new Vec2(0, 2000.0)
-                .rotate(-this.scene.rotation)
-                .scale(timeScale);
+            const acceleration = new Vec2(0, 1);
+            this.scene.parentToLocalVector(acceleration, acceleration);
+            this.scene.localToContentVector(acceleration, acceleration);
+            acceleration.setLength(2000 * timeScale);
+
             this.ballVelocity.add(acceleration);
             const velocity = this.ballVelocity.clone()
                 .scale(timeScale);
@@ -116,10 +126,18 @@ export class SceneApp extends CanvasApp {
         this.ballTimer.start();    
 
         if (this.isFollowingBall && this.isBallGrabbed == false) {
-            this.scene.centerOn(this.ball.getPosition(), CoordinateSpace.CHILD);
+            this.scene.centerOn(this.ball.x, this.ball.y, CoordinateSpace.CHILD);
         }
 
         this.positionBoxCorners();
+
+        const boxCenter = new Vec2(this.box.bounds.centerX, this.box.bounds.centerY);
+        const contentSpaceAnchor = this.box.localToParentPoint(boxCenter);
+        const localSpaceAnchor = this.isFollowingBall
+            ? this.canvas.getSize().divideScalar(2)
+            : this.scene.contentToLocalPoint(contentSpaceAnchor);
+        this.redBall.setPosition(localSpaceAnchor);
+
     }
 
     // MARK: - UI Events
@@ -127,28 +145,31 @@ export class SceneApp extends CanvasApp {
         if (event.wheelY === 0) { return; }
         const direction = Math.sign(event.wheelY);
         const factor =  1 - direction / 20;
-        this.scene.zoom(factor, new Vec2(event.x, event.y));
+        this.scene.zoomOn(factor, event.x, event.y);
     }
 
     onSceneDragged(type, event) {
         try {
             if (event.button == MouseButton.LEFT) {
-                this.scene.translate(new Vec2(event.parentMovementX, event.parentMovementY));
+                this.scene.translateContent(event.movementX, event.movementY);
 
             } else if (event.button == MouseButton.RIGHT) {
-                const childSpaceAnchor = this.box.getPosition().add(this.box.getSize().divideScalar(2));
-                const localSpaceAnchor = this.isFollowingBall
+                const boxCenter = new Vec2(this.box.bounds.centerX, this.box.bounds.centerY);
+                const sceneContentAnchor = this.box.localToParentPoint(boxCenter);
+
+                const sceneAnchor = this.isFollowingBall
                     ? this.canvas.getSize().divideScalar(2)
-                    : this.scene.childToLocal(childSpaceAnchor);
+                    : this.scene.contentToLocalPoint(sceneContentAnchor);
 
                 const lastPosition = new Vec2(
                     event.x - event.movementX, 
                     event.y - event.movementY
-                ).subtract(localSpaceAnchor);
-                const currentPosition = new Vec2(event.x, event.y).subtract(localSpaceAnchor);
+                ).subtract(sceneAnchor);
+
+                const currentPosition = new Vec2(event.x, event.y).subtract(sceneAnchor);
                 const rotation = lastPosition.angleTau(currentPosition);
 
-                this.scene.rotate(rotation, localSpaceAnchor);
+                this.scene.rotateAround(rotation, sceneAnchor.x, sceneAnchor.y);
             }
         } catch (error) {
             console.error("Error handling scene drag:", error);
@@ -175,21 +196,21 @@ export class SceneApp extends CanvasApp {
         event.target.y = event.parentY;
 
         if (event.target == this.boxCorner1) {
-            const newPosition = this.scene.localToChild(this.boxCorner1.getPosition());
-            const newSize = this.scene.localToChild(this.boxCorner2.getPosition()).subtract(newPosition);
+            const newPosition = this.scene.localToContentPoint(this.boxCorner1.getPosition());
+            const newSize = this.scene.localToContentPoint(this.boxCorner2.getPosition()).subtract(newPosition);
 
             this.box.setPosition(newPosition);
             this.box.setSizeWH(newSize.x, newSize.y);
 
         } else if (event.target == this.boxCorner2) {
-            const newSize = this.scene.localToChild(this.boxCorner2.getPosition()).subtract(this.box.getPosition());
+            const newSize = this.scene.localToContentPoint(this.boxCorner2.getPosition()).subtract(this.box.getPosition());
             this.box.setSizeWH(newSize.x, newSize.y);
         }
     }
 
     onBallDrop(type, event) {
         if (event.target == this.ball) {
-            this.ballVelocity = new Vec2(event.localX, event.localY)
+            this.ballVelocity = new Vec2(event.parentX, event.parentY)
                 .subtract(this.ballLastPosition)
                 .scale(1000.0/this.ballTimer.getTime())
                 .clampLength(0, this.MAX_THROW_SPEED);
@@ -230,8 +251,16 @@ export class SceneApp extends CanvasApp {
     }
 
     positionBoxCorners() {
-        this.boxCorner1.setPosition(this.scene.childToLocal(this.box.getPosition()));
-        this.boxCorner2.setPosition(this.scene.childToLocal(this.box.getPosition().add(this.box.getSize())));
+        const corner1 = this.box.getPosition();
+        const corner2 = this.box.getPosition().add(this.box.getSize());
+
+        this.scene.contentToLocalPoint(corner1, corner1);
+        this.scene.localToParentPoint(corner1, corner1);
+        this.scene.contentToLocalPoint(corner2, corner2);
+        this.scene.localToParentPoint(corner2, corner2);
+
+        this.boxCorner1.setPosition(corner1);
+        this.boxCorner2.setPosition(corner2);
     }
 
 }

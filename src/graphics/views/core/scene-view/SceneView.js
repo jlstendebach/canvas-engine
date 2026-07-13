@@ -1,3 +1,5 @@
+import { Bounds } from "../../../../math/Bounds.js";
+import { Vec2 } from "../../../../math/Vec2.js";
 import { CoordinateSpace } from "../../../utils/CoordinateSpace.js";
 import { Size } from "../../../utils/Size.js";
 import { View } from "../View.js";
@@ -29,6 +31,10 @@ export class SceneView extends View {
     }
     set height(value) { 
         this.setHeight(value);
+    }
+
+    get content() {
+        return this.#contentView;
     }
 
     // MARK: - Size
@@ -109,20 +115,103 @@ export class SceneView extends View {
     }
 
 
+    // -------------------------------------------------------------------------
     // MARK: - Child Transformations
+    // -------------------------------------------------------------------------    
+
+    translateContent(dx, dy) {
+        this.#contentView.translateXY(dx, dy);
+        return this;
+    }        
+
     centerOn(x, y, coordinateSpace = CoordinateSpace.LOCAL) {
+        this.#contentView.setPositionXY(this.#width/2, this.#height/2);
+
+        const contentPoint = new Vec2(x, y);
+        if (coordinateSpace === CoordinateSpace.LOCAL) {
+            this.localToContentPoint(contentPoint, contentPoint);
+        }
+
+        this.#contentView.setPivot(contentPoint);
         return this;
     }
 
-    zoomOn(factor, x, y, coordinateSpace = CoordinateSpace.LOCAL) {
+    zoomOn(factor, anchorX, anchorY) {
+        const dx = this.#contentView.transform.x - anchorX;
+        const dy = this.#contentView.transform.y - anchorY;
+
+        this.#contentView.transform.setPositionXY(
+            anchorX + (dx * factor),
+            anchorY + (dy * factor)
+        );
+        this.#contentView.transform.scaleBy(factor);
+
         return this;
     }
 
-    rotateAround(radians, x, y, coordinateSpace = CoordinateSpace.LOCAL) {
+    rotateAround(radians, pivotX, pivotY) {
+        const dx = this.#contentView.transform.x - pivotX;
+        const dy = this.#contentView.transform.y - pivotY;
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
+
+        this.#contentView.transform.setPositionXY(
+            pivotX + (dx * cos) - (dy * sin),
+            pivotY + (dx * sin) + (dy * cos)
+        );
+        this.#contentView.transform.rotate(radians);
+
         return this;
     }
 
+    // -------------------------------------------------------------------------
+    // MARK: - Child Conversions
+    // -------------------------------------------------------------------------    
+
+    contentToLocalPointXY(x, y, out = new Vec2()) {
+        return this.#contentView.localToParentPointXY(x, y, out);
+    }
+
+    contentToLocalPoint(point, out = new Vec2()) {
+        return this.#contentView.localToParentPoint(point, out);
+    }
+
+    contentToLocalVectorXY(x, y, out = new Vec2()) {
+        return this.#contentView.localToParentVectorXY(x, y, out);
+    }
+
+    contentToLocalVector(vector, out = new Vec2()) {
+        return this.#contentView.localToParentVector(vector, out);
+    }
+
+    contentToLocalBounds(bounds, out = new Bounds()) {
+        return this.#contentView.localToParentBounds(bounds, out);
+    }
+
+    localToContentPointXY(x, y, out = new Vec2()) {
+        return this.#contentView.parentToLocalPointXY(x, y, out);
+    }
+
+    localToContentPoint(point, out = new Vec2()) {
+        return this.#contentView.parentToLocalPoint(point, out);
+    }
+
+    localToContentVectorXY(x, y, out = new Vec2()) {
+        return this.#contentView.parentToLocalVectorXY(x, y, out);
+    }
+
+    localToContentVector(vector, out = new Vec2()) {
+        return this.#contentView.parentToLocalVector(vector, out);
+    }
+
+    localToContentBounds(bounds, out = new Bounds()) {
+        return this.#contentView.parentToLocalBounds(bounds, out);
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: - Drawing
+    // -------------------------------------------------------------------------
+
     onDraw(context) {
         context.beginPath();
         context.rect(0, 0, this.#width, this.#height);
@@ -132,5 +221,5 @@ export class SceneView extends View {
     drawChildren(context) {
         this.#contentView.draw(context);
     }
-    
+
 }
