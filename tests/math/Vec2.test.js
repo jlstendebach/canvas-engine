@@ -812,19 +812,12 @@ function rejection(x1, y1, x2, y2) {
 }
 
 function angle(x1, y1, x2, y2) {
-    // a . b = |a|*|b|*cos(angle)
-    // angle = acos((a . b) / (|a| * |b|))
-
-    const dot = x1*x2 + y1*y2;
-    const lengthSq1 = lengthSq(x1, y1) 
-    const lengthSq2 = lengthSq(x2, y2);
-    return Math.acos(dot / Math.sqrt(lengthSq1*lengthSq2));
+    return Math.atan2(y2, x2) - Math.atan2(y1, x1);
 }
 
 function angleTau(x1, y1, x2, y2) {
-    return (x1 * y2 - y1 * x2 < 0) 
-        ? 2 * Math.PI - angle(x1, y1, x2, y2)
-        : angle(x1, y1, x2, y2);        
+    const a = angle(x1, y1, x2, y2);
+    return (a < 0 ? a + Math.PI*2 : a);
 }
 
 function distanceSq(x1, y1, x2, y2) {

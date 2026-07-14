@@ -316,7 +316,7 @@ export class Transform {
         return this;
     }
 
-    scaleByXY(factorX, factorY) {
+    scaleXY(factorX, factorY) {
         if (factorX === 1 && factorY === 1) { return this; }
         this.#scaleX *= factorX;
         this.#scaleY *= factorY;
@@ -324,10 +324,10 @@ export class Transform {
         return this;
     }
 
-    scaleBy(factorOrVector) {
+    scale(factorOrVector) {
         return (typeof factorOrVector === 'number')
-            ? this.scaleByXY(factorOrVector, factorOrVector)
-            : this.scaleByXY(factorOrVector.x, factorOrVector.y);
+            ? this.scaleXY(factorOrVector, factorOrVector)
+            : this.scaleXY(factorOrVector.x, factorOrVector.y);
     }
 
     // MARK: - Rotation

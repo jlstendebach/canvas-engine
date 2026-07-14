@@ -1,3 +1,5 @@
+const TAU = Math.PI * 2;
+
 export class Vec2 {
     x = 0;
     y = 0;
@@ -400,7 +402,7 @@ export class Vec2 {
     }
 
     static random(length = 1) {
-        const radians = Math.random() * 2 * Math.PI;
+        const radians = Math.random() * TAU;
         return new Vec2(length*Math.cos(radians), length*Math.sin(radians));
     }
 
@@ -538,34 +540,11 @@ export class Vec2 {
     }
 
     static angle(v1, v2 = Vec2.unitX()) { 
-        // u . v = |u|*|v|*cos(angle)
-        // angle = acos((u . v) / (|u|*|v|))    
-        return Math.acos(
-            Vec2.dot(v1, v2) / Math.sqrt(v1.lengthSq() * v2.lengthSq())
-        );
+        return Math.atan2(v2.y, v2.x) - Math.atan2(v1.y, v1.x);
     }
 
     static angleTau(v1, v2 = Vec2.unitX()) { 
-        /*
-         * Cross product:
-         * ---------------------
-         * x = u.y*v.z - u.z*v.y
-         * y = u.z*v.x - u.x*v.z
-         * z = u.x*v.y - u.y*v.x
-         * 
-         * z is 0, so...
-         * ---------------------
-         * x = 0
-         * y = 0
-         * z = u.x*v.y - u.y*v.x    
-         *
-         * If z is less than zero, then the angle between u and v is greater 
-         * than pi. Angle in range [0, 2pi) needs to be calculated.
-         */
-        const angle = Vec2.angle(v1, v2);
-        return (v1.x*v2.y - v1.y*v2.x < 0) 
-            ? 2 * Math.PI - angle
-            : angle;
+        return (Math.atan2(v2.y, v2.x) - Math.atan2(v1.y, v1.x) + TAU) % TAU;
     }
 
     static distanceSq(v1, v2) { 

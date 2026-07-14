@@ -267,13 +267,13 @@ export class View {
         return this;
     }
 
-    scaleByXY(factorX, factorY) {
-        this.#transform.scaleByXY(factorX, factorY);
+    scaleXY(factorX, factorY) {
+        this.#transform.scaleXY(factorX, factorY);
         return this;
     }
 
-    scaleBy(factorOrVector) {
-        this.#transform.scaleBy(factorOrVector);
+    scale(factorOrVector) {
+        this.#transform.scale(factorOrVector);
         return this;
     }
 
@@ -472,6 +472,44 @@ export class View {
     // -------------------------------------------------------------------------
     // MARK: - Transformations
     // -------------------------------------------------------------------------
+
+    toAncestorPoint(ancestor, point, out = new Vec2()) {
+        out.copy(point);
+
+        let view = this;
+        while (view !== ancestor) {
+            if (view === null) {
+                throw new Error("The provided ancestor is not an ancestor of this view.");
+            }
+
+            view.transform.transformPoint(out, out);
+            view = view.parent;
+        }
+
+        return out;
+    }
+
+    toLocalPoint(ancestor, point, out = new Vec2()) {
+        const chain = [];
+
+        let view = this;
+        while (view !== ancestor) {
+            if (view === null) {
+                throw new Error("The provided ancestor is not an ancestor of this view.");
+            }
+
+            chain.push(view);
+            view = view.parent;
+        }
+
+        out.copy(point);
+
+        for (let i = chain.length - 1; i >= 0; i--) {
+            chain[i].transform.inverseTransformPoint(out, out);
+        }
+
+        return out;
+    }    
 
     localToParentPointXY(x, y, out = new Vec2()) {
         return this.#transform.transformPointXY(x, y, out);
