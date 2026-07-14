@@ -17,5 +17,5 @@
  */
 export const CoordinateSpace = Object.freeze({
     LOCAL: 0,
-    CHILD: 1,
+    CONTENT: 1,
 });

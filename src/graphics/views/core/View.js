@@ -267,13 +267,13 @@ export class View {
         return this;
     }
 
-    scaleByXY(factorX, factorY) {
-        this.#transform.scaleByXY(factorX, factorY);
+    scaleXY(factorX, factorY) {
+        this.#transform.scaleXY(factorX, factorY);
         return this;
     }
 
-    scaleBy(factorOrVector) {
-        this.#transform.scaleBy(factorOrVector);
+    scale(factorOrVector) {
+        this.#transform.scale(factorOrVector);
         return this;
     }
 
@@ -304,7 +304,7 @@ export class View {
      */
     addToParent(parent) {
         if (!parent) { return this; }
-        if (parent === this.#parent) { return this; }
+        if (parent === this.parent) { return this; }
         parent.addView(this);
         return this;
     }
@@ -316,8 +316,8 @@ export class View {
      * @returns {View} This.
      */
     removeFromParent() {
-        if (!this.#parent) { return this; }
-        this.#parent.removeView(this);
+        if (!this.parent) { return this; }
+        this.parent.removeView(this);
         return this;
     }    
 
@@ -327,12 +327,10 @@ export class View {
      * @returns {boolean} True if this view is a descendant of the given view, false otherwise.
      */
     isDescendantOf(view) {
-        let current = this.#parent;
+        let current = this.parent;
         while (current !== null) {
-            if (current === view) {
-                return true;
-            }
-            current = current.#parent;
+            if (current === view) { return true; }
+            current = current.parent;
         }
         return false;
     }
@@ -359,7 +357,7 @@ export class View {
      * @throws {Error} If adding self or an ancestor view.
      */
     addView(view) {
-        if (view.#parent === this) { return this; }
+        if (view.parent === this) { return this; }
 
         // Ensure we aren't adding this view to itself even indirectly.
         if (view === this) {
@@ -370,8 +368,9 @@ export class View {
         }
 
         // Remove the view from its current parent if it has one.
-        if (view.#parent !== null) {
-            view.#parent.removeView(view);
+        view.removeFromParent();
+        if (view.parent !== null) {
+            throw new Error("Failed to remove view from its current parent");
         }
 
         // Add the view.
@@ -390,7 +389,8 @@ export class View {
      * @returns {View} This.
      */
     removeView(view) {
-        if (view.#parent !== this) { return this; }
+        if (view.parent !== this) { return this; }
+        if (view === this) { return this; }
 
         // Find the index of the view in the child views array.
         const index = this.#views.indexOf(view);
@@ -472,6 +472,44 @@ export class View {
     // -------------------------------------------------------------------------
     // MARK: - Transformations
     // -------------------------------------------------------------------------
+
+    toAncestorPoint(ancestor, point, out = new Vec2()) {
+        out.copy(point);
+
+        let view = this;
+        while (view !== ancestor) {
+            if (view === null) {
+                throw new Error("The provided ancestor is not an ancestor of this view.");
+            }
+
+            view.transform.transformPoint(out, out);
+            view = view.parent;
+        }
+
+        return out;
+    }
+
+    toLocalPoint(ancestor, point, out = new Vec2()) {
+        const chain = [];
+
+        let view = this;
+        while (view !== ancestor) {
+            if (view === null) {
+                throw new Error("The provided ancestor is not an ancestor of this view.");
+            }
+
+            chain.push(view);
+            view = view.parent;
+        }
+
+        out.copy(point);
+
+        for (let i = chain.length - 1; i >= 0; i--) {
+            chain[i].transform.inverseTransformPoint(out, out);
+        }
+
+        return out;
+    }    
 
     localToParentPointXY(x, y, out = new Vec2()) {
         return this.#transform.transformPointXY(x, y, out);
