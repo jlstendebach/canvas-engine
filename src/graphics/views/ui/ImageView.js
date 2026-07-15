@@ -1,92 +1,45 @@
-import { Vec2 } from "../../../math/Vec2.js";
 import { View } from "../core/View.js";
 
 export class ImageView extends View {
-    image = new Image();
+    #image = new Image();
 
-    sourcePosition = new Vec2();
-    sourceSize = new Vec2();
-
-    size = new Vec2();
-
-    #imageLoadListener = null;
-    
-    // --[ constructor ]--------------------------------------------------------
-    constructor() {
-        super();
-        this.#imageLoadListener = this.onImageLoad.bind(this);
+    // MARK: - Accessors
+    get width() {
+        return this.#image.naturalWidth;
     }
 
+    get height() {
+        return this.#image.naturalHeight;
+    }
 
-    // --[ bounds ]-------------------------------------------------------------
+    // MARK: - Initialization
+    constructor(image, options = {}) {
+        super(options);
+        this.setImage(image);
+    }
+
+    // MARK: - Image
+    setImage(image) {
+        this.#image = image;
+        return this;
+    }
+
+    // MARK: - Bounds
+    updateBounds(out) {
+        out.set(0, 0, this.width, this.height);
+    }
+
     containsPoint(point) {
-        return (
-            point.x >= 0 &&
-            point.x < this.size.x &&
-            point.y >= 0 &&
-            point.y < this.size.y
-        );
+        return this.bounds.containsPoint(point);
     }
 
-    setWidth(w) { this.size.x = w; }
-    getWidth() { return this.size.x; }
-    setHeight(h) { this.size.y = h; }
-    getHeight() { return this.size.y; }
-    setSize(size) { this.size = size; }
-    getSize() { return this.size; }
-
-
-    // --[ image ]--------------------------------------------------------------
-    setImage(image, resize=false) {
-        this.image = image;
-        
-        if (resize) {
-            this.resize();
-        }
-    }
-
-    getImageSize() {
-        return new Vec2(this.image.naturalWidth, this.image.naturalHeight);
-    }
-
-    resize() {
-        this.size = this.getImageSize();   
-        if (!this.image.complete) {
-            this.image.addEventListener("load", this.#imageLoadListener);
-        }
-    }
-
-    // --[ events ]-------------------------------------------------------------
-    onImageLoad() {
-        this.image.removeEventListener("load", this.#imageLoadListener);
-        this.size = this.getImageSize();
-    }
-
-    // --[ draw ]---------------------------------------------------------------
+    // MARK: - Drawing
     onDraw(context) {
-        let imageSize = this.getImageSize();
-        let sourceWidth = this.sourceSize.x;
-        let sourceHeight = this.sourceSize.y;
-
-        if (sourceWidth <= 0) {
-            sourceWidth = imageSize.x - this.sourcePosition.x;
-        }
-
-        if (sourceHeight <= 0) {
-            sourceHeight = imageSize.y - this.sourcePosition.y;
-        }
-
         context.drawImage(
-            this.image, 
-            this.sourcePosition.x,
-            this.sourcePosition.y,
-            sourceWidth,
-            sourceHeight,
+            this.#image, 
             0,
-            0,
-            this.size.x,
-            this.size.y
+            0
         );
     }
-
+    
 }
