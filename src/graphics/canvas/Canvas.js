@@ -10,6 +10,7 @@ export class Canvas {
     #contextType = null;
     #rootView = new CanvasRootView(this);
     #fillStyle = new CachedColor();
+    #isSmoothingEnabled = false;
 
     #mouseProcessor;
 
@@ -41,6 +42,13 @@ export class Canvas {
     }
     set fillStyle(style) {
         this.setFillStyle(style);
+    }
+    
+    get isSmoothingEnabled() {
+        return this.#isSmoothingEnabled;
+    }
+    set isSmoothingEnabled(value) {
+        this.setSmoothingEnabled(value);
     }
 
     // -------------------------------------------------------------------------
@@ -121,19 +129,21 @@ export class Canvas {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Size
+    // MARK: - Getters / Setters
     // -------------------------------------------------------------------------
 
     getSize(out = new Size()) {
         return out.set(this.#element.width, this.#element.height);
     }
 
-    // -------------------------------------------------------------------------
-    // MARK: - Fill Style
-    // -------------------------------------------------------------------------
-
     setFillStyle(color) {
         this.#fillStyle.color.copy(color);
+        return this;
+    }
+
+    setSmoothingEnabled(value) {
+        this.#isSmoothingEnabled = value;
+        this.#context.imageSmoothingEnabled = value;
         return this;
     }
 
@@ -166,6 +176,7 @@ export class Canvas {
 
     draw() {
         this.#context.save();
+        this.#context.imageSmoothingEnabled = this.#isSmoothingEnabled;
         try {
             if (this.#fillStyle.colorString) {
                 this.#context.fillStyle = this.#fillStyle.colorString;
