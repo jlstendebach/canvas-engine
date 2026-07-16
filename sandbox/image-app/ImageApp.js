@@ -17,19 +17,23 @@ export class ImageApp extends CanvasApp {
     static MOVE_SPEED = 200;
 
     static async loadAssets() {
-        await AssetManager.loadImages([
-            { path: "assets/link-idle-down.png", alias: "link-idle-down" },
-            { path: "assets/link-run-down-01.png", alias: "link-run-down-01" },
-            { path: "assets/link-run-down-02.png", alias: "link-run-down-02" },
-            { path: "assets/link-run-down-03.png", alias: "link-run-down-03" },
-            { path: "assets/link-run-down-04.png", alias: "link-run-down-04" },
-            { path: "assets/link-run-down-05.png", alias: "link-run-down-05" },
-            { path: "assets/link-run-down-06.png", alias: "link-run-down-06" },
-            { path: "assets/link-run-down-07.png", alias: "link-run-down-07" },
-            { path: "assets/link-run-down-08.png", alias: "link-run-down-08" },
-            { path: "assets/link-run-down-09.png", alias: "link-run-down-09" },
-            { path: "assets/link-run-down-10.png", alias: "link-run-down-10" },
-        ]);
+        try {
+            await AssetManager.loadImages([
+                { path: "assets/link-idle-down.png", alias: "link-idle-down" },
+                { path: "assets/link-run-down-01.png", alias: "link-run-down-01" },
+                { path: "assets/link-run-down-02.png", alias: "link-run-down-02" },
+                { path: "assets/link-run-down-03.png", alias: "link-run-down-03" },
+                { path: "assets/link-run-down-04.png", alias: "link-run-down-04" },
+                { path: "assets/link-run-down-05.png", alias: "link-run-down-05" },
+                { path: "assets/link-run-down-06.png", alias: "link-run-down-06" },
+                { path: "assets/link-run-down-07.png", alias: "link-run-down-07" },
+                { path: "assets/link-run-down-08.png", alias: "link-run-down-08" },
+                { path: "assets/link-run-down-09.png", alias: "link-run-down-09" },
+                { path: "assets/link-run-down-10.png", alias: "link-run-down-10" },
+            ]);
+        } catch (error) {
+            console.error("Error loading assets:", error);
+        }
     }
 
     #scene = null;

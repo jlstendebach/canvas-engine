@@ -33,7 +33,7 @@ export class ShapesApp extends CanvasApp {
     }
 
     initScene() {
-        this.scene = new SceneView();
+        this.scene = new SceneView(this.canvas.width, this.canvas.height);
         this.canvas.addView(this.scene);
     }
 
