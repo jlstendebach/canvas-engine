@@ -4,7 +4,7 @@ export * from "./canvas/CanvasEvents.js";
 export * from "./canvas/CanvasRootView.js";
 
 // MARK: - utils
-export * from "./utils/AssetManager.js";
+export * from "./utils/ImageManager.js";
 export * from "./utils/CachedColor.js";
 export * from "./utils/Color.js";
 export * from "./utils/CoordinateSpace.js";

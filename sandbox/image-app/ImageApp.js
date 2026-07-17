@@ -1,8 +1,8 @@
 import {
-    AssetManager,
     CanvasApp,
     Color,
     CoordinateSpace,
+    ImageManager,
     ImageView,
     Keyboard,
     KeyboardEvent,
@@ -16,9 +16,23 @@ import {
 export class ImageApp extends CanvasApp {
     static MOVE_SPEED = 200;
 
-    static async loadAssets() {
+    #scene = null;
+
+    #imageView = null;
+    #velocity = new Vec2();
+
+    #runTimer = new Timer();
+    #isRunning = false;
+    #isFollowing = false;
+
+    #imageManager = new ImageManager();
+
+    #runDownFrames;
+
+    // MARK: - Initialization 
+    async load() {
         try {
-            await AssetManager.loadImages([
+            await this.#imageManager.loadAll([
                 { path: "assets/link-idle-down.png", alias: "link-idle-down" },
                 { path: "assets/link-run-down-01.png", alias: "link-run-down-01" },
                 { path: "assets/link-run-down-02.png", alias: "link-run-down-02" },
@@ -34,33 +48,22 @@ export class ImageApp extends CanvasApp {
         } catch (error) {
             console.error("Error loading assets:", error);
         }
+
+        this.#runDownFrames = [
+            this.#imageManager.get("link-run-down-01"),
+            this.#imageManager.get("link-run-down-02"),
+            this.#imageManager.get("link-run-down-03"),
+            this.#imageManager.get("link-run-down-04"),
+            this.#imageManager.get("link-run-down-05"),
+            this.#imageManager.get("link-run-down-06"),
+            this.#imageManager.get("link-run-down-07"),
+            this.#imageManager.get("link-run-down-08"),
+            this.#imageManager.get("link-run-down-09"),
+            this.#imageManager.get("link-run-down-10"),
+        ];
     }
 
-    #scene = null;
-
-    #imageView = null;
-    #velocity = new Vec2();
-
-    #runTimer = new Timer();
-    #isRunning = false;
-    #isFollowing = false;
-
-    #runDownFrames = [
-        AssetManager.get("link-run-down-01"),
-        AssetManager.get("link-run-down-02"),
-        AssetManager.get("link-run-down-03"),
-        AssetManager.get("link-run-down-04"),
-        AssetManager.get("link-run-down-05"),
-        AssetManager.get("link-run-down-06"),
-        AssetManager.get("link-run-down-07"),
-        AssetManager.get("link-run-down-08"),
-        AssetManager.get("link-run-down-09"),
-        AssetManager.get("link-run-down-10"),
-    ];
-
-    // MARK: - Initialization 
-    constructor(canvasSelectorOrElement) {
-        super(canvasSelectorOrElement);
+    initViews() {
         this.initCanvas();
         this.initScene();
         this.initImageView();
@@ -91,7 +94,7 @@ export class ImageApp extends CanvasApp {
     }
 
     initImageView() {
-        this.#imageView = new ImageView(AssetManager.get("link-idle-down"))
+        this.#imageView = new ImageView(this.#imageManager.get("link-idle-down"))
             .setPositionXY(this.#scene.width / 2, this.#scene.height / 2)
             .setPickable(false)
             .addToParent(this.#scene);
@@ -146,7 +149,7 @@ export class ImageApp extends CanvasApp {
             this.#isRunning = true;
         } else {
             this.#isRunning = false;
-            this.#imageView.setImage(AssetManager.get("link-idle-down"));
+            this.#imageView.setImage(this.#imageManager.get("link-idle-down"));
         }
     }
 
@@ -171,7 +174,7 @@ export class ImageApp extends CanvasApp {
             this.#isRunning = true;
         } else {
             this.#isRunning = false;
-            this.#imageView.setImage(AssetManager.get("link-idle-down"));
+            this.#imageView.setImage(this.#imageManager.get("link-idle-down"));
         }
     }
 

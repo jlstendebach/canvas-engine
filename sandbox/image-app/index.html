@@ -19,9 +19,9 @@
         import { ImageApp } from "./ImageApp.js";
 
         window.addEventListener("load", async () => {
-            await ImageApp.loadAssets();
-
             const app = new ImageApp("#main-canvas");
+            await app.load();
+            app.initViews();
             app.start();
         });
     </script>
