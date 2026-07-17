@@ -30,7 +30,7 @@ export class ImageApp extends CanvasApp {
     #runDownFrames;
 
     // MARK: - Initialization 
-    async load() {
+    async loadAssets() {
         try {
             await this.#imageManager.loadAll([
                 { path: "assets/link-idle-down.png", alias: "link-idle-down" },
@@ -63,7 +63,7 @@ export class ImageApp extends CanvasApp {
         ];
     }
 
-    initViews() {
+    init() {
         this.initCanvas();
         this.initScene();
         this.initImageView();
@@ -118,7 +118,7 @@ export class ImageApp extends CanvasApp {
             }
 
             const time = this.#runTimer.getTime();
-            const frameIndex = Math.floor(time / 100) % 10;
+            const frameIndex = Math.floor(time / 80) % 10;
             this.#imageView.setImage(this.#runDownFrames[frameIndex]);
         }
 
@@ -176,17 +176,6 @@ export class ImageApp extends CanvasApp {
             this.#isRunning = false;
             this.#imageView.setImage(this.#imageManager.get("link-idle-down"));
         }
-    }
-
-    // MARK: - Helpers 
-    loadImage(src) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = 'anonymous'; // Optional: prevents CORS canvas tainting
-            img.onload = () => resolve(img);
-            img.onerror = (err) => reject(new Error(`Failed to load image at ${src}`));
-            img.src = src;
-        });
     }
 
 }
