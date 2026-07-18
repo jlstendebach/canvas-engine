@@ -45,7 +45,7 @@ export class ImageView extends View {
     set sourceHeight(value) {
         this.setSourceHeight(value);
     }
-    
+
     // MARK: - Initialization
     constructor(image, options = {}) {
         super(options);
@@ -56,10 +56,9 @@ export class ImageView extends View {
     setImage(image, resetSourceRect = true) {
         this.#image = image;
         if (resetSourceRect) {
-            this.#sourceX = 0;
-            this.#sourceY = 0;
+            this.setSourcePositionXY(0, 0);
             this.setSourceSizeWH(
-                image?.naturalWidth ?? 0, 
+                image?.naturalWidth ?? 0,
                 image?.naturalHeight ?? 0
             );
         }
@@ -110,7 +109,7 @@ export class ImageView extends View {
         this.invalidateBounds();
         return this;
     }
-    
+
     setSourceSize(size) {
         return this.setSourceSizeWH(size.width, size.height);
     }
