@@ -131,6 +131,11 @@ export class SceneView extends View {
         return this;
     }
 
+    scaleContent(factorOrVector) {
+        this.#contentView.scale(factorOrVector);
+        return this;
+    }
+
     scaleAround(factor, anchorX, anchorY, coordinateSpace = CoordinateSpace.LOCAL) {
         let dx = this.#contentView.transform.x;
         let dy = this.#contentView.transform.y;

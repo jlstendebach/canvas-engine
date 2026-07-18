@@ -1,91 +1,155 @@
-import { Vec2 } from "../../../math/Vec2.js";
+import { Point } from "../../utils/Point.js";
+import { Size } from "../../utils/Size.js";
 import { View } from "../core/View.js";
 
 export class ImageView extends View {
-    image = new Image();
+    #image = null;
+    #sourceX = 0;
+    #sourceY = 0;
+    #sourceWidth = 0;
+    #sourceHeight = 0;
 
-    sourcePosition = new Vec2();
-    sourceSize = new Vec2();
-
-    size = new Vec2();
-
-    #imageLoadListener = null;
-    
-    // --[ constructor ]--------------------------------------------------------
-    constructor() {
-        super();
-        this.#imageLoadListener = this.onImageLoad.bind(this);
+    // MARK: - Accessors
+    get width() {
+        return this.#sourceWidth;
     }
 
+    get height() {
+        return this.#sourceHeight;
+    }
 
-    // --[ bounds ]-------------------------------------------------------------
+    get sourceX() {
+        return this.#sourceX;
+    }
+    set sourceX(value) {
+        this.setSourceX(value);
+    }
+
+    get sourceY() {
+        return this.#sourceY;
+    }
+    set sourceY(value) {
+        this.setSourceY(value);
+    }
+
+    get sourceWidth() {
+        return this.#sourceWidth;
+    }
+    set sourceWidth(value) {
+        this.setSourceWidth(value);
+    }
+
+    get sourceHeight() {
+        return this.#sourceHeight;
+    }
+    set sourceHeight(value) {
+        this.setSourceHeight(value);
+    }
+
+    // MARK: - Initialization
+    constructor(image, options = {}) {
+        super(options);
+        this.setImage(image);
+    }
+
+    // MARK: - Image
+    setImage(image, resetSourceRect = true) {
+        this.#image = image;
+        if (resetSourceRect) {
+            this.setSourcePositionXY(0, 0);
+            this.setSourceSizeWH(
+                image?.naturalWidth ?? 0,
+                image?.naturalHeight ?? 0
+            );
+        }
+        return this;
+    }
+
+    // MARK: - Size
+    getSize(out = new Size()) {
+        return out.set(this.width, this.height);
+    }
+
+    // MARK: - Source Position
+    getSourcePosition(out = new Point()) {
+        return out.set(this.#sourceX, this.#sourceY);
+    }
+
+    setSourcePositionXY(x, y) {
+        this.#sourceX = x;
+        this.#sourceY = y;
+        return this;
+    }
+
+    setSourcePosition(point) {
+        return this.setSourcePositionXY(point.x, point.y);
+    }
+
+    setSourceX(x) {
+        this.#sourceX = x;
+        return this;
+    }
+
+    setSourceY(y) {
+        this.#sourceY = y;
+        return this;
+    }
+
+    // MARK: - Source Size
+    getSourceSize(out = new Size()) {
+        return out.set(this.#sourceWidth, this.#sourceHeight);
+    }
+
+    setSourceSizeWH(width, height) {
+        if (width === this.#sourceWidth && height === this.#sourceHeight) {
+            return this;
+        }
+        this.#sourceWidth = width;
+        this.#sourceHeight = height;
+        this.invalidateBounds();
+        return this;
+    }
+
+    setSourceSize(size) {
+        return this.setSourceSizeWH(size.width, size.height);
+    }
+
+    setSourceWidth(width) {
+        if (width === this.#sourceWidth) { return this; }
+        this.#sourceWidth = width;
+        this.invalidateBounds();
+        return this;
+    }
+
+    setSourceHeight(height) {
+        if (height === this.#sourceHeight) { return this; }
+        this.#sourceHeight = height;
+        this.invalidateBounds();
+        return this;
+    }
+
+    // MARK: - Bounds
+    updateBounds(out) {
+        out.set(0, 0, this.width, this.height);
+    }
+
     containsPoint(point) {
-        return (
-            point.x >= 0 &&
-            point.x < this.size.x &&
-            point.y >= 0 &&
-            point.y < this.size.y
-        );
+        return this.bounds.containsPoint(point);
     }
 
-    setWidth(w) { this.size.x = w; }
-    getWidth() { return this.size.x; }
-    setHeight(h) { this.size.y = h; }
-    getHeight() { return this.size.y; }
-    setSize(size) { this.size = size; }
-    getSize() { return this.size; }
-
-
-    // --[ image ]--------------------------------------------------------------
-    setImage(image, resize=false) {
-        this.image = image;
-        
-        if (resize) {
-            this.resize();
-        }
-    }
-
-    getImageSize() {
-        return new Vec2(this.image.naturalWidth, this.image.naturalHeight);
-    }
-
-    resize() {
-        this.size = this.getImageSize();   
-        if (!this.image.complete) {
-            this.image.addEventListener("load", this.#imageLoadListener);
-        }
-    }
-
-    // --[ events ]-------------------------------------------------------------
-    onImageLoad() {
-        this.image.removeEventListener("load", this.#imageLoadListener);
-        this.size = this.getImageSize();
-    }
-
-    // --[ draw ]---------------------------------------------------------------
+    // MARK: - Drawing
     onDraw(context) {
-        let imageSize = this.getImageSize();
-        let sourceWidth = this.sourceSize.x;
-        let sourceHeight = this.sourceSize.y;
-
-        if (sourceWidth <= 0) {
-            sourceWidth = imageSize.x - this.sourcePosition.x;
-        }
-
-        if (sourceHeight <= 0) {
-            sourceHeight = imageSize.y - this.sourcePosition.y;
-        }
-
+        if (!this.#image) { return; }
         context.drawImage(
-            this.image, 
-            this.sourcePosition.x,
-            this.sourcePosition.y,
-            sourceWidth,
-            sourceHeight,
-            0,
-            0,
-            this.size.x,
-            this.size.y
+            this.#image,
+            this.#sourceX,
+            this.#sourceY,
+            this.#sourceWidth,
+            this.#sourceHeight,
+            0,          // destination x
+            0,          // destination y
+            this.width, // destination width
+            this.height // destination height
         );
     }
 

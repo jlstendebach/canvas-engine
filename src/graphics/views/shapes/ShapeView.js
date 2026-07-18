@@ -57,12 +57,12 @@ export class ShapeView extends View {
 
     // MARK: - Style
     setFillStyle(style) {
-        this.#fillStyle.color.copy(style);
+        this.#fillStyle.color = style;
         return this;
     }
 
     setStrokeStyle(style) {
-        this.#strokeStyle.color.copy(style);
+        this.#strokeStyle.color = style;
         return this;
     }
 

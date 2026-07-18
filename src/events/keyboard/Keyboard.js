@@ -8,6 +8,10 @@ export class Keyboard {
     static #scrollLock = false
     static #eventEmitter = Keyboard.#createEventEmitter();
 
+    static get events() {
+        return this.#eventEmitter;
+    }
+
     // --[ polling ]------------------------------------------------------------
     static isKeyDown(key) {
         return Keyboard.#down[key] != null;
