@@ -1,5 +1,6 @@
 import {
     CanvasApp,
+    CanvasResizeEvent,
     Color,
     CoordinateSpace,
     ImageManager,
@@ -8,74 +9,70 @@ import {
     KeyboardEvent,
     MouseButton,
     MouseEvent,
+    RectangleView,
     SceneView,
     Timer,
     Vec2
 } from "../../src/index.js";
 
+const Direction = Object.freeze({
+    UP: 0,
+    RIGHT: 1,
+    DOWN: 2,
+    LEFT: 3,
+});
+
 export class ImageApp extends CanvasApp {
-    static MOVE_SPEED = 200;
+    #MOVE_SPEED = 200;
+
+    #STRIDE = 64;
+    #SOURCE_W = 56;
+    #SOURCE_H = 50;
+    #START_X = (this.#STRIDE - this.#SOURCE_W) / 2;
+    #START_Y = (this.#STRIDE - this.#SOURCE_H) / 2;
 
     #scene = null;
 
-    #imageView = null;
+    #linkView = null;
     #velocity = new Vec2();
-
     #runTimer = new Timer();
     #isRunning = false;
-    #isFollowing = false;
+    #direction = Direction.DOWN;
+
+    #isFollowing = true;
+
+    #spriteSheetView = null;
+    #sourceRectView = null;
 
     #imageManager = new ImageManager();
-
-    #runDownFrames;
 
     // MARK: - Initialization 
     async loadAssets() {
         try {
             await this.#imageManager.loadAll([
-                { path: "assets/link-idle-down.png", alias: "link-idle-down" },
-                { path: "assets/link-run-down-01.png", alias: "link-run-down-01" },
-                { path: "assets/link-run-down-02.png", alias: "link-run-down-02" },
-                { path: "assets/link-run-down-03.png", alias: "link-run-down-03" },
-                { path: "assets/link-run-down-04.png", alias: "link-run-down-04" },
-                { path: "assets/link-run-down-05.png", alias: "link-run-down-05" },
-                { path: "assets/link-run-down-06.png", alias: "link-run-down-06" },
-                { path: "assets/link-run-down-07.png", alias: "link-run-down-07" },
-                { path: "assets/link-run-down-08.png", alias: "link-run-down-08" },
-                { path: "assets/link-run-down-09.png", alias: "link-run-down-09" },
-                { path: "assets/link-run-down-10.png", alias: "link-run-down-10" },
+                { path: "assets/link-sprites.png", alias: "link" },
             ]);
         } catch (error) {
             console.error("Error loading assets:", error);
         }
-
-        this.#runDownFrames = [
-            this.#imageManager.get("link-run-down-01"),
-            this.#imageManager.get("link-run-down-02"),
-            this.#imageManager.get("link-run-down-03"),
-            this.#imageManager.get("link-run-down-04"),
-            this.#imageManager.get("link-run-down-05"),
-            this.#imageManager.get("link-run-down-06"),
-            this.#imageManager.get("link-run-down-07"),
-            this.#imageManager.get("link-run-down-08"),
-            this.#imageManager.get("link-run-down-09"),
-            this.#imageManager.get("link-run-down-10"),
-        ];
     }
 
     init() {
         this.initCanvas();
         this.initScene();
-        this.initImageView();
+        this.initLinkView();
+        this.initSpriteSheetView();
         this.initKeyboard();
     }
 
     initCanvas() {
         this.canvas.fillStyle = new Color(0, 0, 20);
+        this.canvas.events.on(CanvasResizeEvent, this.onCanvasResize, this);
     }
 
     initScene() {
         this.#scene = new SceneView(this.canvas.width, this.canvas.height)
+            .scaleContent(5)
             .addToParent(this.canvas);
         this.#scene.events.on(MouseEvent.DRAG, (type, event) => {
             this.#scene.translateContent(event.movementX, event.movementY);
@@ -93,13 +90,27 @@ export class ImageApp extends CanvasApp {
         });
     }
 
-    initImageView() {
-        this.#imageView = new ImageView(this.#imageManager.get("link-idle-down"))
+    initLinkView() {
+        this.#linkView = new ImageView(this.#imageManager.get("link"))
             .setPositionXY(this.#scene.width / 2, this.#scene.height / 2)
+            .setSourceSizeWH(this.#SOURCE_W, this.#SOURCE_H)
             .setPickable(false)
             .addToParent(this.#scene);
-        this.#imageView.setPivotXY(this.#imageView.width / 2, this.#imageView.height / 2);
+        this.#linkView.setPivotXY(this.#linkView.width / 2, this.#linkView.height / 2);
     }
+
+    initSpriteSheetView() {
+        const image = this.#imageManager.get("link");
+        this.#spriteSheetView = new ImageView(image)
+            .addToParent(this.canvas);
+
+        this.#sourceRectView = new RectangleView()
+            .setFillStyle(null)
+            .setStrokeStyle(new Color(255, 0, 0))
+            .setStrokeWidth(2)
+            .addToParent(this.#spriteSheetView);
+    }
+
 
     initKeyboard() {
         Keyboard.events.on(KeyboardEvent.DOWN, this.onKeyDown, this);
@@ -110,20 +121,17 @@ export class ImageApp extends CanvasApp {
     onUpdate(timestamp, deltaTime) {
         const timeScale = deltaTime / 1000;
 
-        if (this.#isRunning) {
-            if (this.#velocity.isNotZero()) {
-                const velocity = this.#velocity.clone().setLength(ImageApp.MOVE_SPEED);
-                this.#imageView.x += velocity.x * timeScale;
-                this.#imageView.y += velocity.y * timeScale;
-            }
-
-            const time = this.#runTimer.getTime();
-            const frameIndex = Math.floor(time / 80) % 10;
-            this.#imageView.setImage(this.#runDownFrames[frameIndex]);
+        if (this.#velocity.isNotZero()) {
+            const velocity = this.#velocity.clone().setLength(this.#MOVE_SPEED);
+            this.#linkView.x += velocity.x * timeScale;
+            this.#linkView.y += velocity.y * timeScale;
         }
 
+        this.updateAnimation();
+        this.updateSourceRectView();
+
         if (this.#isFollowing) {
-            this.#scene.centerOn(this.#imageView.x, this.#imageView.y, CoordinateSpace.CONTENT);
+            this.#scene.centerOn(this.#linkView.x, this.#linkView.y, CoordinateSpace.CONTENT);
         }
     }
 
@@ -144,13 +152,10 @@ export class ImageApp extends CanvasApp {
                 break;
         }
 
-        if (this.#velocity.isNotZero()) {
-            this.#runTimer.start();
-            this.#isRunning = true;
-        } else {
-            this.#isRunning = false;
-            this.#imageView.setImage(this.#imageManager.get("link-idle-down"));
+        if (!this.#isRunning) {
+            this.updateDirection();
         }
+        this.updateRunning();
     }
 
     onKeyUp(type, event) {
@@ -169,13 +174,59 @@ export class ImageApp extends CanvasApp {
                 break;
         }
 
-        if (this.#velocity.isNotZero()) {
-            this.#runTimer.start();
-            this.#isRunning = true;
+        this.updateDirection();
+        this.updateRunning();
+    }
+
+    onCanvasResize(type, event) {
+        this.#scene.setSizeWH(event.width, event.height);
+    }
+
+    // MARK: - Helpers
+    updateAnimation() {
+        const sy = this.#START_Y + this.#STRIDE * this.#direction;
+
+        if (this.#isRunning) {
+            const time = this.#runTimer.getTime();
+            const index = 1 + Math.floor(time / 100) % 10
+            const sx = this.#START_X + this.#STRIDE * index;
+            this.#linkView.setSourcePositionXY(sx, sy);
+
         } else {
-            this.#isRunning = false;
-            this.#imageView.setImage(this.#imageManager.get("link-idle-down"));
+            const sx = this.#START_X + this.#STRIDE * 0;
+            this.#linkView.setSourcePositionXY(sx, sy);
         }
     }
 
+    updateDirection() {
+        if (this.#velocity.y < 0) {
+            this.#direction = Direction.UP;
+
+        } else if (this.#velocity.x > 0) {
+            this.#direction = Direction.RIGHT;
+
+        } else if (this.#velocity.y > 0) {
+            this.#direction = Direction.DOWN;
+
+        } else if (this.#velocity.x < 0) {
+            this.#direction = Direction.LEFT;
+        }
+    }
+
+    updateRunning() {
+        const isVelocityZero = this.#velocity.isZero();
+
+        if (isVelocityZero && this.#isRunning) {
+            this.#isRunning = false;
+
+        } else if (!isVelocityZero && !this.#isRunning) {
+            this.#isRunning = true;
+            this.#runTimer.start();
+        }
+    }
+
+    updateSourceRectView() {
+        this.#sourceRectView.setPositionXY(this.#linkView.sourceX, this.#linkView.sourceY);
+        this.#sourceRectView.setSizeWH(this.#linkView.sourceWidth, this.#linkView.sourceHeight);
+    }
 }
