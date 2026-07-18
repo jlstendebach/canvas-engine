@@ -22,28 +22,28 @@ export class ImageView extends View {
         return this.#sourceX;
     }
     set sourceX(value) {
-        this.#sourceX = value;
+        this.setSourceX(value);
     }
 
     get sourceY() {
         return this.#sourceY;
     }
     set sourceY(value) {
-        this.#sourceY = value;
+        this.setSourceY(value);
     }
 
     get sourceWidth() {
         return this.#sourceWidth;
     }
     set sourceWidth(value) {
-        this.#sourceWidth = value;
+        this.setSourceWidth(value);
     }
 
     get sourceHeight() {
         return this.#sourceHeight;
     }
     set sourceHeight(value) {
-        this.#sourceHeight = value;
+        this.setSourceHeight(value);
     }
     
     // MARK: - Initialization
@@ -58,8 +58,10 @@ export class ImageView extends View {
         if (resetSourceRect) {
             this.#sourceX = 0;
             this.#sourceY = 0;
-            this.#sourceWidth = image?.naturalWidth ?? 0;
-            this.#sourceHeight = image?.naturalHeight ?? 0;
+            this.setSourceSizeWH(
+                image?.naturalWidth ?? 0, 
+                image?.naturalHeight ?? 0
+            );
         }
         return this;
     }
@@ -100,8 +102,12 @@ export class ImageView extends View {
     }
 
     setSourceSizeWH(width, height) {
+        if (width === this.#sourceWidth && height === this.#sourceHeight) {
+            return this;
+        }
         this.#sourceWidth = width;
         this.#sourceHeight = height;
+        this.invalidateBounds();
         return this;
     }
     
@@ -110,12 +116,16 @@ export class ImageView extends View {
     }
 
     setSourceWidth(width) {
+        if (width === this.#sourceWidth) { return this; }
         this.#sourceWidth = width;
+        this.invalidateBounds();
         return this;
     }
 
     setSourceHeight(height) {
+        if (height === this.#sourceHeight) { return this; }
         this.#sourceHeight = height;
+        this.invalidateBounds();
         return this;
     }
 
