@@ -39,14 +39,15 @@ export class Graph extends RectangleView {
     }
 
     // MARK: - Initialization
-    constructor(options = {}) {
-        options.fillStyle = options.fillStyle ?? Graph.style.backgroundFill;
-        options.strokeStyle = options.strokeStyle ?? Graph.style.backgroundStroke;
-        options.strokeWidth = options.strokeWidth ?? 2;
+    constructor(data = [], isSquareWave = false) {
+        super();
 
-        super(options);
-        this.#data = options.data ?? [];
-        this.#isSquareWave = options.isSquareWave === true;
+        this.setFillStyle(Graph.style.backgroundFill);
+        this.setStrokeStyle(Graph.style.backgroundStroke);
+        this.setStrokeWidth(2);
+
+        this.#data = data;
+        this.#isSquareWave = isSquareWave === true;
 
         this.initZeroLine();
         this.initGraphLine();

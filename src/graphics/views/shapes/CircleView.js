@@ -14,9 +14,9 @@ export class CircleView extends ShapeView {
     }
 
     // MARK: - Initialization
-    constructor(options = {}) {
-        super(options);
-        this.radius = options.radius ?? 10;
+    constructor(radius = 10) {
+        super();
+        this.radius = radius;
     }
 
     // MARK: - Radius

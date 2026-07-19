@@ -89,25 +89,19 @@ export class EkgMotorApp extends CanvasApp {
     initDataGraph() {
         const scaledData = data.slice(0, this.DATA_POINTS).map(value => value * this.DATA_SCALE);
 
-        this.dataGraph = new Graph({ data: scaledData });
+        this.dataGraph = new Graph(scaledData);
         this.dataGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.dataGraph);
     }
 
     initSlopeGraph() {
-        this.slopeGraph = new Graph({
-            data: this.calculateSlopeData(),
-            isSquareWave: true,
-        });
+        this.slopeGraph = new Graph(this.calculateSlopeData(), true);
         this.slopeGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.slopeGraph);
     }
 
     initActivationGraph() {
-        this.activationGraph = new Graph({
-            data: this.calculateActivationData(),
-            isSquareWave: true,
-        });
+        this.activationGraph = new Graph(this.calculateActivationData(), true);
         this.activationGraph.setDataRange(-this.MOTOR_COUNT, 0);
         this.activationGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.activationGraph);
@@ -136,7 +130,7 @@ export class EkgMotorApp extends CanvasApp {
                 strokeWidth: 2,
             });
 
-            motor.addView(this.createLabel({ text: `M${i + 1}` }));
+            motor.addView(`M${i + 1}`);
 
             motors.push(motor);
             this.motorContainer.addView(motor);
@@ -298,8 +292,9 @@ export class EkgMotorApp extends CanvasApp {
         return result < 0 ? result + modulus : result;
     }
 
-    createLabel(options = {}) {
-        const label = new LabelView(options);
+    createLabel(text) {
+        const label = new LabelView();
+        label.setText(text);
         label.setFillColor("white");
         label.setFontSize(16);
         label.setAnchorX(0.5);

@@ -4,8 +4,8 @@ import { ShapeView } from "./ShapeView.js";
 
 export class VectorView extends ShapeView {
     #vector = new Vec2();
-    #arrowWidth;
-    #arrowHeight;
+    #arrowWidth = 8;
+    #arrowHeight = 10;
 
     #polygon = new PolygonView();
     #isPathDirty = true;
@@ -40,12 +40,9 @@ export class VectorView extends ShapeView {
     }
 
     // MARK: - Initialization
-    constructor(options = {}) {
-        super(options);
-        this.#vector.x = options.vector?.x ?? 0;
-        this.#vector.y = options.vector?.y ?? 0;
-        this.#arrowWidth = options.arrowWidth ?? 16;
-        this.#arrowHeight = options.arrowHeight ?? 20;
+    constructor(vectorX = 1, vectorY = 0) {
+        super();
+        this.setVectorXY(vectorX, vectorY);
     }
 
     // MARK: - Vector

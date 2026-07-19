@@ -19,15 +19,15 @@ LabelViewOptions.OVERFLOW_FLAG_MAX = LabelViewOptions.CLIP * 2 - 1; // 63
 
 export class LabelView extends View {
     // --[ ctor ]---------------------------------------------------------------
-    constructor(options = {}) {
-        super(options);
+    constructor(text = "") {
+        super();
         this.isValid = false;
 
         this.size = new Vec2(0, 0);
         this.anchor = new Vec2(0, 0);
         this.angle = 0;
 
-        this.text = options.text ?? "";
+        this.text = text;
         this.lines = [];
 
         this.fontFamily = "Arial";

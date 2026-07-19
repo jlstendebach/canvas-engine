@@ -3,11 +3,11 @@ import { Color } from "../../utils/Color.js";
 import { View } from "../core/View.js";
 
 export class ShapeView extends View {
-    #fillStyle = new CachedColor();
-    #strokeStyle = new CachedColor();
-    #strokeWidth;
-    #strokeDash;
-    #strokeDashOffset;
+    #fillStyle = new CachedColor(new Color(255, 255, 255));
+    #strokeStyle = new CachedColor(new Color(0, 0, 0));
+    #strokeWidth = 1;
+    #strokeDash = [];
+    #strokeDashOffset = 0;
 
     // MARK: - Accessors
     set fillStyle(style) { 
@@ -43,16 +43,6 @@ export class ShapeView extends View {
     }
     get strokeDashOffset() { 
         return this.#strokeDashOffset; 
-    }
-
-    // MARK: - Initialization
-    constructor(options = {}) {
-        super(options);
-        this.fillStyle = options.fillStyle ?? new Color(255, 255, 255);
-        this.strokeStyle = options.strokeStyle ?? new Color(0, 0, 0);
-        this.strokeWidth = options.strokeWidth ?? 1;
-        this.strokeDash = options.strokeDash ?? [];
-        this.strokeDashOffset = options.strokeDashOffset ?? 0;
     }
 
     // MARK: - Style

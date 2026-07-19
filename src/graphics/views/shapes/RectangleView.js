@@ -21,10 +21,10 @@ export class RectangleView extends ShapeView {
     }
 
     // MARK: - Initialization 
-    constructor(options = {}) {
-        super(options);
-        this.#width = options.width ?? options.size?.x ?? 10;
-        this.#height = options.height ?? options.size?.y ?? 10;
+    constructor(width = 10, height = 10) {
+        super();
+        this.#width = width;
+        this.#height = height;
     }
 
     // MARK: - Size
