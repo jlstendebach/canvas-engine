@@ -4,8 +4,7 @@ import {
     CircleView,
     Color,
     LineView,
-    MouseEvent,
-    Vec2
+    MouseEvent
 } from "../../src/index.js";
 
 export class CanvasSizesApp extends CanvasApp {
@@ -28,11 +27,11 @@ export class CanvasSizesApp extends CanvasApp {
         this.canvas.events.on(CanvasResizeEvent, this.onCanvasResize.bind(this));
         this.canvas.events.on(MouseEvent.MOVE, this.onCanvasMouseMove.bind(this));
 
-        this.#topLeftBall = this.createBall({color: new Color(100, 0, 0)});
-        this.#topRightBall = this.createBall({color: new Color(0, 100, 0)});
-        this.#bottomRightBall = this.createBall({color: new Color(0, 0, 100)});
-        this.#bottomLeftBall = this.createBall({color: new Color(100, 100, 0)});
-        this.#centerBall = this.createBall({color: new Color(100, 0, 100)});
+        this.#topLeftBall = this.createBall({ color: new Color(100, 0, 0) });
+        this.#topRightBall = this.createBall({ color: new Color(0, 100, 0) });
+        this.#bottomRightBall = this.createBall({ color: new Color(0, 0, 100) });
+        this.#bottomLeftBall = this.createBall({ color: new Color(100, 100, 0) });
+        this.#centerBall = this.createBall({ color: new Color(100, 0, 100) });
 
         this.#mousePath = new LineView();
         this.#mousePath.strokeStyle = new Color(200, 200, 200);
@@ -41,7 +40,7 @@ export class CanvasSizesApp extends CanvasApp {
 
         this.updateBallPositions();
     }
-    
+
     // MARK: - event handlers
     onCanvasResize(type, event) {
         void type, event;
@@ -64,17 +63,14 @@ export class CanvasSizesApp extends CanvasApp {
         this.#centerBall.setPositionXY(this.canvas.width / 2, this.canvas.height / 2);
     }
 
-    createBall({x = 0, y = 0, radius = 20, color = new Color(0, 0, 200)} = {}) {
-        const ball = new CircleView({
-            position: new Vec2(x, y),
-            radius: radius,
-            fillStyle: color,
-            strokeStyle: new Color(200, 200, 200),
-            strokeWidth: 1,
-            isPickable: false
-        });
-        this.canvas.addView(ball);
-        return ball;
+    createBall({ x = 0, y = 0, radius = 20, color = new Color(0, 0, 200) } = {}) {
+        return new CircleView(radius)
+            .setPositionXY(x, y)
+            .setFillStyle(color)
+            .setStrokeStyle(new Color(200, 200, 200))
+            .setStrokeWidth(1)
+            .setPickable(false)
+            .addToParent(this.canvas);
     }
 
 }
