@@ -63,16 +63,15 @@ export class BoundsApp extends CanvasApp {
         const width = this.canvas.width * sizePercent;
         const height = this.canvas.height * sizePercent;
 
-        const ball = new CircleView({
-            x: width*margin + Math.random()*width*sizePercent, 
-            y: height*margin + Math.random()*height*sizePercent,
-            radius: 30,
-            fillStyle: fillStyle ?? new Color(0, 0, 200),
-            strokeStyle: strokeStyle ?? new Color(100, 100, 100),
-            strokeWidth: 2,
-        });
+        const ball = new CircleView(30)
+            .setX(width*margin + Math.random()*width*sizePercent)
+            .setY(height*margin + Math.random()*height*sizePercent)
+            .setFillStyle(fillStyle ?? new Color(0, 0, 200))
+            .setStrokeStyle(strokeStyle ?? new Color(100, 100, 100))
+            .setStrokeWidth(2)
+            .addToParent(parent);
+            
         ball.events.on(MouseEvent.DRAG, this.onViewDragged, this);
-        parent.addView(ball);
 
         return ball;
     }
