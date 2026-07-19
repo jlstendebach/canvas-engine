@@ -89,25 +89,19 @@ export class EkgMotorApp extends CanvasApp {
     initDataGraph() {
         const scaledData = data.slice(0, this.DATA_POINTS).map(value => value * this.DATA_SCALE);
 
-        this.dataGraph = new Graph({ data: scaledData });
+        this.dataGraph = new Graph(scaledData);
         this.dataGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.dataGraph);
     }
 
     initSlopeGraph() {
-        this.slopeGraph = new Graph({
-            data: this.calculateSlopeData(),
-            isSquareWave: true,
-        });
+        this.slopeGraph = new Graph(this.calculateSlopeData(), true);
         this.slopeGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.slopeGraph);
     }
 
     initActivationGraph() {
-        this.activationGraph = new Graph({
-            data: this.calculateActivationData(),
-            isSquareWave: true,
-        });
+        this.activationGraph = new Graph(this.calculateActivationData(), true);
         this.activationGraph.setDataRange(-this.MOTOR_COUNT, 0);
         this.activationGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.activationGraph);
@@ -118,28 +112,24 @@ export class EkgMotorApp extends CanvasApp {
         const radius = 20;
         const spacing = 30;
 
-        this.motorContainer = new RectangleView({
-            fillStyle: this.dataGraph.fillStyle,
-            strokeStyle: this.dataGraph.strokeStyle,
-            strokeWidth: 2,
-            width: radius * 2 * 3 + spacing * 2 + padding * 2,
-            height: radius * 2 * 2 + spacing * 1 + padding * 2,
-        });
-        this.canvas.addView(this.motorContainer);
+        const width = radius * 2 * 3 + spacing * 2 + padding * 2;
+        const height = radius * 2 * 2 + spacing * 1 + padding * 2;
+
+        this.motorContainer = new RectangleView(width, height)
+            .setFillStyle(this.dataGraph.fillStyle)
+            .setStrokeStyle(this.dataGraph.strokeStyle)
+            .setStrokeWidth(2)
+            .addToParent(this.canvas);
 
         const motors = [];
         for (let i = 0; i < this.MOTOR_COUNT; i++) {
-            const motor = new CircleView({
-                radius: radius,
-                fillStyle: this.dataGraph.fillStyle,
-                strokeStyle: this.dataGraph.strokeStyle,
-                strokeWidth: 2,
-            });
-
-            motor.addView(this.createLabel({ text: `M${i + 1}` }));
-
+            const motor = new CircleView(radius)
+                .setFillStyle(this.dataGraph.fillStyle)
+                .setStrokeStyle(this.dataGraph.strokeStyle)
+                .setStrokeWidth(2)
+                .addToParent(this.motorContainer);
+            motor.addView(this.createLabel(`M${i + 1}`));
             motors.push(motor);
-            this.motorContainer.addView(motor);
         }
 
         motors[0].x = padding + radius;
@@ -298,8 +288,9 @@ export class EkgMotorApp extends CanvasApp {
         return result < 0 ? result + modulus : result;
     }
 
-    createLabel(options = {}) {
-        const label = new LabelView(options);
+    createLabel(text) {
+        const label = new LabelView();
+        label.setText(text);
         label.setFillColor("white");
         label.setFontSize(16);
         label.setAnchorX(0.5);

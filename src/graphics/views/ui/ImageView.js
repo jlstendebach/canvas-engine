@@ -47,8 +47,8 @@ export class ImageView extends View {
     }
 
     // MARK: - Initialization
-    constructor(image, options = {}) {
-        super(options);
+    constructor(image) {
+        super();
         this.setImage(image);
     }
 

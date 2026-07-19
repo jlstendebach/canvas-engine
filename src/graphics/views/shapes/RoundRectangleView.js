@@ -1,7 +1,12 @@
 import { RectangleView } from "./RectangleView.js";
 
 export class RoundRectangleView extends RectangleView {
-    #cornerRadii;
+    #cornerRadii = [
+        0, // top-left
+        0, // top-right
+        0, // bottom-right
+        0  // bottom-left
+    ]; 
 
     // MARK: - Accessors
     get cornerRadius() {
@@ -40,14 +45,9 @@ export class RoundRectangleView extends RectangleView {
     }
 
     // MARK: - Initialization
-    constructor(options = {}) {
-        super(options);
-        this.#cornerRadii = [
-            options.topLeftRadius ?? options.cornerRadius ?? 0,
-            options.topRightRadius ?? options.cornerRadius ?? 0,
-            options.bottomRightRadius ?? options.cornerRadius ?? 0,
-            options.bottomLeftRadius ?? options.cornerRadius ?? 0
-        ];
+    constructor(width = 10, height = 10, cornerRadius = 0) {
+        super(width, height);
+        this.setCornerRadius(cornerRadius);
     }
 
     // MARK: - Corner Radius

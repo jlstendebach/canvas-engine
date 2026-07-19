@@ -14,8 +14,8 @@ export class SceneView extends View {
     // MARK: - Initialization
     // -------------------------------------------------------------------------
 
-    constructor(width = 100, height = 100, options = {}) {
-        super(options);
+    constructor(width = 100, height = 100) {
+        super();
         this.#width = width;
         this.#height = height;
     }

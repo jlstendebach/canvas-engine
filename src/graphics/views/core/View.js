@@ -135,17 +135,6 @@ export class View {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Initialization 
-    // -------------------------------------------------------------------------
-
-    constructor(options = {}) {
-        this.#transform.x = options.x ?? options.position?.x ?? 0;
-        this.#transform.y = options.y ?? options.position?.y ?? 0;
-        this.#isVisible = options.isVisible !== false;
-        this.#isPickable = options.isPickable !== false;
-    }
-
-    // -------------------------------------------------------------------------
     // MARK: - Visibility and Pickability
     // -------------------------------------------------------------------------
 

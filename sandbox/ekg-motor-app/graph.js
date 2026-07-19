@@ -39,14 +39,15 @@ export class Graph extends RectangleView {
     }
 
     // MARK: - Initialization
-    constructor(options = {}) {
-        options.fillStyle = options.fillStyle ?? Graph.style.backgroundFill;
-        options.strokeStyle = options.strokeStyle ?? Graph.style.backgroundStroke;
-        options.strokeWidth = options.strokeWidth ?? 2;
+    constructor(data = [], isSquareWave = false) {
+        super();
 
-        super(options);
-        this.#data = options.data ?? [];
-        this.#isSquareWave = options.isSquareWave === true;
+        this.setFillStyle(Graph.style.backgroundFill);
+        this.setStrokeStyle(Graph.style.backgroundStroke);
+        this.setStrokeWidth(2);
+
+        this.#data = data;
+        this.#isSquareWave = isSquareWave === true;
 
         this.initZeroLine();
         this.initGraphLine();
@@ -57,33 +58,33 @@ export class Graph extends RectangleView {
     }
 
     initZeroLine() {
-        this.#zeroLine = new LineView({ isPickable: false });
-        this.#zeroLine.strokeStyle = Graph.style.zeroLineStroke;
-        this.#zeroLine.strokeWidth = 2;
-        this.addView(this.#zeroLine);
+        this.#zeroLine = new LineView()
+            .setPickable(false)
+            .setStrokeStyle(Graph.style.zeroLineStroke)
+            .setStrokeWidth(2)
+            .addToParent(this);
     }
 
     initGraphLine() {
-        this.#graphLine = new LineView({ isPickable: false });
-        this.#graphLine.strokeStyle = Graph.style.graphStroke;
-        this.#graphLine.strokeWidth = 2;
-        this.addView(this.#graphLine);
+        this.#graphLine = new LineView()
+            .setPickable(false)
+            .setStrokeStyle(Graph.style.graphStroke)
+            .setStrokeWidth(2)
+            .addToParent(this);
     }
 
     initCursorLine() {
-        this.#cursorLine = new LineView({
-            strokeStyle: this.strokeStyle,
-            strokeWidth: 2,
-        })
+        this.#cursorLine = new LineView()
+            .setPickable(false)
+            .setStrokeStyle(this.strokeStyle)
+            .setStrokeWidth(2)
             .addPointXY(0, 0)
-            .addPointXY(0, this.height);
-        this.addView(this.#cursorLine);
+            .addPointXY(0, this.height)
+            .addToParent(this);
     }
 
     initCursorLabel() {
-        this.#valueLabel = new LabelView({
-            text: ""
-        });
+        this.#valueLabel = new LabelView();
         this.#valueLabel.setFillColor("white");
         this.#valueLabel.setFontSize(16);
         this.#valueLabel.setAnchorX(0.5);

@@ -1,5 +1,6 @@
 import {
     CanvasApp,
+    CanvasResizeEvent,
     CircleView,
     Color,
     CoordinateSpace,
@@ -44,6 +45,7 @@ export class SceneApp extends CanvasApp {
 
     initCanvas() {
         this.canvas.fillStyle = new Color(0, 0, 20);
+        this.canvas.events.on(CanvasResizeEvent, this.onCanvasResize.bind(this));
     }
 
     initScene() {
@@ -145,51 +147,12 @@ export class SceneApp extends CanvasApp {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Box Events
-    // Box events arent necessary, but they are included to demonstrate how to 
-    // handle events on child views within the scene.
+    // MARK: - Canvas Events
     // -------------------------------------------------------------------------
 
-    onBoxZoom(type, event) {
-        if (event.wheelY === 0) { return; }
-        const direction = Math.sign(event.wheelY);
-        const factor = 1 - direction / 20;
-        this.scene.scaleAround(factor, event.parentX, event.parentY, CoordinateSpace.CONTENT);
-    }
-
-    onBoxDrag(type, event) {
-        try {
-            if (event.button == MouseButton.LEFT) {
-                this.scene.translateContent(event.movementX, event.movementY, CoordinateSpace.CONTENT);
-
-            } else if (event.button == MouseButton.RIGHT) {
-                const boxCenter = new Vec2(this.box.bounds.centerX, this.box.bounds.centerY);
-                const sceneAnchor = this.isFollowingBall
-                    ? this.ball.getPosition()
-                    : this.box.toAncestorPoint(this.scene.content, boxCenter, boxCenter);
-
-                const p1 = new Vec2(
-                    event.parentX - event.parentMovementX - sceneAnchor.x,
-                    event.parentY - event.parentMovementY - sceneAnchor.y
-                );
-                const p2 = new Vec2(
-                    event.parentX - sceneAnchor.x,
-                    event.parentY - sceneAnchor.y
-                );
-                const rotation = p1.angle(p2);
-
-                this.scene.rotateAround(rotation, sceneAnchor.x, sceneAnchor.y, CoordinateSpace.CONTENT);
-            }
-
-        } catch (error) {
-            console.error("Error handling box drag:", error);
-        }
-    }
-
-    onBoxClick(type, event) {
-        if (event.button == MouseButton.MIDDLE) {
-            this.isFollowingBall = !this.isFollowingBall;
-        }
+    onCanvasResize(type, event) {
+        void type, event;
+        this.scene.setSizeWH(this.canvas.width, this.canvas.height);
     }
 
     // -------------------------------------------------------------------------
@@ -232,6 +195,54 @@ export class SceneApp extends CanvasApp {
     }
 
     onSceneClick(type, event) {
+        if (event.button == MouseButton.MIDDLE) {
+            this.isFollowingBall = !this.isFollowingBall;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Box Events
+    // Box events arent necessary, but they are included to demonstrate how to 
+    // handle events on child views within the scene.
+    // -------------------------------------------------------------------------
+
+    onBoxZoom(type, event) {
+        if (event.wheelY === 0) { return; }
+        const direction = Math.sign(event.wheelY);
+        const factor = 1 - direction / 20;
+        this.scene.scaleAround(factor, event.parentX, event.parentY, CoordinateSpace.CONTENT);
+    }
+
+    onBoxDrag(type, event) {
+        try {
+            if (event.button == MouseButton.LEFT) {
+                this.scene.translateContent(event.movementX, event.movementY, CoordinateSpace.CONTENT);
+
+            } else if (event.button == MouseButton.RIGHT) {
+                const boxCenter = new Vec2(this.box.bounds.centerX, this.box.bounds.centerY);
+                const sceneAnchor = this.isFollowingBall
+                    ? this.ball.getPosition()
+                    : this.box.toAncestorPoint(this.scene.content, boxCenter, boxCenter);
+
+                const p1 = new Vec2(
+                    event.parentX - event.parentMovementX - sceneAnchor.x,
+                    event.parentY - event.parentMovementY - sceneAnchor.y
+                );
+                const p2 = new Vec2(
+                    event.parentX - sceneAnchor.x,
+                    event.parentY - sceneAnchor.y
+                );
+                const rotation = p1.angle(p2);
+
+                this.scene.rotateAround(rotation, sceneAnchor.x, sceneAnchor.y, CoordinateSpace.CONTENT);
+            }
+
+        } catch (error) {
+            console.error("Error handling box drag:", error);
+        }
+    }
+
+    onBoxClick(type, event) {
         if (event.button == MouseButton.MIDDLE) {
             this.isFollowingBall = !this.isFollowingBall;
         }

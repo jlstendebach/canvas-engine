@@ -50,13 +50,11 @@ export class ShapesApp extends CanvasApp {
 
     initCircleView() {
         const style = this.getNextStyle();
-        const circle = new CircleView({
-            position: this.getNextPosition(),
-            radius: 50,
-            fillStyle: style.fillStyle,
-            strokeStyle: style.strokeStyle,
-            strokeWidth: style.strokeWidth
-        });
+        const circle = new CircleView(50)
+            .setPosition(this.getNextPosition())
+            .setFillStyle(style.fillStyle)
+            .setStrokeStyle(style.strokeStyle)
+            .setStrokeWidth(style.strokeWidth);
         this.setPivotToCenter(circle);
         this.addEventListeners(circle);
         this.scene.addView(circle);
@@ -65,14 +63,11 @@ export class ShapesApp extends CanvasApp {
 
     initRectangleView() {
         const style = this.getNextStyle();
-        const rectangle = new RectangleView({
-            position: this.getNextPosition(),
-            width: 150,
-            height: 100,
-            fillStyle: style.fillStyle,
-            strokeStyle: style.strokeStyle,
-            strokeWidth: style.strokeWidth
-        });
+        const rectangle = new RectangleView(150, 100)
+            .setPosition(this.getNextPosition())
+            .setFillStyle(style.fillStyle)
+            .setStrokeStyle(style.strokeStyle)
+            .setStrokeWidth(style.strokeWidth);
         this.setPivotToCenter(rectangle);
         this.addEventListeners(rectangle);
         this.scene.addView(rectangle);
@@ -81,20 +76,13 @@ export class ShapesApp extends CanvasApp {
 
     initRoundRectangleView() {
         const style = this.getNextStyle();
-        const roundRectangle = new RoundRectangleView({
-            width: 150,
-            height: 100,
-            topLeftRadius: 10,
-            topRightRadius: 20,
-            bottomRightRadius: 30,
-            bottomLeftRadius: 40,
-            fillStyle: style.fillStyle,
-            strokeStyle: style.strokeStyle,
-            strokeWidth: style.strokeWidth
-        });
-        roundRectangle
+        const roundRectangle = new RoundRectangleView(150, 100)
             .setPosition(this.getNextPosition())
-            .setPivotXY(roundRectangle.bounds.centerX, roundRectangle.bounds.centerY);
+            .setCornerRadii(10, 20, 30, 40)
+            .setFillStyle(style.fillStyle)
+            .setStrokeStyle(style.strokeStyle)
+            .setStrokeWidth(style.strokeWidth);
+        roundRectangle.setPivotXY(roundRectangle.bounds.centerX, roundRectangle.bounds.centerY);
         this.addEventListeners(roundRectangle);
         this.scene.addView(roundRectangle);
         this.shapes.push(roundRectangle);
@@ -102,12 +90,11 @@ export class ShapesApp extends CanvasApp {
 
     initPolygonTriangleView() {
         const style = this.getNextStyle();
-        const triangle = new PolygonView({
-            position: this.getNextPosition(),
-            fillStyle: style.fillStyle,
-            strokeStyle: style.strokeStyle,
-            strokeWidth: style.strokeWidth
-        });
+        const triangle = new PolygonView()
+            .setPosition(this.getNextPosition())
+            .setFillStyle(style.fillStyle)
+            .setStrokeStyle(style.strokeStyle)
+            .setStrokeWidth(style.strokeWidth);
 
         const tau = Math.PI * 2;
         triangle.setPoints([
@@ -123,12 +110,11 @@ export class ShapesApp extends CanvasApp {
 
     initPolygonStarView() {
         const style = this.getNextStyle();
-        const star = new PolygonView({
-            position: this.getNextPosition(),
-            fillStyle: style.fillStyle,
-            strokeStyle: style.strokeStyle,
-            strokeWidth: style.strokeWidth
-        });
+        const star = new PolygonView()
+            .setPosition(this.getNextPosition())
+            .setFillStyle(style.fillStyle)
+            .setStrokeStyle(style.strokeStyle)
+            .setStrokeWidth(style.strokeWidth);
 
         const tau = Math.PI * 2;
         for (let i = 0; i < 10; i++) {
@@ -147,11 +133,10 @@ export class ShapesApp extends CanvasApp {
 
     initLineStringView() {
         const style = this.getNextStyle();        
-        const lineString = new LineView({
-            position: this.getNextPosition(),
-            strokeStyle: style.strokeStyle,
-            strokeWidth: 4
-        });
+        const lineString = new LineView()
+            .setPosition(this.getNextPosition())
+            .setStrokeStyle(style.strokeStyle)
+            .setStrokeWidth(4);
 
         const tau = Math.PI * 2;
         const pointCount = 150;
@@ -167,11 +152,10 @@ export class ShapesApp extends CanvasApp {
 
     initLineView() {
         const style = this.getNextStyle();
-        const line = new LineView({
-            position: this.getNextPosition(),
-            strokeStyle: style.strokeStyle,
-            strokeWidth: 4
-        });
+        const line = new LineView()
+            .setPosition(this.getNextPosition())
+            .setStrokeStyle(style.strokeStyle)
+            .setStrokeWidth(4);
 
         line.setPointsXY([
             0, 0,
@@ -186,15 +170,13 @@ export class ShapesApp extends CanvasApp {
 
     initVectorView() {
         const style = this.getNextStyle();
-        const vector = new VectorView({
-            position: this.getNextPosition(),
-            vector: new Vec2(100, 50),
-            arrowWidth: 20,
-            arrowHeight: 20,
-            fillStyle: style.fillStyle,
-            strokeStyle: style.strokeStyle,
-            strokeWidth: style.strokeWidth,
-        });
+        const vector = new VectorView(100, 50)
+            .setPosition(this.getNextPosition())
+            .setArrowWidth(20)
+            .setArrowHeight(20)
+            .setFillStyle(style.fillStyle)
+            .setStrokeStyle(style.strokeStyle)
+            .setStrokeWidth(style.strokeWidth);
         this.setPivotToCenter(vector);        
         this.addEventListeners(vector);
         this.scene.addView(vector);
