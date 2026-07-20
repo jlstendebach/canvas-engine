@@ -113,7 +113,7 @@ export class PointList {
      * Treat this as READ-ONLY. Do not push, pop, or mutate the points.
      * @returns {readonly number[]}
      */
-    getRawPoints() {
+    unsafeGetRawPoints() {
         return this.#points;
     }
 
