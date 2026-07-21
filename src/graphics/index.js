@@ -4,13 +4,14 @@ export * from "./canvas/CanvasEvents.js";
 export * from "./canvas/CanvasRootView.js";
 
 // MARK: - utils
-export * from "./utils/ImageManager.js";
 export * from "./utils/CachedColor.js";
 export * from "./utils/Color.js";
 export * from "./utils/CoordinateSpace.js";
+export * from "./utils/ImageManager.js";
 export * from "./utils/Point.js";
 export * from "./utils/PointList.js";
 export * from "./utils/Size.js";
+export * from "./utils/Transform.js";
 
 // MARK: - views/charts
 export * from "./views/charts/BarChartView.js";

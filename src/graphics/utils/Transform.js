@@ -1,6 +1,6 @@
-import { Bounds } from "./Bounds.js";
-import { Matrix2 } from "./Matrix2.js";
-import { Vec2 } from "./Vec2.js";
+import { Bounds } from "../../math/Bounds.js";
+import { Matrix2 } from "../../math/Matrix2.js";
+import { Vec2 } from "../../math/Vec2.js";
 
 // The dirty level of the transform is cascaded, meaning that if a transform is 
 // dirty at a certain level, it is also dirty at all lower levels. For example, 

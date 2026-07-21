@@ -86,7 +86,7 @@ export class PolygonView extends ShapeView {
 
     // MARK: - Hit Testing
     updateBounds(out) {
-        const rawPoints = this.#pointList.getRawPoints();
+        const rawPoints = this.#pointList.unsafeGetRawPoints();
         const length = rawPoints.length;
         out.reset();
         if (length < 6) { return; }
@@ -97,7 +97,7 @@ export class PolygonView extends ShapeView {
     }
 
     containsPoint(point) {
-        const rawPoints = this.#pointList.getRawPoints();
+        const rawPoints = this.#pointList.unsafeGetRawPoints();
         const length = rawPoints.length;
         if (length < 6) { return false; }
         if (!this.bounds.containsPoint(point)) { return false; }
@@ -139,7 +139,7 @@ export class PolygonView extends ShapeView {
 
     // MARK: - Drawing
     path(context) {
-        const rawPoints = this.#pointList.getRawPoints();
+        const rawPoints = this.#pointList.unsafeGetRawPoints();
         const length = rawPoints.length;
         if (length < 6) { return; }
 
