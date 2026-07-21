@@ -1,7 +1,7 @@
 import { EventEmitter } from "../../../events/EventEmitter.js";
 import { Bounds } from "../../../math/Bounds.js";
-import { Transform } from "../../../math/Transform.js";
 import { Vec2 } from "../../../math/Vec2.js";
+import { Transform } from "../../utils/Transform.js";
 
 /**
  * Base class for all views in the scene graph.
@@ -308,7 +308,7 @@ export class View {
         if (!this.parent) { return this; }
         this.parent.removeView(this);
         return this;
-    }    
+    }
 
     /**
      * Checks if this view is a descendant of the given view.
@@ -383,12 +383,12 @@ export class View {
 
         // Find the index of the view in the child views array.
         const index = this.#views.indexOf(view);
-        if (index === -1) { 
+        if (index === -1) {
             // This should never happen because the view's parent reference 
             // indicates it is a child, but if it does, we still want to remove 
             // the parent reference.
             view.#parent = null;
-            return this; 
+            return this;
         }
 
         // Remove the view.
@@ -498,7 +498,7 @@ export class View {
         }
 
         return out;
-    }    
+    }
 
     localToParentPointXY(x, y, out = new Vec2()) {
         return this.#transform.transformPointXY(x, y, out);
@@ -559,7 +559,7 @@ export class View {
     }
 
     invalidateBounds() {
-        if (this.#isBoundsDirty) { return this;}
+        if (this.#isBoundsDirty) { return this; }
         this.#isBoundsDirty = true;
         this.parent?.onChildBoundsInvalidated();
         return this;
