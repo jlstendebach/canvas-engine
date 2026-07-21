@@ -87,7 +87,7 @@ export class LineView extends ShapeView {
 
     // MARK: - Hit Testing
     updateBounds(out) {
-        const rawPoints = this.#pointList.getRawPoints();
+        const rawPoints = this.#pointList.unsafeGetRawPoints();
         const length = rawPoints.length;
 
         out.reset();
@@ -100,7 +100,7 @@ export class LineView extends ShapeView {
     }
 
     containsPoint(point) {
-        const rawPoints = this.#pointList.getRawPoints();
+        const rawPoints = this.#pointList.unsafeGetRawPoints();
         const length = rawPoints.length;
 
         if (length < 4) { return false; }
@@ -121,7 +121,7 @@ export class LineView extends ShapeView {
 
     // MARK: - Drawing
     path(context) {
-        const rawPoints = this.#pointList.getRawPoints();
+        const rawPoints = this.#pointList.unsafeGetRawPoints();
         const length = rawPoints.length;
 
         if (length < 4) { return; }
