@@ -467,13 +467,14 @@ export class View {
             return out.copy(point);
         }
         if (toView === fromView.parent) {
-            return fromView.transform.transformPoint(point, out);
+            return fromView.localToParentPoint(point, out);
         }
         if (fromView === toView.parent) {
-            return toView.transform.inverseTransformPoint(point, out);
+            return fromView.parentToLocalPoint(point, out);
         }
 
         const toHierarchy = [];
+        const toAncestors = new Set();
         let currentView;
         let commonAncestorIndex = -1;
 
@@ -503,13 +504,13 @@ export class View {
         out.copy(point);
         currentView = fromView;
         while (currentView !== commonAncestor) {
-            currentView.transform.transformPoint(out, out);
+            currentView.localToParentPoint(out, out);
             currentView = currentView.parent;
         }
 
         // Transform the point from the common ancestor down to the toView.
         for (let i = commonAncestorIndex - 1; i >= 0; i--) {
-            toHierarchy[i].transform.inverseTransformPoint(out, out);
+            toHierarchy[i].parentToLocalPoint(out, out);
         }
 
         return out;
@@ -631,9 +632,9 @@ export class View {
 
         context.save();
         try {
-            this.#transform.withMatrix((m) => {
-                context.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
-            });
+            let matrix = this.#transform.unsafeGetMatrix();
+            context.transform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
+            matrix = null; // Clear reference to matrix to avoid accidental usage.
             this.onDraw(context);
             this.drawChildren(context);
         } finally {
