@@ -1,5 +1,3 @@
-import { Vec2 } from "./Vec2.js";
-
 export class Bounds {
     minX; maxX; minY; maxY;
 

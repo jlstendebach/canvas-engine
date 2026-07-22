@@ -462,6 +462,59 @@ export class View {
     // MARK: - Transformations
     // -------------------------------------------------------------------------
 
+    static convertPoint(point, fromView, toView, out = new Vec2()) {
+        if (fromView === toView) {
+            return out.copy(point);
+        }
+        if (toView === fromView.parent) {
+            return fromView.transform.transformPoint(point, out);
+        }
+        if (fromView === toView.parent) {
+            return toView.transform.inverseTransformPoint(point, out);
+        }
+
+        const toHierarchy = [];
+        let currentView;
+        let commonAncestorIndex = -1;
+
+        // Build the hierarchy chain from the toView up to the root.
+        currentView = toView;
+        while (currentView !== null) {
+            toHierarchy.push(currentView);
+            currentView = currentView.parent;
+        }
+
+        // Find the first common ancestor of fromView and toView.
+        currentView = fromView;
+        while (currentView !== null) {
+            commonAncestorIndex = toHierarchy.indexOf(currentView);
+            if (commonAncestorIndex !== -1) { break; }
+            currentView = currentView.parent;
+        }
+
+        // If we reached the root of the scene graph without finding a common 
+        // ancestor, then the two views are not in the same scene graph.
+        if (commonAncestorIndex === -1) {
+            throw new Error("The provided views do not share a common ancestor.");
+        }
+        const commonAncestor = currentView;
+
+        // Transform the point from the fromView up to the common ancestor.
+        out.copy(point);
+        currentView = fromView;
+        while (currentView !== commonAncestor) {
+            currentView.transform.transformPoint(out, out);
+            currentView = currentView.parent;
+        }
+
+        // Transform the point from the common ancestor down to the toView.
+        for (let i = commonAncestorIndex - 1; i >= 0; i--) {
+            toHierarchy[i].transform.inverseTransformPoint(out, out);
+        }
+
+        return out;
+    }
+
     toAncestorPoint(ancestor, point, out = new Vec2()) {
         out.copy(point);
 
