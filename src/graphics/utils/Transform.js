@@ -369,6 +369,10 @@ export class Transform {
         return this.unsafeGetMatrix().transformBounds(bounds, out);
     }
 
+    transformMatrix(inputMatrix, out = new Matrix2()) {
+        return out.copy(inputMatrix).prepend(this.unsafeGetMatrix());
+    }
+
     // -------------------------------------------------------------------------
     // MARK: - Inverse Transformations
     // -------------------------------------------------------------------------
@@ -391,6 +395,10 @@ export class Transform {
 
     inverseTransformBounds(bounds, out = new Bounds()) {
         return this.unsafeGetInverseMatrix().transformBounds(bounds, out);
+    }
+
+    inverseTransformMatrix(inputMatrix, out = new Matrix2()) {
+        return out.copy(inputMatrix).prepend(this.unsafeGetInverseMatrix());
     }
 
     // -------------------------------------------------------------------------

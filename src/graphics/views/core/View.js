@@ -474,7 +474,6 @@ export class View {
         }
 
         const toHierarchy = [];
-        const toAncestors = new Set();
         let currentView;
         let commonAncestorIndex = -1;
 
