@@ -370,7 +370,7 @@ export class Transform {
     }
 
     transformMatrix(inputMatrix, out = new Matrix2()) {
-        return out.copy(inputMatrix).prepend(this.unsafeGetMatrix());
+        return out.copy(inputMatrix).append(this.unsafeGetMatrix());
     }
 
     // -------------------------------------------------------------------------
@@ -398,7 +398,7 @@ export class Transform {
     }
 
     inverseTransformMatrix(inputMatrix, out = new Matrix2()) {
-        return out.copy(inputMatrix).prepend(this.unsafeGetInverseMatrix());
+        return out.copy(inputMatrix).append(this.unsafeGetInverseMatrix());
     }
 
     // -------------------------------------------------------------------------

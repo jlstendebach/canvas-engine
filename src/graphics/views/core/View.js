@@ -26,6 +26,9 @@ export class View {
     #worldMatrixVersion = 0;
     #parentWorldMatrixVersion = -1;
 
+    #inverseWorldMatrix = new Matrix2();
+    #isInverseWorldMatrixDirty = true;
+
     // Services
     #eventEmitter = new EventEmitter();
 
@@ -394,12 +397,14 @@ export class View {
             // indicates it is a child, but if it does, we still want to remove 
             // the parent reference.
             view.#parent = null;
+            view.#parentWorldMatrixVersion = -1;
             return this;
         }
 
         // Remove the view.
         this.#views.splice(index, 1);
         view.#parent = null;
+        view.#parentWorldMatrixVersion = -1;
 
         // The child view may have changed the bounds of this view.
         this.invalidateBounds();
@@ -413,6 +418,7 @@ export class View {
     removeAllViews() {
         for (let i = 0; i < this.#views.length; i++) {
             this.#views[i].#parent = null;
+            this.#views[i].#parentWorldMatrixVersion = -1;
         }
         this.#views.length = 0;
         this.invalidateBounds();
@@ -465,75 +471,29 @@ export class View {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Transformations
+    // MARK: - Conversions
     // -------------------------------------------------------------------------
 
     static convertPoint(point, fromView, toView, out = new Vec2()) {
         if (fromView === toView) {
             return out.copy(point);
         }
-        if (toView === fromView.parent) {
+        if (fromView && toView === fromView.parent) {
             return fromView.localToParentPoint(point, out);
         }
-        if (fromView === toView.parent) {
-            return fromView.parentToLocalPoint(point, out);
+        if (toView && fromView === toView.parent) {
+            return toView.parentToLocalPoint(point, out);
         }
 
-        const toHierarchy = [];
-        let currentView;
-        let commonAncestorIndex = -1;
-
-        // Build the hierarchy chain from the toView up to the root.
-        currentView = toView;
-        while (currentView !== null) {
-            toHierarchy.push(currentView);
-            currentView = currentView.parent;
-        }
-
-        // Find the first common ancestor of fromView and toView.
-        currentView = fromView;
-        while (currentView !== null) {
-            commonAncestorIndex = toHierarchy.indexOf(currentView);
-            if (commonAncestorIndex !== -1) { break; }
-            currentView = currentView.parent;
-        }
-
-        // If we reached the root of the scene graph without finding a common 
-        // ancestor, then the two views are not in the same scene graph.
-        if (commonAncestorIndex === -1) {
-            throw new Error("The provided views do not share a common ancestor.");
-        }
-        const commonAncestor = currentView;
-
-        // Transform the point from the fromView up to the common ancestor.
-        out.copy(point);
-        currentView = fromView;
-        while (currentView !== commonAncestor) {
-            currentView.localToParentPoint(out, out);
-            currentView = currentView.parent;
-        }
-
-        // Transform the point from the common ancestor down to the toView.
-        for (let i = commonAncestorIndex - 1; i >= 0; i--) {
-            toHierarchy[i].parentToLocalPoint(out, out);
-        }
-
-        return out;
-    }
-
-    toAncestorPoint(ancestor, point, out = new Vec2()) {
         out.copy(point);
 
-        let view = this;
-        while (view !== ancestor) {
-            if (view === null) {
-                throw new Error("The provided ancestor is not an ancestor of this view.");
-            }
-
-            view.transform.transformPoint(out, out);
-            view = view.parent;
+        const matrix = new Matrix2();
+        if (fromView) {
+            fromView.getWorldMatrix(matrix).transformPoint(out, out);
         }
-
+        if (toView) {
+            toView.getInverseWorldMatrix(matrix).transformPoint(out, out);
+        }
         return out;
     }
 
@@ -629,24 +589,44 @@ export class View {
     // -------------------------------------------------------------------------
 
     getWorldMatrix(out = new Matrix2()) {
-        if (!this.parent) { 
-            return this.#transform.getMatrix(out); 
-        }
-
-        const parentWorldMatrix = this.parent.getWorldMatrix(out);
-        const parentWorldMatrixVersion = this.parent.#worldMatrixVersion;
-
-        if (!this.#isWorldMatrixDirty && this.#parentWorldMatrixVersion === parentWorldMatrixVersion) {
+        if (!this.parent) {
+            if (!this.#isWorldMatrixDirty) {
+                this.#transform.getMatrix(this.#worldMatrix);
+                this.#isWorldMatrixDirty = false;
+                this.#isInverseWorldMatrixDirty = true;
+                this.#worldMatrixVersion++;
+            }
             return out.copy(this.#worldMatrix);
         }
 
+        const parentWorldMatrix = this.parent.getWorldMatrix(out);
+
+        if (
+            !this.#isWorldMatrixDirty &&
+            this.#parentWorldMatrixVersion === this.parent.#worldMatrixVersion
+        ) {
+            return out.copy(this.#worldMatrix);
+        }
+
+        //this.#worldMatrix.copy(parentWorldMatrix).append(this.#transform.unsafeGetMatrix());
         this.#transform.transformMatrix(parentWorldMatrix, this.#worldMatrix);
 
         this.#isWorldMatrixDirty = false;
-        this.#parentWorldMatrixVersion = parentWorldMatrixVersion;
+        this.#isInverseWorldMatrixDirty = true;
+        this.#parentWorldMatrixVersion = this.parent.#worldMatrixVersion;
         this.#worldMatrixVersion++;
 
         return out.copy(this.#worldMatrix);
+    }
+
+    getInverseWorldMatrix(out = new Matrix2()) {
+        if (this.#isInverseWorldMatrixDirty) {
+            this.getWorldMatrix();
+            this.#inverseWorldMatrix.copy(this.#worldMatrix).invert();
+            this.#isInverseWorldMatrixDirty = false;
+        }
+
+        return out.copy(this.#inverseWorldMatrix);
     }
 
     // -------------------------------------------------------------------------
@@ -702,6 +682,7 @@ export class View {
 
     onTransformInvalidated() {
         this.#isWorldMatrixDirty = true;
+        this.#isInverseWorldMatrixDirty = true;
         this.parent?.onChildBoundsInvalidated();
     }
 
