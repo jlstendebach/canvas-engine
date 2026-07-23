@@ -418,7 +418,7 @@ export class Transform {
      *     reference as the `out` parameter if it was provided, or a new Matrix 
      *     instance if not.
      */
-    toMatrix(out = new Matrix2()) {
+    getMatrix(out = new Matrix2()) {
         return out.copy(this.unsafeGetMatrix());
     }
 
@@ -433,8 +433,8 @@ export class Transform {
      * - The matrix may become invalid after any transform change on this object
      *   or its ancestors.
      *
-     * Prefer `toMatrix(out)` unless you have a strong performance reason to use
-     * this method.
+     * Prefer `getMatrix(out)` unless you have a strong performance reason to 
+     * use this method.
      *
      * @returns {Matrix2} Direct reference to the internal clean matrix.
      */
@@ -456,7 +456,7 @@ export class Transform {
      *     the same reference as the `out` parameter if it was provided, or a 
      *     new Matrix instance if not.
      */
-    toInverseMatrix(out = new Matrix2()) {
+    getInverseMatrix(out = new Matrix2()) {
         return out.copy(this.unsafeGetInverseMatrix());
     }
 
@@ -472,8 +472,8 @@ export class Transform {
      * - The matrix may become invalid after any transform change on this object
      *   or its ancestors.
      *
-     * Prefer `toInverseMatrix(out)` unless you have a strong performance reason
-     * to use this method.
+     * Prefer `getInverseMatrix(out)` unless you have a strong performance 
+     * reason to use this method.
      *
      * @returns {Matrix2} Direct reference to the internal clean inverse matrix.
      */

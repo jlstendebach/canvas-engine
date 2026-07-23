@@ -1,5 +1,6 @@
 import { EventEmitter } from "../../../events/EventEmitter.js";
 import { Bounds } from "../../../math/Bounds.js";
+import { Matrix2 } from "../../../math/Matrix2.js";
 import { Vec2 } from "../../../math/Vec2.js";
 import { Transform } from "../../utils/Transform.js";
 
@@ -19,6 +20,11 @@ export class View {
     // Derived states
     #bounds = new Bounds();
     #isBoundsDirty = true;
+
+    #worldMatrix = new Matrix2();
+    #isWorldMatrixDirty = true;
+    #worldMatrixVersion = 0;
+    #parentWorldMatrixVersion = -1;
 
     // Services
     #eventEmitter = new EventEmitter();
@@ -619,6 +625,31 @@ export class View {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: - World Matrix
+    // -------------------------------------------------------------------------
+
+    getWorldMatrix(out = new Matrix2()) {
+        if (!this.parent) { 
+            return this.#transform.getMatrix(out); 
+        }
+
+        const parentWorldMatrix = this.parent.getWorldMatrix(out);
+        const parentWorldMatrixVersion = this.parent.#worldMatrixVersion;
+
+        if (!this.#isWorldMatrixDirty && this.#parentWorldMatrixVersion === parentWorldMatrixVersion) {
+            return out.copy(this.#worldMatrix);
+        }
+
+        this.#transform.transformMatrix(parentWorldMatrix, this.#worldMatrix);
+
+        this.#isWorldMatrixDirty = false;
+        this.#parentWorldMatrixVersion = parentWorldMatrixVersion;
+        this.#worldMatrixVersion++;
+
+        return out.copy(this.#worldMatrix);
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: - Drawing 
     // -------------------------------------------------------------------------
 
@@ -670,6 +701,7 @@ export class View {
     }
 
     onTransformInvalidated() {
+        this.#isWorldMatrixDirty = true;
         this.parent?.onChildBoundsInvalidated();
     }
 
