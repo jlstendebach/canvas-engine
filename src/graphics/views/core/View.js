@@ -497,26 +497,8 @@ export class View {
         return out;
     }
 
-    toLocalPoint(ancestor, point, out = new Vec2()) {
-        const chain = [];
-
-        let view = this;
-        while (view !== ancestor) {
-            if (view === null) {
-                throw new Error("The provided ancestor is not an ancestor of this view.");
-            }
-
-            chain.push(view);
-            view = view.parent;
-        }
-
-        out.copy(point);
-
-        for (let i = chain.length - 1; i >= 0; i--) {
-            chain[i].transform.inverseTransformPoint(out, out);
-        }
-
-        return out;
+    toLocalPoint(point, fromView, out = new Vec2()) {
+        return View.convertPoint(point, fromView, this, out);
     }
 
     localToParentPointXY(x, y, out = new Vec2()) {
@@ -608,7 +590,6 @@ export class View {
             return out.copy(this.#worldMatrix);
         }
 
-        //this.#worldMatrix.copy(parentWorldMatrix).append(this.#transform.unsafeGetMatrix());
         this.#transform.transformMatrix(parentWorldMatrix, this.#worldMatrix);
 
         this.#isWorldMatrixDirty = false;

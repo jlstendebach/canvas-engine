@@ -176,7 +176,7 @@ export class SceneApp extends CanvasApp {
                 const boxCenter = new Vec2(this.box.bounds.centerX, this.box.bounds.centerY);
                 const sceneAnchor = this.isFollowingBall
                     ? this.canvas.getSize().divideScalar(2)
-                    : View.convertPoint(boxCenter, this.box, this.scene, boxCenter);
+                    : this.scene.toLocalPoint(boxCenter, this.box, boxCenter);
 
                 const p1 = new Vec2(
                     event.x - event.movementX - sceneAnchor.x,
@@ -223,7 +223,7 @@ export class SceneApp extends CanvasApp {
                 const boxCenter = new Vec2(this.box.bounds.centerX, this.box.bounds.centerY);
                 const sceneAnchor = this.isFollowingBall
                     ? this.ball.getPosition()
-                    : View.convertPoint(boxCenter, this.box, this.scene.content, boxCenter);
+                    : this.scene.content.toLocalPoint(boxCenter, this.box, boxCenter);
 
                 const p1 = new Vec2(
                     event.parentX - event.parentMovementX - sceneAnchor.x,
@@ -328,8 +328,8 @@ export class SceneApp extends CanvasApp {
         const corner1 = this.box.getPosition();
         const corner2 = this.box.getPosition().add(this.box.getSize());
 
-        View.convertPoint(corner1, this.scene.content, this.boxCorner1.parent, corner1);
-        View.convertPoint(corner2, this.scene.content, this.boxCorner2.parent, corner2);
+        this.boxCorner1.parent.toLocalPoint(corner1, this.scene.content, corner1);
+        this.boxCorner2.parent.toLocalPoint(corner2, this.scene.content, corner2);
 
         this.boxCorner1.setPosition(corner1);
         this.boxCorner2.setPosition(corner2);
@@ -337,7 +337,7 @@ export class SceneApp extends CanvasApp {
 
     positionPivotBall() {
         const boxCenter = new Vec2(this.box.bounds.centerX, this.box.bounds.centerY);
-        View.convertPoint(boxCenter, this.box, this.pivotBall.parent, boxCenter);
+        this.pivotBall.parent.toLocalPoint(boxCenter, this.box, boxCenter);
 
         const position = this.isFollowingBall
             ? this.canvas.getSize().divideScalar(2)
