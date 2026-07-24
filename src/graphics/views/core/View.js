@@ -1,5 +1,6 @@
 import { EventEmitter } from "../../../events/EventEmitter.js";
 import { Bounds } from "../../../math/Bounds.js";
+import { Matrix2 } from "../../../math/Matrix2.js";
 import { Vec2 } from "../../../math/Vec2.js";
 import { Transform } from "../../utils/Transform.js";
 
@@ -19,6 +20,14 @@ export class View {
     // Derived states
     #bounds = new Bounds();
     #isBoundsDirty = true;
+
+    #worldMatrix = new Matrix2();
+    #isWorldMatrixDirty = true;
+    #worldMatrixVersion = 0;
+    #parentWorldMatrixVersion = -1;
+
+    #inverseWorldMatrix = new Matrix2();
+    #isInverseWorldMatrixDirty = true;
 
     // Services
     #eventEmitter = new EventEmitter();
@@ -388,12 +397,14 @@ export class View {
             // indicates it is a child, but if it does, we still want to remove 
             // the parent reference.
             view.#parent = null;
+            view.#parentWorldMatrixVersion = -1;
             return this;
         }
 
         // Remove the view.
         this.#views.splice(index, 1);
         view.#parent = null;
+        view.#parentWorldMatrixVersion = -1;
 
         // The child view may have changed the bounds of this view.
         this.invalidateBounds();
@@ -407,6 +418,7 @@ export class View {
     removeAllViews() {
         for (let i = 0; i < this.#views.length; i++) {
             this.#views[i].#parent = null;
+            this.#views[i].#parentWorldMatrixVersion = -1;
         }
         this.#views.length = 0;
         this.invalidateBounds();
@@ -459,45 +471,34 @@ export class View {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Transformations
+    // MARK: - Conversions
     // -------------------------------------------------------------------------
 
-    toAncestorPoint(ancestor, point, out = new Vec2()) {
-        out.copy(point);
-
-        let view = this;
-        while (view !== ancestor) {
-            if (view === null) {
-                throw new Error("The provided ancestor is not an ancestor of this view.");
-            }
-
-            view.transform.transformPoint(out, out);
-            view = view.parent;
+    static convertPoint(point, fromView, toView, out = new Vec2()) {
+        if (fromView === toView) {
+            return out.copy(point);
+        }
+        if (fromView && toView === fromView.parent) {
+            return fromView.localToParentPoint(point, out);
+        }
+        if (toView && fromView === toView.parent) {
+            return toView.parentToLocalPoint(point, out);
         }
 
+        out.copy(point);
+
+        const matrix = new Matrix2();
+        if (fromView) {
+            fromView.getWorldMatrix(matrix).transformPoint(out, out);
+        }
+        if (toView) {
+            toView.getInverseWorldMatrix(matrix).transformPoint(out, out);
+        }
         return out;
     }
 
-    toLocalPoint(ancestor, point, out = new Vec2()) {
-        const chain = [];
-
-        let view = this;
-        while (view !== ancestor) {
-            if (view === null) {
-                throw new Error("The provided ancestor is not an ancestor of this view.");
-            }
-
-            chain.push(view);
-            view = view.parent;
-        }
-
-        out.copy(point);
-
-        for (let i = chain.length - 1; i >= 0; i--) {
-            chain[i].transform.inverseTransformPoint(out, out);
-        }
-
-        return out;
+    toLocalPoint(point, fromView, out = new Vec2()) {
+        return View.convertPoint(point, fromView, this, out);
     }
 
     localToParentPointXY(x, y, out = new Vec2()) {
@@ -566,6 +567,50 @@ export class View {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: - World Matrix
+    // -------------------------------------------------------------------------
+
+    getWorldMatrix(out = new Matrix2()) {
+        if (!this.parent) {
+            if (!this.#isWorldMatrixDirty) {
+                this.#transform.getMatrix(this.#worldMatrix);
+                this.#isWorldMatrixDirty = false;
+                this.#isInverseWorldMatrixDirty = true;
+                this.#worldMatrixVersion++;
+            }
+            return out.copy(this.#worldMatrix);
+        }
+
+        const parentWorldMatrix = this.parent.getWorldMatrix(out);
+
+        if (
+            !this.#isWorldMatrixDirty &&
+            this.#parentWorldMatrixVersion === this.parent.#worldMatrixVersion
+        ) {
+            return out.copy(this.#worldMatrix);
+        }
+
+        this.#transform.transformMatrix(parentWorldMatrix, this.#worldMatrix);
+
+        this.#isWorldMatrixDirty = false;
+        this.#isInverseWorldMatrixDirty = true;
+        this.#parentWorldMatrixVersion = this.parent.#worldMatrixVersion;
+        this.#worldMatrixVersion++;
+
+        return out.copy(this.#worldMatrix);
+    }
+
+    getInverseWorldMatrix(out = new Matrix2()) {
+        if (this.#isInverseWorldMatrixDirty) {
+            this.getWorldMatrix();
+            this.#inverseWorldMatrix.copy(this.#worldMatrix).invert();
+            this.#isInverseWorldMatrixDirty = false;
+        }
+
+        return out.copy(this.#inverseWorldMatrix);
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: - Drawing 
     // -------------------------------------------------------------------------
 
@@ -578,9 +623,9 @@ export class View {
 
         context.save();
         try {
-            this.#transform.withMatrix((m) => {
-                context.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
-            });
+            let matrix = this.#transform.unsafeGetMatrix();
+            context.transform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
+            matrix = null; // Clear reference to matrix to avoid accidental usage.
             this.onDraw(context);
             this.drawChildren(context);
         } finally {
@@ -617,6 +662,8 @@ export class View {
     }
 
     onTransformInvalidated() {
+        this.#isWorldMatrixDirty = true;
+        this.#isInverseWorldMatrixDirty = true;
         this.parent?.onChildBoundsInvalidated();
     }
 

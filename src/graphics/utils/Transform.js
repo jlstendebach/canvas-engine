@@ -115,22 +115,22 @@ export class Transform {
     // -------------------------------------------------------------------------
 
     get a() {
-        return this.#getCleanMatrix().a;
+        return this.unsafeGetMatrix().a;
     }
     get b() {
-        return this.#getCleanMatrix().b;
+        return this.unsafeGetMatrix().b;
     }
     get c() {
-        return this.#getCleanMatrix().c;
+        return this.unsafeGetMatrix().c;
     }
     get d() {
-        return this.#getCleanMatrix().d;
+        return this.unsafeGetMatrix().d;
     }
     get tx() {
-        return this.#getCleanMatrix().tx;
+        return this.unsafeGetMatrix().tx;
     }
     get ty() {
-        return this.#getCleanMatrix().ty;
+        return this.unsafeGetMatrix().ty;
     }
 
     // -------------------------------------------------------------------------
@@ -138,22 +138,22 @@ export class Transform {
     // -------------------------------------------------------------------------
 
     get inverseA() {
-        return this.#getCleanInverseMatrix().a;
+        return this.unsafeGetInverseMatrix().a;
     }
     get inverseB() {
-        return this.#getCleanInverseMatrix().b;
+        return this.unsafeGetInverseMatrix().b;
     }
     get inverseC() {
-        return this.#getCleanInverseMatrix().c;
+        return this.unsafeGetInverseMatrix().c;
     }
     get inverseD() {
-        return this.#getCleanInverseMatrix().d;
+        return this.unsafeGetInverseMatrix().d;
     }
     get inverseTx() {
-        return this.#getCleanInverseMatrix().tx;
+        return this.unsafeGetInverseMatrix().tx;
     }
     get inverseTy() {
-        return this.#getCleanInverseMatrix().ty;
+        return this.unsafeGetInverseMatrix().ty;
     }
 
     // -------------------------------------------------------------------------
@@ -350,23 +350,27 @@ export class Transform {
     // -------------------------------------------------------------------------
 
     transformPointXY(x, y, out = new Vec2()) {
-        return this.#getCleanMatrix().transformPointXY(x, y, out);
+        return this.unsafeGetMatrix().transformPointXY(x, y, out);
     }
 
     transformPoint(point, out = new Vec2()) {
-        return this.#getCleanMatrix().transformPoint(point, out);
+        return this.unsafeGetMatrix().transformPoint(point, out);
     }
 
     transformVectorXY(x, y, out = new Vec2()) {
-        return this.#getCleanMatrix().transformVectorXY(x, y, out);
+        return this.unsafeGetMatrix().transformVectorXY(x, y, out);
     }
 
     transformVector(vector, out = new Vec2()) {
-        return this.#getCleanMatrix().transformVector(vector, out);
+        return this.unsafeGetMatrix().transformVector(vector, out);
     }
 
     transformBounds(bounds, out = new Bounds()) {
-        return this.#getCleanMatrix().transformBounds(bounds, out);
+        return this.unsafeGetMatrix().transformBounds(bounds, out);
+    }
+
+    transformMatrix(inputMatrix, out = new Matrix2()) {
+        return out.copy(inputMatrix).append(this.unsafeGetMatrix());
     }
 
     // -------------------------------------------------------------------------
@@ -374,23 +378,27 @@ export class Transform {
     // -------------------------------------------------------------------------
 
     inverseTransformPointXY(x, y, out = new Vec2()) {
-        return this.#getCleanInverseMatrix().transformPointXY(x, y, out);
+        return this.unsafeGetInverseMatrix().transformPointXY(x, y, out);
     }
 
     inverseTransformPoint(point, out = new Vec2()) {
-        return this.#getCleanInverseMatrix().transformPoint(point, out);
+        return this.unsafeGetInverseMatrix().transformPoint(point, out);
     }
 
     inverseTransformVectorXY(x, y, out = new Vec2()) {
-        return this.#getCleanInverseMatrix().transformVectorXY(x, y, out);
+        return this.unsafeGetInverseMatrix().transformVectorXY(x, y, out);
     }
 
     inverseTransformVector(vector, out = new Vec2()) {
-        return this.#getCleanInverseMatrix().transformVector(vector, out);
+        return this.unsafeGetInverseMatrix().transformVector(vector, out);
     }
 
     inverseTransformBounds(bounds, out = new Bounds()) {
-        return this.#getCleanInverseMatrix().transformBounds(bounds, out);
+        return this.unsafeGetInverseMatrix().transformBounds(bounds, out);
+    }
+
+    inverseTransformMatrix(inputMatrix, out = new Matrix2()) {
+        return out.copy(inputMatrix).append(this.unsafeGetInverseMatrix());
     }
 
     // -------------------------------------------------------------------------
@@ -410,63 +418,68 @@ export class Transform {
      *     reference as the `out` parameter if it was provided, or a new Matrix 
      *     instance if not.
      */
-    toMatrix(out = new Matrix2()) {
-        return out.copy(this.#getCleanMatrix());
+    getMatrix(out = new Matrix2()) {
+        return out.copy(this.unsafeGetMatrix());
     }
 
     /**
-     * Invokes the provided callback with a direct reference to this 
-     * `Transform`'s internal clean matrix.
+     * Returns a direct reference to this Transform's internal clean matrix.
      *
-     * The matrix reference is owned by this `Transform` and **must not** be 
-     * modified or stored outside the callback. Doing so may break internal 
-     * cache invariants and lead to unexpected behavior.
+     * IMPORTANT: This is a zero-copy escape hatch for performance-critical 
+     * code:
+     * - The returned matrix is owned by this Transform.
+     * - **DO NOT modify** the returned matrix (a, b, c, d, tx, ty).
+     * - **DO NOT store** the returned reference beyond the immediate scope.
+     * - The matrix may become invalid after any transform change on this object
+     *   or its ancestors.
      *
-     * Use this as a zero-copy escape hatch when matrix values are needed
-     * immediately without allocating or copying into an output matrix.
+     * Prefer `getMatrix(out)` unless you have a strong performance reason to 
+     * use this method.
      *
-     * @param {function(Matrix2): void} callback - Invoked synchronously with 
-     * the internal clean matrix. The callback **must not** modify or retain the 
-     * matrix reference.
+     * @returns {Matrix2} Direct reference to the internal clean matrix.
      */
-    withMatrix(callback) {
-        callback(this.#getCleanMatrix());
+    unsafeGetMatrix() {
+        this.#updateMatrixIfNeeded();
+        return this.#matrix;
     }
 
     /**
-     * Creates or copies-out a Matrix instance that represents the inverse of the
-     * transformation defined by this Transform. The returned matrix will be the
-     * same reference as the `out` parameter if it was provided, or a new Matrix
-     * instance if not.
-     * @param {Matrix} out - Optional Matrix instance to store the result. The
+     * Creates or copies-out a Matrix instance that represents the inverse of 
+     * the transformation defined by this Transform. The returned matrix will be 
+     * the same reference as the `out` parameter if it was provided, or a new 
+     * Matrix instance if not.
+     * @param {Matrix2} out - Optional Matrix instance to store the result. The
      *     values of the output matrix will be manipulated. If this parameter is
      *     not provided, a new Matrix will be created.
-     * @returns {Matrix} A Matrix instance representing the inverse of the
+     * @returns {Matrix2} A Matrix instance representing the inverse of the
      *     transformation defined by this Transform. The returned matrix will be
-     *     the same reference as the `out` parameter if it was provided, or a new
-     *     Matrix instance if not.
+     *     the same reference as the `out` parameter if it was provided, or a 
+     *     new Matrix instance if not.
      */
-    toInverseMatrix(out = new Matrix2()) {
-        return out.copy(this.#getCleanInverseMatrix());
+    getInverseMatrix(out = new Matrix2()) {
+        return out.copy(this.unsafeGetInverseMatrix());
     }
 
     /**
-     * Invokes the provided callback with a direct reference to this 
-     * `Transform`'s internal clean inverse matrix.
+     * Returns a direct reference to this Transform's internal clean inverse 
+     * matrix.
      *
-     * The matrix reference is owned by this `Transform` and **must not** be 
-     * modified or stored outside the callback. Doing so may break internal 
-     * cache invariants and lead to unexpected behavior.
+     * IMPORTANT: This is a zero-copy escape hatch for performance-critical 
+     * code:
+     * - The returned matrix is owned by this Transform.
+     * - **DO NOT modify** the returned matrix (a, b, c, d, tx, ty).
+     * - **DO NOT store** the returned reference beyond the immediate scope.
+     * - The matrix may become invalid after any transform change on this object
+     *   or its ancestors.
      *
-     * Use this as a zero-copy escape hatch when matrix values are needed
-     * immediately without allocating or copying into an output matrix.
+     * Prefer `getInverseMatrix(out)` unless you have a strong performance 
+     * reason to use this method.
      *
-     * @param {function(Matrix2): void} callback - Invoked synchronously with 
-     * the internal clean inverse matrix. The callback **must not** modify or 
-     * retain the matrix reference.
+     * @returns {Matrix2} Direct reference to the internal clean inverse matrix.
      */
-    withInverseMatrix(callback) {
-        callback(this.#getCleanInverseMatrix());
+    unsafeGetInverseMatrix() {
+        this.#updateInverseMatrixIfNeeded();
+        return this.#inverseMatrix;
     }
 
     /**
@@ -506,16 +519,6 @@ export class Transform {
         if (wasClean) {
             this.#onInvalidated?.();
         }
-    }
-
-    #getCleanMatrix() {
-        this.#updateMatrixIfNeeded();
-        return this.#matrix;
-    }
-
-    #getCleanInverseMatrix() {
-        this.#updateInverseMatrixIfNeeded();
-        return this.#inverseMatrix;
     }
 
     #updateMatrixIfNeeded() {
