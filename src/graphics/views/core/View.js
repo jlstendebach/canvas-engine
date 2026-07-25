@@ -30,7 +30,7 @@ export class View {
     #isInverseWorldMatrixDirty = true;
 
     // Services
-    #eventEmitter = new EventEmitter();
+    #eventEmitter = null;
 
     // -------------------------------------------------------------------------
     // MARK: - Position Accessors
@@ -140,6 +140,9 @@ export class View {
     }
 
     get events() {
+        if (!this.#eventEmitter) {
+            this.#eventEmitter = new EventEmitter();
+        }
         return this.#eventEmitter;
     }
 
@@ -373,7 +376,7 @@ export class View {
 
         // Add the view.
         this.#views.push(view);
-        view.#parent = this;
+        view.#setParent(this);
 
         // The child view may have changed the bounds of this view.
         this.invalidateBounds();
@@ -396,15 +399,13 @@ export class View {
             // This should never happen because the view's parent reference 
             // indicates it is a child, but if it does, we still want to remove 
             // the parent reference.
-            view.#parent = null;
-            view.#parentWorldMatrixVersion = -1;
+            view.#setParent(null);
             return this;
         }
 
         // Remove the view.
         this.#views.splice(index, 1);
-        view.#parent = null;
-        view.#parentWorldMatrixVersion = -1;
+        view.#setParent(null);
 
         // The child view may have changed the bounds of this view.
         this.invalidateBounds();
@@ -417,8 +418,7 @@ export class View {
      */
     removeAllViews() {
         for (let i = 0; i < this.#views.length; i++) {
-            this.#views[i].#parent = null;
-            this.#views[i].#parentWorldMatrixVersion = -1;
+            this.#views[i].#setParent(null);
         }
         this.#views.length = 0;
         this.invalidateBounds();
@@ -678,4 +678,12 @@ export class View {
     onMouseEnter(event) { this.events.emit(event.type, event); }
     onMouseExit(event) { this.events.emit(event.type, event); }
     onMouseWheel(event) { this.events.emit(event.type, event); }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Helpers
+    // -------------------------------------------------------------------------
+    #setParent(parent) {
+        this.#parent = parent;
+        this.#parentWorldMatrixVersion = -1;
+    }
 }
