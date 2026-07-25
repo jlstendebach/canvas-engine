@@ -30,7 +30,7 @@ export class View {
     #isInverseWorldMatrixDirty = true;
 
     // Services
-    #eventEmitter = new EventEmitter();
+    #eventEmitter = null;
 
     // -------------------------------------------------------------------------
     // MARK: - Position Accessors
@@ -140,6 +140,9 @@ export class View {
     }
 
     get events() {
+        if (!this.#eventEmitter) {
+            this.#eventEmitter = new EventEmitter();
+        }
         return this.#eventEmitter;
     }
 
