@@ -497,6 +497,29 @@ export class View {
         return out;
     }
 
+    static convertVector(vector, fromView, toView, out = new Vec2()) {
+        if (fromView === toView) {
+            return out.copy(vector);
+        }
+        if (fromView && toView === fromView.parent) {
+            return fromView.localToParentVector(vector, out);
+        }
+        if (toView && fromView === toView.parent) {
+            return toView.parentToLocalVector(vector, out);
+        }
+
+        out.copy(vector);
+
+        const matrix = new Matrix2();
+        if (fromView) {
+            fromView.getWorldMatrix(matrix).transformVector(out, out);
+        }
+        if (toView) {
+            toView.getInverseWorldMatrix(matrix).transformVector(out, out);
+        }
+        return out;
+    }
+
     toLocalPoint(point, fromView, out = new Vec2()) {
         return View.convertPoint(point, fromView, this, out);
     }
