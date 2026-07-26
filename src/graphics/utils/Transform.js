@@ -552,6 +552,16 @@ export class Transform {
         this.#isInverseDirty = false;
     }
 
+    #getCleanMatrix() {
+        this.#updateMatrixIfNeeded();
+        return this.#matrix;
+    }
+
+    #getCleanInverseMatrix() {
+        this.#updateInverseMatrixIfNeeded();
+        return this.#inverseMatrix;
+    }
+
     #normalizedRotation(radians) {
         let normalizedRadians = radians % TAU;
         if (normalizedRadians < 0) {
