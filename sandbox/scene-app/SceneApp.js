@@ -9,8 +9,7 @@ import {
     RectangleView,
     SceneView,
     Timer,
-    Vec2,
-    View
+    Vec2
 } from "../../src/index.js";
 
 export class SceneApp extends CanvasApp {
@@ -124,8 +123,7 @@ export class SceneApp extends CanvasApp {
 
         if (this.isBallGrabbed == false) {
             const acceleration = new Vec2(0, 1);
-            this.scene.parentToLocalVector(acceleration, acceleration);
-            this.scene.content.parentToLocalVector(acceleration, acceleration);
+            this.scene.content.toLocalVector(acceleration, null, acceleration);
             acceleration.setLength(2000 * timeScale);
 
             this.ballVelocity.add(acceleration);
@@ -267,14 +265,26 @@ export class SceneApp extends CanvasApp {
         event.target.y = event.parentY;
 
         if (event.target == this.boxCorner1) {
-            const newPosition = this.scene.content.parentToLocalPoint(this.boxCorner1.getPosition());
-            const newSize = this.scene.content.parentToLocalPoint(this.boxCorner2.getPosition()).subtract(newPosition);
+            const newPosition = this.scene.content.toLocalPointXY(
+                this.boxCorner1.x, 
+                this.boxCorner1.y, 
+                this.boxCorner1.parent
+            );
+            const newSize = this.scene.content.toLocalPointXY(
+                this.boxCorner2.x,
+                this.boxCorner2.y,
+                this.boxCorner2.parent
+            ).subtract(newPosition);
 
             this.box.setPosition(newPosition);
             this.box.setSizeWH(newSize.x, newSize.y);
 
         } else if (event.target == this.boxCorner2) {
-            const newSize = this.scene.content.parentToLocalPoint(this.boxCorner2.getPosition()).subtract(this.box.getPosition());
+            const newSize = this.scene.content.toLocalPointXY(
+                this.boxCorner2.x,
+                this.boxCorner2.y,
+                this.boxCorner2.parent
+            ).subtract(this.box.getPosition());
             this.box.setSizeWH(newSize.x, newSize.y);
         }
     }
