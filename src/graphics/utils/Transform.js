@@ -115,22 +115,22 @@ export class Transform {
     // -------------------------------------------------------------------------
 
     get a() {
-        return this.unsafeGetMatrix().a;
+        return this.#getCleanMatrix().a;
     }
     get b() {
-        return this.unsafeGetMatrix().b;
+        return this.#getCleanMatrix().b;
     }
     get c() {
-        return this.unsafeGetMatrix().c;
+        return this.#getCleanMatrix().c;
     }
     get d() {
-        return this.unsafeGetMatrix().d;
+        return this.#getCleanMatrix().d;
     }
     get tx() {
-        return this.unsafeGetMatrix().tx;
+        return this.#getCleanMatrix().tx;
     }
     get ty() {
-        return this.unsafeGetMatrix().ty;
+        return this.#getCleanMatrix().ty;
     }
 
     // -------------------------------------------------------------------------
@@ -138,22 +138,22 @@ export class Transform {
     // -------------------------------------------------------------------------
 
     get inverseA() {
-        return this.unsafeGetInverseMatrix().a;
+        return this.#getCleanInverseMatrix().a;
     }
     get inverseB() {
-        return this.unsafeGetInverseMatrix().b;
+        return this.#getCleanInverseMatrix().b;
     }
     get inverseC() {
-        return this.unsafeGetInverseMatrix().c;
+        return this.#getCleanInverseMatrix().c;
     }
     get inverseD() {
-        return this.unsafeGetInverseMatrix().d;
+        return this.#getCleanInverseMatrix().d;
     }
     get inverseTx() {
-        return this.unsafeGetInverseMatrix().tx;
+        return this.#getCleanInverseMatrix().tx;
     }
     get inverseTy() {
-        return this.unsafeGetInverseMatrix().ty;
+        return this.#getCleanInverseMatrix().ty;
     }
 
     // -------------------------------------------------------------------------
@@ -350,27 +350,27 @@ export class Transform {
     // -------------------------------------------------------------------------
 
     transformPointXY(x, y, out = new Vec2()) {
-        return this.unsafeGetMatrix().transformPointXY(x, y, out);
+        return this.#getCleanMatrix().transformPointXY(x, y, out);
     }
 
     transformPoint(point, out = new Vec2()) {
-        return this.unsafeGetMatrix().transformPoint(point, out);
+        return this.#getCleanMatrix().transformPoint(point, out);
     }
 
     transformVectorXY(x, y, out = new Vec2()) {
-        return this.unsafeGetMatrix().transformVectorXY(x, y, out);
+        return this.#getCleanMatrix().transformVectorXY(x, y, out);
     }
 
     transformVector(vector, out = new Vec2()) {
-        return this.unsafeGetMatrix().transformVector(vector, out);
+        return this.#getCleanMatrix().transformVector(vector, out);
     }
 
     transformBounds(bounds, out = new Bounds()) {
-        return this.unsafeGetMatrix().transformBounds(bounds, out);
+        return this.#getCleanMatrix().transformBounds(bounds, out);
     }
 
     transformMatrix(inputMatrix, out = new Matrix2()) {
-        return out.copy(inputMatrix).append(this.unsafeGetMatrix());
+        return out.copy(inputMatrix).append(this.#getCleanMatrix());
     }
 
     // -------------------------------------------------------------------------
@@ -378,27 +378,27 @@ export class Transform {
     // -------------------------------------------------------------------------
 
     inverseTransformPointXY(x, y, out = new Vec2()) {
-        return this.unsafeGetInverseMatrix().transformPointXY(x, y, out);
+        return this.#getCleanInverseMatrix().transformPointXY(x, y, out);
     }
 
     inverseTransformPoint(point, out = new Vec2()) {
-        return this.unsafeGetInverseMatrix().transformPoint(point, out);
+        return this.#getCleanInverseMatrix().transformPoint(point, out);
     }
 
     inverseTransformVectorXY(x, y, out = new Vec2()) {
-        return this.unsafeGetInverseMatrix().transformVectorXY(x, y, out);
+        return this.#getCleanInverseMatrix().transformVectorXY(x, y, out);
     }
 
     inverseTransformVector(vector, out = new Vec2()) {
-        return this.unsafeGetInverseMatrix().transformVector(vector, out);
+        return this.#getCleanInverseMatrix().transformVector(vector, out);
     }
 
     inverseTransformBounds(bounds, out = new Bounds()) {
-        return this.unsafeGetInverseMatrix().transformBounds(bounds, out);
+        return this.#getCleanInverseMatrix().transformBounds(bounds, out);
     }
 
     inverseTransformMatrix(inputMatrix, out = new Matrix2()) {
-        return out.copy(inputMatrix).append(this.unsafeGetInverseMatrix());
+        return out.copy(inputMatrix).append(this.#getCleanInverseMatrix());
     }
 
     // -------------------------------------------------------------------------
@@ -419,7 +419,7 @@ export class Transform {
      *     instance if not.
      */
     getMatrix(out = new Matrix2()) {
-        return out.copy(this.unsafeGetMatrix());
+        return out.copy(this.#getCleanMatrix());
     }
 
     /**
@@ -457,7 +457,7 @@ export class Transform {
      *     new Matrix instance if not.
      */
     getInverseMatrix(out = new Matrix2()) {
-        return out.copy(this.unsafeGetInverseMatrix());
+        return out.copy(this.#getCleanInverseMatrix());
     }
 
     /**
@@ -550,6 +550,16 @@ export class Transform {
         this.#updateMatrixIfNeeded();
         this.#inverseMatrix.copy(this.#matrix).invert();
         this.#isInverseDirty = false;
+    }
+
+    #getCleanMatrix() {
+        this.#updateMatrixIfNeeded();
+        return this.#matrix;
+    }
+
+    #getCleanInverseMatrix() {
+        this.#updateInverseMatrixIfNeeded();
+        return this.#inverseMatrix;
     }
 
     #normalizedRotation(radians) {

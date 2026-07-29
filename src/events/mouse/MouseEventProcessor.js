@@ -348,8 +348,8 @@ export class MouseEventProcessor {
         this.#tempMovement.set(event.canvasMovementX, event.canvasMovementY);
         for (let i = views.length - 1; i >= 0; i--) {
             const view = views[i];
-            view.parentToLocalPoint(this.#tempPosition, this.#tempPosition);
-            view.parentToLocalVector(this.#tempMovement, this.#tempMovement);
+            view.toLocalPoint(this.#tempPosition, view.parent, this.#tempPosition);
+            view.toLocalVector(this.#tempMovement, view.parent, this.#tempMovement);
 
             if (i === 1) {
                 event.parentX = this.#tempPosition.x;

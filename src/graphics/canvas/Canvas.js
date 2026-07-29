@@ -1,4 +1,5 @@
 import { MouseEventProcessor } from "../../events/mouse/MouseEventProcessor.js";
+import { Vec2 } from "../../math/Vec2.js";
 import { CachedColor } from "../utils/CachedColor.js";
 import { Size } from "../utils/Size.js";
 import { CanvasResizeEvent } from "./CanvasEvents.js";
@@ -168,6 +169,37 @@ export class Canvas {
 
     getViewCount() {
         return this.#rootView.getViewCount();
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Conversions
+    // -------------------------------------------------------------------------
+
+    toLocalPointXY(x, y, fromView, out = new Vec2()) {
+        if (fromView) {
+            fromView.getWorldMatrix().transformPointXY(x, y, out);
+        } else {
+            out.set(x, y);
+        }
+        return out;
+    }
+
+    toLocalPoint(point, fromView, out = new Vec2()) {
+        return this.toLocalPointXY(point.x, point.y, fromView, out);
+    }
+
+    toLocalVectorXY(x, y, fromView, out = new Vec2()) {
+        if (fromView) {
+            fromView.getWorldMatrix().transformVectorXY(x, y, out);
+        } else {
+            out.set(x, y);
+        }
+        return out;
+
+    }
+
+    toLocalVector(vector, fromView, out = new Vec2()) {
+        return this.toLocalVectorXY(vector.x, vector.y, fromView, out);
     }
 
     // -------------------------------------------------------------------------

@@ -108,7 +108,7 @@ export class SceneView extends View {
             return null;
         }
 
-        const localPoint = this.parentToLocalPoint(point);
+        const localPoint = this.toLocalPoint(point, this.parent);
         if (!this.containsPoint(localPoint)) { return null; }
 
         const view = this.#contentView.pickView(localPoint);
@@ -121,7 +121,7 @@ export class SceneView extends View {
 
     translateContent(dx, dy, coordinateSpace = CoordinateSpace.LOCAL) {
         if (coordinateSpace === CoordinateSpace.CONTENT) {
-            const localDelta = this.#contentView.localToParentVectorXY(dx, dy);
+            const localDelta = this.toLocalVectorXY(dx, dy, this.#contentView);
             this.#contentView.translate(localDelta);
 
         } else if (coordinateSpace === CoordinateSpace.LOCAL) {
@@ -141,7 +141,7 @@ export class SceneView extends View {
         let dy = this.#contentView.transform.y;
 
         if (coordinateSpace === CoordinateSpace.CONTENT) {
-            const anchor = this.#contentView.localToParentPointXY(anchorX, anchorY);
+            const anchor = this.toLocalPointXY(anchorX, anchorY, this.#contentView);
             dx -= anchor.x;
             dy -= anchor.y;
             this.#contentView.transform.setPositionXY(
@@ -170,7 +170,7 @@ export class SceneView extends View {
         const sin = Math.sin(radians);
 
         if (coordinateSpace === CoordinateSpace.CONTENT) {
-            const localPivot = this.#contentView.localToParentPointXY(pivotX, pivotY);
+            const localPivot = this.toLocalPointXY(pivotX, pivotY, this.#contentView);
             dx -= localPivot.x;
             dy -= localPivot.y;
             this.#contentView.transform.setPositionXY(
@@ -200,7 +200,7 @@ export class SceneView extends View {
 
         } else if (coordinateSpace === CoordinateSpace.LOCAL) {
             const contentPoint = new Vec2(x, y);
-            this.#contentView.parentToLocalPoint(contentPoint, contentPoint);
+            this.#contentView.toLocalPoint(contentPoint, this, contentPoint);
             this.#contentView.setPivot(contentPoint);
         }
 

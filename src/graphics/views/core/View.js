@@ -449,7 +449,7 @@ export class View {
         }
 
         const bounds = this.bounds;
-        const localPoint = this.parentToLocalPoint(point);
+        const localPoint = this.toLocalPoint(point, this.parent);
 
         // If the bounds are empty, we can treat this as a passthrough.
         if (!bounds.isEmpty() && !this.containsPoint(localPoint)) {
@@ -474,94 +474,65 @@ export class View {
     // MARK: - Conversions
     // -------------------------------------------------------------------------
 
-    static convertPoint(point, fromView, toView, out = new Vec2()) {
-        if (fromView === toView) {
-            return out.copy(point);
-        }
-        if (fromView && toView === fromView.parent) {
-            return fromView.localToParentPoint(point, out);
-        }
-        if (toView && fromView === toView.parent) {
-            return toView.parentToLocalPoint(point, out);
-        }
-
-        out.copy(point);
-
-        const matrix = new Matrix2();
+    toLocalPointXY(x, y, fromView, out = new Vec2()) {
         if (fromView) {
-            fromView.getWorldMatrix(matrix).transformPoint(out, out);
-        }
-        if (toView) {
-            toView.getInverseWorldMatrix(matrix).transformPoint(out, out);
-        }
-        return out;
-    }
+            if (fromView === this) {
+                return out.set(x, y);
+            }
+            if (fromView === this.parent) {
+                return this.transform.inverseTransformPointXY(x, y, out);
+            }
+            if (this === fromView.parent) {
+                return fromView.transform.transformPointXY(x, y, out);
+            }
 
-    static convertVector(vector, fromView, toView, out = new Vec2()) {
-        if (fromView === toView) {
-            return out.copy(vector);
-        }
-        if (fromView && toView === fromView.parent) {
-            return fromView.localToParentVector(vector, out);
-        }
-        if (toView && fromView === toView.parent) {
-            return toView.parentToLocalVector(vector, out);
+            const matrix = new Matrix2();
+            fromView.getWorldMatrix(matrix).transformPointXY(x, y, out);
+            this.getInverseWorldMatrix(matrix).transformPointXY(out.x, out.y, out);
+
+        } else {
+            const matrix = new Matrix2();
+            this.getInverseWorldMatrix(matrix).transformPointXY(x, y, out);
         }
 
-        out.copy(vector);
-
-        const matrix = new Matrix2();
-        if (fromView) {
-            fromView.getWorldMatrix(matrix).transformVector(out, out);
-        }
-        if (toView) {
-            toView.getInverseWorldMatrix(matrix).transformVector(out, out);
-        }
         return out;
     }
 
     toLocalPoint(point, fromView, out = new Vec2()) {
-        return View.convertPoint(point, fromView, this, out);
+        return this.toLocalPointXY(point.x, point.y, fromView, out);
     }
 
-    localToParentPointXY(x, y, out = new Vec2()) {
-        return this.#transform.transformPointXY(x, y, out);
+    toLocalVectorXY(x, y, fromView, out = new Vec2()) {
+        if (fromView) {
+            if (fromView === this) {
+                return out.set(x, y);
+            }
+            if (fromView === this.parent) {
+                return this.transform.inverseTransformVectorXY(x, y, out);
+            }
+            if (this === fromView.parent) {
+                return fromView.transform.transformVectorXY(x, y, out);
+            }
+
+            const matrix = new Matrix2();
+            fromView.getWorldMatrix(matrix).transformVectorXY(x, y, out);
+            this.getInverseWorldMatrix(matrix).transformVectorXY(out.x, out.y, out);
+
+        } else {
+            const matrix = new Matrix2();
+            this.getInverseWorldMatrix(matrix).transformVectorXY(x, y, out);
+        }
+
+        return out;
     }
 
-    localToParentPoint(point, out = new Vec2()) {
-        return this.#transform.transformPoint(point, out);
+    toLocalVector(vector, fromView, out = new Vec2()) {
+        return this.toLocalVectorXY(vector.x, vector.y, fromView, out);
     }
 
-    localToParentVectorXY(x, y, out = new Vec2()) {
-        return this.#transform.transformVectorXY(x, y, out);
-    }
-
-    localToParentVector(vector, out = new Vec2()) {
-        return this.#transform.transformVector(vector, out);
-    }
 
     localToParentBounds(bounds, out = new Bounds()) {
         return this.#transform.transformBounds(bounds, out);
-    }
-
-    parentToLocalPointXY(x, y, out = new Vec2()) {
-        return this.#transform.inverseTransformPointXY(x, y, out);
-    }
-
-    parentToLocalPoint(point, out = new Vec2()) {
-        return this.#transform.inverseTransformPoint(point, out);
-    }
-
-    parentToLocalVectorXY(x, y, out = new Vec2()) {
-        return this.#transform.inverseTransformVectorXY(x, y, out);
-    }
-
-    parentToLocalVector(vector, out = new Vec2()) {
-        return this.#transform.inverseTransformVector(vector, out);
-    }
-
-    parentToLocalBounds(bounds, out = new Bounds()) {
-        return this.#transform.inverseTransformBounds(bounds, out);
     }
 
     // -------------------------------------------------------------------------
