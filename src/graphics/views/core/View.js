@@ -293,7 +293,7 @@ export class View {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Parent 
+    // MARK: - Parent Management 
     // -------------------------------------------------------------------------
 
     /**
@@ -322,31 +322,20 @@ export class View {
         return this;
     }
 
-    /**
-     * Checks if this view is a descendant of the given view.
-     * @param {View} view - The view to check.
-     * @returns {boolean} True if this view is a descendant of the given view, false otherwise.
-     */
-    isDescendantOf(view) {
-        let current = this.parent;
-        while (current !== null) {
-            if (current === view) { return true; }
-            current = current.parent;
-        }
-        return false;
+    sendToBack() {
+        if (!this.parent) { return this; }
+        this.parent.setViewIndex(this, 0);
+        return this;
     }
 
-    /**
-     * Checks if this view is an ancestor of the given view.
-     * @param {View} view - The view to check.
-     * @returns {boolean} True if this view is an ancestor of the given view, false otherwise.
-     */
-    isAncestorOf(view) {
-        return view.isDescendantOf(this);
+    bringToFront() {
+        if (!this.parent) { return this; }
+        this.parent.setViewIndex(this, this.parent.getViewCount() - 1);
+        return this;
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Children 
+    // MARK: - Child Management 
     // -------------------------------------------------------------------------
 
     /**
@@ -358,6 +347,10 @@ export class View {
      * @throws {Error} If adding self or an ancestor view.
      */
     addView(view) {
+        return this.addViewAt(view, this.#views.length);
+    }
+
+    addViewAt(view, index) {
         if (view.parent === this) { return this; }
 
         // Ensure we aren't adding this view to itself even indirectly.
@@ -375,12 +368,11 @@ export class View {
         }
 
         // Add the view.
-        this.#views.push(view);
+        this.#views.splice(index, 0, view);
         view.#setParent(this);
-
-        // The child view may have changed the bounds of this view.
         this.invalidateBounds();
-        return this;
+        
+        return this;        
     }
 
     /**
@@ -390,10 +382,8 @@ export class View {
      * @returns {View} This.
      */
     removeView(view) {
-        if (view.parent !== this) { return this; }
-        if (view === this) { return this; }
+        if (view.parent !== this || view === this) { return this; }
 
-        // Find the index of the view in the child views array.
         const index = this.#views.indexOf(view);
         if (index === -1) {
             // This should never happen because the view's parent reference 
@@ -403,12 +393,17 @@ export class View {
             return this;
         }
 
-        // Remove the view.
+        return this.removeViewAt(index);
+    }
+
+    removeViewAt(index) {
+        const view = this.#views[index];
+        if (!view) { return this; }
+
         this.#views.splice(index, 1);
         view.#setParent(null);
-
-        // The child view may have changed the bounds of this view.
         this.invalidateBounds();
+
         return this;
     }
 
@@ -433,6 +428,10 @@ export class View {
         return this.#views.slice();
     }
 
+    getViewAt(index) {
+        return this.#views[index] ?? null;
+    }
+
     /**
      * Gets the number of child views. This is the preferred method for getting 
      * the number of child views as it does not create a copy of the views 
@@ -442,6 +441,55 @@ export class View {
     getViewCount() {
         return this.#views.length;
     }
+
+    getViewIndex(view) {
+        return this.#views.indexOf(view);
+    }
+
+    setViewIndex(view, index) {
+        const currentIndex = this.#views.indexOf(view);
+        if (currentIndex === -1) {
+            throw new Error("View is not a child of this view");
+        }
+
+        this.#views.splice(currentIndex, 1);
+        this.#views.splice(index, 0, view);
+    }
+
+    hasView(view) {
+        return this.#views.indexOf(view) !== -1;
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Hierarchy Queries
+    // -------------------------------------------------------------------------
+
+    /**
+     * Checks if this view is a descendant of the given view.
+     * @param {View} view - The view to check.
+     * @returns {boolean} True if this view is a descendant of the given view, false otherwise.
+     */
+    isDescendantOf(view) {
+        let current = this.parent;
+        while (current !== null) {
+            if (current === view) { return true; }
+            current = current.parent;
+        }
+        return false;
+    }
+
+    /**
+     * Checks if this view is an ancestor of the given view.
+     * @param {View} view - The view to check.
+     * @returns {boolean} True if this view is an ancestor of the given view, false otherwise.
+     */
+    isAncestorOf(view) {
+        return view.isDescendantOf(this);
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Hit Testing
+    // -------------------------------------------------------------------------
 
     pickView(point) {
         if (this.#isVisible === false || this.#isPickable === false) {
