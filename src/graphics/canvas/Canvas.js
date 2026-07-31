@@ -149,11 +149,16 @@ export class Canvas {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Children
+    // MARK: - Child Management
     // -------------------------------------------------------------------------
 
     addView(view) {
         this.#rootView.addView(view);
+        return this;
+    }
+
+    addViewAt(view, index) {
+        this.#rootView.addViewAt(view, index);
         return this;
     }
 
@@ -162,13 +167,39 @@ export class Canvas {
         return this;
     }
 
+    removeViewAt(index) {
+        this.#rootView.removeViewAt(index);
+        return this;
+    }
+
     removeAllViews() {
         this.#rootView.removeAllViews();
         return this;
     }
 
+    getViews() {
+        return this.#rootView.getViews();
+    }
+
+    getViewAt(index) {
+        return this.#rootView.getViewAt(index);
+    }
+
     getViewCount() {
         return this.#rootView.getViewCount();
+    }
+
+    getViewIndex(view) {
+        return this.#rootView.getViewIndex(view);
+    }
+
+    setViewIndex(view, index) {
+        this.#rootView.setViewIndex(view, index);
+        return this;
+    }
+
+    hasView(view) {
+        return this.#rootView.hasView(view);
     }
 
     // -------------------------------------------------------------------------
