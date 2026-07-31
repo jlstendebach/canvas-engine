@@ -322,12 +322,20 @@ export class View {
         return this;
     }
 
+    /**
+     * Sends this view to the back of its parent's child list.
+     * @returns {View} This.
+     */
     sendToBack() {
         if (!this.parent) { return this; }
         this.parent.setViewIndex(this, 0);
         return this;
     }
 
+    /**
+     * Brings this view to the front of its parent's child list.
+     * @returns {View} This.
+     */
     bringToFront() {
         if (!this.parent) { return this; }
         this.parent.setViewIndex(this, this.parent.getViewCount() - 1);
@@ -350,6 +358,15 @@ export class View {
         return this.addViewAt(view, this.#views.length);
     }
 
+    /**
+     * Adds a child view to this view at the specified index if it is not 
+     * already a child of this view. If it is, this method does nothing. If the 
+     * view already has a parent that is not this view, it is removed from that 
+     * parent first.
+     * @param {View} view - The child view to add.
+     * @param {number} index - The index at which to add the child view.
+     * @returns {View} This.
+     */
     addViewAt(view, index) {
         if (view.parent === this) { return this; }
 
@@ -396,6 +413,11 @@ export class View {
         return this.removeViewAt(index);
     }
 
+    /**
+     * Removes the child view at the specified index.
+     * @param {number} index - The index of the child view to remove.
+     * @returns {View} This.
+     */
     removeViewAt(index) {
         const view = this.#views[index];
         if (!view) { return this; }
@@ -428,6 +450,12 @@ export class View {
         return this.#views.slice();
     }
 
+    /**
+     * Gets the child view at the specified index.
+     * @param {number} index - The index of the child view to get.
+     * @returns {View|null} The child view at the specified index, or null if it 
+     *     does not exist.
+     */
     getViewAt(index) {
         return this.#views[index] ?? null;
     }
@@ -442,10 +470,23 @@ export class View {
         return this.#views.length;
     }
 
+    /**
+     * Gets the index of the specified child view.
+     * @param {View} view - The child view to get the index of.
+     * @returns {number} The index of the child view, or -1 if it is not a child
+     *     of this view.
+     */
     getViewIndex(view) {
         return this.#views.indexOf(view);
     }
 
+    /**
+     * Sets the index of the specified child view.
+     * @param {View} view - The child view to set the index of.
+     * @param {number} index - The new index of the child view.
+     * @returns {View} This.
+     * @throws {Error} If the view is not a child of this view.
+     */
     setViewIndex(view, index) {
         const currentIndex = this.#views.indexOf(view);
         if (currentIndex === -1) {
@@ -454,8 +495,16 @@ export class View {
 
         this.#views.splice(currentIndex, 1);
         this.#views.splice(index, 0, view);
+
+        return this;
     }
 
+    /**
+     * Checks if the specified view is a child of this view.
+     * @param {View} view - The view to check.
+     * @returns {boolean} True if the view is a child of this view, false 
+     *     otherwise.
+     */
     hasView(view) {
         return this.#views.indexOf(view) !== -1;
     }
