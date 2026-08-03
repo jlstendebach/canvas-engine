@@ -1,5 +1,5 @@
 import { View } from "@canvas-engine";
-import { describe, expect, test } from "@jest/globals";
+import { jest, describe, expect, test } from "@jest/globals";
 
 describe("View", () => {
 
@@ -58,10 +58,6 @@ describe("View", () => {
             expect(view.parent).toBe(parent);
             expect(parent.getViewIndex(view)).toBe(0);
 
-            // Ensure the view isn't removed then added again, changing 
-            // its index.
-            parent.addView(new View());
-            parent.addView(new View());
             view.addToParent(parent);
             expect(view.parent).toBe(parent);
             expect(parent.getViewIndex(view)).toBe(0);
@@ -147,6 +143,9 @@ describe("View", () => {
     });
 
     describe("bringToFront()", () => {
+
+        // -- Normal cases --
+
         test("brings view to front of the z-order", () => {
             const parent = new View();
             const view1 = new View().addToParent(parent);
@@ -160,12 +159,6 @@ describe("View", () => {
             expect(parent.getViews()).toEqual([view2, view1, view3]);
         });
 
-        test("is no-op if view has no parent", () => {
-            const view = new View();
-            expect(() => view.bringToFront()).not.toThrow();
-            expect(view.parent).toBeNull();
-        });
-
         test("returns this for chaining", () => {
             const parent = new View();
             const view = new View()
@@ -177,6 +170,14 @@ describe("View", () => {
             view.addToParent(parent);
             expect(view.bringToFront()).toBe(view);
         });
+        
+        // -- Edge cases --
+
+        test("is no-op if view has no parent", () => {
+            const view = new View();
+            expect(() => view.bringToFront()).not.toThrow();
+            expect(view.parent).toBeNull();
+        });
     });
 
     // -------------------------------------------------------------------------
@@ -184,14 +185,10 @@ describe("View", () => {
     // -------------------------------------------------------------------------
 
     describe("addView(view)", () => {
-
-        // -- Normal behaviors --
-
-        test("adds view to the end of the child views", () => {
+        test("adds view to end of children", () => {
             const parent = new View();
             const view1 = new View();
             const view2 = new View();
-            const view3 = new View();
 
             parent.addView(view1);
             expect(parent.getViews()).toEqual([view1]);
@@ -200,10 +197,62 @@ describe("View", () => {
             parent.addView(view2);
             expect(parent.getViews()).toEqual([view1, view2]);
             expect(view2.parent).toBe(parent);
+        });
 
-            parent.addView(view3);
-            expect(parent.getViews()).toEqual([view1, view2, view3]);
+        test("calls addViewAt(view, Infinity)", () => {
+            const parent = new View();
+            const view = new View();
+
+            // Spy on addViewAt
+            const addViewAtSpy = jest.spyOn(parent, "addViewAt");
+            parent.addView(view);
+            expect(addViewAtSpy).toHaveBeenCalledWith(view, Infinity);
+        });
+
+        test("returns this for chaining", () => {
+            const parent = new View();
+            const view = new View();
+
+            expect(parent.addView(view)).toBe(parent);
+        });
+    });
+
+    describe("addViewAt(view, index)", () => {
+
+        // -- Normal behaviors --
+
+        test("adds view at specified index", () => {
+            const parent = new View();
+            const view1 = new View();
+            const view2 = new View();
+            const view3 = new View();
+            const view4 = new View();
+            const view5 = new View();
+            const view6 = new View();
+
+            parent.addViewAt(view1, 0);
+            expect(parent.getViews()).toEqual([view1]);
+            expect(view1.parent).toBe(parent);
+
+            parent.addViewAt(view2, 1);
+            expect(parent.getViews()).toEqual([view1, view2]);
+            expect(view2.parent).toBe(parent);
+
+            parent.addViewAt(view3, 1);
+            expect(parent.getViews()).toEqual([view1, view3, view2]);
             expect(view3.parent).toBe(parent);
+
+            parent.addViewAt(view4, 0);
+            expect(parent.getViews()).toEqual([view4, view1, view3, view2]);
+            expect(view4.parent).toBe(parent);
+
+            parent.addViewAt(view5, Infinity);
+            expect(parent.getViews()).toEqual([view4, view1, view3, view2, view5]);
+            expect(view5.parent).toBe(parent);
+
+            parent.addViewAt(view6, -1);
+            expect(parent.getViews()).toEqual([view4, view1, view3, view2, view6, view5]);
+            expect(view6.parent).toBe(parent);
         });
 
         test("removes view from previous parent if it has one", () => {
@@ -211,12 +260,12 @@ describe("View", () => {
             const parent2 = new View();
             const view = new View();
 
-            parent1.addView(view);
+            parent1.addViewAt(view, 0);
             expect(parent1.getViews()).toEqual([view]);
             expect(parent2.getViews()).toEqual([]);
             expect(view.parent).toBe(parent1);
 
-            parent2.addView(view);
+            parent2.addViewAt(view, 0);
             expect(parent1.getViews()).toEqual([]);
             expect(parent2.getViews()).toEqual([view]);
             expect(view.parent).toBe(parent2);
@@ -226,7 +275,15 @@ describe("View", () => {
             const parent = new View();
             const view = new View();
 
-            expect(parent.addView(view)).toBe(parent);
+            // No parent
+            expect(parent.addViewAt(view, 0)).toBe(parent);
+
+            // Same parent
+            expect(parent.addViewAt(view, 0)).toBe(parent);
+
+            // Different parent
+            const newParent = new View();
+            expect(newParent.addViewAt(view, 0)).toBe(newParent);
         });
 
         // -- Edge cases --
@@ -234,10 +291,10 @@ describe("View", () => {
         test("throws if view is null or undefined", () => {
             const parent = new View();
 
-            expect(() => parent.addView(null)).toThrow(
+            expect(() => parent.addViewAt(null, 0)).toThrow(
                 "Cannot add null or undefined view"
             );
-            expect(() => parent.addView(undefined)).toThrow(
+            expect(() => parent.addViewAt(undefined, 0)).toThrow(
                 "Cannot add null or undefined view"
             );
             expect(parent.getViews()).toEqual([]);
@@ -246,7 +303,7 @@ describe("View", () => {
         test("throws if view is this view", () => {
             const parent = new View();
 
-            expect(() => parent.addView(parent)).toThrow(
+            expect(() => parent.addViewAt(parent, 0)).toThrow(
                 "Cannot add a view to itself"
             );
             expect(parent.getViews()).toEqual([]);
@@ -256,11 +313,11 @@ describe("View", () => {
             const parent = new View();
             const view = new View();
 
-            parent.addView(view);
+            parent.addViewAt(view, 0);
             expect(parent.getViews()).toEqual([view]);
             expect(view.parent).toBe(parent);
 
-            parent.addView(view);
+            parent.addViewAt(view, 0);
             expect(parent.getViews()).toEqual([view]);
             expect(view.parent).toBe(parent);
         });
@@ -270,7 +327,7 @@ describe("View", () => {
             const parent = new View().addToParent(grandparent);
             const child = new View().addToParent(parent);
 
-            expect(() => child.addView(grandparent)).toThrow(
+            expect(() => child.addViewAt(grandparent, 0)).toThrow(
                 "Cannot add an ancestor view as a child"
             );
             expect(grandparent.getViews()).toEqual([parent]);
@@ -282,16 +339,13 @@ describe("View", () => {
             const parent = new View();
             const view = new MockViewWithFixedParent();
 
-            expect(() => parent.addView(view)).toThrow(
+            expect(() => parent.addViewAt(view, 0)).toThrow(
                 "Failed to remove view from its current parent"
             );
             expect(parent.getViews()).toEqual([]);
             expect(view.parent).not.toBe(parent);
         });
 
-    });
-
-    describe("addViewAt(view, index)", () => {
     });
 
     describe("removeView(view)", () => {

@@ -358,7 +358,7 @@ export class View {
      * @throws {Error} If adding self or an ancestor view.
      */
     addView(view) {
-        return this.addViewAt(view, this.#views.length);
+        return this.addViewAt(view, Infinity);
     }
 
     /**
