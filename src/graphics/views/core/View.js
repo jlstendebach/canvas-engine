@@ -302,9 +302,12 @@ export class View {
      * this method does nothing.
      * @param {View} parent - The parent view to add this view to.
      * @returns {View} This.
+     * @throws {Error} If the parent is null or undefined.
      */
     addToParent(parent) {
-        if (!parent) { return this; }
+        if (!parent) {
+            throw new Error("Parent view cannot be null or undefined.");
+        }
         if (parent === this.parent) { return this; }
         parent.addView(this);
         return this;
@@ -368,11 +371,14 @@ export class View {
      * @returns {View} This.
      */
     addViewAt(view, index) {
-        if (view.parent === this) { return this; }
-
-        // Ensure we aren't adding this view to itself even indirectly.
+        if (!view) {
+            throw new Error("Cannot add null or undefined view");
+        }
         if (view === this) {
             throw new Error("Cannot add a view to itself");
+        }
+        if (view.parent === this) {
+            return this;
         }
         if (view.isAncestorOf(this)) {
             throw new Error("Cannot add an ancestor view as a child");
@@ -388,8 +394,8 @@ export class View {
         this.#views.splice(index, 0, view);
         view.#setParent(this);
         this.invalidateBounds();
-        
-        return this;        
+
+        return this;
     }
 
     /**
