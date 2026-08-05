@@ -508,6 +508,21 @@ describe("View", () => {
     });
 
     describe("removeAllViews()", () => {
+        const parent = new View();
+        const view1 = new View();
+        const view2 = new View();
+        const view3 = new View();
+
+        parent.addView(view1);
+        parent.addView(view2);
+        parent.addView(view3);
+        expect(parent.getViews()).toEqual([view1, view2, view3]);
+
+        parent.removeAllViews();
+        expect(parent.getViews()).toEqual([]);
+        expect(view1.parent).toBeNull();
+        expect(view2.parent).toBeNull();
+        expect(view3.parent).toBeNull();
     });
 
     describe("getViews()", () => {
