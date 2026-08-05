@@ -170,7 +170,7 @@ describe("View", () => {
             view.addToParent(parent);
             expect(view.bringToFront()).toBe(view);
         });
-        
+
         // -- Edge cases --
 
         test("is no-op if view has no parent", () => {
@@ -349,6 +349,118 @@ describe("View", () => {
     });
 
     describe("removeView(view)", () => {
+
+        // -- Normal cases --
+
+        test("removes view by reference by calling removeViewAt(index)", () => {
+            const parent = new View();
+            const view1 = new View();
+            const view2 = new View();
+            const view3 = new View();
+            const view4 = new View();
+            const removeViewAtSpy = jest.spyOn(parent, "removeViewAt");
+
+            parent.addView(view1);
+            parent.addView(view2);
+            parent.addView(view3);
+            parent.addView(view4);
+            expect(parent.getViews()).toEqual([view1, view2, view3, view4]);
+
+            parent.removeView(view2);
+            expect(parent.getViews()).toEqual([view1, view3, view4]);
+            expect(view2.parent).toBeNull();
+            expect(removeViewAtSpy).toHaveBeenCalledWith(1);
+
+            parent.removeView(view4);
+            expect(parent.getViews()).toEqual([view1, view3]);
+            expect(view4.parent).toBeNull();
+            expect(removeViewAtSpy).toHaveBeenCalledWith(2);
+
+            parent.removeView(view1);
+            expect(parent.getViews()).toEqual([view3]);
+            expect(view1.parent).toBeNull();
+            expect(removeViewAtSpy).toHaveBeenCalledWith(0);
+
+            parent.removeView(view3);
+            expect(parent.getViews()).toEqual([]);
+            expect(view3.parent).toBeNull();
+            expect(removeViewAtSpy).toHaveBeenCalledWith(0);
+        });
+
+        test("returns this for chaining", () => {
+            const parent = new View();
+            const view = new View();
+
+            // Parent is this view
+            parent.addView(view);
+            expect(parent.removeView(view)).toBe(parent);
+
+            // Parent is not this view
+            expect(view.parent).toBeNull();
+            expect(parent.removeView(view)).toBe(parent);
+
+            // Null or undefined
+            expect(parent.removeView(null)).toBe(parent);
+            expect(parent.removeView(undefined)).toBe(parent);
+
+            // Self
+            expect(parent.removeView(parent)).toBe(parent);
+        });
+
+        // -- Edge cases --
+
+        test("is no-op if view is null or undefined", () => {
+            const parent = new View();
+            const removeViewAtSpy = jest.spyOn(parent, "removeViewAt");
+
+            parent.removeView(null);
+            parent.removeView(undefined);
+            expect(removeViewAtSpy).not.toHaveBeenCalled();
+        });
+
+        test("is no-op if view is this view", () => {
+            const parent = new View();
+            const removeViewAtSpy = jest.spyOn(parent, "removeViewAt");
+
+            parent.removeView(parent);
+            expect(removeViewAtSpy).not.toHaveBeenCalled();
+        });
+
+        test("is no-op if view is not a child of this view", () => {
+            const parent1 = new View();
+            const parent2 = new View();
+            const view = new View();
+            const removeViewAtSpy1 = jest.spyOn(parent1, "removeViewAt");
+            const removeViewAtSpy2 = jest.spyOn(parent2, "removeViewAt");
+
+            parent1.addView(view);
+            parent2.removeView(view);
+            expect(removeViewAtSpy1).not.toHaveBeenCalled();
+            expect(removeViewAtSpy2).not.toHaveBeenCalled();
+        });
+
+        test("clears parent reference if child lookup fails despite parent match", () => {
+            const parent = new View();
+            const view = new View();
+            const removeViewAtSpy = jest.spyOn(parent, "removeViewAt");
+
+            // Simulate a corrupted state: child reports this parent, but parent
+            // never actually contains child in its internal child list.
+            Object.defineProperty(view, "parent", {
+                get: () => parent,
+                configurable: true,
+            });
+
+            parent.removeView(view);
+
+            // Remove shadowed getter so we can observe real private parent 
+            // state.
+            delete view.parent;
+
+            expect(view.parent).toBeNull();
+            expect(parent.getViews()).toEqual([]);
+            expect(removeViewAtSpy).not.toHaveBeenCalled();
+        });
     });
 
     describe("removeViewAt(index)", () => {
@@ -376,18 +488,22 @@ describe("View", () => {
             parent.removeViewAt(0);
             expect(parent.getViews()).toEqual([view3]);
             expect(view1.parent).toBeNull();
+
+            parent.removeViewAt(0);
+            expect(parent.getViews()).toEqual([]);
+            expect(view3.parent).toBeNull();
         });
 
         test("returns this for chaining", () => {
             const parent = new View();
             const view = new View();
 
-            // Child found
+            // Valid index
             parent.addView(view);
             expect(parent.removeViewAt(0)).toBe(parent);
 
-            // Child not found
-            expect(parent.removeViewAt(0)).toBe(parent);            
+            // Invalid index
+            expect(parent.removeViewAt(0)).toBe(parent);
         });
     });
 
