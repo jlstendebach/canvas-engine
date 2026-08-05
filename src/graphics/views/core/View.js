@@ -297,9 +297,9 @@ export class View {
     // -------------------------------------------------------------------------
 
     /**
-     * Convenience method that calls the parent view's addView method. If the 
-     * parent is not provided, is null, or is the same as the current parent, 
-     * this method does nothing.
+     * Convenience method that calls the parent view's addView method.
+     * If the provided parent is already the current parent, this method does
+     * nothing.
      * @param {View} parent - The parent view to add this view to.
      * @returns {View} This.
      * @throws {Error} If the parent is null or undefined.
@@ -367,7 +367,10 @@ export class View {
      * view already has a parent that is not this view, it is removed from that 
      * parent first.
      * @param {View} view - The child view to add.
-     * @param {number} index - The index at which to add the child view.
+     * @param {number} index - The index at which to add the child view. Index
+     *     handling follows `Array.prototype.splice` semantics (for example,
+     *     negative indices are offset from the end and large positive values
+     *     append).
      * @returns {View} This.
      */
     addViewAt(view, index) {
@@ -423,14 +426,16 @@ export class View {
 
     /**
      * Removes the child view at the specified index.
-     * @param {number} index - The index of the child view to remove.
+     * @param {number} index - The index of the child view to remove. Index
+     *     handling follows `Array.prototype.splice` semantics (for example,
+     *     negative indices are offset from the end). If no child exists at the
+     *     resolved index, this is a no-op.
      * @returns {View} This.
      */
     removeViewAt(index) {
-        const view = this.#views[index];
+        const view = this.#views.splice(index, 1)[0];
         if (!view) { return this; }
 
-        this.#views.splice(index, 1);
         view.#setParent(null);
         this.invalidateBounds();
 
@@ -491,7 +496,9 @@ export class View {
     /**
      * Sets the index of the specified child view.
      * @param {View} view - The child view to set the index of.
-     * @param {number} index - The new index of the child view.
+     * @param {number} index - The new index of the child view. Index handling 
+     *     follows `Array.prototype.splice` semantics (for example, negative 
+     *     indices are offset from the end and large positive values append).
      * @returns {View} This.
      * @throws {Error} If the view is not a child of this view.
      */
@@ -505,12 +512,14 @@ export class View {
 
         const currentIndex = this.#views.indexOf(view);
         if (currentIndex === -1) {
-            throw new Error("View was not found the list of child views");
+            throw new Error("View was not found in the list of child views");
+        }
+        if (currentIndex === index) {
+            return this;
         }
 
         this.#views.splice(currentIndex, 1);
         this.#views.splice(index, 0, view);
-
         return this;
     }
 
@@ -531,7 +540,8 @@ export class View {
     /**
      * Checks if this view is a descendant of the given view.
      * @param {View} view - The view to check.
-     * @returns {boolean} True if this view is a descendant of the given view, false otherwise.
+     * @returns {boolean} True if this view is a descendant of the given view, 
+     *     false otherwise.
      */
     isDescendantOf(view) {
         if (!view || view === this) { return false; }
@@ -547,7 +557,8 @@ export class View {
     /**
      * Checks if this view is an ancestor of the given view.
      * @param {View} view - The view to check.
-     * @returns {boolean} True if this view is an ancestor of the given view, false otherwise.
+     * @returns {boolean} True if this view is an ancestor of the given view, 
+     *     false otherwise.
      */
     isAncestorOf(view) {
         if (!view || view === this) { return false; }
@@ -657,7 +668,8 @@ export class View {
     /**
      * Checks if a point in local space is contained within this view. 
      * @param {Vec2} point - The point in local space.
-     * @returns {boolean} True if the point is inside this view, false otherwise.
+     * @returns {boolean} True if the point is inside this view, false 
+     *     otherwise.
      */
     containsPoint(point) {
         void point;
@@ -748,7 +760,8 @@ export class View {
      * @param {CanvasRenderingContext2D} context - The canvas drawing context.
      */
     onDraw(context) {
-        // Base view does not draw anything. Subclasses should override this method.
+        // Base view does not draw anything. Subclasses should override this 
+        // method.
         void context;
     }
 
@@ -767,7 +780,8 @@ export class View {
     // -------------------------------------------------------------------------
 
     onChildBoundsInvalidated() {
-        // Subclasses can override this method to respond to child bounds changes.
+        // Subclasses can override this method to respond to child bounds 
+        // changes.
     }
 
     onTransformInvalidated() {

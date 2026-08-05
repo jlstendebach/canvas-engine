@@ -229,6 +229,8 @@ describe("View", () => {
             const view4 = new View();
             const view5 = new View();
             const view6 = new View();
+            const view7 = new View();
+            const view8 = new View();
 
             parent.addViewAt(view1, 0);
             expect(parent.getViews()).toEqual([view1]);
@@ -253,6 +255,12 @@ describe("View", () => {
             parent.addViewAt(view6, -1);
             expect(parent.getViews()).toEqual([view4, view1, view3, view2, view6, view5]);
             expect(view6.parent).toBe(parent);
+
+            parent.addViewAt(view7, Number.NaN);
+            expect(parent.getViews()).toEqual([view7, view4, view1, view3, view2, view6, view5]);
+
+            parent.addViewAt(view8, 1.8);
+            expect(parent.getViews()).toEqual([view7, view8, view4, view1, view3, view2, view6, view5]);
         });
 
         test("removes view from previous parent if it has one", () => {
@@ -470,28 +478,40 @@ describe("View", () => {
             const view2 = new View();
             const view3 = new View();
             const view4 = new View();
+            const view5 = new View();
+            const view6 = new View();
 
             parent.addView(view1);
             parent.addView(view2);
             parent.addView(view3);
             parent.addView(view4);
-            expect(parent.getViews()).toEqual([view1, view2, view3, view4]);
+            parent.addView(view5);
+            parent.addView(view6);
+            expect(parent.getViews()).toEqual([view1, view2, view3, view4, view5, view6]);
+
+            parent.removeViewAt(Number.NaN);
+            expect(parent.getViews()).toEqual([view2, view3, view4, view5, view6]);
+            expect(view1.parent).toBeNull();
+
+            parent.removeViewAt(1.8);
+            expect(parent.getViews()).toEqual([view2, view4, view5, view6]);
+            expect(view3.parent).toBeNull();
 
             parent.removeViewAt(1);
-            expect(parent.getViews()).toEqual([view1, view3, view4]);
-            expect(view2.parent).toBeNull();
-
-            parent.removeViewAt(2);
-            expect(parent.getViews()).toEqual([view1, view3]);
+            expect(parent.getViews()).toEqual([view2, view5, view6]);
             expect(view4.parent).toBeNull();
 
+            parent.removeViewAt(2);
+            expect(parent.getViews()).toEqual([view2, view5]);
+            expect(view6.parent).toBeNull();
+
             parent.removeViewAt(0);
-            expect(parent.getViews()).toEqual([view3]);
-            expect(view1.parent).toBeNull();
+            expect(parent.getViews()).toEqual([view5]);
+            expect(view2.parent).toBeNull();
 
             parent.removeViewAt(0);
             expect(parent.getViews()).toEqual([]);
-            expect(view3.parent).toBeNull();
+            expect(view5.parent).toBeNull();
         });
 
         test("returns this for chaining", () => {
@@ -612,20 +632,28 @@ describe("View", () => {
             const view1 = new View();
             const view2 = new View();
             const view3 = new View();
+            const view4 = new View();
 
             parent.addView(view1);
             parent.addView(view2);
             parent.addView(view3);
-            expect(parent.getViews()).toEqual([view1, view2, view3]);
+            parent.addView(view4);
+            expect(parent.getViews()).toEqual([view1, view2, view3, view4]);
 
             parent.setViewIndex(view1, 2);
-            expect(parent.getViews()).toEqual([view2, view3, view1]);
+            expect(parent.getViews()).toEqual([view2, view3, view1, view4]);
 
             parent.setViewIndex(view3, 0);
-            expect(parent.getViews()).toEqual([view3, view2, view1]);
+            expect(parent.getViews()).toEqual([view3, view2, view1, view4]);
 
             parent.setViewIndex(view2, 1);
-            expect(parent.getViews()).toEqual([view3, view2, view1]);
+            expect(parent.getViews()).toEqual([view3, view2, view1, view4]);
+
+            parent.setViewIndex(view4, Number.NaN);
+            expect(parent.getViews()).toEqual([view4, view3, view2, view1]);
+
+            parent.setViewIndex(view1, 1.8);
+            expect(parent.getViews()).toEqual([view4, view1, view3, view2]);
         });
 
         test("returns this for chaining", () => {
@@ -659,7 +687,7 @@ describe("View", () => {
             const parent = new View();
             const view = new MockViewWithFixedParent(parent);
             expect(() => parent.setViewIndex(view, 0)).toThrow(
-                "View was not found the list of child views"
+                "View was not found in the list of child views"
             );
         });
     });
