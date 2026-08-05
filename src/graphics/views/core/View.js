@@ -496,9 +496,16 @@ export class View {
      * @throws {Error} If the view is not a child of this view.
      */
     setViewIndex(view, index) {
+        if (!view) {
+            throw new Error("Cannot set index of null or undefined view");
+        } 
+        if (view.parent !== this) {
+            throw new Error("View is not a child of this view");
+        }
+
         const currentIndex = this.#views.indexOf(view);
         if (currentIndex === -1) {
-            throw new Error("View is not a child of this view");
+            throw new Error("View was not found the list of child views");
         }
 
         this.#views.splice(currentIndex, 1);

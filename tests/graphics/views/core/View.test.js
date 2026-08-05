@@ -604,6 +604,64 @@ describe("View", () => {
     });
 
     describe("setViewIndex(view, index)", () => {
+
+        // -- Normal cases --
+
+        test("moves view to specified index", () => {
+            const parent = new View();
+            const view1 = new View();
+            const view2 = new View();
+            const view3 = new View();
+
+            parent.addView(view1);
+            parent.addView(view2);
+            parent.addView(view3);
+            expect(parent.getViews()).toEqual([view1, view2, view3]);
+
+            parent.setViewIndex(view1, 2);
+            expect(parent.getViews()).toEqual([view2, view3, view1]);
+
+            parent.setViewIndex(view3, 0);
+            expect(parent.getViews()).toEqual([view3, view2, view1]);
+
+            parent.setViewIndex(view2, 1);
+            expect(parent.getViews()).toEqual([view3, view2, view1]);
+        });
+
+        test("returns this for chaining", () => {
+            const parent = new View();
+            const view = new View();
+            parent.addView(view);
+            expect(parent.setViewIndex(view, 0)).toBe(parent);
+        });
+
+        // -- Edge cases --
+
+        test("throws if view is null or undefined", () => {
+            const parent = new View();
+            expect(() => parent.setViewIndex(null, 0)).toThrow(
+                "Cannot set index of null or undefined view"
+            );
+            expect(() => parent.setViewIndex(undefined, 0)).toThrow(
+                "Cannot set index of null or undefined view"
+            );
+        });
+
+        test("throws if view is not a child of this view", () => {
+            const parent = new View();
+            const view = new View();
+            expect(() => parent.setViewIndex(view, 0)).toThrow(
+                "View is not a child of this view"
+            );
+        });
+
+        test("throws if child lookup fails despite parent match", () => {
+            const parent = new View();
+            const view = new MockViewWithFixedParent(parent);
+            expect(() => parent.setViewIndex(view, 0)).toThrow(
+                "View was not found the list of child views"
+            );
+        });
     });
 
     describe("hasView(view)", () => {
@@ -626,5 +684,10 @@ class MockViewWithFixedParent extends View {
 
     get parent() {
         return this.#parent;
+    }
+
+    constructor(parent = new View()) {
+        super();
+        this.#parent = parent;
     }
 }
