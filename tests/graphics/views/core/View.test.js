@@ -584,6 +584,23 @@ describe("View", () => {
     });
 
     describe("getViewIndex(view)", () => {
+        test("returns the index of the specified view", () => {
+            const parent = new View();
+            const view1 = new View();
+            const view2 = new View();
+            const view3 = new View();
+
+            parent.addView(view1);
+            parent.addView(view2);
+            parent.addView(view3);
+
+            expect(parent.getViewIndex(view1)).toBe(0);
+            expect(parent.getViewIndex(view2)).toBe(1);
+            expect(parent.getViewIndex(view3)).toBe(2);
+            expect(parent.getViewIndex(new View())).toBe(-1);
+            expect(parent.getViewIndex(null)).toBe(-1);
+            expect(parent.getViewIndex(undefined)).toBe(-1);
+        });
     });
 
     describe("setViewIndex(view, index)", () => {
