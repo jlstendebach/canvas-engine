@@ -665,6 +665,14 @@ describe("View", () => {
     });
 
     describe("hasView(view)", () => {
+        test("returns true if view is a child of this view", () => {
+            const parent = new View();
+            const view1 = new View();
+            const view2 = new View();
+            parent.addView(view1);
+            expect(parent.hasView(view1)).toBe(true);
+            expect(parent.hasView(view2)).toBe(false);
+        });
     });
 
     // -------------------------------------------------------------------------
