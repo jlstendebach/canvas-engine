@@ -219,7 +219,7 @@ describe("View", () => {
 
     describe("addViewAt(view, index)", () => {
 
-        // -- Normal behaviors --
+        // -- Normal cases --
 
         test("adds view at specified index", () => {
             const parent = new View();
@@ -352,6 +352,43 @@ describe("View", () => {
     });
 
     describe("removeViewAt(index)", () => {
+        test("removes view at specified index", () => {
+            const parent = new View();
+            const view1 = new View();
+            const view2 = new View();
+            const view3 = new View();
+            const view4 = new View();
+
+            parent.addView(view1);
+            parent.addView(view2);
+            parent.addView(view3);
+            parent.addView(view4);
+            expect(parent.getViews()).toEqual([view1, view2, view3, view4]);
+
+            parent.removeViewAt(1);
+            expect(parent.getViews()).toEqual([view1, view3, view4]);
+            expect(view2.parent).toBeNull();
+
+            parent.removeViewAt(2);
+            expect(parent.getViews()).toEqual([view1, view3]);
+            expect(view4.parent).toBeNull();
+
+            parent.removeViewAt(0);
+            expect(parent.getViews()).toEqual([view3]);
+            expect(view1.parent).toBeNull();
+        });
+
+        test("returns this for chaining", () => {
+            const parent = new View();
+            const view = new View();
+
+            // Child found
+            parent.addView(view);
+            expect(parent.removeViewAt(0)).toBe(parent);
+
+            // Child not found
+            expect(parent.removeViewAt(0)).toBe(parent);            
+        });
     });
 
     describe("removeAllViews()", () => {

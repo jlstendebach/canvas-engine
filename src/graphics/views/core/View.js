@@ -405,7 +405,7 @@ export class View {
      * @returns {View} This.
      */
     removeView(view) {
-        if (view.parent !== this || view === this) { return this; }
+        if (!view || view.parent !== this || view === this) { return this; }
 
         const index = this.#views.indexOf(view);
         if (index === -1) {
