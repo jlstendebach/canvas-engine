@@ -680,6 +680,31 @@ describe("View", () => {
     // -------------------------------------------------------------------------
 
     describe("isDescendantOf(view)", () => {
+        test("returns true if this view is a descendant of the specified view", () => {
+            const grandparent = new View();
+            const parent = new View().addToParent(grandparent);
+            const child = new View().addToParent(parent);
+            const unrelated = new View();
+            
+            expect(child.isDescendantOf(grandparent)).toBe(true);
+            expect(child.isDescendantOf(parent)).toBe(true);
+
+            expect(parent.isDescendantOf(grandparent)).toBe(true);
+            expect(parent.isDescendantOf(parent)).toBe(false);
+
+            expect(grandparent.isDescendantOf(grandparent)).toBe(false);
+            expect(grandparent.isDescendantOf(parent)).toBe(false);
+
+            expect(unrelated.isDescendantOf(grandparent)).toBe(false);
+            expect(unrelated.isDescendantOf(parent)).toBe(false);
+
+            for (const view of [grandparent, parent, child, unrelated]) {
+                expect(view.isDescendantOf(child)).toBe(false);
+                expect(view.isDescendantOf(unrelated)).toBe(false);
+                expect(view.isDescendantOf(null)).toBe(false);
+                expect(view.isDescendantOf(undefined)).toBe(false);
+            }
+        });
     });
 
     describe("isAncestorOf(view)", () => {

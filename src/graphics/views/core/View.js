@@ -534,6 +534,8 @@ export class View {
      * @returns {boolean} True if this view is a descendant of the given view, false otherwise.
      */
     isDescendantOf(view) {
+        if (!view || view === this) { return false; }
+
         let current = this.parent;
         while (current !== null) {
             if (current === view) { return true; }
