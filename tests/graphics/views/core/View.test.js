@@ -558,14 +558,29 @@ describe("View", () => {
             expect(parent.getViewAt(-1)).toBeNull();
             expect(parent.getViewAt(0)).toBe(view1);
             expect(parent.getViewAt(1)).toBe(view2);
-            expect(parent.getViewAt(2)).toBe(view3);            
+            expect(parent.getViewAt(2)).toBe(view3);
             expect(parent.getViewAt(3)).toBeNull();
         });
-
-
     });
 
     describe("getViewCount()", () => {
+        test("returns the number of views", () => {
+            const parent = new View();
+
+            expect(parent.getViewCount()).toBe(0);
+            for (let i = 0; i < 5; i++) {
+                parent.addView(new View());
+                expect(parent.getViewCount()).toBe(i + 1);
+            }
+
+            expect(parent.getViewCount()).toBe(5);
+            for (let i = 0; i < 5; i++) {
+                parent.removeViewAt(0);
+                expect(parent.getViewCount()).toBe(4 - i);
+            }
+
+            expect(parent.getViewCount()).toBe(0);
+        });
     });
 
     describe("getViewIndex(view)", () => {
