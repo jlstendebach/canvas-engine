@@ -405,8 +405,8 @@ export class View {
      * @returns {View} This.
      */
     removeView(view) {
-        if (!view || view === this || view.parent !== this) { 
-            return this; 
+        if (!view || view === this || view.parent !== this) {
+            return this;
         }
 
         const index = this.#views.indexOf(view);
@@ -498,7 +498,7 @@ export class View {
     setViewIndex(view, index) {
         if (!view) {
             throw new Error("Cannot set index of null or undefined view");
-        } 
+        }
         if (view.parent !== this) {
             throw new Error("View is not a child of this view");
         }
@@ -550,6 +550,7 @@ export class View {
      * @returns {boolean} True if this view is an ancestor of the given view, false otherwise.
      */
     isAncestorOf(view) {
+        if (!view || view === this) { return false; }
         return view.isDescendantOf(this);
     }
 

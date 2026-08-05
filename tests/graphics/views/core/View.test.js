@@ -685,22 +685,26 @@ describe("View", () => {
             const parent = new View().addToParent(grandparent);
             const child = new View().addToParent(parent);
             const unrelated = new View();
-            
+
             expect(child.isDescendantOf(grandparent)).toBe(true);
             expect(child.isDescendantOf(parent)).toBe(true);
+            expect(child.isDescendantOf(child)).toBe(false);
 
             expect(parent.isDescendantOf(grandparent)).toBe(true);
             expect(parent.isDescendantOf(parent)).toBe(false);
+            expect(parent.isDescendantOf(child)).toBe(false);
 
             expect(grandparent.isDescendantOf(grandparent)).toBe(false);
             expect(grandparent.isDescendantOf(parent)).toBe(false);
+            expect(grandparent.isDescendantOf(child)).toBe(false);
 
             expect(unrelated.isDescendantOf(grandparent)).toBe(false);
             expect(unrelated.isDescendantOf(parent)).toBe(false);
+            expect(unrelated.isDescendantOf(child)).toBe(false);
 
             for (const view of [grandparent, parent, child, unrelated]) {
-                expect(view.isDescendantOf(child)).toBe(false);
                 expect(view.isDescendantOf(unrelated)).toBe(false);
+                expect(view.isDescendantOf(view)).toBe(false);
                 expect(view.isDescendantOf(null)).toBe(false);
                 expect(view.isDescendantOf(undefined)).toBe(false);
             }
@@ -708,6 +712,35 @@ describe("View", () => {
     });
 
     describe("isAncestorOf(view)", () => {
+        test("returns true if this view is an ancestor of the specified view", () => {
+            const grandparent = new View();
+            const parent = new View().addToParent(grandparent);
+            const child = new View().addToParent(parent);
+            const unrelated = new View();
+
+            expect(child.isAncestorOf(grandparent)).toBe(false);
+            expect(child.isAncestorOf(parent)).toBe(false);
+            expect(child.isAncestorOf(child)).toBe(false);
+
+            expect(parent.isAncestorOf(grandparent)).toBe(false);
+            expect(parent.isAncestorOf(parent)).toBe(false);
+            expect(parent.isAncestorOf(child)).toBe(true);
+
+            expect(grandparent.isAncestorOf(grandparent)).toBe(false);
+            expect(grandparent.isAncestorOf(parent)).toBe(true);
+            expect(grandparent.isAncestorOf(child)).toBe(true);
+
+            expect(unrelated.isAncestorOf(grandparent)).toBe(false);
+            expect(unrelated.isAncestorOf(parent)).toBe(false);
+            expect(unrelated.isAncestorOf(child)).toBe(false);
+
+            for (const view of [grandparent, parent, child, unrelated]) {
+                expect(view.isAncestorOf(unrelated)).toBe(false);
+                expect(view.isAncestorOf(view)).toBe(false);
+                expect(view.isAncestorOf(null)).toBe(false);
+                expect(view.isAncestorOf(undefined)).toBe(false);
+            }
+        });
     });
 });
 
