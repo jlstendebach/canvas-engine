@@ -526,6 +526,23 @@ describe("View", () => {
     });
 
     describe("getViews()", () => {
+        test("returns a copy of the internal views array", () => {
+            const parent = new View();
+            const view1 = new View();
+            const view2 = new View();
+            const view3 = new View();
+
+            parent.addView(view1);
+            parent.addView(view2);
+            parent.addView(view3);
+
+            const views = parent.getViews();
+            expect(views).toEqual([view1, view2, view3]);
+
+            views.pop();
+            expect(parent.getViews()).toEqual([view1, view2, view3]);
+        });
+
     });
 
     describe("getViewAt(index)", () => {
