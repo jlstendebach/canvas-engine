@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { Canvas, View } from "@canvas-engine";
 import { jest, describe, expect, test } from "@jest/globals";
 
