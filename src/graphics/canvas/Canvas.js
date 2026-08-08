@@ -247,7 +247,7 @@ export class Canvas {
      * Gets the index of the specified child view.
      * @param {View} view - The child view to get the index of.
      * @returns {number} The index of the child view, or -1 if it is not a child
-     *     of this view.
+     *     of this canvas.
      */
     getViewIndex(view) {
         return this.#rootView.getViewIndex(view);
