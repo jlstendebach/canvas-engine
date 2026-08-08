@@ -149,26 +149,132 @@ export class Canvas {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: - Children
+    // MARK: - Child Management
     // -------------------------------------------------------------------------
 
+    /**
+     * Adds a child view to this canvas if it is not already a child of this 
+     * canvas. If it is, this method does nothing. If the view already has a 
+     * parent that is not this canvas, it is removed from that parent first.
+     * @param {View} view - The child view to add.
+     * @returns {Canvas} This.
+     * @throws {Error} If adding self or an ancestor view.
+     */
     addView(view) {
         this.#rootView.addView(view);
         return this;
     }
 
+    /**
+     * Adds a child view to this canvas at the specified index if it is not 
+     * already a child of this canvas. If it is, this method does nothing. If 
+     * the view already has a parent that is not this canvas, it is removed from
+     * that parent first.
+     * @param {View} view - The child view to add.
+     * @param {number} index - The index at which to add the child view. Index
+     *     handling follows `Array.prototype.splice` semantics (for example,
+     *     negative indices are offset from the end and large positive values
+     *     append).
+     * @returns {Canvas} This.
+     */
+    addViewAt(view, index) {
+        this.#rootView.addViewAt(view, index);
+        return this;
+    }
+
+    /**
+     * Removes a child view from this canvas if it is a child. If the view is 
+     * not a child, this method does nothing.
+     * @param {View} view - The child view to remove.
+     * @returns {Canvas} This.
+     */
     removeView(view) {
         this.#rootView.removeView(view);
         return this;
     }
 
+    /**
+     * Removes the child view at the specified index.
+     * @param {number} index - The index of the child view to remove. Index
+     *     handling follows `Array.prototype.splice` semantics (for example,
+     *     negative indices are offset from the end). If no child exists at the
+     *     resolved index, this is a no-op.
+     * @returns {Canvas} This.
+     */
+    removeViewAt(index) {
+        this.#rootView.removeViewAt(index);
+        return this;
+    }
+
+    /**
+     * Removes all child views from this canvas.
+     * @returns {Canvas} This.
+     */
     removeAllViews() {
         this.#rootView.removeAllViews();
         return this;
     }
 
+    /**
+     * Gets a shallow copy of this canvas's children.
+     * @returns {View[]} A copy of the child view array.
+     */
+    getViews() {
+        return this.#rootView.getViews();
+    }
+
+    /**
+     * Gets the child view at the specified index.
+     * @param {number} index - The index of the child view to get.
+     * @returns {View|null} The child view at the specified index, or null if it
+     *     does not exist.
+     */
+    getViewAt(index) {
+        return this.#rootView.getViewAt(index);
+    }
+
+    /**
+     * Gets the number of child views. This is the preferred method for
+     * getting the number of child views as it does not create a copy of the
+     * views array.
+     * @returns {number} The number of child views.
+     */
     getViewCount() {
         return this.#rootView.getViewCount();
+    }
+
+    /**
+     * Gets the index of the specified child view.
+     * @param {View} view - The child view to get the index of.
+     * @returns {number} The index of the child view, or -1 if it is not a child
+     *     of this canvas.
+     */
+    getViewIndex(view) {
+        return this.#rootView.getViewIndex(view);
+    }
+
+    /**
+     * Sets the index of the specified child view.
+     * @param {View} view - The child view to set the index of.
+     * @param {number} index - The new index of the child view. Index handling 
+     *     follows `Array.prototype.splice` semantics (for example, negative 
+     *     indices are offset from the end and large positive values append).
+     * @returns {Canvas} This.
+     * @throws {Error} If the view is not a child of this canvas.
+     */
+    setViewIndex(view, index) {
+        this.#rootView.setViewIndex(view, index);
+        return this;
+    }
+
+    /**
+     * Checks if the specified view is a child of this canvas.
+     * @param {View} view - The view to check.
+     * @returns {boolean} True if the view is a child of this canvas, false 
+     *     otherwise.
+     */
+    hasView(view) {
+        return this.#rootView.hasView(view);
     }
 
     // -------------------------------------------------------------------------
