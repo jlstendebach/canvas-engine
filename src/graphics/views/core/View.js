@@ -372,6 +372,9 @@ export class View {
      *     negative indices are offset from the end and large positive values
      *     append).
      * @returns {View} This.
+     * @throws {Error} If view is null/undefined, if view is this view, if view is
+     *     an ancestor of this view, or if the view cannot be removed from its
+     *     previous parent.
      */
     addViewAt(view, index) {
         if (!view) {
