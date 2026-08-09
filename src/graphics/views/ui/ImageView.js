@@ -8,6 +8,7 @@ export class ImageView extends View {
     #sourceY = 0;
     #sourceWidth = 0;
     #sourceHeight = 0;
+    #opacity = 1;
 
     // MARK: - Accessors
     get width() {
@@ -44,6 +45,13 @@ export class ImageView extends View {
     }
     set sourceHeight(value) {
         this.setSourceHeight(value);
+    }
+
+    get opacity() {
+        return this.#opacity;
+    }
+    set opacity(value) {
+        this.setOpacity(value);
     }
 
     // MARK: - Initialization
@@ -128,6 +136,12 @@ export class ImageView extends View {
         return this;
     }
 
+    // MARK: - Opacity
+    setOpacity(opacity) {
+        this.#opacity = opacity;
+        return this;
+    }
+
     // MARK: - Bounds
     updateBounds(out) {
         out.set(0, 0, this.width, this.height);
@@ -140,6 +154,7 @@ export class ImageView extends View {
     // MARK: - Drawing
     onDraw(context) {
         if (!this.#image) { return; }
+        context.globalAlpha = this.#opacity;
         context.drawImage(
             this.#image,
             this.#sourceX,
