@@ -138,6 +138,7 @@ export class ImageView extends View {
 
     // MARK: - Opacity
     setOpacity(opacity) {
+        if (!Number.isFinite(opacity)) { return this; }
         this.#opacity = Math.max(0, Math.min(1, opacity));
         return this;
     }
