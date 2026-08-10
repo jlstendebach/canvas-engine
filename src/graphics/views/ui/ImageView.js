@@ -138,7 +138,7 @@ export class ImageView extends View {
 
     // MARK: - Opacity
     setOpacity(opacity) {
-        this.#opacity = opacity;
+        this.#opacity = Math.max(0, Math.min(1, opacity));
         return this;
     }
 
