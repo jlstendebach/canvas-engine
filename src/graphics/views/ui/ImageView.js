@@ -155,7 +155,7 @@ export class ImageView extends View {
     // MARK: - Drawing
     onDraw(context) {
         if (!this.#image) { return; }
-        context.globalAlpha = this.#opacity;
+        context.globalAlpha *= this.#opacity;
         context.drawImage(
             this.#image,
             this.#sourceX,
