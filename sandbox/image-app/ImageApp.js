@@ -150,6 +150,12 @@ export class ImageApp extends CanvasApp {
             case "KeyD":
                 this.#velocity.x += 1;
                 break;
+            case "ArrowUp":
+                this.#linkView.opacity = Math.min(this.#linkView.opacity + 0.1, 1);
+                break;
+            case "ArrowDown":
+                this.#linkView.opacity = Math.max(this.#linkView.opacity - 0.1, 0.1);
+                break;
         }
 
         if (!this.#isRunning) {

@@ -38,7 +38,10 @@ if (typeof window !== 'undefined') {
 
     // MARK: - HTMLCanvasElement
     HTMLCanvasElement.prototype.getContext = function () {
-        return {
+        const stateStack = [];
+
+        const context = {
+            globalAlpha: 1,
             beginPath: () => {},
             clearRect: () => {},
             drawImage: () => {},
@@ -46,15 +49,25 @@ if (typeof window !== 'undefined') {
             fillRect: () => {},
             lineTo: () => {},
             moveTo: () => {},
-            restore: () => {},
+            restore: () => {
+                const state = stateStack.pop();
+                if (!state) { return; }
+                context.globalAlpha = state.globalAlpha;
+            },
             rotate: () => {},
-            save: () => {},
+            save: () => {
+                stateStack.push({
+                    globalAlpha: context.globalAlpha,
+                });
+            },
             scale: () => {},
             stroke: () => {},
             transform: () => {},
             translate: () => {},
             viewport: () => {},
         };
+
+        return context;
     };
 
     // MARK: - WebGL contexts
