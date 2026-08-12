@@ -330,7 +330,10 @@ export class Transform {
             : this.scaleXY(factorOrVector.x, factorOrVector.y);
     }
 
+    // -------------------------------------------------------------------------
     // MARK: - Rotation
+    // -------------------------------------------------------------------------
+
     setRotation(radians) {
         const normalizedRotation = this.#normalizedRotation(radians);
         if (this.#rotation === normalizedRotation) { return this; }
