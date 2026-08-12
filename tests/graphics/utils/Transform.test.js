@@ -131,9 +131,21 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("get rotation()", () => {
+        test("returns the rotation value", () => {
+            const rotation = Math.PI / 4;
+            transform.setRotation(rotation);
+            expect(transform.rotation).toBeCloseTo(rotation);
+        });
     });
 
     describe("set rotation(value)", () => {
+        test("sets the rotation value by deferring to setRotation", () => {
+            const setRotationSpy = jest.spyOn(transform, "setRotation");
+            const rotation = Math.PI / 4;
+            transform.rotation = rotation;
+            expect(transform.rotation).toBeCloseTo(rotation);
+            expect(setRotationSpy).toHaveBeenCalledWith(rotation);
+        });
     });
 
     // -------------------------------------------------------------------------
