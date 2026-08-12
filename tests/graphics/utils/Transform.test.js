@@ -55,15 +55,37 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("get pivotX()", () => {
+        test("returns the pivotX value", () => {
+            transform.setPivotXY(5, 10);
+            expect(transform.pivotX).toBe(5);
+        });
     });
 
     describe("set pivotX(value)", () => {
+        test("sets the pivotX value by deferring to setPivotX", () => {
+            const setPivotXSpy = jest.spyOn(transform, "setPivotX");
+            transform.pivotX = 5;
+            expect(transform.pivotX).toBe(5);
+            expect(transform.getPivot().x).toBe(5);
+            expect(setPivotXSpy).toHaveBeenCalledWith(5);
+        });
     });
 
     describe("get pivotY()", () => {
+        test("returns the pivotY value", () => {
+            transform.setPivotXY(5, 10);
+            expect(transform.pivotY).toBe(10);
+        });
     });
 
     describe("set pivotY(value)", () => {
+        test("sets the pivotY value by deferring to setPivotY", () => {
+            const setPivotYSpy = jest.spyOn(transform, "setPivotY");
+            transform.pivotY = 10;
+            expect(transform.pivotY).toBe(10);
+            expect(transform.getPivot().y).toBe(10);
+            expect(setPivotYSpy).toHaveBeenCalledWith(10);
+        });
     });
 
     // -------------------------------------------------------------------------
