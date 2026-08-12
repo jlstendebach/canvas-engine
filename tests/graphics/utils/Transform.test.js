@@ -1,22 +1,53 @@
 import { Transform } from "@canvas-engine";
-import { describe, expect, test } from "@jest/globals";
+import { beforeEach, describe, expect, jest, test } from "@jest/globals";
 
 describe("Transform", () => {
+    // -------------------------------------------------------------------------
+    // MARK: - Setup
+    // -------------------------------------------------------------------------
+
+    let transform;
+
+    beforeEach(() => {
+        transform = new Transform();
+    });
 
     // -------------------------------------------------------------------------
     // MARK: - Position Accessors
     // -------------------------------------------------------------------------
 
     describe("get x()", () => {
+        test("returns the x position", () => {
+            transform.setPositionXY(10, 20);
+            expect(transform.x).toBe(10);
+        });
     });
 
     describe("set x(value)", () => {
+        test("sets the x position by deferring to setX", () => {
+            const setXSpy = jest.spyOn(transform, "setX");
+            transform.x = 10;
+            expect(transform.x).toBe(10);
+            expect(transform.getPosition().x).toBe(10);
+            expect(setXSpy).toHaveBeenCalledWith(10);
+        });
     });
 
     describe("get y()", () => {
+        test("returns the y position", () => {
+            transform.setPositionXY(10, 20);
+            expect(transform.y).toBe(20);
+        });
     });
 
     describe("set y(value)", () => {
+        test("sets the y position by deferring to setY", () => {
+            const setYSpy = jest.spyOn(transform, "setY");
+            transform.y = 20;
+            expect(transform.y).toBe(20);
+            expect(transform.getPosition().y).toBe(20);
+            expect(setYSpy).toHaveBeenCalledWith(20);
+        });
     });
 
     // -------------------------------------------------------------------------
