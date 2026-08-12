@@ -93,15 +93,37 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("get scaleX()", () => {
+        test("returns the scaleX value", () => {
+            transform.setScaleXY(2, 3);
+            expect(transform.scaleX).toBe(2);
+        });
     });
 
     describe("set scaleX(value)", () => {
+        test("sets the scaleX value by deferring to setScaleX", () => {
+            const setScaleXSpy = jest.spyOn(transform, "setScaleX");
+            transform.scaleX = 2;
+            expect(transform.scaleX).toBe(2);
+            expect(transform.getScale().x).toBe(2);
+            expect(setScaleXSpy).toHaveBeenCalledWith(2);
+        });
     });
 
     describe("get scaleY()", () => {
+        test("returns the scaleY value", () => {
+            transform.setScaleXY(2, 3);
+            expect(transform.scaleY).toBe(3);
+        });
     });
 
     describe("set scaleY(value)", () => {
+        test("sets the scaleY value by deferring to setScaleY", () => {
+            const setScaleYSpy = jest.spyOn(transform, "setScaleY");
+            transform.scaleY = 3;
+            expect(transform.scaleY).toBe(3);
+            expect(transform.getScale().y).toBe(3);
+            expect(setScaleYSpy).toHaveBeenCalledWith(3);
+        });
     });
 
     // -------------------------------------------------------------------------
