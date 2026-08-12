@@ -212,21 +212,51 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("get inverseA()", () => {
+        test("returns the inverse a value", () => {
+            const determinant = transform.a * transform.d - transform.b * transform.c;
+            const expected = transform.d / determinant;
+            expect(transform.inverseA).toBeCloseTo(expected);
+        });
     });
 
     describe("get inverseB()", () => {
+        test("returns the inverse b value", () => {
+            const determinant = transform.a * transform.d - transform.b * transform.c;
+            const expected = -transform.b / determinant;
+            expect(transform.inverseB).toBeCloseTo(expected);
+        });
     });
 
     describe("get inverseC()", () => {
+        test("returns the inverse c value", () => {
+            const determinant = transform.a * transform.d - transform.b * transform.c;
+            const expected = -transform.c / determinant;
+            expect(transform.inverseC).toBeCloseTo(expected);
+        });
     });
 
     describe("get inverseD()", () => {
+        test("returns the inverse d value", () => {
+            const determinant = transform.a * transform.d - transform.b * transform.c;
+            const expected = transform.a / determinant;
+            expect(transform.inverseD).toBeCloseTo(expected);
+        });
     });
 
     describe("get inverseTx()", () => {
+        test("returns the inverse tx value", () => {
+            const determinant = transform.a * transform.d - transform.b * transform.c;
+            const expected = (transform.c * transform.ty - transform.d * transform.tx) / determinant;
+            expect(transform.inverseTx).toBeCloseTo(expected);
+        });
     });
 
     describe("get inverseTy()", () => {
+        test("returns the inverse ty value", () => {
+            const determinant = transform.a * transform.d - transform.b * transform.c;
+            const expected = (transform.b * transform.tx - transform.a * transform.ty) / determinant;
+            expect(transform.inverseTy).toBeCloseTo(expected);
+        });
     });
 
     // -------------------------------------------------------------------------
