@@ -7,9 +7,24 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     let transform;
+    const initialX = 1;
+    const initialY = 2;
+    const initialPivotX = 3;
+    const initialPivotY = 4;
+    const initialScaleX = 5;
+    const initialScaleY = 6;
+    const initialRotation = Math.PI / 4;
 
     beforeEach(() => {
-        transform = new Transform();
+        transform = new Transform().set(
+            initialX,
+            initialY,
+            initialPivotX,
+            initialPivotY,
+            initialScaleX,
+            initialScaleY,
+            initialRotation
+        );
     });
 
     // -------------------------------------------------------------------------
@@ -18,35 +33,35 @@ describe("Transform", () => {
 
     describe("get x()", () => {
         test("returns the x position", () => {
-            transform.setPositionXY(10, 20);
-            expect(transform.x).toBe(10);
+            expect(transform.x).toBe(initialX);
         });
     });
 
     describe("set x(value)", () => {
         test("sets the x position by deferring to setX", () => {
             const setXSpy = jest.spyOn(transform, "setX");
-            transform.x = 10;
-            expect(transform.x).toBe(10);
-            expect(transform.getPosition().x).toBe(10);
-            expect(setXSpy).toHaveBeenCalledWith(10);
+            const newX = initialX + 10;
+            transform.x = newX;
+            expect(transform.x).toBe(newX);
+            expect(transform.getPosition().x).toBe(newX);
+            expect(setXSpy).toHaveBeenCalledWith(newX);
         });
     });
 
     describe("get y()", () => {
         test("returns the y position", () => {
-            transform.setPositionXY(10, 20);
-            expect(transform.y).toBe(20);
+            expect(transform.y).toBe(initialY);
         });
     });
 
     describe("set y(value)", () => {
         test("sets the y position by deferring to setY", () => {
             const setYSpy = jest.spyOn(transform, "setY");
-            transform.y = 20;
-            expect(transform.y).toBe(20);
-            expect(transform.getPosition().y).toBe(20);
-            expect(setYSpy).toHaveBeenCalledWith(20);
+            const newY = initialY + 10;
+            transform.y = newY;
+            expect(transform.y).toBe(newY);
+            expect(transform.getPosition().y).toBe(newY);
+            expect(setYSpy).toHaveBeenCalledWith(newY);
         });
     });
 
@@ -56,35 +71,35 @@ describe("Transform", () => {
 
     describe("get pivotX()", () => {
         test("returns the pivotX value", () => {
-            transform.setPivotXY(5, 10);
-            expect(transform.pivotX).toBe(5);
+            expect(transform.pivotX).toBe(initialPivotX);
         });
     });
 
     describe("set pivotX(value)", () => {
         test("sets the pivotX value by deferring to setPivotX", () => {
             const setPivotXSpy = jest.spyOn(transform, "setPivotX");
-            transform.pivotX = 5;
-            expect(transform.pivotX).toBe(5);
-            expect(transform.getPivot().x).toBe(5);
-            expect(setPivotXSpy).toHaveBeenCalledWith(5);
+            const newPivotX = initialPivotX + 10;
+            transform.pivotX = newPivotX;
+            expect(transform.pivotX).toBe(newPivotX);
+            expect(transform.getPivot().x).toBe(newPivotX);
+            expect(setPivotXSpy).toHaveBeenCalledWith(newPivotX);
         });
     });
 
     describe("get pivotY()", () => {
         test("returns the pivotY value", () => {
-            transform.setPivotXY(5, 10);
-            expect(transform.pivotY).toBe(10);
+            expect(transform.pivotY).toBe(initialPivotY);
         });
     });
 
     describe("set pivotY(value)", () => {
         test("sets the pivotY value by deferring to setPivotY", () => {
             const setPivotYSpy = jest.spyOn(transform, "setPivotY");
-            transform.pivotY = 10;
-            expect(transform.pivotY).toBe(10);
-            expect(transform.getPivot().y).toBe(10);
-            expect(setPivotYSpy).toHaveBeenCalledWith(10);
+            const newPivotY = initialPivotY + 10;
+            transform.pivotY = newPivotY;
+            expect(transform.pivotY).toBe(newPivotY);
+            expect(transform.getPivot().y).toBe(newPivotY);
+            expect(setPivotYSpy).toHaveBeenCalledWith(newPivotY);
         });
     });
 
@@ -94,35 +109,35 @@ describe("Transform", () => {
 
     describe("get scaleX()", () => {
         test("returns the scaleX value", () => {
-            transform.setScaleXY(2, 3);
-            expect(transform.scaleX).toBe(2);
+            expect(transform.scaleX).toBe(initialScaleX);
         });
     });
 
     describe("set scaleX(value)", () => {
         test("sets the scaleX value by deferring to setScaleX", () => {
             const setScaleXSpy = jest.spyOn(transform, "setScaleX");
-            transform.scaleX = 2;
-            expect(transform.scaleX).toBe(2);
-            expect(transform.getScale().x).toBe(2);
-            expect(setScaleXSpy).toHaveBeenCalledWith(2);
+            const newScaleX = initialScaleX + 10;
+            transform.scaleX = newScaleX;
+            expect(transform.scaleX).toBe(newScaleX);
+            expect(transform.getScale().x).toBe(newScaleX);
+            expect(setScaleXSpy).toHaveBeenCalledWith(newScaleX);
         });
     });
 
     describe("get scaleY()", () => {
         test("returns the scaleY value", () => {
-            transform.setScaleXY(2, 3);
-            expect(transform.scaleY).toBe(3);
+            expect(transform.scaleY).toBe(initialScaleY);
         });
     });
 
     describe("set scaleY(value)", () => {
         test("sets the scaleY value by deferring to setScaleY", () => {
             const setScaleYSpy = jest.spyOn(transform, "setScaleY");
-            transform.scaleY = 3;
-            expect(transform.scaleY).toBe(3);
-            expect(transform.getScale().y).toBe(3);
-            expect(setScaleYSpy).toHaveBeenCalledWith(3);
+            const newScaleY = initialScaleY + 10;
+            transform.scaleY = newScaleY;
+            expect(transform.scaleY).toBe(newScaleY);
+            expect(transform.getScale().y).toBe(newScaleY);
+            expect(setScaleYSpy).toHaveBeenCalledWith(newScaleY);
         });
     });
 
@@ -132,19 +147,17 @@ describe("Transform", () => {
 
     describe("get rotation()", () => {
         test("returns the rotation value", () => {
-            const rotation = Math.PI / 4;
-            transform.setRotation(rotation);
-            expect(transform.rotation).toBeCloseTo(rotation);
+            expect(transform.rotation).toBeCloseTo(initialRotation);
         });
     });
 
     describe("set rotation(value)", () => {
         test("sets the rotation value by deferring to setRotation", () => {
             const setRotationSpy = jest.spyOn(transform, "setRotation");
-            const rotation = Math.PI / 4;
-            transform.rotation = rotation;
-            expect(transform.rotation).toBeCloseTo(rotation);
-            expect(setRotationSpy).toHaveBeenCalledWith(rotation);
+            const newRotation = initialRotation + Math.PI / 4;
+            transform.rotation = newRotation;
+            expect(transform.rotation).toBeCloseTo(newRotation);
+            expect(setRotationSpy).toHaveBeenCalledWith(newRotation);
         });
     });
 
@@ -153,21 +166,45 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("get a()", () => {
+        test("returns the a value", () => {
+            const expected = Math.cos(initialRotation) * initialScaleX;
+            expect(transform.a).toBeCloseTo(expected);
+        });
     });
 
     describe("get b()", () => {
+        test("returns the b value", () => {
+            const expected = Math.sin(initialRotation) * initialScaleX;
+            expect(transform.b).toBeCloseTo(expected);
+        });
     });
 
     describe("get c()", () => {
+        test("returns the c value", () => {
+            const expected = -Math.sin(initialRotation) * initialScaleY;
+            expect(transform.c).toBeCloseTo(expected);
+        });
     });
 
     describe("get d()", () => {
+        test("returns the d value", () => {
+            const expected = Math.cos(initialRotation) * initialScaleY;
+            expect(transform.d).toBeCloseTo(expected);
+        });
     });
 
     describe("get tx()", () => {
+        test("returns the tx value", () => {
+            const expected = initialX - (transform.a * initialPivotX + transform.c * initialPivotY);
+            expect(transform.tx).toBeCloseTo(expected);
+        });
     });
 
     describe("get ty()", () => {
+        test("returns the ty value", () => {
+            const expected = initialY - (transform.b * initialPivotX + transform.d * initialPivotY);
+            expect(transform.ty).toBeCloseTo(expected);
+        });
     });
 
     // -------------------------------------------------------------------------
