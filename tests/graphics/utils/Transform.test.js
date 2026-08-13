@@ -1,4 +1,4 @@
-import { Transform } from "@canvas-engine";
+import { Transform, Vec2 } from "@canvas-engine";
 import { beforeEach, describe, expect, jest, test } from "@jest/globals";
 
 describe("Transform", () => {
@@ -7,7 +7,7 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     let transform;
-    const onInvalidated = jest.fn();
+    let onInvalidated = jest.fn();;
     const initialX = 1;
     const initialY = 2;
     const initialPivotX = 3;
@@ -17,7 +17,6 @@ describe("Transform", () => {
     const initialRotation = Math.PI / 4;
 
     beforeEach(() => {
-        onInvalidated.mockClear();
         transform = new Transform(onInvalidated).set(
             initialX,
             initialY,
@@ -27,6 +26,11 @@ describe("Transform", () => {
             initialScaleY,
             initialRotation
         );
+
+        // Force matrix calculation to ensure initial state is set
+        transform.getMatrix(); 
+
+        onInvalidated.mockClear();
     });
 
     // -------------------------------------------------------------------------
@@ -394,6 +398,13 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("getPosition(out)", () => {
+        test("returns the position as a vector", () => {
+            const out = new Vec2();
+            const position = transform.getPosition(out);
+            expect(position).toBe(out);
+            expect(position.x).toBe(initialX);
+            expect(position.y).toBe(initialY);
+        });
     });
 
     describe("setX(x)", () => {
