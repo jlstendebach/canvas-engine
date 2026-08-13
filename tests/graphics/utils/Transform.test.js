@@ -405,6 +405,21 @@ describe("Transform", () => {
             expect(position.x).toBe(initialX);
             expect(position.y).toBe(initialY);
         });
+
+        test("returns a new vector if out is not provided", () => {
+            const position = transform.getPosition();
+            expect(position).toBeInstanceOf(Vec2);
+            expect(position.x).toBe(initialX);
+            expect(position.y).toBe(initialY);
+        });
+
+        test("changing returned vector does not affect transform", () => {
+            const position = transform.getPosition();
+            position.x += 10;
+            position.y += 20;
+            expect(transform.x).toBe(initialX);
+            expect(transform.y).toBe(initialY);
+        });
     });
 
     describe("setX(x)", () => {
