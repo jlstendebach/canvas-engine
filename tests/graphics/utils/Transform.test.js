@@ -7,6 +7,7 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     let transform;
+    const onInvalidated = jest.fn();
     const initialX = 1;
     const initialY = 2;
     const initialPivotX = 3;
@@ -16,7 +17,8 @@ describe("Transform", () => {
     const initialRotation = Math.PI / 4;
 
     beforeEach(() => {
-        transform = new Transform().set(
+        onInvalidated.mockClear();
+        transform = new Transform(onInvalidated).set(
             initialX,
             initialY,
             initialPivotX,
@@ -264,9 +266,127 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("constructor(onInvalidated)", () => {
+        test("sets the onInvalidated callback", () => {
+            transform.setX(initialX + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
     });
 
+    // -------------------------------------------------------------------------
+    // MARK: - Set 
+    // -------------------------------------------------------------------------
+
     describe("set(x, y, pivotX, pivotY, scaleX, scaleY, rotation)", () => {
+        test("sets all properties at once", () => {
+            const newX = initialX + 10;
+            const newY = initialY + 20;
+            const newPivotX = initialPivotX + 30;
+            const newPivotY = initialPivotY + 40;
+            const newScaleX = initialScaleX + 50;
+            const newScaleY = initialScaleY + 60;
+            const newRotation = initialRotation + Math.PI / 4;
+
+            transform.set(
+                newX,
+                newY,
+                newPivotX,
+                newPivotY,
+                newScaleX,
+                newScaleY,
+                newRotation
+            );
+
+            expect(transform.x).toBe(newX);
+            expect(transform.y).toBe(newY);
+            expect(transform.pivotX).toBe(newPivotX);
+            expect(transform.pivotY).toBe(newPivotY);
+            expect(transform.scaleX).toBe(newScaleX);
+            expect(transform.scaleY).toBe(newScaleY);
+            expect(transform.rotation).toBe(newRotation);
+        });
+
+        test("returns this for chaining", () => {
+            const result = transform.set(1, 2, 3, 4, 5, 6, Math.PI / 4);
+            expect(result).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.set(
+                initialX + 10,
+                initialY + 10,
+                initialPivotX + 10,
+                initialPivotY + 10,
+                initialScaleX + 10,
+                initialScaleY + 10,
+                initialRotation + Math.PI / 4
+            );
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("calls onInvalidated when only translation changes", () => {
+            transform.set(
+                initialX + 10,
+                initialY + 10,
+                initialPivotX,
+                initialPivotY,
+                initialScaleX,
+                initialScaleY,
+                initialRotation
+            );
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("calls onInvalidated when only pivot changes", () => {
+            transform.set(
+                initialX,
+                initialY,
+                initialPivotX + 10,
+                initialPivotY + 10,
+                initialScaleX,
+                initialScaleY,
+                initialRotation
+            );
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("calls onInvalidated when only scale changes", () => {
+            transform.set(
+                initialX,
+                initialY,
+                initialPivotX,
+                initialPivotY,
+                initialScaleX + 10,
+                initialScaleY + 10,
+                initialRotation
+            );
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("calls onInvalidated when only rotation changes", () => {
+            transform.set(
+                initialX,
+                initialY,
+                initialPivotX,
+                initialPivotY,
+                initialScaleX,
+                initialScaleY,
+                initialRotation + Math.PI / 4,
+            );
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform.set(
+                initialX,
+                initialY,
+                initialPivotX,
+                initialPivotY,
+                initialScaleX,
+                initialScaleY,
+                initialRotation
+            );
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     // -------------------------------------------------------------------------
