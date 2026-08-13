@@ -7,7 +7,7 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     let transform;
-    let onInvalidated = jest.fn();;
+    const onInvalidated = jest.fn();;
     const initialX = 1;
     const initialY = 2;
     const initialPivotX = 3;
@@ -28,7 +28,7 @@ describe("Transform", () => {
         );
 
         // Force matrix calculation to ensure initial state is set
-        transform.getMatrix(); 
+        transform.getMatrix();
 
         onInvalidated.mockClear();
     });
@@ -327,56 +327,22 @@ describe("Transform", () => {
             expect(onInvalidated).toHaveBeenCalled();
         });
 
-        test("calls onInvalidated when only translation changes", () => {
-            transform.set(
-                initialX + 10,
-                initialY + 10,
-                initialPivotX,
-                initialPivotY,
-                initialScaleX,
-                initialScaleY,
-                initialRotation
-            );
-            expect(onInvalidated).toHaveBeenCalled();
-        });
+        test("calls onInvalidated when only one value changes", () => {
+            for (let i = 0; i < 7; i++) {
+                transform.set(
+                    initialX        + (i === 0 ? 10 : 0),
+                    initialY        + (i === 1 ? 10 : 0),
+                    initialPivotX   + (i === 2 ? 10 : 0),
+                    initialPivotY   + (i === 3 ? 10 : 0),
+                    initialScaleX   + (i === 4 ? 10 : 0),
+                    initialScaleY   + (i === 5 ? 10 : 0),
+                    initialRotation + (i === 6 ? Math.PI / 4 : 0)
+                );
+                expect(onInvalidated).toHaveBeenCalled();
 
-        test("calls onInvalidated when only pivot changes", () => {
-            transform.set(
-                initialX,
-                initialY,
-                initialPivotX + 10,
-                initialPivotY + 10,
-                initialScaleX,
-                initialScaleY,
-                initialRotation
-            );
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("calls onInvalidated when only scale changes", () => {
-            transform.set(
-                initialX,
-                initialY,
-                initialPivotX,
-                initialPivotY,
-                initialScaleX + 10,
-                initialScaleY + 10,
-                initialRotation
-            );
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("calls onInvalidated when only rotation changes", () => {
-            transform.set(
-                initialX,
-                initialY,
-                initialPivotX,
-                initialPivotY,
-                initialScaleX,
-                initialScaleY,
-                initialRotation + Math.PI / 4,
-            );
-            expect(onInvalidated).toHaveBeenCalled();
+                transform.getMatrix();
+                onInvalidated.mockClear();
+            }
         });
 
         test("does not call onInvalidated if values are unchanged", () => {
