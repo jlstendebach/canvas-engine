@@ -499,6 +499,35 @@ describe("Transform", () => {
     });
 
     describe("translateXY(dx, dy)", () => {
+        test("translates the position by dx and dy", () => {
+            const dx = 10;
+            const dy = 20;
+            transform.translateXY(dx, dy);
+            expect(transform.x).toBe(initialX + dx);
+            expect(transform.y).toBe(initialY + dy);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.translateXY(0, 0)).toBe(transform);
+            expect(transform.translateXY(10, 20)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.translateXY(10, 20);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform.translateXY(0, 0);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.translateXY(10, 20);
+            onInvalidated.mockClear();
+            transform.translateXY(30, 40);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     describe("translate(delta)", () => {
