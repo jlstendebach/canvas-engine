@@ -389,6 +389,34 @@ describe("Transform", () => {
     });
 
     describe("setX(x)", () => {
+        test("sets the x position", () => {
+            const newX = initialX + 10;
+            transform.setX(newX);
+            expect(transform.x).toBe(newX);
+            expect(transform.getPosition().x).toBe(newX);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.setX(initialX)).toBe(transform);
+            expect(transform.setX(initialX + 10)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.setX(initialX + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if value is unchanged", () => {
+            transform.setX(initialX);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.setX(initialX + 10);
+            onInvalidated.mockClear();
+            transform.setX(initialX + 20);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     describe("setY(y)", () => {
