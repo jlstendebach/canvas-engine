@@ -451,6 +451,35 @@ describe("Transform", () => {
     });
 
     describe("setPositionXY(x, y)", () => {
+        test("sets the position using x and y values", () => {
+            const newX = initialX + 10;
+            const newY = initialY + 20;
+            transform.setPositionXY(newX, newY);
+            expect(transform.x).toBe(newX);
+            expect(transform.y).toBe(newY);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.setPositionXY(initialX, initialY)).toBe(transform);
+            expect(transform.setPositionXY(initialX + 10, initialY + 20)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.setPositionXY(initialX + 10, initialY + 20);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform.setPositionXY(initialX, initialY);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.setPositionXY(initialX + 10, initialY + 20);
+            onInvalidated.mockClear();
+            transform.setPositionXY(initialX + 30, initialY + 40);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     describe("setPosition(position)", () => {
