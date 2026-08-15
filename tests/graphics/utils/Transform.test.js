@@ -483,6 +483,19 @@ describe("Transform", () => {
     });
 
     describe("setPosition(position)", () => {
+        test("sets the position by deferring to setPositionXY", () => {
+            const newPosition = new Vec2(initialX + 10, initialY + 20);
+            const setPositionXYSpy = jest.spyOn(transform, "setPositionXY");
+            transform.setPosition(newPosition);
+            expect(transform.x).toBe(newPosition.x);
+            expect(transform.y).toBe(newPosition.y);
+            expect(setPositionXYSpy).toHaveBeenCalledWith(newPosition.x, newPosition.y);
+        });
+
+        test("returns this for chaining", () => {
+            const newPosition = new Vec2(initialX + 10, initialY + 20);
+            expect(transform.setPosition(newPosition)).toBe(transform);
+        });
     });
 
     describe("translateXY(dx, dy)", () => {
