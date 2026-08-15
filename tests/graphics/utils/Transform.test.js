@@ -420,6 +420,34 @@ describe("Transform", () => {
     });
 
     describe("setY(y)", () => {
+        test("sets the y position", () => {
+            const newY = initialY + 10;
+            transform.setY(newY);
+            expect(transform.y).toBe(newY);
+            expect(transform.getPosition().y).toBe(newY);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.setY(initialY)).toBe(transform);
+            expect(transform.setY(initialY + 10)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.setY(initialY + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if value is unchanged", () => {
+            transform.setY(initialY);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.setY(initialY + 10);
+            onInvalidated.mockClear();
+            transform.setY(initialY + 20);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     describe("setPositionXY(x, y)", () => {
