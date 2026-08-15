@@ -330,12 +330,12 @@ describe("Transform", () => {
         test("calls onInvalidated when only one value changes", () => {
             for (let i = 0; i < 7; i++) {
                 transform.set(
-                    initialX        + (i === 0 ? 10 : 0),
-                    initialY        + (i === 1 ? 10 : 0),
-                    initialPivotX   + (i === 2 ? 10 : 0),
-                    initialPivotY   + (i === 3 ? 10 : 0),
-                    initialScaleX   + (i === 4 ? 10 : 0),
-                    initialScaleY   + (i === 5 ? 10 : 0),
+                    initialX + (i === 0 ? 10 : 0),
+                    initialY + (i === 1 ? 10 : 0),
+                    initialPivotX + (i === 2 ? 10 : 0),
+                    initialPivotY + (i === 3 ? 10 : 0),
+                    initialScaleX + (i === 4 ? 10 : 0),
+                    initialScaleY + (i === 5 ? 10 : 0),
                     initialRotation + (i === 6 ? Math.PI / 4 : 0)
                 );
                 expect(onInvalidated).toHaveBeenCalled();
@@ -531,6 +531,19 @@ describe("Transform", () => {
     });
 
     describe("translate(delta)", () => {
+        test("translates the position by deferring to translateXY", () => {
+            const delta = new Vec2(10, 20);
+            const translateXYSpy = jest.spyOn(transform, "translateXY");
+            transform.translate(delta);
+            expect(transform.x).toBe(initialX + delta.x);
+            expect(transform.y).toBe(initialY + delta.y);
+            expect(translateXYSpy).toHaveBeenCalledWith(delta.x, delta.y);
+        });
+
+        test("returns this for chaining", () => {
+            const delta = new Vec2(10, 20);
+            expect(transform.translate(delta)).toBe(transform);
+        });
     });
 
     // -------------------------------------------------------------------------
