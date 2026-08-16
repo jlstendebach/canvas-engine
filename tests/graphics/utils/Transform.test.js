@@ -551,6 +551,28 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("getPivot(out)", () => {
+        test("returns the pivot as a vector", () => {
+            const out = new Vec2();
+            const pivot = transform.getPivot(out);
+            expect(pivot).toBe(out);
+            expect(pivot.x).toBe(initialPivotX);
+            expect(pivot.y).toBe(initialPivotY);            
+        });
+
+        test("returns a new vector if out is not provided", () => {
+            const pivot = transform.getPivot();
+            expect(pivot).toBeInstanceOf(Vec2);
+            expect(pivot.x).toBe(initialPivotX);
+            expect(pivot.y).toBe(initialPivotY);
+        });
+
+        test("changing returned vector does not affect transform", () => {
+            const pivot = transform.getPivot();
+            pivot.x += 10;
+            pivot.y += 20;
+            expect(transform.x).toBe(initialPivotX);
+            expect(transform.y).toBe(initialPivotY);            
+        });        
     });
 
     describe("setPivotX(pivotX)", () => {
