@@ -730,6 +730,19 @@ describe("Transform", () => {
     });
 
     describe("translatePivot(delta)", () => {
+        test("translates the position by deferring to translateXY", () => {
+            const delta = new Vec2(10, 20);
+            const translateXYSpy = jest.spyOn(transform, "translateXY");
+            transform.translate(delta);
+            expect(transform.x).toBe(initialX + delta.x);
+            expect(transform.y).toBe(initialY + delta.y);
+            expect(translateXYSpy).toHaveBeenCalledWith(delta.x, delta.y);
+        });
+
+        test("returns this for chaining", () => {
+            const delta = new Vec2(10, 20);
+            expect(transform.translate(delta)).toBe(transform);
+        });
     });
 
     // -------------------------------------------------------------------------
