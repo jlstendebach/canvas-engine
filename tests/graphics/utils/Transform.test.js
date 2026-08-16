@@ -659,12 +659,12 @@ describe("Transform", () => {
 
             transform.getMatrix();
             onInvalidated.mockClear();
-            transform.setPivotXY(transform.x + 10, transform.y);
+            transform.setPivotXY(transform.pivotX + 10, transform.pivotY);
             expect(onInvalidated).toHaveBeenCalled();
 
             transform.getMatrix();
             onInvalidated.mockClear();
-            transform.setPivotXY(transform.x, transform.y + 10);
+            transform.setPivotXY(transform.pivotX, transform.pivotY + 10);
             expect(onInvalidated).toHaveBeenCalled();
         });
 
@@ -682,6 +682,20 @@ describe("Transform", () => {
     });
 
     describe("setPivot(pivot)", () => {
+        test("sets the pivot by deferring to setPivotXY", () => {
+            const newPivot = new Vec2(initialPivotX + 10, initialPivotY + 20);
+            const setPivotXYSpy = jest.spyOn(transform, "setPivotXY");
+            transform.setPivot(newPivot);
+            expect(transform.pivotX).toBe(newPivot.x);
+            expect(transform.pivotY).toBe(newPivot.y);
+            expect(setPivotXYSpy).toHaveBeenCalledWith(newPivot.x, newPivot.y);
+        });
+
+        test("returns this for chaining", () => {
+            const newPivot = new Vec2(initialX + 10, initialY + 20);
+            expect(transform.setPivot(newPivot)).toBe(transform);
+        });
+
     });
 
     describe("offsetPivotXY(dx, dy)", () => {
