@@ -556,7 +556,7 @@ describe("Transform", () => {
             const pivot = transform.getPivot(out);
             expect(pivot).toBe(out);
             expect(pivot.x).toBe(initialPivotX);
-            expect(pivot.y).toBe(initialPivotY);            
+            expect(pivot.y).toBe(initialPivotY);
         });
 
         test("returns a new vector if out is not provided", () => {
@@ -571,8 +571,8 @@ describe("Transform", () => {
             pivot.x += 10;
             pivot.y += 20;
             expect(transform.pivotX).toBe(initialPivotX);
-            expect(transform.pivotY).toBe(initialPivotY);            
-        });        
+            expect(transform.pivotY).toBe(initialPivotY);
+        });
     });
 
     describe("setPivotX(pivotX)", () => {
@@ -603,7 +603,7 @@ describe("Transform", () => {
             onInvalidated.mockClear();
             transform.setPivotX(initialPivotX + 20);
             expect(onInvalidated).not.toHaveBeenCalled();
-        });        
+        });
     });
 
     describe("setPivotY(pivotY)", () => {
@@ -698,6 +698,35 @@ describe("Transform", () => {
     });
 
     describe("translatePivotXY(dx, dy)", () => {
+        test("translates the position by dx and dy", () => {
+            const dx = 10;
+            const dy = 20;
+            transform.translatePivotXY(dx, dy);
+            expect(transform.pivotX).toBe(initialPivotX + dx);
+            expect(transform.pivotY).toBe(initialPivotY + dy);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.translatePivotXY(0, 0)).toBe(transform);
+            expect(transform.translatePivotXY(10, 20)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.translatePivotXY(10, 20);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform.translatePivotXY(0, 0);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.translatePivotXY(10, 20);
+            onInvalidated.mockClear();
+            transform.translatePivotXY(30, 40);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     describe("translatePivot(delta)", () => {
