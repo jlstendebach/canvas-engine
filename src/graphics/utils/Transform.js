@@ -268,7 +268,7 @@ export class Transform {
         return this.setPivotXY(pivot.x, pivot.y);
     }
 
-    offsetPivotXY(dx, dy) {
+    translatePivotXY(dx, dy) {
         if (dx === 0 && dy === 0) { return this; }
         this.#pivotX += dx;
         this.#pivotY += dy;
@@ -276,8 +276,8 @@ export class Transform {
         return this;
     }
 
-    offsetPivot(offset) {
-        return this.offsetPivotXY(offset.x, offset.y);
+    translatePivot(delta) {
+        return this.translatePivotXY(delta.x, delta.y);
     }
 
     // -------------------------------------------------------------------------

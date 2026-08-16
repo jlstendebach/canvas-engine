@@ -695,13 +695,12 @@ describe("Transform", () => {
             const newPivot = new Vec2(initialX + 10, initialY + 20);
             expect(transform.setPivot(newPivot)).toBe(transform);
         });
-
     });
 
-    describe("offsetPivotXY(dx, dy)", () => {
+    describe("translatePivotXY(dx, dy)", () => {
     });
 
-    describe("offsetPivot(offset)", () => {
+    describe("translatePivot(delta)", () => {
     });
 
     // -------------------------------------------------------------------------
