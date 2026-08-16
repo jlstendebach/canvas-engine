@@ -607,6 +607,34 @@ describe("Transform", () => {
     });
 
     describe("setPivotY(pivotY)", () => {
+        test("sets the pivot y", () => {
+            const newPivotY = initialPivotY + 10;
+            transform.setPivotY(newPivotY);
+            expect(transform.pivotY).toBe(newPivotY);
+            expect(transform.getPivot().y).toBe(newPivotY);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.setPivotY(initialPivotY)).toBe(transform);
+            expect(transform.setPivotY(initialPivotY + 10)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.setPivotY(initialPivotY + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if value is unchanged", () => {
+            transform.setPivotY(initialPivotY);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.setPivotY(initialPivotY + 10);
+            onInvalidated.mockClear();
+            transform.setPivotY(initialPivotY + 20);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     describe("setPivotXY(pivotX, pivotY)", () => {
