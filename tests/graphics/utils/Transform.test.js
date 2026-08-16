@@ -638,6 +638,47 @@ describe("Transform", () => {
     });
 
     describe("setPivotXY(pivotX, pivotY)", () => {
+        test("sets the pivot x and y", () => {
+            const newPivotX = initialPivotX + 10;
+            const newPivotY = initialPivotY + 10;
+            transform.setPivotXY(newPivotX, newPivotY);
+            expect(transform.pivotX).toBe(newPivotX);
+            expect(transform.pivotY).toBe(newPivotY);
+            expect(transform.getPivot().x).toBe(newPivotX);
+            expect(transform.getPivot().y).toBe(newPivotY);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.setPivotXY(initialPivotX, initialPivotY)).toBe(transform);
+            expect(transform.setPivotXY(initialPivotX + 10, initialPivotY + 10)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.setPivotXY(initialPivotX + 10, initialPivotY + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+
+            transform.getMatrix();
+            onInvalidated.mockClear();
+            transform.setPivotXY(transform.x + 10, transform.y);
+            expect(onInvalidated).toHaveBeenCalled();
+
+            transform.getMatrix();
+            onInvalidated.mockClear();
+            transform.setPivotXY(transform.x, transform.y + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform.setPivotXY(initialPivotX, initialPivotY);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.setPivotXY(initialPivotX + 10, initialPivotY + 10);
+            onInvalidated.mockClear();
+            transform.setPivotXY(initialPivotX + 20, initialPivotY + 20);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     describe("setPivot(pivot)", () => {
