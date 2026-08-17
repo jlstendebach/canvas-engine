@@ -839,6 +839,50 @@ describe("Transform", () => {
         });
     });
 
+    describe("setScaleXY(scaleX, scaleY)", () => {
+        test("sets the scale x and y", () => {
+            const newScaleX = initialScaleX + 10;
+            const newScaleY = initialScaleY + 10;
+            transform.setScaleXY(newScaleX, newScaleY);
+            expect(transform.scaleX).toBe(newScaleX);
+            expect(transform.scaleY).toBe(newScaleY);
+            expect(transform.getScale().x).toBe(newScaleX);
+            expect(transform.getScale().y).toBe(newScaleY);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.setScaleXY(initialScaleX, initialScaleY)).toBe(transform);
+            expect(transform.setScaleXY(initialScaleX + 10, initialScaleY + 10)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.setScaleXY(initialScaleX + 10, initialScaleY + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+
+            transform.getMatrix();
+            onInvalidated.mockClear();
+            transform.setScaleXY(transform.scaleX + 10, transform.scaleY);
+            expect(onInvalidated).toHaveBeenCalled();
+
+            transform.getMatrix();
+            onInvalidated.mockClear();
+            transform.setScaleXY(transform.scaleX, transform.scaleY + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform.setScaleXY(initialScaleX, initialScaleY);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.setScaleXY(initialScaleX + 10, initialScaleY + 10);
+            onInvalidated.mockClear();
+            transform.setScaleXY(initialScaleX + 20, initialScaleY + 20);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });        
+    });
+
     describe("setScale(scaleOrVector)", () => {
         test("sets the scale vector by deferring to setScaleXY", () => {
             const newScale = new Vec2(initialScaleX + 10, initialScaleY + 20);
@@ -862,9 +906,6 @@ describe("Transform", () => {
             const newScale = new Vec2(initialScaleX + 10, initialScaleY + 20);
             expect(transform.setScale(newScale)).toBe(transform);
         });        
-    });
-
-    describe("setScaleXY(scaleX, scaleY)", () => {
     });
 
     describe("scaleXY(factorX, factorY)", () => {

@@ -302,18 +302,18 @@ export class Transform {
         return this;
     }
 
-    setScale(scaleOrVector) {
-        return (typeof scaleOrVector === 'number')
-            ? this.setScaleXY(scaleOrVector, scaleOrVector)
-            : this.setScaleXY(scaleOrVector.x, scaleOrVector.y);
-    }
-
     setScaleXY(scaleX, scaleY) {
         if (this.#scaleX === scaleX && this.#scaleY === scaleY) { return this; }
         this.#scaleX = scaleX;
         this.#scaleY = scaleY;
         this.#markDirty(LINEAR);
         return this;
+    }
+
+    setScale(scaleOrVector) {
+        return (typeof scaleOrVector === 'number')
+            ? this.setScaleXY(scaleOrVector, scaleOrVector)
+            : this.setScaleXY(scaleOrVector.x, scaleOrVector.y);
     }
 
     scaleXY(factorX, factorY) {
