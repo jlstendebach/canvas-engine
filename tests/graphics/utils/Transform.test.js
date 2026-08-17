@@ -750,6 +750,28 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("getScale(out)", () => {
+        test("returns the scale as a vector", () => {
+            const out = new Vec2();
+            const scale = transform.getScale(out);
+            expect(scale).toBe(out);
+            expect(scale.x).toBe(initialScaleX);
+            expect(scale.y).toBe(initialScaleY);
+        });
+
+        test("returns a new vector if out is not provided", () => {
+            const scale = transform.getScale();
+            expect(scale).toBeInstanceOf(Vec2);
+            expect(scale.x).toBe(initialScaleX);
+            expect(scale.y).toBe(initialScaleY);
+        });
+
+        test("changing returned vector does not affect transform", () => {
+            const scale = transform.getScale();
+            scale.x += 10;
+            scale.y += 20;
+            expect(transform.scaleX).toBe(initialScaleX);
+            expect(transform.scaleY).toBe(initialScaleY);
+        });        
     });
 
     describe("setScaleX(scaleX)", () => {
