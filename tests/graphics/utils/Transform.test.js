@@ -840,6 +840,28 @@ describe("Transform", () => {
     });
 
     describe("setScale(scaleOrVector)", () => {
+        test("sets the scale vector by deferring to setScaleXY", () => {
+            const newScale = new Vec2(initialScaleX + 10, initialScaleY + 20);
+            const setScaleXYSpy = jest.spyOn(transform, "setScaleXY");
+            transform.setScale(newScale);
+            expect(transform.scaleX).toBe(newScale.x);
+            expect(transform.scaleY).toBe(newScale.y);
+            expect(setScaleXYSpy).toHaveBeenCalledWith(newScale.x, newScale.y);
+        });
+
+        test("sets the scale value by deferring to setScaleXY", () => {
+            const newScale = initialScaleX + 100;
+            const setScaleXYSpy = jest.spyOn(transform, "setScaleXY");
+            transform.setScale(newScale);
+            expect(transform.scaleX).toBe(newScale);
+            expect(transform.scaleY).toBe(newScale);
+            expect(setScaleXYSpy).toHaveBeenCalledWith(newScale, newScale);
+        });
+
+        test("returns this for chaining", () => {
+            const newScale = new Vec2(initialScaleX + 10, initialScaleY + 20);
+            expect(transform.setScale(newScale)).toBe(transform);
+        });        
     });
 
     describe("setScaleXY(scaleX, scaleY)", () => {
