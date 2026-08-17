@@ -16,7 +16,7 @@ describe("Transform", () => {
     const initialScaleY = 6;
     const initialRotation = Math.PI / 4;
 
-    beforeEach(() => {
+    const resetTransform = () => {
         transform = new Transform(onInvalidated).set(
             initialX,
             initialY,
@@ -31,6 +31,10 @@ describe("Transform", () => {
         transform.getMatrix();
 
         onInvalidated.mockClear();
+    };
+
+    beforeEach(() => {
+        resetTransform();
     });
 
     // -------------------------------------------------------------------------
@@ -271,6 +275,7 @@ describe("Transform", () => {
 
     describe("constructor(onInvalidated)", () => {
         test("sets the onInvalidated callback", () => {
+            const transform = new Transform(onInvalidated);
             transform.setX(initialX + 10);
             expect(onInvalidated).toHaveBeenCalled();
         });
@@ -329,6 +334,7 @@ describe("Transform", () => {
 
         test("calls onInvalidated when only one value changes", () => {
             for (let i = 0; i < 7; i++) {
+                resetTransform();
                 transform.set(
                     initialX + (i === 0 ? 10 : 0),
                     initialY + (i === 1 ? 10 : 0),
@@ -339,9 +345,6 @@ describe("Transform", () => {
                     initialRotation + (i === 6 ? Math.PI / 4 : 0)
                 );
                 expect(onInvalidated).toHaveBeenCalled();
-
-                transform.getMatrix();
-                onInvalidated.mockClear();
             }
         });
 
@@ -692,7 +695,7 @@ describe("Transform", () => {
         });
 
         test("returns this for chaining", () => {
-            const newPivot = new Vec2(initialX + 10, initialY + 20);
+            const newPivot = new Vec2(initialPivotX + 10, initialPivotY + 20);
             expect(transform.setPivot(newPivot)).toBe(transform);
         });
     });
@@ -771,7 +774,7 @@ describe("Transform", () => {
             scale.y += 20;
             expect(transform.scaleX).toBe(initialScaleX);
             expect(transform.scaleY).toBe(initialScaleY);
-        });        
+        });
     });
 
     describe("setScaleX(scaleX)", () => {
@@ -802,10 +805,38 @@ describe("Transform", () => {
             onInvalidated.mockClear();
             transform.setScaleX(initialScaleX + 20);
             expect(onInvalidated).not.toHaveBeenCalled();
-        });        
+        });
     });
 
     describe("setScaleY(scaleY)", () => {
+        test("sets the scale y", () => {
+            const newScaleY = initialScaleY + 10;
+            transform.setScaleY(newScaleY);
+            expect(transform.scaleY).toBe(newScaleY);
+            expect(transform.getScale().y).toBe(newScaleY);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.setScaleY(initialScaleY)).toBe(transform);
+            expect(transform.setScaleY(initialScaleY + 10)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.setScaleY(initialScaleY + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if value is unchanged", () => {
+            transform.setScaleY(initialScaleY);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.setScaleY(initialScaleY + 10);
+            onInvalidated.mockClear();
+            transform.setScaleY(initialScaleY + 20);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     describe("setScale(scaleOrVector)", () => {
