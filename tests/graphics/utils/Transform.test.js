@@ -880,7 +880,7 @@ describe("Transform", () => {
             onInvalidated.mockClear();
             transform.setScaleXY(initialScaleX + 20, initialScaleY + 20);
             expect(onInvalidated).not.toHaveBeenCalled();
-        });        
+        });
     });
 
     describe("setScale(scaleOrVector)", () => {
@@ -905,10 +905,39 @@ describe("Transform", () => {
         test("returns this for chaining", () => {
             const newScale = new Vec2(initialScaleX + 10, initialScaleY + 20);
             expect(transform.setScale(newScale)).toBe(transform);
-        });        
+        });
     });
 
     describe("scaleXY(factorX, factorY)", () => {
+        test("scales the scale by factorX and factorY", () => {
+            const factorX = 2;
+            const factorY = 3;
+            transform.scaleXY(factorX, factorY);
+            expect(transform.scaleX).toBe(initialScaleX * factorX);
+            expect(transform.scaleY).toBe(initialScaleY * factorY);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.scaleXY(1, 1)).toBe(transform);
+            expect(transform.scaleXY(2, 3)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.scaleXY(2, 3);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform.scaleXY(1, 1);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.scaleXY(2, 3);
+            onInvalidated.mockClear();
+            transform.scaleXY(4, 5);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     describe("scale(factorOrVector)", () => {
