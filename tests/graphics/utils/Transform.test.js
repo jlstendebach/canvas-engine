@@ -775,6 +775,34 @@ describe("Transform", () => {
     });
 
     describe("setScaleX(scaleX)", () => {
+        test("sets the scale x", () => {
+            const newScaleX = initialScaleX + 10;
+            transform.setScaleX(newScaleX);
+            expect(transform.scaleX).toBe(newScaleX);
+            expect(transform.getScale().x).toBe(newScaleX);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.setScaleX(initialScaleX)).toBe(transform);
+            expect(transform.setScaleX(initialScaleX + 10)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.setScaleX(initialScaleX + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if value is unchanged", () => {
+            transform.setScaleX(initialScaleX);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.setScaleX(initialScaleX + 10);
+            onInvalidated.mockClear();
+            transform.setScaleX(initialScaleX + 20);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });        
     });
 
     describe("setScaleY(scaleY)", () => {
