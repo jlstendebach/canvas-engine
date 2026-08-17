@@ -884,7 +884,7 @@ describe("Transform", () => {
     });
 
     describe("setScale(scaleOrVector)", () => {
-        test("sets the scale vector by deferring to setScaleXY", () => {
+        test("sets the scale by deferring to setScaleXY with a vector", () => {
             const newScale = new Vec2(initialScaleX + 10, initialScaleY + 20);
             const setScaleXYSpy = jest.spyOn(transform, "setScaleXY");
             transform.setScale(newScale);
@@ -893,7 +893,7 @@ describe("Transform", () => {
             expect(setScaleXYSpy).toHaveBeenCalledWith(newScale.x, newScale.y);
         });
 
-        test("sets the scale value by deferring to setScaleXY", () => {
+        test("sets the scale by deferring to setScaleXY with a number", () => {
             const newScale = initialScaleX + 100;
             const setScaleXYSpy = jest.spyOn(transform, "setScaleXY");
             transform.setScale(newScale);
@@ -941,6 +941,28 @@ describe("Transform", () => {
     });
 
     describe("scale(factorOrVector)", () => {
+        test("scales by deferring to scaleXY with a vector", () => {
+            const vector = new Vec2(2, 3);
+            const scaleXYSpy = jest.spyOn(transform, "scaleXY");
+            transform.scale(vector);
+            expect(transform.scaleX).toBe(initialScaleX * vector.x);
+            expect(transform.scaleY).toBe(initialScaleY * vector.y);
+            expect(scaleXYSpy).toHaveBeenCalledWith(vector.x, vector.y);
+        });
+
+        test("scales by deferring to scaleXY with a number", () => {
+            const factor = 2;
+            const scaleXYSpy = jest.spyOn(transform, "scaleXY");
+            transform.scale(factor);
+            expect(transform.scaleX).toBe(initialScaleX * factor);
+            expect(transform.scaleY).toBe(initialScaleY * factor);
+            expect(scaleXYSpy).toHaveBeenCalledWith(factor, factor);
+        });
+
+        test("returns this for chaining", () => {
+            const vector = new Vec2(2, 3);
+            expect(transform.scale(vector)).toBe(transform);
+        });
     });
 
     // -------------------------------------------------------------------------
