@@ -970,6 +970,49 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("setRotation(radians)", () => {
+        test("sets the rotation", () => {
+            const newRotation = initialRotation + Math.PI / 4;
+            transform.setRotation(newRotation);
+            expect(transform.rotation).toBe(newRotation);
+        });
+
+        test("normalizes the rotation to be within [0, 2*PI]", () => {
+            const testCases = [
+                { input: 2 * Math.PI, expected: 0 },
+                { input: -2 * Math.PI, expected: 0 },
+                { input: 3 * Math.PI, expected: Math.PI },
+                { input: -3 * Math.PI, expected: Math.PI },
+                { input: 5 * Math.PI / 2, expected: Math.PI / 2 },
+                { input: -5 * Math.PI / 2, expected: 3 * Math.PI / 2 },
+            ];
+
+            for (const { input, expected } of testCases) {
+                transform.setRotation(input);
+                expect(transform.rotation).toBeCloseTo(expected);
+            }
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.setRotation(initialRotation)).toBe(transform);
+            expect(transform.setRotation(initialRotation + Math.PI / 4)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.setRotation(initialRotation + Math.PI / 4);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if value is unchanged", () => {
+            transform.setRotation(initialRotation);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.setRotation(initialRotation + Math.PI / 4);
+            onInvalidated.mockClear();
+            transform.setRotation(transform.rotation + Math.PI / 2);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
     });
 
     describe("rotate(deltaRadians)", () => {
