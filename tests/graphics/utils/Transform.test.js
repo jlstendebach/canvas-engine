@@ -1016,6 +1016,18 @@ describe("Transform", () => {
     });
 
     describe("rotate(deltaRadians)", () => {
+        test("rotates by deferring to setRotation with the new rotation", () => {
+            const delta = Math.PI / 4;
+            const setRotationSpy = jest.spyOn(transform, "setRotation");
+            transform.rotate(delta);
+            expect(transform.rotation).toBeCloseTo(initialRotation + delta);
+            expect(setRotationSpy).toHaveBeenCalledWith(initialRotation + delta);
+        });
+
+        test("returns this for chaining", () => {
+            const delta = Math.PI / 4;
+            expect(transform.rotate(delta)).toBe(transform);
+        });
     });
 
     // -------------------------------------------------------------------------
