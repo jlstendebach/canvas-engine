@@ -1091,6 +1091,84 @@ describe("Transform", () => {
     });
 
     describe("copy(other)", () => {
+        test("copies the values from another transform", () => {
+            const newTransform = new Transform().copy(transform);
+            expect(newTransform.x).toBe(transform.x);
+            expect(newTransform.y).toBe(transform.y);
+            expect(newTransform.pivotX).toBe(transform.pivotX);
+            expect(newTransform.pivotY).toBe(transform.pivotY);
+            expect(newTransform.scaleX).toBe(transform.scaleX);
+            expect(newTransform.scaleY).toBe(transform.scaleY);
+            expect(newTransform.rotation).toBeCloseTo(transform.rotation);
+        });
+
+        test("returns the same instance", () => {
+            const newTransform = new Transform();
+            newTransform.copy(transform);
+            expect(newTransform).toBeInstanceOf(Transform);
+            expect(newTransform).toBe(newTransform);
+            expect(newTransform).not.toBe(transform);
+        });
+
+        test("does not copy internal matrices", () => {
+            const newTransform = new Transform().copy(transform);
+            const oldMatrix = transform.unsafeGetMatrix();
+            const oldInverseMatrix = transform.unsafeGetInverseMatrix();
+            const newMatrix = newTransform.unsafeGetMatrix();
+            const newInverseMatrix = newTransform.unsafeGetInverseMatrix();
+            expect(newMatrix).not.toBe(oldMatrix);
+            expect(newInverseMatrix).not.toBe(oldInverseMatrix);
+        });
+
+        test("does not modify the original transform", () => {
+            const oldX = transform.x;
+            const oldY = transform.y;
+            const oldPivotX = transform.pivotX;
+            const oldPivotY = transform.pivotY;
+            const oldScaleX = transform.scaleX;
+            const oldScaleY = transform.scaleY;
+            const oldRotation = transform.rotation;
+
+            new Transform()
+                .copy(transform)
+                .translateXY(100, 100)
+                .translatePivotXY(100, 100)
+                .scaleXY(2, 2)
+                .rotate(Math.PI / 4);
+
+            expect(transform.x).toBe(oldX);
+            expect(transform.y).toBe(oldY);
+            expect(transform.pivotX).toBe(oldPivotX);
+            expect(transform.pivotY).toBe(oldPivotY);
+            expect(transform.scaleX).toBe(oldScaleX);
+            expect(transform.scaleY).toBe(oldScaleY);
+            expect(transform.rotation).toBeCloseTo(oldRotation);
+        });
+
+        test("does not copy onInvalidate callbacks", () => {
+            const newOnInvalidate = jest.fn();
+            const newTransform = new Transform(newOnInvalidate).copy(transform);
+
+            // Test newTransform's onInvalidate.
+            transform.getMatrix();
+            newTransform.getMatrix();
+            onInvalidated.mockClear();
+            newOnInvalidate.mockClear();
+
+            newTransform.translateXY(100, 100);
+            expect(onInvalidated).not.toHaveBeenCalled();
+            expect(newOnInvalidate).toHaveBeenCalled();
+
+            // Test transform's onInvalidate.
+            transform.getMatrix();
+            newTransform.getMatrix();
+            onInvalidated.mockClear();
+            newOnInvalidate.mockClear();
+
+            transform.translateXY(100, 100);
+            expect(onInvalidated).toHaveBeenCalled();
+            expect(newOnInvalidate).not.toHaveBeenCalled();
+        });
     });
 
     describe("clone()", () => {
