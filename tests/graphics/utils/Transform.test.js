@@ -1172,6 +1172,90 @@ describe("Transform", () => {
     });
 
     describe("clone()", () => {
+        test("creates a new transform with the same properties", () => {
+            const clone = transform.clone();
+            expect(clone).toBeInstanceOf(Transform);
+            expect(clone).not.toBe(transform);
+            expect(clone.x).toBe(transform.x);
+            expect(clone.y).toBe(transform.y);
+            expect(clone.pivotX).toBe(transform.pivotX);
+            expect(clone.pivotY).toBe(transform.pivotY);
+            expect(clone.scaleX).toBe(transform.scaleX);
+            expect(clone.scaleY).toBe(transform.scaleY);
+            expect(clone.rotation).toBeCloseTo(transform.rotation);
+        });
+
+        test("creates independent internal matrices", () => {
+            const matrix = transform.unsafeGetMatrix();
+            const inverseMatrix = transform.unsafeGetInverseMatrix();
+            const clone = transform.clone();
+            const cloneMatrix = clone.unsafeGetMatrix();
+            const cloneInverseMatrix = clone.unsafeGetInverseMatrix();
+
+            expect(cloneMatrix).not.toBe(matrix);
+            expect(cloneInverseMatrix).not.toBe(inverseMatrix);
+            expect(cloneMatrix).toEqual(matrix);
+            expect(cloneInverseMatrix).toEqual(inverseMatrix);
+        });
+
+        test("does not share state with the original transform", () => {
+            const clone = transform.clone();
+
+            clone
+                .translateXY(100, 100)
+                .translatePivotXY(100, 100)
+                .scaleXY(2, 2)
+                .rotate(Math.PI / 4);
+
+            expect(clone.x).not.toBe(transform.x);
+            expect(clone.y).not.toBe(transform.y);
+            expect(clone.pivotX).not.toBe(transform.pivotX);
+            expect(clone.pivotY).not.toBe(transform.pivotY);
+            expect(clone.scaleX).not.toBe(transform.scaleX);
+            expect(clone.scaleY).not.toBe(transform.scaleY);
+            expect(clone.rotation).not.toBe(transform.rotation);
+        });
+
+        test("does not copy the original onInvalidated callback", () => {
+            const clone = transform.clone();
+
+            transform.getMatrix();
+            clone.getMatrix();
+            onInvalidated.mockClear();
+
+            clone.translateXY(100, 100);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("uses the supplied onInvalidated callback", () => {
+            const newOnInvalidate = jest.fn();
+            const clone = transform.clone(newOnInvalidate);
+
+            transform.getMatrix();
+            clone.getMatrix();
+            onInvalidated.mockClear();
+            newOnInvalidate.mockClear();
+
+            clone.translateXY(100, 100);
+            expect(onInvalidated).not.toHaveBeenCalled();
+            expect(newOnInvalidate).toHaveBeenCalled();
+
+            transform.getMatrix();
+            clone.getMatrix();
+            onInvalidated.mockClear();
+            newOnInvalidate.mockClear();
+
+            transform.translateXY(100, 100);
+            expect(onInvalidated).toHaveBeenCalled();
+            expect(newOnInvalidate).not.toHaveBeenCalled();
+        });
+
+        test("clones by deferring to the copy() method", () => {
+            const copySpy = jest.spyOn(Transform.prototype, "copy");
+            transform.clone();
+            expect(copySpy).toHaveBeenCalledWith(transform);
+            copySpy.mockRestore();
+        });
     });
 
 });

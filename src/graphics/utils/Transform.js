@@ -504,8 +504,8 @@ export class Transform {
      * transform.
      * @returns {Transform} An unattached copy of this Transform.
      */
-    clone() {
-        return new Transform().copy(this);
+    clone(onInvalidated = null) {
+        return new Transform(onInvalidated).copy(this);
     }
 
     // -------------------------------------------------------------------------
