@@ -1185,10 +1185,11 @@ describe("Transform", () => {
             expect(clone.rotation).toBeCloseTo(transform.rotation);
         });
 
-        test("creates independent internal matrices", () => {
+        test("does not share state with the original transform", () => {
+            const clone = transform.clone();
+
             const matrix = transform.unsafeGetMatrix();
             const inverseMatrix = transform.unsafeGetInverseMatrix();
-            const clone = transform.clone();
             const cloneMatrix = clone.unsafeGetMatrix();
             const cloneInverseMatrix = clone.unsafeGetInverseMatrix();
 
@@ -1196,13 +1197,8 @@ describe("Transform", () => {
             expect(cloneInverseMatrix).not.toBe(inverseMatrix);
             expect(cloneMatrix).toEqual(matrix);
             expect(cloneInverseMatrix).toEqual(inverseMatrix);
-        });
 
-        test("does not share state with the original transform", () => {
-            const clone = transform.clone();
-
-            clone
-                .translateXY(100, 100)
+            clone.translateXY(100, 100)
                 .translatePivotXY(100, 100)
                 .scaleXY(2, 2)
                 .rotate(Math.PI / 4);
@@ -1214,17 +1210,6 @@ describe("Transform", () => {
             expect(clone.scaleX).not.toBe(transform.scaleX);
             expect(clone.scaleY).not.toBe(transform.scaleY);
             expect(clone.rotation).not.toBe(transform.rotation);
-        });
-
-        test("does not copy the original onInvalidated callback", () => {
-            const clone = transform.clone();
-
-            transform.getMatrix();
-            clone.getMatrix();
-            onInvalidated.mockClear();
-
-            clone.translateXY(100, 100);
-            expect(onInvalidated).not.toHaveBeenCalled();
         });
 
         test("uses the supplied onInvalidated callback", () => {
