@@ -1,4 +1,4 @@
-import { Transform, Vec2 } from "@canvas-engine";
+import { Matrix2, Transform, Vec2 } from "@canvas-engine";
 import { beforeEach, describe, expect, jest, test } from "@jest/globals";
 
 describe("Transform", () => {
@@ -1079,6 +1079,48 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("getMatrix(out)", () => {
+        test("returns a matrix equivalent in value to the internal matrix", () => {
+            const matrix = transform.getMatrix();
+            const internalMatrix = transform.unsafeGetMatrix();
+
+            expect(matrix).toBeInstanceOf(Matrix2);
+            expect(matrix.equals(internalMatrix)).toBe(true);
+        });
+
+        test("returns a matrix that is not a reference to the internal matrix", () => {
+            const initialMatrix = transform.unsafeGetMatrix();
+            const initialMatrixSnapshot = initialMatrix.clone();
+            const matrix = transform.getMatrix();
+
+            expect(matrix).not.toBe(initialMatrix);
+
+            matrix.a += 10;
+            matrix.b += 20;
+            matrix.c += 30;
+            matrix.d += 40;
+            matrix.tx += 50;
+            matrix.ty += 60;
+
+            expect(transform.unsafeGetMatrix().equals(initialMatrixSnapshot)).toBe(true);
+        });
+
+        test("creates a new matrix when out is not provided", () => {
+            const matrix = transform.getMatrix();
+            const internalMatrix = transform.unsafeGetMatrix();
+
+            expect(matrix).toBeInstanceOf(Matrix2);
+            expect(matrix).not.toBe(internalMatrix);
+            expect(matrix.equals(internalMatrix)).toBe(true);
+        });
+
+        test("uses the provided out matrix when provided", () => {
+            const out = new Matrix2();
+            const returnedMatrix = transform.getMatrix(out);
+            const internalMatrix = transform.unsafeGetMatrix();
+
+            expect(returnedMatrix).toBe(out);
+            expect(returnedMatrix.equals(internalMatrix)).toBe(true);
+        });
     });
 
     describe("unsafeGetMatrix()", () => {
