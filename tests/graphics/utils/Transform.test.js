@@ -1127,6 +1127,48 @@ describe("Transform", () => {
     });
 
     describe("getInverseMatrix(out)", () => {
+        test("returns a matrix equivalent in value to the internal matrix", () => {
+            const matrix = transform.getInverseMatrix();
+            const internalMatrix = transform.unsafeGetInverseMatrix();
+
+            expect(matrix).toBeInstanceOf(Matrix2);
+            expect(matrix.equals(internalMatrix)).toBe(true);
+        });
+
+        test("returns a matrix that is not a reference to the internal matrix", () => {
+            const initialMatrix = transform.unsafeGetInverseMatrix();
+            const initialMatrixSnapshot = initialMatrix.clone();
+            const matrix = transform.getInverseMatrix();
+
+            expect(matrix).not.toBe(initialMatrix);
+
+            matrix.a += 10;
+            matrix.b += 20;
+            matrix.c += 30;
+            matrix.d += 40;
+            matrix.tx += 50;
+            matrix.ty += 60;
+
+            expect(transform.unsafeGetInverseMatrix().equals(initialMatrixSnapshot)).toBe(true);
+        });
+
+        test("creates a new matrix when out is not provided", () => {
+            const matrix = transform.getInverseMatrix();
+            const internalMatrix = transform.unsafeGetInverseMatrix();
+
+            expect(matrix).toBeInstanceOf(Matrix2);
+            expect(matrix).not.toBe(internalMatrix);
+            expect(matrix.equals(internalMatrix)).toBe(true);
+        });
+
+        test("uses the provided out matrix when provided", () => {
+            const out = new Matrix2();
+            const returnedMatrix = transform.getInverseMatrix(out);
+            const internalMatrix = transform.unsafeGetInverseMatrix();
+
+            expect(returnedMatrix).toBe(out);
+            expect(returnedMatrix.equals(internalMatrix)).toBe(true);
+        });        
     });
 
     describe("unsafeGetInverseMatrix()", () => {
