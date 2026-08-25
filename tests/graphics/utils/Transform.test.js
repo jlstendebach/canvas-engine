@@ -1124,6 +1124,25 @@ describe("Transform", () => {
     });
 
     describe("unsafeGetMatrix()", () => {
+        test("returns the internal matrix", () => {
+            const internalMatrix = transform.unsafeGetMatrix();
+            internalMatrix.set(100, 100, 100, 100, 100, 100);
+            expect(transform.a).toBe(100);
+            expect(transform.b).toBe(100);
+            expect(transform.c).toBe(100);
+            expect(transform.d).toBe(100);
+            expect(transform.tx).toBe(100);
+            expect(transform.ty).toBe(100);
+        });
+
+        test("returns the same matrix instance on subsequent calls", () => {
+            const internalMatrix1 = transform.unsafeGetMatrix();
+            const internalMatrix2 = transform.unsafeGetMatrix();
+            const internalMatrix3 = transform.unsafeGetMatrix();
+            expect(internalMatrix1).toBe(internalMatrix2);
+            expect(internalMatrix1).toBe(internalMatrix3);
+            expect(internalMatrix2).toBe(internalMatrix3);
+        });
     });
 
     describe("getInverseMatrix(out)", () => {
@@ -1168,10 +1187,11 @@ describe("Transform", () => {
 
             expect(returnedMatrix).toBe(out);
             expect(returnedMatrix.equals(internalMatrix)).toBe(true);
-        });        
+        });
     });
 
     describe("unsafeGetInverseMatrix()", () => {
+
     });
 
     describe("copy(other)", () => {
