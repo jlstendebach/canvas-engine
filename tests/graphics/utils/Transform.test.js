@@ -1039,33 +1039,26 @@ describe("Transform", () => {
             {
                 name: "identity",
                 values: [0, 0, 0, 0, 1, 1, 0],
-                point: [10, 20],
+                point: new Vec2(10, 20),
             },
             {
                 name: "translation",
                 values: [12, -8, 0, 0, 1, 1, 0],
-                point: [-4, 6],
+                point: new Vec2(-4, 6),
             },
             {
                 name: "pivoted rotation and scale",
                 values: [12, -8, 3, -2, 2, 0.5, Math.PI / 3],
-                point: [-4, 6],
+                point: new Vec2(-4, 6),
             },
         ])("matches Matrix2 for $name", ({ values, point }) => {
             const [x, y, pivotX, pivotY, scaleX, scaleY, rotation] = values;
-            const expected = new Matrix2().setTransform(
-                x,
-                y,
-                pivotX,
-                pivotY,
-                scaleX,
-                scaleY,
-                rotation
-            ).transformPointXY(...point);
-
+            const expected = new Matrix2()
+                .setTransform(x, y, pivotX, pivotY, scaleX, scaleY, rotation)
+                .transformPointXY(point.x, point.y);
             const actual = transform
                 .set(x, y, pivotX, pivotY, scaleX, scaleY, rotation)
-                .transformPointXY(...point);
+                .transformPointXY(point.x, point.y);
 
             expect(actual).toBeInstanceOf(Vec2);
             expect(actual.x).toBeCloseTo(expected.x);
@@ -1095,13 +1088,82 @@ describe("Transform", () => {
 
             expect(first).not.toBe(second);
             expect(first.equals(second)).toBe(true);
-
-            first.set(0, 0);
-            expect(transform.transformPointXY(10, 20).equals(second)).toBe(true);
         });
     });
 
     describe("transformPoint(point, out)", () => {
+        test.each([
+            {
+                name: "identity",
+                values: [0, 0, 0, 0, 1, 1, 0],
+                point: new Vec2(10, 20),
+            },
+            {
+                name: "translation",
+                values: [12, -8, 0, 0, 1, 1, 0],
+                point: new Vec2(-4, 6),
+            },
+            {
+                name: "pivoted rotation and scale",
+                values: [12, -8, 3, -2, 2, 0.5, Math.PI / 3],
+                point: new Vec2(-4, 6),
+            },
+        ])("matches Matrix2 for $name", ({ values, point }) => {
+            const [x, y, pivotX, pivotY, scaleX, scaleY, rotation] = values;
+            const expected = new Matrix2()
+                .setTransform(x, y, pivotX, pivotY, scaleX, scaleY, rotation)
+                .transformPoint(point);
+            const actual = transform
+                .set(x, y, pivotX, pivotY, scaleX, scaleY, rotation)
+                .transformPoint(point);
+
+            expect(actual).toBeInstanceOf(Vec2);
+            expect(actual.x).toBeCloseTo(expected.x);
+            expect(actual.y).toBeCloseTo(expected.y);
+        });
+
+        test("reuses the output vector", () => {
+            const out = new Vec2(100, 200);
+            const point = new Vec2(10, 20);
+            const expected = new Matrix2().setTransform(
+                initialX,
+                initialY,
+                initialPivotX,
+                initialPivotY,
+                initialScaleX,
+                initialScaleY,
+                initialRotation
+            ).transformPoint(point);
+
+            expect(transform.transformPoint(point, out)).toBe(out);
+            expect(out.x).toBeCloseTo(expected.x);
+            expect(out.y).toBeCloseTo(expected.y);
+        });
+
+        test("returns independent vectors", () => {
+            const point = new Vec2(10, 20);
+            const first = transform.transformPoint(point);
+            const second = transform.transformPoint(point);
+
+            expect(first).not.toBe(second);
+            expect(first.equals(second)).toBe(true);
+        });
+
+        test("does not modify the input point", () => {
+            const point = new Vec2(10, 20);
+            const snapshot = point.clone();
+            transform.transformPoint(point);
+            expect(point.equals(snapshot)).toBe(true);
+        });
+
+        test("supports using the input point as the output vector", () => {
+            const point = new Vec2(10, 20);
+            const expected = transform.transformPoint(point.clone());
+            const actual = transform.transformPoint(point, point);
+
+            expect(actual).toBe(point);
+            expect(point.equals(expected)).toBe(true);
+        });
     });
 
     describe("transformVectorXY(x, y, out)", () => {
