@@ -1069,8 +1069,12 @@ describe("Transform", () => {
         // the Transform under test.
         expectMatchesMatrix2({ values, input }, applyMethod) {
             const [x, y, pivotX, pivotY, scaleX, scaleY, rotation] = values;
-            const expectedMatrix = new Matrix2().setTransform(x, y, pivotX, pivotY, scaleX, scaleY, rotation);
-            const actualTransform = transform.set(x, y, pivotX, pivotY, scaleX, scaleY, rotation);
+            const expectedMatrix = new Matrix2().setTransform(
+                x, y, pivotX, pivotY, scaleX, scaleY, rotation
+            );
+            const actualTransform = transform.set(
+                x, y, pivotX, pivotY, scaleX, scaleY, rotation
+            );
 
             const expected = applyMethod(expectedMatrix, input);
             const actual = applyMethod(actualTransform, input);
@@ -1171,6 +1175,44 @@ describe("Transform", () => {
     });
 
     describe("transformVector(vector, out)", () => {
+        test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
+            transformationFixtures.expectMatchesMatrix2(
+                testCase,
+                (subject, vector) => subject.transformVector(vector)
+            );
+        });
+
+        test("reuses the output vector", () => {
+            const out = new Vec2(100, 200);
+            const vector = new Vec2(10, 20);
+            const expected = transformationFixtures.initialMatrix.transformVector(vector);
+            expect(transform.transformVector(vector, out)).toBe(out);
+            expect(out.x).toBeCloseTo(expected.x);
+            expect(out.y).toBeCloseTo(expected.y);
+        });
+
+        test("returns independent vectors", () => {
+            const vector = new Vec2(10, 20);
+            const first = transform.transformVector(vector);
+            const second = transform.transformVector(vector);
+            expect(first).not.toBe(second);
+            expect(first.equals(second)).toBe(true);
+        });
+
+        test("does not modify the input vector", () => {
+            const vector = new Vec2(10, 20);
+            const snapshot = vector.clone();
+            transform.transformVector(vector);
+            expect(vector.equals(snapshot)).toBe(true);
+        });
+
+        test("supports using the input vector as the output vector", () => {
+            const vector = new Vec2(10, 20);
+            const expected = transform.transformVector(vector.clone());
+            const actual = transform.transformVector(vector, vector);
+            expect(actual).toBe(vector);
+            expect(vector.equals(expected)).toBe(true);
+        });
     });
 
     describe("transformBounds(bounds, out)", () => {
