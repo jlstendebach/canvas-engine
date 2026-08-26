@@ -1167,6 +1167,60 @@ describe("Transform", () => {
     });
 
     describe("transformVectorXY(x, y, out)", () => {
+        test.each([
+            {
+                name: "identity",
+                values: [0, 0, 0, 0, 1, 1, 0],
+                vector: new Vec2(10, 20),
+            },
+            {
+                name: "translation",
+                values: [12, -8, 0, 0, 1, 1, 0],
+                vector: new Vec2(-4, 6),
+            },
+            {
+                name: "pivoted rotation and scale",
+                values: [12, -8, 3, -2, 2, 0.5, Math.PI / 3],
+                vector: new Vec2(-4, 6),
+            },
+        ])("matches Matrix2 for $name", ({ values, vector }) => {
+            const [x, y, pivotX, pivotY, scaleX, scaleY, rotation] = values;
+            const expected = new Matrix2()
+                .setTransform(x, y, pivotX, pivotY, scaleX, scaleY, rotation)
+                .transformVectorXY(vector.x, vector.y);
+            const actual = transform
+                .set(x, y, pivotX, pivotY, scaleX, scaleY, rotation)
+                .transformVectorXY(vector.x, vector.y);
+
+            expect(actual).toBeInstanceOf(Vec2);
+            expect(actual.x).toBeCloseTo(expected.x);
+            expect(actual.y).toBeCloseTo(expected.y);
+        });
+
+        test("reuses the output vector", () => {
+            const out = new Vec2(100, 200);
+            const expected = new Matrix2().setTransform(
+                initialX,
+                initialY,
+                initialPivotX,
+                initialPivotY,
+                initialScaleX,
+                initialScaleY,
+                initialRotation
+            ).transformVectorXY(10, 20);
+
+            expect(transform.transformVectorXY(10, 20, out)).toBe(out);
+            expect(out.x).toBeCloseTo(expected.x);
+            expect(out.y).toBeCloseTo(expected.y);
+        });
+
+        test("returns a new vector instance for each call", () => {
+            const first = transform.transformVectorXY(10, 20);
+            const second = transform.transformVectorXY(10, 20);
+
+            expect(first).not.toBe(second);
+            expect(first.equals(second)).toBe(true);
+        });
     });
 
     describe("transformVector(vector, out)", () => {
