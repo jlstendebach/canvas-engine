@@ -1035,6 +1035,70 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     describe("transformPointXY(x, y, out)", () => {
+        test.each([
+            {
+                name: "identity",
+                values: [0, 0, 0, 0, 1, 1, 0],
+                point: [10, 20],
+            },
+            {
+                name: "translation",
+                values: [12, -8, 0, 0, 1, 1, 0],
+                point: [-4, 6],
+            },
+            {
+                name: "pivoted rotation and scale",
+                values: [12, -8, 3, -2, 2, 0.5, Math.PI / 3],
+                point: [-4, 6],
+            },
+        ])("matches Matrix2 for $name", ({ values, point }) => {
+            const [x, y, pivotX, pivotY, scaleX, scaleY, rotation] = values;
+            const expected = new Matrix2().setTransform(
+                x,
+                y,
+                pivotX,
+                pivotY,
+                scaleX,
+                scaleY,
+                rotation
+            ).transformPointXY(...point);
+
+            const actual = transform
+                .set(x, y, pivotX, pivotY, scaleX, scaleY, rotation)
+                .transformPointXY(...point);
+
+            expect(actual).toBeInstanceOf(Vec2);
+            expect(actual.x).toBeCloseTo(expected.x);
+            expect(actual.y).toBeCloseTo(expected.y);
+        });
+
+        test("reuses the output vector", () => {
+            const out = new Vec2(100, 200);
+            const expected = new Matrix2().setTransform(
+                initialX,
+                initialY,
+                initialPivotX,
+                initialPivotY,
+                initialScaleX,
+                initialScaleY,
+                initialRotation
+            ).transformPointXY(10, 20);
+
+            expect(transform.transformPointXY(10, 20, out)).toBe(out);
+            expect(out.x).toBeCloseTo(expected.x);
+            expect(out.y).toBeCloseTo(expected.y);
+        });
+
+        test("returns independent vectors", () => {
+            const first = transform.transformPointXY(10, 20);
+            const second = transform.transformPointXY(10, 20);
+
+            expect(first).not.toBe(second);
+            expect(first.equals(second)).toBe(true);
+
+            first.set(0, 0);
+            expect(transform.transformPointXY(10, 20).equals(second)).toBe(true);
+        });
     });
 
     describe("transformPoint(point, out)", () => {
