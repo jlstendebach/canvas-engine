@@ -36,12 +36,12 @@ describe("Transform", () => {
     // Generates the standard 5-test suite for a setter that assigns a single
     // number-valued property, verified against transform[propertyName] and the
     // corresponding vector getter's component.
-    const testSingleAxisSetter = ({ 
-        setterName, 
-        propertyName, 
-        getVectorName, 
-        vectorComponent, 
-        initialValue 
+    const testSingleAxisSetter = ({
+        setterName,
+        propertyName,
+        getVectorName,
+        vectorComponent,
+        initialValue
     }) => {
         test(`sets the ${propertyName}`, () => {
             const newValue = initialValue + 10;
