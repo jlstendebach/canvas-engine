@@ -33,6 +33,150 @@ describe("Transform", () => {
         onInvalidated.mockClear();
     };
 
+    // Generates the standard 5-test suite for a setter that assigns a single
+    // number-valued property, verified against transform[propertyName] and the
+    // corresponding vector getter's component.
+    const testSingleAxisSetter = ({ 
+        setterName, 
+        propertyName, 
+        getVectorName, 
+        vectorComponent, 
+        initialValue 
+    }) => {
+        test(`sets the ${propertyName}`, () => {
+            const newValue = initialValue + 10;
+            transform[setterName](newValue);
+            expect(transform[propertyName]).toBe(newValue);
+            expect(transform[getVectorName]()[vectorComponent]).toBe(newValue);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform[setterName](initialValue)).toBe(transform);
+            expect(transform[setterName](initialValue + 10)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform[setterName](initialValue + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if value is unchanged", () => {
+            transform[setterName](initialValue);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform[setterName](initialValue + 10);
+            onInvalidated.mockClear();
+            transform[setterName](initialValue + 20);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+    };
+
+    // Generates the standard 5-test suite for a setter that assigns a pair of
+    // number-valued properties (x/y axes), verified against transform's own
+    // x/y properties and the corresponding vector getter.
+    const testTwoAxisSetter = ({
+        setterName,
+        propertyNameX,
+        propertyNameY,
+        getVectorName,
+        initialValueX,
+        initialValueY
+    }) => {
+        test(`sets the ${propertyNameX} and ${propertyNameY}`, () => {
+            const newX = initialValueX + 10;
+            const newY = initialValueY + 10;
+            transform[setterName](newX, newY);
+            expect(transform[propertyNameX]).toBe(newX);
+            expect(transform[propertyNameY]).toBe(newY);
+            expect(transform[getVectorName]().x).toBe(newX);
+            expect(transform[getVectorName]().y).toBe(newY);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform[setterName](initialValueX, initialValueY)).toBe(transform);
+            expect(transform[setterName](initialValueX + 10, initialValueY + 10)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform[setterName](initialValueX + 10, initialValueY + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+
+            transform.getMatrix();
+            onInvalidated.mockClear();
+            transform[setterName](transform[propertyNameX] + 10, transform[propertyNameY]);
+            expect(onInvalidated).toHaveBeenCalled();
+
+            transform.getMatrix();
+            onInvalidated.mockClear();
+            transform[setterName](transform[propertyNameX], transform[propertyNameY] + 10);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform[setterName](initialValueX, initialValueY);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform[setterName](initialValueX + 10, initialValueY + 10);
+            onInvalidated.mockClear();
+            transform[setterName](initialValueX + 20, initialValueY + 20);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+    };
+
+    // Generates the standard 5-test suite for a method that applies a delta to
+    // a pair of number-valued properties (x/y axes) via combine(value, delta).
+    const testTwoAxisDelta = ({
+        methodName,
+        testName,
+        propertyNameX,
+        propertyNameY,
+        initialValueX,
+        initialValueY,
+        identityDeltaX,
+        identityDeltaY,
+        deltaX,
+        deltaY,
+        secondDeltaX,
+        secondDeltaY,
+        combine,
+    }) => {
+        test(testName, () => {
+            transform[methodName](deltaX, deltaY);
+            expect(transform[propertyNameX]).toBe(combine(initialValueX, deltaX));
+            expect(transform[propertyNameY]).toBe(combine(initialValueY, deltaY));
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform[methodName](identityDeltaX, identityDeltaY)).toBe(transform);
+            expect(transform[methodName](deltaX, deltaY)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform[methodName](deltaX, deltaY);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform[methodName](identityDeltaX, identityDeltaY);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform[methodName](deltaX, deltaY);
+            onInvalidated.mockClear();
+            transform[methodName](secondDeltaX, secondDeltaY);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+    };
+
+    // -------------------------------------------------------------------------
+    // MARK: - beforeEach
+    // -------------------------------------------------------------------------
+
     beforeEach(() => {
         resetTransform();
     });
@@ -392,96 +536,33 @@ describe("Transform", () => {
     });
 
     describe("setX(x)", () => {
-        test("sets the x position", () => {
-            const newX = initialX + 10;
-            transform.setX(newX);
-            expect(transform.x).toBe(newX);
-            expect(transform.getPosition().x).toBe(newX);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.setX(initialX)).toBe(transform);
-            expect(transform.setX(initialX + 10)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.setX(initialX + 10);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if value is unchanged", () => {
-            transform.setX(initialX);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.setX(initialX + 10);
-            onInvalidated.mockClear();
-            transform.setX(initialX + 20);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testSingleAxisSetter({
+            setterName: "setX",
+            propertyName: "x",
+            getVectorName: "getPosition",
+            vectorComponent: "x",
+            initialValue: initialX,
         });
     });
 
     describe("setY(y)", () => {
-        test("sets the y position", () => {
-            const newY = initialY + 10;
-            transform.setY(newY);
-            expect(transform.y).toBe(newY);
-            expect(transform.getPosition().y).toBe(newY);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.setY(initialY)).toBe(transform);
-            expect(transform.setY(initialY + 10)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.setY(initialY + 10);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if value is unchanged", () => {
-            transform.setY(initialY);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.setY(initialY + 10);
-            onInvalidated.mockClear();
-            transform.setY(initialY + 20);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testSingleAxisSetter({
+            setterName: "setY",
+            propertyName: "y",
+            getVectorName: "getPosition",
+            vectorComponent: "y",
+            initialValue: initialY,
         });
     });
 
     describe("setPositionXY(x, y)", () => {
-        test("sets the position using x and y values", () => {
-            const newX = initialX + 10;
-            const newY = initialY + 20;
-            transform.setPositionXY(newX, newY);
-            expect(transform.x).toBe(newX);
-            expect(transform.y).toBe(newY);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.setPositionXY(initialX, initialY)).toBe(transform);
-            expect(transform.setPositionXY(initialX + 10, initialY + 20)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.setPositionXY(initialX + 10, initialY + 20);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if values are unchanged", () => {
-            transform.setPositionXY(initialX, initialY);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.setPositionXY(initialX + 10, initialY + 20);
-            onInvalidated.mockClear();
-            transform.setPositionXY(initialX + 30, initialY + 40);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testTwoAxisSetter({
+            setterName: "setPositionXY",
+            propertyNameX: "x",
+            propertyNameY: "y",
+            getVectorName: "getPosition",
+            initialValueX: initialX,
+            initialValueY: initialY,
         });
     });
 
@@ -502,34 +583,20 @@ describe("Transform", () => {
     });
 
     describe("translateXY(dx, dy)", () => {
-        test("translates the position by dx and dy", () => {
-            const dx = 10;
-            const dy = 20;
-            transform.translateXY(dx, dy);
-            expect(transform.x).toBe(initialX + dx);
-            expect(transform.y).toBe(initialY + dy);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.translateXY(0, 0)).toBe(transform);
-            expect(transform.translateXY(10, 20)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.translateXY(10, 20);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if values are unchanged", () => {
-            transform.translateXY(0, 0);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.translateXY(10, 20);
-            onInvalidated.mockClear();
-            transform.translateXY(30, 40);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testTwoAxisDelta({
+            methodName: "translateXY",
+            testName: "translates the position by dx and dy",
+            propertyNameX: "x",
+            propertyNameY: "y",
+            initialValueX: initialX,
+            initialValueY: initialY,
+            identityDeltaX: 0,
+            identityDeltaY: 0,
+            deltaX: 10,
+            deltaY: 20,
+            secondDeltaX: 30,
+            secondDeltaY: 40,
+            combine: (value, delta) => value + delta,
         });
     });
 
@@ -579,108 +646,33 @@ describe("Transform", () => {
     });
 
     describe("setPivotX(pivotX)", () => {
-        test("sets the pivot x", () => {
-            const newPivotX = initialPivotX + 10;
-            transform.setPivotX(newPivotX);
-            expect(transform.pivotX).toBe(newPivotX);
-            expect(transform.getPivot().x).toBe(newPivotX);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.setPivotX(initialPivotX)).toBe(transform);
-            expect(transform.setPivotX(initialPivotX + 10)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.setPivotX(initialPivotX + 10);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if value is unchanged", () => {
-            transform.setPivotX(initialPivotX);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.setPivotX(initialPivotX + 10);
-            onInvalidated.mockClear();
-            transform.setPivotX(initialPivotX + 20);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testSingleAxisSetter({
+            setterName: "setPivotX",
+            propertyName: "pivotX",
+            getVectorName: "getPivot",
+            vectorComponent: "x",
+            initialValue: initialPivotX,
         });
     });
 
     describe("setPivotY(pivotY)", () => {
-        test("sets the pivot y", () => {
-            const newPivotY = initialPivotY + 10;
-            transform.setPivotY(newPivotY);
-            expect(transform.pivotY).toBe(newPivotY);
-            expect(transform.getPivot().y).toBe(newPivotY);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.setPivotY(initialPivotY)).toBe(transform);
-            expect(transform.setPivotY(initialPivotY + 10)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.setPivotY(initialPivotY + 10);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if value is unchanged", () => {
-            transform.setPivotY(initialPivotY);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.setPivotY(initialPivotY + 10);
-            onInvalidated.mockClear();
-            transform.setPivotY(initialPivotY + 20);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testSingleAxisSetter({
+            setterName: "setPivotY",
+            propertyName: "pivotY",
+            getVectorName: "getPivot",
+            vectorComponent: "y",
+            initialValue: initialPivotY,
         });
     });
 
     describe("setPivotXY(pivotX, pivotY)", () => {
-        test("sets the pivot x and y", () => {
-            const newPivotX = initialPivotX + 10;
-            const newPivotY = initialPivotY + 10;
-            transform.setPivotXY(newPivotX, newPivotY);
-            expect(transform.pivotX).toBe(newPivotX);
-            expect(transform.pivotY).toBe(newPivotY);
-            expect(transform.getPivot().x).toBe(newPivotX);
-            expect(transform.getPivot().y).toBe(newPivotY);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.setPivotXY(initialPivotX, initialPivotY)).toBe(transform);
-            expect(transform.setPivotXY(initialPivotX + 10, initialPivotY + 10)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.setPivotXY(initialPivotX + 10, initialPivotY + 10);
-            expect(onInvalidated).toHaveBeenCalled();
-
-            transform.getMatrix();
-            onInvalidated.mockClear();
-            transform.setPivotXY(transform.pivotX + 10, transform.pivotY);
-            expect(onInvalidated).toHaveBeenCalled();
-
-            transform.getMatrix();
-            onInvalidated.mockClear();
-            transform.setPivotXY(transform.pivotX, transform.pivotY + 10);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if values are unchanged", () => {
-            transform.setPivotXY(initialPivotX, initialPivotY);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.setPivotXY(initialPivotX + 10, initialPivotY + 10);
-            onInvalidated.mockClear();
-            transform.setPivotXY(initialPivotX + 20, initialPivotY + 20);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testTwoAxisSetter({
+            setterName: "setPivotXY",
+            propertyNameX: "pivotX",
+            propertyNameY: "pivotY",
+            getVectorName: "getPivot",
+            initialValueX: initialPivotX,
+            initialValueY: initialPivotY,
         });
     });
 
@@ -701,34 +693,20 @@ describe("Transform", () => {
     });
 
     describe("translatePivotXY(dx, dy)", () => {
-        test("translates the position by dx and dy", () => {
-            const dx = 10;
-            const dy = 20;
-            transform.translatePivotXY(dx, dy);
-            expect(transform.pivotX).toBe(initialPivotX + dx);
-            expect(transform.pivotY).toBe(initialPivotY + dy);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.translatePivotXY(0, 0)).toBe(transform);
-            expect(transform.translatePivotXY(10, 20)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.translatePivotXY(10, 20);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if values are unchanged", () => {
-            transform.translatePivotXY(0, 0);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.translatePivotXY(10, 20);
-            onInvalidated.mockClear();
-            transform.translatePivotXY(30, 40);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testTwoAxisDelta({
+            methodName: "translatePivotXY",
+            testName: "translates the pivot by dx and dy",
+            propertyNameX: "pivotX",
+            propertyNameY: "pivotY",
+            initialValueX: initialPivotX,
+            initialValueY: initialPivotY,
+            identityDeltaX: 0,
+            identityDeltaY: 0,
+            deltaX: 10,
+            deltaY: 20,
+            secondDeltaX: 30,
+            secondDeltaY: 40,
+            combine: (value, delta) => value + delta,
         });
     });
 
@@ -778,108 +756,33 @@ describe("Transform", () => {
     });
 
     describe("setScaleX(scaleX)", () => {
-        test("sets the scale x", () => {
-            const newScaleX = initialScaleX + 10;
-            transform.setScaleX(newScaleX);
-            expect(transform.scaleX).toBe(newScaleX);
-            expect(transform.getScale().x).toBe(newScaleX);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.setScaleX(initialScaleX)).toBe(transform);
-            expect(transform.setScaleX(initialScaleX + 10)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.setScaleX(initialScaleX + 10);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if value is unchanged", () => {
-            transform.setScaleX(initialScaleX);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.setScaleX(initialScaleX + 10);
-            onInvalidated.mockClear();
-            transform.setScaleX(initialScaleX + 20);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testSingleAxisSetter({
+            setterName: "setScaleX",
+            propertyName: "scaleX",
+            getVectorName: "getScale",
+            vectorComponent: "x",
+            initialValue: initialScaleX,
         });
     });
 
     describe("setScaleY(scaleY)", () => {
-        test("sets the scale y", () => {
-            const newScaleY = initialScaleY + 10;
-            transform.setScaleY(newScaleY);
-            expect(transform.scaleY).toBe(newScaleY);
-            expect(transform.getScale().y).toBe(newScaleY);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.setScaleY(initialScaleY)).toBe(transform);
-            expect(transform.setScaleY(initialScaleY + 10)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.setScaleY(initialScaleY + 10);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if value is unchanged", () => {
-            transform.setScaleY(initialScaleY);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.setScaleY(initialScaleY + 10);
-            onInvalidated.mockClear();
-            transform.setScaleY(initialScaleY + 20);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testSingleAxisSetter({
+            setterName: "setScaleY",
+            propertyName: "scaleY",
+            getVectorName: "getScale",
+            vectorComponent: "y",
+            initialValue: initialScaleY,
         });
     });
 
     describe("setScaleXY(scaleX, scaleY)", () => {
-        test("sets the scale x and y", () => {
-            const newScaleX = initialScaleX + 10;
-            const newScaleY = initialScaleY + 10;
-            transform.setScaleXY(newScaleX, newScaleY);
-            expect(transform.scaleX).toBe(newScaleX);
-            expect(transform.scaleY).toBe(newScaleY);
-            expect(transform.getScale().x).toBe(newScaleX);
-            expect(transform.getScale().y).toBe(newScaleY);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.setScaleXY(initialScaleX, initialScaleY)).toBe(transform);
-            expect(transform.setScaleXY(initialScaleX + 10, initialScaleY + 10)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.setScaleXY(initialScaleX + 10, initialScaleY + 10);
-            expect(onInvalidated).toHaveBeenCalled();
-
-            transform.getMatrix();
-            onInvalidated.mockClear();
-            transform.setScaleXY(transform.scaleX + 10, transform.scaleY);
-            expect(onInvalidated).toHaveBeenCalled();
-
-            transform.getMatrix();
-            onInvalidated.mockClear();
-            transform.setScaleXY(transform.scaleX, transform.scaleY + 10);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if values are unchanged", () => {
-            transform.setScaleXY(initialScaleX, initialScaleY);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.setScaleXY(initialScaleX + 10, initialScaleY + 10);
-            onInvalidated.mockClear();
-            transform.setScaleXY(initialScaleX + 20, initialScaleY + 20);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testTwoAxisSetter({
+            setterName: "setScaleXY",
+            propertyNameX: "scaleX",
+            propertyNameY: "scaleY",
+            getVectorName: "getScale",
+            initialValueX: initialScaleX,
+            initialValueY: initialScaleY,
         });
     });
 
@@ -909,34 +812,20 @@ describe("Transform", () => {
     });
 
     describe("scaleXY(factorX, factorY)", () => {
-        test("scales the scale by factorX and factorY", () => {
-            const factorX = 2;
-            const factorY = 3;
-            transform.scaleXY(factorX, factorY);
-            expect(transform.scaleX).toBe(initialScaleX * factorX);
-            expect(transform.scaleY).toBe(initialScaleY * factorY);
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform.scaleXY(1, 1)).toBe(transform);
-            expect(transform.scaleXY(2, 3)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform.scaleXY(2, 3);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if values are unchanged", () => {
-            transform.scaleXY(1, 1);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform.scaleXY(2, 3);
-            onInvalidated.mockClear();
-            transform.scaleXY(4, 5);
-            expect(onInvalidated).not.toHaveBeenCalled();
+        testTwoAxisDelta({
+            methodName: "scaleXY",
+            testName: "scales the scale by factorX and factorY",
+            propertyNameX: "scaleX",
+            propertyNameY: "scaleY",
+            initialValueX: initialScaleX,
+            initialValueY: initialScaleY,
+            identityDeltaX: 1,
+            identityDeltaY: 1,
+            deltaX: 2,
+            deltaY: 3,
+            secondDeltaX: 4,
+            secondDeltaY: 5,
+            combine: (value, delta) => value * delta,
         });
     });
 
@@ -1088,7 +977,7 @@ describe("Transform", () => {
     describe("transformPointXY(x, y, out)", () => {
         test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
             transformationFixtures.expectMatchesMatrix2(
-                testCase, 
+                testCase,
                 (subject, point) => subject.transformPointXY(point.x, point.y)
             );
         });
@@ -1112,7 +1001,7 @@ describe("Transform", () => {
     describe("transformPoint(point, out)", () => {
         test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
             transformationFixtures.expectMatchesMatrix2(
-                testCase, 
+                testCase,
                 (subject, point) => subject.transformPoint(point)
             );
         });
@@ -1153,7 +1042,7 @@ describe("Transform", () => {
     describe("transformVectorXY(x, y, out)", () => {
         test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
             transformationFixtures.expectMatchesMatrix2(
-                testCase, 
+                testCase,
                 (subject, vector) => subject.transformVectorXY(vector.x, vector.y)
             );
         });
