@@ -127,52 +127,6 @@ describe("Transform", () => {
         });
     };
 
-    // Generates the standard 5-test suite for a method that applies a delta to
-    // a pair of number-valued properties (x/y axes) via combine(value, delta).
-    const testTwoAxisDelta = ({
-        methodName,
-        testName,
-        propertyNameX,
-        propertyNameY,
-        initialValueX,
-        initialValueY,
-        identityDeltaX,
-        identityDeltaY,
-        deltaX,
-        deltaY,
-        secondDeltaX,
-        secondDeltaY,
-        combine,
-    }) => {
-        test(testName, () => {
-            transform[methodName](deltaX, deltaY);
-            expect(transform[propertyNameX]).toBe(combine(initialValueX, deltaX));
-            expect(transform[propertyNameY]).toBe(combine(initialValueY, deltaY));
-        });
-
-        test("returns this for chaining", () => {
-            expect(transform[methodName](identityDeltaX, identityDeltaY)).toBe(transform);
-            expect(transform[methodName](deltaX, deltaY)).toBe(transform);
-        });
-
-        test("calls onInvalidated callback", () => {
-            transform[methodName](deltaX, deltaY);
-            expect(onInvalidated).toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if values are unchanged", () => {
-            transform[methodName](identityDeltaX, identityDeltaY);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-
-        test("does not call onInvalidated if already dirty", () => {
-            transform[methodName](deltaX, deltaY);
-            onInvalidated.mockClear();
-            transform[methodName](secondDeltaX, secondDeltaY);
-            expect(onInvalidated).not.toHaveBeenCalled();
-        });
-    };
-
     // -------------------------------------------------------------------------
     // MARK: - beforeEach
     // -------------------------------------------------------------------------
@@ -583,20 +537,34 @@ describe("Transform", () => {
     });
 
     describe("translateXY(dx, dy)", () => {
-        testTwoAxisDelta({
-            methodName: "translateXY",
-            testName: "translates the position by dx and dy",
-            propertyNameX: "x",
-            propertyNameY: "y",
-            initialValueX: initialX,
-            initialValueY: initialY,
-            identityDeltaX: 0,
-            identityDeltaY: 0,
-            deltaX: 10,
-            deltaY: 20,
-            secondDeltaX: 30,
-            secondDeltaY: 40,
-            combine: (value, delta) => value + delta,
+        test("translates the position by dx and dy", () => {
+            const dx = 10;
+            const dy = 20;
+            transform.translateXY(dx, dy);
+            expect(transform.x).toBe(initialX + dx);
+            expect(transform.y).toBe(initialY + dy);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.translateXY(0, 0)).toBe(transform);
+            expect(transform.translateXY(10, 20)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.translateXY(10, 20);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform.translateXY(0, 0);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.translateXY(10, 20);
+            onInvalidated.mockClear();
+            transform.translateXY(30, 40);
+            expect(onInvalidated).not.toHaveBeenCalled();
         });
     });
 
@@ -693,20 +661,34 @@ describe("Transform", () => {
     });
 
     describe("translatePivotXY(dx, dy)", () => {
-        testTwoAxisDelta({
-            methodName: "translatePivotXY",
-            testName: "translates the pivot by dx and dy",
-            propertyNameX: "pivotX",
-            propertyNameY: "pivotY",
-            initialValueX: initialPivotX,
-            initialValueY: initialPivotY,
-            identityDeltaX: 0,
-            identityDeltaY: 0,
-            deltaX: 10,
-            deltaY: 20,
-            secondDeltaX: 30,
-            secondDeltaY: 40,
-            combine: (value, delta) => value + delta,
+        test("translates the position by dx and dy", () => {
+            const dx = 10;
+            const dy = 20;
+            transform.translatePivotXY(dx, dy);
+            expect(transform.pivotX).toBe(initialPivotX + dx);
+            expect(transform.pivotY).toBe(initialPivotY + dy);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.translatePivotXY(0, 0)).toBe(transform);
+            expect(transform.translatePivotXY(10, 20)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.translatePivotXY(10, 20);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform.translatePivotXY(0, 0);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.translatePivotXY(10, 20);
+            onInvalidated.mockClear();
+            transform.translatePivotXY(30, 40);
+            expect(onInvalidated).not.toHaveBeenCalled();
         });
     });
 
@@ -812,20 +794,34 @@ describe("Transform", () => {
     });
 
     describe("scaleXY(factorX, factorY)", () => {
-        testTwoAxisDelta({
-            methodName: "scaleXY",
-            testName: "scales the scale by factorX and factorY",
-            propertyNameX: "scaleX",
-            propertyNameY: "scaleY",
-            initialValueX: initialScaleX,
-            initialValueY: initialScaleY,
-            identityDeltaX: 1,
-            identityDeltaY: 1,
-            deltaX: 2,
-            deltaY: 3,
-            secondDeltaX: 4,
-            secondDeltaY: 5,
-            combine: (value, delta) => value * delta,
+        test("scales the scale by factorX and factorY", () => {
+            const factorX = 2;
+            const factorY = 3;
+            transform.scaleXY(factorX, factorY);
+            expect(transform.scaleX).toBe(initialScaleX * factorX);
+            expect(transform.scaleY).toBe(initialScaleY * factorY);
+        });
+
+        test("returns this for chaining", () => {
+            expect(transform.scaleXY(1, 1)).toBe(transform);
+            expect(transform.scaleXY(2, 3)).toBe(transform);
+        });
+
+        test("calls onInvalidated callback", () => {
+            transform.scaleXY(2, 3);
+            expect(onInvalidated).toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if values are unchanged", () => {
+            transform.scaleXY(1, 1);
+            expect(onInvalidated).not.toHaveBeenCalled();
+        });
+
+        test("does not call onInvalidated if already dirty", () => {
+            transform.scaleXY(2, 3);
+            onInvalidated.mockClear();
+            transform.scaleXY(4, 5);
+            expect(onInvalidated).not.toHaveBeenCalled();
         });
     });
 
