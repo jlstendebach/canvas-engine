@@ -959,10 +959,19 @@ describe("Transform", () => {
             expect(actual.maxY).toBeCloseTo(expected.maxY);
         },
 
+        matrixCheckMethod: (expected, actual) => {
+            expect(actual.a).toBeCloseTo(expected.a);
+            expect(actual.b).toBeCloseTo(expected.b);
+            expect(actual.c).toBeCloseTo(expected.c);
+            expect(actual.d).toBeCloseTo(expected.d);
+            expect(actual.tx).toBeCloseTo(expected.tx);
+            expect(actual.ty).toBeCloseTo(expected.ty);
+        },
+
         // applyMethod invokes the same method/signature on both a Matrix2 and
         // the Transform under test.
         expectMatchesMatrix2(
-            values, 
+            values,
             applyMethod,
             checkMethod
         ) {
@@ -1153,10 +1162,48 @@ describe("Transform", () => {
             const actual = transform.transformBounds(bounds, bounds);
             expect(actual).toBe(bounds);
             expect(bounds.equals(expected)).toBe(true);
-        });        
+        });
     });
 
     describe("transformMatrix(inputMatrix, out)", () => {
+        test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
+            transformationFixtures.expectMatchesMatrix2(
+                testCase.values,
+                (subject) => new Matrix2(1, 2, 3, 4, 5, 6).append(subject),
+                transformationFixtures.matrixCheckMethod
+            );
+        });
+
+        test("reuses the output matrix", () => {
+            const out = new Matrix2(1, 2, 3, 4, 5, 6);
+            const input = new Matrix2(7, 8, 9, 10, 11, 12);
+            const expected = input.clone().append(transformationFixtures.initialMatrix);
+            expect(transform.transformMatrix(input, out)).toBe(out);
+            expect(out.equals(expected)).toBe(true);
+        });
+
+        test("returns independent matrices", () => {
+            const input = new Matrix2(1, 2, 3, 4, 5, 6);
+            const first = transform.transformMatrix(input);
+            const second = transform.transformMatrix(input);
+            expect(first).not.toBe(second);
+            expect(first.equals(second)).toBe(true);
+        });
+
+        test("does not modify the input matrix", () => {
+            const input = new Matrix2(1, 2, 3, 4, 5, 6);
+            const snapshot = input.clone();
+            transform.transformMatrix(input);
+            expect(input.equals(snapshot)).toBe(true);
+        });
+
+        test("supports using the input matrix as the output matrix", () => {
+            const input = new Matrix2(1, 2, 3, 4, 5, 6);
+            const expected = transform.transformMatrix(input.clone());
+            const actual = transform.transformMatrix(input, input);
+            expect(actual).toBe(input);
+            expect(input.equals(expected)).toBe(true);
+        });
     });
 
     // -------------------------------------------------------------------------
