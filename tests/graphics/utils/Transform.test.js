@@ -919,8 +919,6 @@ describe("Transform", () => {
     // MARK: - Transformations
     // -------------------------------------------------------------------------
 
-    // Fixtures and helpers used only by the transform*(...) describes below,
-    // grouped under one name to avoid polluting the outer scope.
     const transformationFixtures = {
         cases: [
             {
@@ -968,11 +966,10 @@ describe("Transform", () => {
             expect(actual.ty).toBeCloseTo(expected.ty);
         },
 
-        // applyMethod invokes the same method/signature on both a Matrix2 and
-        // the Transform under test.
         expectMatchesMatrix2(
             values,
-            applyMethod,
+            applyMatrixMethod,
+            applyTransformMethod,
             checkMethod
         ) {
             const [x, y, pivotX, pivotY, scaleX, scaleY, rotation] = values;
@@ -982,10 +979,8 @@ describe("Transform", () => {
             const actualTransform = transform.set(
                 x, y, pivotX, pivotY, scaleX, scaleY, rotation
             );
-
-            const expected = applyMethod(expectedMatrix);
-            const actual = applyMethod(actualTransform);
-
+            const expected = applyMatrixMethod(expectedMatrix);
+            const actual = applyTransformMethod(actualTransform);
             checkMethod(expected, actual);
         },
     };
@@ -994,7 +989,8 @@ describe("Transform", () => {
         test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
             transformationFixtures.expectMatchesMatrix2(
                 testCase.values,
-                (subject) => subject.transformPointXY(10, 20),
+                (matrix) => matrix.transformPointXY(10, 20),
+                (transform) => transform.transformPointXY(10, 20),
                 transformationFixtures.vecCheckMethod
             );
         });
@@ -1019,7 +1015,8 @@ describe("Transform", () => {
         test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
             transformationFixtures.expectMatchesMatrix2(
                 testCase.values,
-                (subject) => subject.transformPoint(new Vec2(10, 20)),
+                (matrix) => matrix.transformPoint(new Vec2(10, 20)),
+                (transform) => transform.transformPoint(new Vec2(10, 20)),
                 transformationFixtures.vecCheckMethod
             );
         });
@@ -1061,7 +1058,8 @@ describe("Transform", () => {
         test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
             transformationFixtures.expectMatchesMatrix2(
                 testCase.values,
-                (subject) => subject.transformVectorXY(10, 20),
+                (matrix) => matrix.transformVectorXY(10, 20),
+                (transform) => transform.transformVectorXY(10, 20),
                 transformationFixtures.vecCheckMethod
             );
         });
@@ -1086,7 +1084,8 @@ describe("Transform", () => {
         test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
             transformationFixtures.expectMatchesMatrix2(
                 testCase.values,
-                (subject) => subject.transformVector(new Vec2(10, 20)),
+                (matrix) => matrix.transformVector(new Vec2(10, 20)),
+                (transform) => transform.transformVector(new Vec2(10, 20)),
                 transformationFixtures.vecCheckMethod
             );
         });
@@ -1128,7 +1127,8 @@ describe("Transform", () => {
         test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
             transformationFixtures.expectMatchesMatrix2(
                 testCase.values,
-                (subject) => subject.transformBounds(new Bounds(10, 20, 30, 40)),
+                (matrix) => matrix.transformBounds(new Bounds(10, 20, 30, 40)),
+                (transform) => transform.transformBounds(new Bounds(10, 20, 30, 40)),
                 transformationFixtures.boundsCheckMethod
             );
         });
@@ -1169,7 +1169,8 @@ describe("Transform", () => {
         test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
             transformationFixtures.expectMatchesMatrix2(
                 testCase.values,
-                (subject) => new Matrix2(1, 2, 3, 4, 5, 6).append(subject),
+                (matrix) => new Matrix2(1, 2, 3, 4, 5, 6).append(matrix),
+                (transform) => new Matrix2(1, 2, 3, 4, 5, 6).append(transform),
                 transformationFixtures.matrixCheckMethod
             );
         });
