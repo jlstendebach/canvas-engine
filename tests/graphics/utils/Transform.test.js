@@ -33,6 +33,27 @@ describe("Transform", () => {
         onInvalidated.mockClear();
     };
 
+    const expectVectorsToMatch = (expected, actual) => {
+        expect(actual.x).toBeCloseTo(expected.x);
+        expect(actual.y).toBeCloseTo(expected.y);
+    };
+
+    const expectBoundsToMatch = (expected, actual) => {
+        expect(actual.minX).toBeCloseTo(expected.minX);
+        expect(actual.minY).toBeCloseTo(expected.minY);
+        expect(actual.maxX).toBeCloseTo(expected.maxX);
+        expect(actual.maxY).toBeCloseTo(expected.maxY);
+    };
+
+    const expectMatricesToMatch = (expected, actual) => {
+        expect(actual.a).toBeCloseTo(expected.a);
+        expect(actual.b).toBeCloseTo(expected.b);
+        expect(actual.c).toBeCloseTo(expected.c);
+        expect(actual.d).toBeCloseTo(expected.d);
+        expect(actual.tx).toBeCloseTo(expected.tx);
+        expect(actual.ty).toBeCloseTo(expected.ty);
+    };
+
     // Generates the standard 5-test suite for a setter that assigns a single
     // number-valued property, verified against transform[propertyName] and the
     // corresponding vector getter's component.
@@ -919,8 +940,14 @@ describe("Transform", () => {
     // MARK: - Transformations
     // -------------------------------------------------------------------------
 
-    const transformationFixtures = {
-        cases: [
+    const doTransformationTests = (
+        applyMatrixMethod,
+        applyTransformMethod,
+        applyTransformOutMethod,
+        checkMethod,
+        outObject
+    ) => {
+        test.each([
             {
                 name: "identity",
                 values: [0, 0, 0, 0, 1, 1, 0],
@@ -933,46 +960,8 @@ describe("Transform", () => {
                 name: "pivoted rotation and scale",
                 values: [12, -8, 3, -2, 2, 0.5, Math.PI / 3],
             },
-        ],
-
-        initialMatrix: new Matrix2().setTransform(
-            initialX,
-            initialY,
-            initialPivotX,
-            initialPivotY,
-            initialScaleX,
-            initialScaleY,
-            initialRotation
-        ),
-
-        vecCheckMethod: (expected, actual) => {
-            expect(actual.x).toBeCloseTo(expected.x);
-            expect(actual.y).toBeCloseTo(expected.y);
-        },
-
-        boundsCheckMethod: (expected, actual) => {
-            expect(actual.minX).toBeCloseTo(expected.minX);
-            expect(actual.minY).toBeCloseTo(expected.minY);
-            expect(actual.maxX).toBeCloseTo(expected.maxX);
-            expect(actual.maxY).toBeCloseTo(expected.maxY);
-        },
-
-        matrixCheckMethod: (expected, actual) => {
-            expect(actual.a).toBeCloseTo(expected.a);
-            expect(actual.b).toBeCloseTo(expected.b);
-            expect(actual.c).toBeCloseTo(expected.c);
-            expect(actual.d).toBeCloseTo(expected.d);
-            expect(actual.tx).toBeCloseTo(expected.tx);
-            expect(actual.ty).toBeCloseTo(expected.ty);
-        },
-
-        expectMatchesMatrix2(
-            values,
-            applyMatrixMethod,
-            applyTransformMethod,
-            checkMethod
-        ) {
-            const [x, y, pivotX, pivotY, scaleX, scaleY, rotation] = values;
+        ])("matches Matrix2 for $name", (testCase) => {
+            const [x, y, pivotX, pivotY, scaleX, scaleY, rotation] = testCase.values;
             const expectedMatrix = new Matrix2().setTransform(
                 x, y, pivotX, pivotY, scaleX, scaleY, rotation
             );
@@ -982,61 +971,49 @@ describe("Transform", () => {
             const expected = applyMatrixMethod(expectedMatrix);
             const actual = applyTransformMethod(actualTransform);
             checkMethod(expected, actual);
-        },
+        });
+
+        test("reuses the output object", () => {
+            const expected = applyMatrixMethod(new Matrix2().setTransform(
+                initialX, initialY,
+                initialPivotX, initialPivotY,
+                initialScaleX, initialScaleY,
+                initialRotation
+            ));
+            const actual = applyTransformOutMethod(transform, outObject);
+            expect(actual).toBe(outObject);
+            checkMethod(expected, outObject);
+        });
+
+        test("returns independent objects", () => {
+            const first = applyTransformMethod(transform);
+            const second = applyTransformMethod(transform);
+            expect(first).not.toBe(second);
+            checkMethod(first, second);
+        });
     };
 
     describe("transformPointXY(x, y, out)", () => {
-        test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
-            transformationFixtures.expectMatchesMatrix2(
-                testCase.values,
-                (matrix) => matrix.transformPointXY(10, 20),
-                (transform) => transform.transformPointXY(10, 20),
-                transformationFixtures.vecCheckMethod
-            );
-        });
-
-        test("reuses the output vector", () => {
-            const out = new Vec2(100, 200);
-            const expected = transformationFixtures.initialMatrix.transformPointXY(10, 20);
-            expect(transform.transformPointXY(10, 20, out)).toBe(out);
-            expect(out.x).toBeCloseTo(expected.x);
-            expect(out.y).toBeCloseTo(expected.y);
-        });
-
-        test("returns independent vectors", () => {
-            const first = transform.transformPointXY(10, 20);
-            const second = transform.transformPointXY(10, 20);
-            expect(first).not.toBe(second);
-            expect(first.equals(second)).toBe(true);
-        });
+        const x = 10;
+        const y = 20;
+        doTransformationTests(
+            (matrix) => matrix.transformPointXY(x, y),
+            (transform) => transform.transformPointXY(x, y),
+            (transform, out) => transform.transformPointXY(x, y, out),
+            expectVectorsToMatch,
+            new Vec2(100, 200)
+        );
     });
 
     describe("transformPoint(point, out)", () => {
-        test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
-            transformationFixtures.expectMatchesMatrix2(
-                testCase.values,
-                (matrix) => matrix.transformPoint(new Vec2(10, 20)),
-                (transform) => transform.transformPoint(new Vec2(10, 20)),
-                transformationFixtures.vecCheckMethod
-            );
-        });
-
-        test("reuses the output vector", () => {
-            const out = new Vec2(100, 200);
-            const point = new Vec2(10, 20);
-            const expected = transformationFixtures.initialMatrix.transformPoint(point);
-            expect(transform.transformPoint(point, out)).toBe(out);
-            expect(out.x).toBeCloseTo(expected.x);
-            expect(out.y).toBeCloseTo(expected.y);
-        });
-
-        test("returns independent vectors", () => {
-            const point = new Vec2(10, 20);
-            const first = transform.transformPoint(point);
-            const second = transform.transformPoint(point);
-            expect(first).not.toBe(second);
-            expect(first.equals(second)).toBe(true);
-        });
+        const point = new Vec2(10, 20);
+        doTransformationTests(
+            (matrix) => matrix.transformPoint(point),
+            (transform) => transform.transformPoint(point),
+            (transform, out) => transform.transformPoint(point, out),
+            expectVectorsToMatch,
+            new Vec2(100, 200)
+        );
 
         test("does not modify the input point", () => {
             const point = new Vec2(10, 20);
@@ -1055,57 +1032,26 @@ describe("Transform", () => {
     });
 
     describe("transformVectorXY(x, y, out)", () => {
-        test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
-            transformationFixtures.expectMatchesMatrix2(
-                testCase.values,
-                (matrix) => matrix.transformVectorXY(10, 20),
-                (transform) => transform.transformVectorXY(10, 20),
-                transformationFixtures.vecCheckMethod
-            );
-        });
-
-        test("reuses the output vector", () => {
-            const out = new Vec2(100, 200);
-            const expected = transformationFixtures.initialMatrix.transformVectorXY(10, 20);
-            expect(transform.transformVectorXY(10, 20, out)).toBe(out);
-            expect(out.x).toBeCloseTo(expected.x);
-            expect(out.y).toBeCloseTo(expected.y);
-        });
-
-        test("returns independent vectors", () => {
-            const first = transform.transformVectorXY(10, 20);
-            const second = transform.transformVectorXY(10, 20);
-            expect(first).not.toBe(second);
-            expect(first.equals(second)).toBe(true);
-        });
+        const x = 10;
+        const y = 20;
+        doTransformationTests(
+            (matrix) => matrix.transformVectorXY(x, y),
+            (transform) => transform.transformVectorXY(x, y),
+            (transform, out) => transform.transformVectorXY(x, y, out),
+            expectVectorsToMatch,
+            new Vec2(100, 200)
+        );
     });
 
     describe("transformVector(vector, out)", () => {
-        test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
-            transformationFixtures.expectMatchesMatrix2(
-                testCase.values,
-                (matrix) => matrix.transformVector(new Vec2(10, 20)),
-                (transform) => transform.transformVector(new Vec2(10, 20)),
-                transformationFixtures.vecCheckMethod
-            );
-        });
-
-        test("reuses the output vector", () => {
-            const out = new Vec2(100, 200);
-            const vector = new Vec2(10, 20);
-            const expected = transformationFixtures.initialMatrix.transformVector(vector);
-            expect(transform.transformVector(vector, out)).toBe(out);
-            expect(out.x).toBeCloseTo(expected.x);
-            expect(out.y).toBeCloseTo(expected.y);
-        });
-
-        test("returns independent vectors", () => {
-            const vector = new Vec2(10, 20);
-            const first = transform.transformVector(vector);
-            const second = transform.transformVector(vector);
-            expect(first).not.toBe(second);
-            expect(first.equals(second)).toBe(true);
-        });
+        const vector = new Vec2(10, 20);
+        doTransformationTests(
+            (matrix) => matrix.transformVector(vector),
+            (transform) => transform.transformVector(vector),
+            (transform, out) => transform.transformVector(vector, out),
+            expectVectorsToMatch,
+            new Vec2(100, 200)
+        );
 
         test("does not modify the input vector", () => {
             const vector = new Vec2(10, 20);
@@ -1124,30 +1070,14 @@ describe("Transform", () => {
     });
 
     describe("transformBounds(bounds, out)", () => {
-        test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
-            transformationFixtures.expectMatchesMatrix2(
-                testCase.values,
-                (matrix) => matrix.transformBounds(new Bounds(10, 20, 30, 40)),
-                (transform) => transform.transformBounds(new Bounds(10, 20, 30, 40)),
-                transformationFixtures.boundsCheckMethod
-            );
-        });
-
-        test("reuses the output bounds", () => {
-            const out = new Bounds(100, 200, 300, 400);
-            const bounds = new Bounds(10, 20, 30, 40);
-            const expected = transformationFixtures.initialMatrix.transformBounds(bounds);
-            expect(transform.transformBounds(bounds, out)).toBe(out);
-            expect(out.equals(expected)).toBe(true);
-        });
-
-        test("returns independent bounds", () => {
-            const bounds = new Bounds(10, 20, 30, 40);
-            const first = transform.transformBounds(bounds);
-            const second = transform.transformBounds(bounds);
-            expect(first).not.toBe(second);
-            expect(first.equals(second)).toBe(true);
-        });
+        const bounds = new Bounds(10, 20, 30, 40);
+        doTransformationTests(
+            (matrix) => matrix.transformBounds(bounds),
+            (transform) => transform.transformBounds(bounds),
+            (transform, out) => transform.transformBounds(bounds, out),
+            expectBoundsToMatch,
+            new Bounds(100, 200, 300, 400)
+        );
 
         test("does not modify the input bounds", () => {
             const bounds = new Bounds(10, 20, 30, 40);
@@ -1166,30 +1096,14 @@ describe("Transform", () => {
     });
 
     describe("transformMatrix(inputMatrix, out)", () => {
-        test.each(transformationFixtures.cases)("matches Matrix2 for $name", (testCase) => {
-            transformationFixtures.expectMatchesMatrix2(
-                testCase.values,
-                (matrix) => new Matrix2(1, 2, 3, 4, 5, 6).append(matrix),
-                (transform) => new Matrix2(1, 2, 3, 4, 5, 6).append(transform),
-                transformationFixtures.matrixCheckMethod
-            );
-        });
-
-        test("reuses the output matrix", () => {
-            const out = new Matrix2(1, 2, 3, 4, 5, 6);
-            const input = new Matrix2(7, 8, 9, 10, 11, 12);
-            const expected = input.clone().append(transformationFixtures.initialMatrix);
-            expect(transform.transformMatrix(input, out)).toBe(out);
-            expect(out.equals(expected)).toBe(true);
-        });
-
-        test("returns independent matrices", () => {
-            const input = new Matrix2(1, 2, 3, 4, 5, 6);
-            const first = transform.transformMatrix(input);
-            const second = transform.transformMatrix(input);
-            expect(first).not.toBe(second);
-            expect(first.equals(second)).toBe(true);
-        });
+        const inputMatrix = new Matrix2(1, 2, 3, 4, 5, 6);
+        doTransformationTests(
+            (matrix) => inputMatrix.clone().append(matrix),
+            (transform) => transform.transformMatrix(inputMatrix),
+            (transform, out) => transform.transformMatrix(inputMatrix, out),
+            expectMatricesToMatch,
+            new Matrix2(100, 200, 300, 400, 500, 600)
+        );
 
         test("does not modify the input matrix", () => {
             const input = new Matrix2(1, 2, 3, 4, 5, 6);
