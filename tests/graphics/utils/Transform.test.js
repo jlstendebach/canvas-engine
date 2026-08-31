@@ -940,12 +940,12 @@ describe("Transform", () => {
     // MARK: - Transformations
     // -------------------------------------------------------------------------
 
-    const testTransformations = (
+    const testTransformations = ({
         applyMatrixMethod,
         applyTransformMethod,
-        checkMethod,
+        expectMatch,
         createOutObject
-    ) => {
+    }) => {
         test.each([
             {
                 name: "identity",
@@ -969,7 +969,7 @@ describe("Transform", () => {
             );
             const expected = applyMatrixMethod(expectedMatrix);
             const actual = applyTransformMethod(actualTransform);
-            checkMethod(expected, actual);
+            expectMatch(expected, actual);
         });
 
         test("reuses the output object", () => {
@@ -982,14 +982,14 @@ describe("Transform", () => {
             const out = createOutObject();
             const actual = applyTransformMethod(transform, out);
             expect(actual).toBe(out);
-            checkMethod(expected, out);
+            expectMatch(expected, out);
         });
 
         test("returns independent objects", () => {
             const first = applyTransformMethod(transform);
             const second = applyTransformMethod(transform);
             expect(first).not.toBe(second);
-            checkMethod(first, second);
+            expectMatch(first, second);
         });
     };
 
@@ -1013,22 +1013,22 @@ describe("Transform", () => {
     describe("transformPointXY(x, y, out)", () => {
         const x = 10;
         const y = 20;
-        testTransformations(
-            (matrix) => matrix.transformPointXY(x, y),
-            (transform, out) => transform.transformPointXY(x, y, out),
-            expectVectorsToMatch,
-            () => new Vec2(100, 200)
-        );
+        testTransformations({
+            applyMatrixMethod: (matrix) => matrix.transformPointXY(x, y),
+            applyTransformMethod: (transform, out) => transform.transformPointXY(x, y, out),
+            expectMatch: expectVectorsToMatch,
+            createOutObject: () => new Vec2(100, 200)
+        });
     });
 
     describe("transformPoint(point, out)", () => {
         const point = new Vec2(10, 20);
-        testTransformations(
-            (matrix) => matrix.transformPoint(point),
-            (transform, out) => transform.transformPoint(point, out),
-            expectVectorsToMatch,
-            () => new Vec2(100, 200)
-        );
+        testTransformations({
+            applyMatrixMethod: (matrix) => matrix.transformPoint(point),
+            applyTransformMethod: (transform, out) => transform.transformPoint(point, out),
+            expectMatch: expectVectorsToMatch,
+            createOutObject: () => new Vec2(100, 200)
+        });
 
         testObjectTransformations(
             "point",
@@ -1040,22 +1040,22 @@ describe("Transform", () => {
     describe("transformVectorXY(x, y, out)", () => {
         const x = 10;
         const y = 20;
-        testTransformations(
-            (matrix) => matrix.transformVectorXY(x, y),
-            (transform, out) => transform.transformVectorXY(x, y, out),
-            expectVectorsToMatch,
-            () => new Vec2(100, 200)
-        );
+        testTransformations({
+            applyMatrixMethod: (matrix) => matrix.transformVectorXY(x, y),
+            applyTransformMethod: (transform, out) => transform.transformVectorXY(x, y, out),
+            expectMatch: expectVectorsToMatch,
+            createOutObject: () => new Vec2(100, 200)
+        });
     });
 
     describe("transformVector(vector, out)", () => {
         const vector = new Vec2(10, 20);
-        testTransformations(
-            (matrix) => matrix.transformVector(vector),
-            (transform, out) => transform.transformVector(vector, out),
-            expectVectorsToMatch,
-            () => new Vec2(100, 200)
-        );
+        testTransformations({
+            applyMatrixMethod: (matrix) => matrix.transformVector(vector),
+            applyTransformMethod: (transform, out) => transform.transformVector(vector, out),
+            expectMatch: expectVectorsToMatch,
+            createOutObject: () => new Vec2(100, 200)
+        });
 
         testObjectTransformations(
             "vector",
@@ -1066,12 +1066,12 @@ describe("Transform", () => {
 
     describe("transformBounds(bounds, out)", () => {
         const bounds = new Bounds(10, 20, 30, 40);
-        testTransformations(
-            (matrix) => matrix.transformBounds(bounds),
-            (transform, out) => transform.transformBounds(bounds, out),
-            expectBoundsToMatch,
-            () => new Bounds(100, 200, 300, 400)
-        );
+        testTransformations({
+            applyMatrixMethod: (matrix) => matrix.transformBounds(bounds),
+            applyTransformMethod: (transform, out) => transform.transformBounds(bounds, out),
+            expectMatch: expectBoundsToMatch,
+            createOutObject: () => new Bounds(100, 200, 300, 400)
+        });
 
         testObjectTransformations(
             "bounds",
@@ -1082,12 +1082,12 @@ describe("Transform", () => {
 
     describe("transformMatrix(inputMatrix, out)", () => {
         const inputMatrix = new Matrix2(1, 2, 3, 4, 5, 6);
-        testTransformations(
-            (matrix) => inputMatrix.clone().append(matrix),
-            (transform, out) => transform.transformMatrix(inputMatrix, out),
-            expectMatricesToMatch,
-            () => new Matrix2(100, 200, 300, 400, 500, 600)
-        );
+        testTransformations({
+            applyMatrixMethod: (matrix) => inputMatrix.clone().append(matrix),
+            applyTransformMethod: (transform, out) => transform.transformMatrix(inputMatrix, out),
+            expectMatch: expectMatricesToMatch,
+            createOutObject: () => new Matrix2(100, 200, 300, 400, 500, 600)
+        });
 
         testObjectTransformations(
             "matrix",
