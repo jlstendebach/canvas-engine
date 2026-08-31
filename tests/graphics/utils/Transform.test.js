@@ -940,12 +940,11 @@ describe("Transform", () => {
     // MARK: - Transformations
     // -------------------------------------------------------------------------
 
-    const doTransformationTests = (
+    const testTransformations = (
         applyMatrixMethod,
         applyTransformMethod,
-        applyTransformOutMethod,
         checkMethod,
-        outObject
+        createOutObject
     ) => {
         test.each([
             {
@@ -980,9 +979,10 @@ describe("Transform", () => {
                 initialScaleX, initialScaleY,
                 initialRotation
             ));
-            const actual = applyTransformOutMethod(transform, outObject);
-            expect(actual).toBe(outObject);
-            checkMethod(expected, outObject);
+            const out = createOutObject();
+            const actual = applyTransformMethod(transform, out);
+            expect(actual).toBe(out);
+            checkMethod(expected, out);
         });
 
         test("returns independent objects", () => {
@@ -993,132 +993,107 @@ describe("Transform", () => {
         });
     };
 
+    const testObjectTransformations = (label, createInput, methodName) => {
+        test(`does not modify the input ${label}`, () => {
+            const input = createInput();
+            const snapshot = input.clone();
+            transform[methodName](input);
+            expect(input.equals(snapshot)).toBe(true);
+        });
+
+        test(`supports using the input ${label} as the output ${label}`, () => {
+            const input = createInput();
+            const expected = transform[methodName](input.clone());
+            const actual = transform[methodName](input, input);
+            expect(actual).toBe(input);
+            expect(input.equals(expected)).toBe(true);
+        });
+    };
+
     describe("transformPointXY(x, y, out)", () => {
         const x = 10;
         const y = 20;
-        doTransformationTests(
+        testTransformations(
             (matrix) => matrix.transformPointXY(x, y),
-            (transform) => transform.transformPointXY(x, y),
             (transform, out) => transform.transformPointXY(x, y, out),
             expectVectorsToMatch,
-            new Vec2(100, 200)
+            () => new Vec2(100, 200)
         );
     });
 
     describe("transformPoint(point, out)", () => {
         const point = new Vec2(10, 20);
-        doTransformationTests(
+        testTransformations(
             (matrix) => matrix.transformPoint(point),
-            (transform) => transform.transformPoint(point),
             (transform, out) => transform.transformPoint(point, out),
             expectVectorsToMatch,
-            new Vec2(100, 200)
+            () => new Vec2(100, 200)
         );
 
-        test("does not modify the input point", () => {
-            const point = new Vec2(10, 20);
-            const snapshot = point.clone();
-            transform.transformPoint(point);
-            expect(point.equals(snapshot)).toBe(true);
-        });
-
-        test("supports using the input point as the output vector", () => {
-            const point = new Vec2(10, 20);
-            const expected = transform.transformPoint(point.clone());
-            const actual = transform.transformPoint(point, point);
-            expect(actual).toBe(point);
-            expect(point.equals(expected)).toBe(true);
-        });
+        testObjectTransformations(
+            "point",
+            () => new Vec2(10, 20),
+            "transformPoint"
+        );
     });
 
     describe("transformVectorXY(x, y, out)", () => {
         const x = 10;
         const y = 20;
-        doTransformationTests(
+        testTransformations(
             (matrix) => matrix.transformVectorXY(x, y),
-            (transform) => transform.transformVectorXY(x, y),
             (transform, out) => transform.transformVectorXY(x, y, out),
             expectVectorsToMatch,
-            new Vec2(100, 200)
+            () => new Vec2(100, 200)
         );
     });
 
     describe("transformVector(vector, out)", () => {
         const vector = new Vec2(10, 20);
-        doTransformationTests(
+        testTransformations(
             (matrix) => matrix.transformVector(vector),
-            (transform) => transform.transformVector(vector),
             (transform, out) => transform.transformVector(vector, out),
             expectVectorsToMatch,
-            new Vec2(100, 200)
+            () => new Vec2(100, 200)
         );
 
-        test("does not modify the input vector", () => {
-            const vector = new Vec2(10, 20);
-            const snapshot = vector.clone();
-            transform.transformVector(vector);
-            expect(vector.equals(snapshot)).toBe(true);
-        });
-
-        test("supports using the input vector as the output vector", () => {
-            const vector = new Vec2(10, 20);
-            const expected = transform.transformVector(vector.clone());
-            const actual = transform.transformVector(vector, vector);
-            expect(actual).toBe(vector);
-            expect(vector.equals(expected)).toBe(true);
-        });
+        testObjectTransformations(
+            "vector",
+            () => new Vec2(10, 20),
+            "transformVector"
+        );
     });
 
     describe("transformBounds(bounds, out)", () => {
         const bounds = new Bounds(10, 20, 30, 40);
-        doTransformationTests(
+        testTransformations(
             (matrix) => matrix.transformBounds(bounds),
-            (transform) => transform.transformBounds(bounds),
             (transform, out) => transform.transformBounds(bounds, out),
             expectBoundsToMatch,
-            new Bounds(100, 200, 300, 400)
+            () => new Bounds(100, 200, 300, 400)
         );
 
-        test("does not modify the input bounds", () => {
-            const bounds = new Bounds(10, 20, 30, 40);
-            const snapshot = bounds.clone();
-            transform.transformBounds(bounds);
-            expect(bounds.equals(snapshot)).toBe(true);
-        });
-
-        test("supports using the input bounds as the output bounds", () => {
-            const bounds = new Bounds(10, 20, 30, 40);
-            const expected = transform.transformBounds(bounds.clone());
-            const actual = transform.transformBounds(bounds, bounds);
-            expect(actual).toBe(bounds);
-            expect(bounds.equals(expected)).toBe(true);
-        });
+        testObjectTransformations(
+            "bounds",
+            () => new Bounds(10, 20, 30, 40),
+            "transformBounds"
+        );
     });
 
     describe("transformMatrix(inputMatrix, out)", () => {
         const inputMatrix = new Matrix2(1, 2, 3, 4, 5, 6);
-        doTransformationTests(
+        testTransformations(
             (matrix) => inputMatrix.clone().append(matrix),
-            (transform) => transform.transformMatrix(inputMatrix),
             (transform, out) => transform.transformMatrix(inputMatrix, out),
             expectMatricesToMatch,
-            new Matrix2(100, 200, 300, 400, 500, 600)
+            () => new Matrix2(100, 200, 300, 400, 500, 600)
         );
 
-        test("does not modify the input matrix", () => {
-            const input = new Matrix2(1, 2, 3, 4, 5, 6);
-            const snapshot = input.clone();
-            transform.transformMatrix(input);
-            expect(input.equals(snapshot)).toBe(true);
-        });
-
-        test("supports using the input matrix as the output matrix", () => {
-            const input = new Matrix2(1, 2, 3, 4, 5, 6);
-            const expected = transform.transformMatrix(input.clone());
-            const actual = transform.transformMatrix(input, input);
-            expect(actual).toBe(input);
-            expect(input.equals(expected)).toBe(true);
-        });
+        testObjectTransformations(
+            "matrix",
+            () => new Matrix2(1, 2, 3, 4, 5, 6),
+            "transformMatrix"
+        );
     });
 
     // -------------------------------------------------------------------------
