@@ -1123,6 +1123,14 @@ describe("Transform", () => {
     });
 
     describe("inverseTransformVectorXY(x, y, out)", () => {
+        const x = 10;
+        const y = 20;
+        testTransformations({
+            applyMatrixMethod: (matrix) => matrix.clone().invert().transformVectorXY(x, y),
+            applyTransformMethod: (transform, out) => transform.inverseTransformVectorXY(x, y, out),
+            expectMatch: expectVectorsToMatch,
+            createOutObject: () => new Vec2(100, 200)
+        });
     });
 
     describe("inverseTransformVector(vector, out)", () => {
