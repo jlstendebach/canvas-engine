@@ -1149,6 +1149,18 @@ describe("Transform", () => {
     });
 
     describe("inverseTransformBounds(bounds, out)", () => {
+        const bounds = new Bounds(10, 20, 30, 40);
+        testTransformations({
+            applyMatrixMethod: (matrix) => matrix.clone().invert().transformBounds(bounds),
+            applyTransformMethod: (transform, out) => transform.inverseTransformBounds(bounds, out),
+            expectMatch: expectBoundsToMatch,
+            createOutObject: () => new Bounds(100, 200, 300, 400)
+        });
+
+        testObjectTransformations({
+            createInput: () => new Bounds(10, 20, 30, 40),
+            methodName: "inverseTransformBounds"
+        });        
     });
 
     describe("inverseTransformMatrix(inputMatrix, out)", () => {
