@@ -1134,6 +1134,18 @@ describe("Transform", () => {
     });
 
     describe("inverseTransformVector(vector, out)", () => {
+        const vector = new Vec2(10, 20);
+        testTransformations({
+            applyMatrixMethod: (matrix) => matrix.clone().invert().transformVector(vector),
+            applyTransformMethod: (transform, out) => transform.inverseTransformVector(vector, out),
+            expectMatch: expectVectorsToMatch,
+            createOutObject: () => new Vec2(100, 200)
+        });
+
+        testObjectTransformations({
+            createInput: () => new Vec2(10, 20),
+            methodName: "inverseTransformVector"
+        });
     });
 
     describe("inverseTransformBounds(bounds, out)", () => {
