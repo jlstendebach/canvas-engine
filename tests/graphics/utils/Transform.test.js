@@ -993,15 +993,15 @@ describe("Transform", () => {
         });
     };
 
-    const testObjectTransformations = (label, createInput, methodName) => {
-        test(`does not modify the input ${label}`, () => {
+    const testObjectTransformations = ({ createInput, methodName }) => {
+        test("does not modify the input object", () => {
             const input = createInput();
             const snapshot = input.clone();
             transform[methodName](input);
             expect(input.equals(snapshot)).toBe(true);
         });
 
-        test(`supports using the input ${label} as the output ${label}`, () => {
+        test("supports using the input object as the output object", () => {
             const input = createInput();
             const expected = transform[methodName](input.clone());
             const actual = transform[methodName](input, input);
@@ -1030,11 +1030,10 @@ describe("Transform", () => {
             createOutObject: () => new Vec2(100, 200)
         });
 
-        testObjectTransformations(
-            "point",
-            () => new Vec2(10, 20),
-            "transformPoint"
-        );
+        testObjectTransformations({
+            createInput: () => new Vec2(10, 20),
+            methodName: "transformPoint"
+        });
     });
 
     describe("transformVectorXY(x, y, out)", () => {
@@ -1057,11 +1056,10 @@ describe("Transform", () => {
             createOutObject: () => new Vec2(100, 200)
         });
 
-        testObjectTransformations(
-            "vector",
-            () => new Vec2(10, 20),
-            "transformVector"
-        );
+        testObjectTransformations({
+            createInput: () => new Vec2(10, 20),
+            methodName: "transformVector"
+        });
     });
 
     describe("transformBounds(bounds, out)", () => {
@@ -1073,11 +1071,10 @@ describe("Transform", () => {
             createOutObject: () => new Bounds(100, 200, 300, 400)
         });
 
-        testObjectTransformations(
-            "bounds",
-            () => new Bounds(10, 20, 30, 40),
-            "transformBounds"
-        );
+        testObjectTransformations({
+            createInput: () => new Bounds(10, 20, 30, 40),
+            methodName: "transformBounds"
+        });
     });
 
     describe("transformMatrix(inputMatrix, out)", () => {
@@ -1089,11 +1086,10 @@ describe("Transform", () => {
             createOutObject: () => new Matrix2(100, 200, 300, 400, 500, 600)
         });
 
-        testObjectTransformations(
-            "matrix",
-            () => new Matrix2(1, 2, 3, 4, 5, 6),
-            "transformMatrix"
-        );
+        testObjectTransformations({
+            createInput: () => new Matrix2(1, 2, 3, 4, 5, 6),
+            methodName: "transformMatrix"
+        });
     });
 
     // -------------------------------------------------------------------------
