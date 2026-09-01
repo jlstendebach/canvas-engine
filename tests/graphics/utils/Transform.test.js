@@ -1108,6 +1108,18 @@ describe("Transform", () => {
     });
 
     describe("inverseTransformPoint(point, out)", () => {
+        const point = new Vec2(10, 20);
+        testTransformations({
+            applyMatrixMethod: (matrix) => matrix.clone().invert().transformPoint(point),
+            applyTransformMethod: (transform, out) => transform.inverseTransformPoint(point, out),
+            expectMatch: expectVectorsToMatch,
+            createOutObject: () => new Vec2(100, 200)
+        });
+
+        testObjectTransformations({
+            createInput: () => new Vec2(10, 20),
+            methodName: "inverseTransformPoint"
+        });
     });
 
     describe("inverseTransformVectorXY(x, y, out)", () => {
