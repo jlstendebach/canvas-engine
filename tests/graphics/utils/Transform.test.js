@@ -1164,6 +1164,18 @@ describe("Transform", () => {
     });
 
     describe("inverseTransformMatrix(inputMatrix, out)", () => {
+        const inputMatrix = new Matrix2(1, 2, 3, 4, 5, 6);
+        testTransformations({
+            applyMatrixMethod: (matrix) => inputMatrix.clone().append(matrix.clone().invert()),
+            applyTransformMethod: (transform, out) => transform.inverseTransformMatrix(inputMatrix, out),
+            expectMatch: expectMatricesToMatch,
+            createOutObject: () => new Matrix2(100, 200, 300, 400, 500, 600)
+        });
+
+        testObjectTransformations({
+            createInput: () => new Matrix2(1, 2, 3, 4, 5, 6),
+            methodName: "inverseTransformMatrix"
+        });        
     });
 
     // -------------------------------------------------------------------------
