@@ -1330,9 +1330,9 @@ describe("Transform", () => {
 
         test("returns the same instance", () => {
             const newTransform = new Transform();
-            newTransform.copy(transform);
+            const result = newTransform.copy(transform);
+            expect(result).toBe(newTransform);
             expect(newTransform).toBeInstanceOf(Transform);
-            expect(newTransform).toBe(newTransform);
             expect(newTransform).not.toBe(transform);
         });
 
