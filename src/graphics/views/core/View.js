@@ -230,13 +230,13 @@ export class View {
         return this;
     }
 
-    offsetPivotXY(dx, dy) {
-        this.#transform.offsetPivotXY(dx, dy);
+    translatePivotXY(dx, dy) {
+        this.#transform.translatePivotXY(dx, dy);
         return this;
     }
 
-    offsetPivot(offset) {
-        this.#transform.offsetPivot(offset);
+    translatePivot(delta) {
+        this.#transform.translatePivot(delta);
         return this;
     }
 
