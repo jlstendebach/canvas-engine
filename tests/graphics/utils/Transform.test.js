@@ -7,7 +7,7 @@ describe("Transform", () => {
     // -------------------------------------------------------------------------
 
     let transform;
-    const onInvalidated = jest.fn();;
+    const onInvalidated = jest.fn();
     const initialX = 1;
     const initialY = 2;
     const initialPivotX = 3;
