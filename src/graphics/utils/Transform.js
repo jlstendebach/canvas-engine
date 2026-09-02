@@ -161,8 +161,7 @@ export class Transform {
     // -------------------------------------------------------------------------
 
     /**
-     * Creates a new transform initialized to identity values (position 0,0,
-     * pivot 0,0, scale 1,1, and rotation 0).
+     * Creates a new transform instance.
      *
      * @param {Function|null} [onInvalidated=null] - Optional callback invoked
      *     when the transform is dirtied after previously being up to date.
