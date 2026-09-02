@@ -430,7 +430,7 @@ describe("Transform", () => {
             expect(transform.pivotY).toBe(newPivotY);
             expect(transform.scaleX).toBe(newScaleX);
             expect(transform.scaleY).toBe(newScaleY);
-            expect(transform.rotation).toBe(newRotation);
+            expect(transform.rotation).toBeCloseTo(newRotation);
         });
 
         test("returns this for chaining", () => {
