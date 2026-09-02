@@ -160,10 +160,30 @@ export class Transform {
     // MARK: - Constructor
     // -------------------------------------------------------------------------
 
+    /**
+     * Creates a new transform initialized to identity values (position 0,0,
+     * pivot 0,0, scale 1,1, and rotation 0).
+     *
+     * @param {Function|null} [onInvalidated=null] - Optional callback invoked
+     *     when the transform is dirtied after previously being up to date.
+     */
     constructor(onInvalidated = null) {
         this.#onInvalidated = onInvalidated;
     }
 
+    /**
+     * Sets the position, pivot, scale, and rotation of the transform in a
+     * single call. The rotation angle is normalized between 0 and 2*PI.
+     *
+     * @param {number} x - World-space x position.
+     * @param {number} y - World-space y position.
+     * @param {number} pivotX - x pivot offset in local space.
+     * @param {number} pivotY - y pivot offset in local space.
+     * @param {number} scaleX - Horizontal scale factor.
+     * @param {number} scaleY - Vertical scale factor.
+     * @param {number} rotation - Rotation in radians.
+     * @returns {Transform} This transform instance.
+     */
     set(x, y, pivotX, pivotY, scaleX, scaleY, rotation) {
         const normalizedRotation = this.#normalizedRotation(rotation);
 
@@ -172,7 +192,10 @@ export class Transform {
             dirtyLevel = TRIG;
         } else if (this.#scaleX !== scaleX || this.#scaleY !== scaleY) {
             dirtyLevel = LINEAR;
-        } else if (this.#x !== x || this.#y !== y || this.#pivotX !== pivotX || this.#pivotY !== pivotY) {
+        } else if (
+            this.#x !== x || this.#y !== y ||
+            this.#pivotX !== pivotX || this.#pivotY !== pivotY
+        ) {
             dirtyLevel = TRANSLATION;
         }
 
@@ -192,10 +215,22 @@ export class Transform {
     // MARK: - Position
     // -------------------------------------------------------------------------
 
+    /**
+     * Copies the position coordinates into an output vector and returns it.
+     *
+     * @param {Vec2} [out=new Vec2()] - Output vector.
+     * @returns {Vec2} The position vector.
+     */
     getPosition(out = new Vec2()) {
         return out.set(this.#x, this.#y);
     }
 
+    /**
+     * Sets the x position.
+     *
+     * @param {number} x - New x position.
+     * @returns {Transform} This transform instance.
+     */
     setX(x) {
         if (this.#x === x) { return this; }
         this.#x = x;
@@ -203,6 +238,12 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Sets the y position.
+     *
+     * @param {number} y - New y position.
+     * @returns {Transform} This transform instance.
+     */
     setY(y) {
         if (this.#y === y) { return this; }
         this.#y = y;
@@ -210,6 +251,13 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Sets the position using x and y coordinates.
+     *
+     * @param {number} x - New x position.
+     * @param {number} y - New y position.
+     * @returns {Transform} This transform instance.
+     */
     setPositionXY(x, y) {
         if (this.#x === x && this.#y === y) { return this; }
         this.#x = x;
@@ -218,10 +266,23 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Sets the position from a vector.
+     *
+     * @param {Vec2} position - Position values.
+     * @returns {Transform} This transform instance.
+     */
     setPosition(position) {
         return this.setPositionXY(position.x, position.y);
     }
 
+    /**
+     * Translates the position by adding x and y offsets.
+     *
+     * @param {number} dx - Horizontal translation.
+     * @param {number} dy - Vertical translation.
+     * @returns {Transform} This transform instance.
+     */
     translateXY(dx, dy) {
         if (dx === 0 && dy === 0) { return this; }
         this.#x += dx;
@@ -230,6 +291,12 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Translates the position by adding a vector delta.
+     *
+     * @param {Vec2} delta - Translation delta.
+     * @returns {Transform} This transform instance.
+     */
     translate(delta) {
         return this.translateXY(delta.x, delta.y);
     }
@@ -238,10 +305,22 @@ export class Transform {
     // MARK: - Pivot
     // -------------------------------------------------------------------------
 
+    /**
+     * Copies the pivot offset into an output vector and returns it.
+     *
+     * @param {Vec2} [out=new Vec2()] - Output vector.
+     * @returns {Vec2} The pivot vector.
+     */
     getPivot(out = new Vec2()) {
         return out.set(this.#pivotX, this.#pivotY);
     }
 
+    /**
+     * Sets the x pivot offset in local space.
+     *
+     * @param {number} pivotX - New x pivot value.
+     * @returns {Transform} This transform instance.
+     */
     setPivotX(pivotX) {
         if (this.#pivotX === pivotX) { return this; }
         this.#pivotX = pivotX;
@@ -249,6 +328,12 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Sets the y pivot offset in local space.
+     *
+     * @param {number} pivotY - New y pivot value.
+     * @returns {Transform} This transform instance.
+     */
     setPivotY(pivotY) {
         if (this.#pivotY === pivotY) { return this; }
         this.#pivotY = pivotY;
@@ -256,18 +341,40 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Sets the pivot offset using x and y coordinates in local space.
+     *
+     * @param {number} pivotX - New x pivot value.
+     * @param {number} pivotY - New y pivot value.
+     * @returns {Transform} This transform instance.
+     */
     setPivotXY(pivotX, pivotY) {
-        if (this.#pivotX === pivotX && this.#pivotY === pivotY) { return this; }
+        if (this.#pivotX === pivotX && this.#pivotY === pivotY) {
+            return this;
+        }
         this.#pivotX = pivotX;
         this.#pivotY = pivotY;
         this.#markDirty(TRANSLATION);
         return this;
     }
 
+    /**
+     * Sets the pivot offset from a vector in local space.
+     *
+     * @param {Vec2} pivot - Pivot values.
+     * @returns {Transform} This transform instance.
+     */
     setPivot(pivot) {
         return this.setPivotXY(pivot.x, pivot.y);
     }
 
+    /**
+     * Translates the pivot offset by adding x and y deltas.
+     *
+     * @param {number} dx - Horizontal pivot delta.
+     * @param {number} dy - Vertical pivot delta.
+     * @returns {Transform} This transform instance.
+     */
     translatePivotXY(dx, dy) {
         if (dx === 0 && dy === 0) { return this; }
         this.#pivotX += dx;
@@ -276,6 +383,12 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Translates the pivot offset by adding a vector delta.
+     *
+     * @param {Vec2} delta - Pivot delta.
+     * @returns {Transform} This transform instance.
+     */
     translatePivot(delta) {
         return this.translatePivotXY(delta.x, delta.y);
     }
@@ -284,10 +397,22 @@ export class Transform {
     // MARK: - Scale
     // -------------------------------------------------------------------------
 
+    /**
+     * Copies the current scale factors into an output vector and returns it.
+     *
+     * @param {Vec2} [out=new Vec2()] - Output vector.
+     * @returns {Vec2} The current scale vector.
+     */
     getScale(out = new Vec2()) {
         return out.set(this.#scaleX, this.#scaleY);
     }
 
+    /**
+     * Sets the horizontal scale factor.
+     *
+     * @param {number} scaleX - New x scale factor.
+     * @returns {Transform} This transform instance.
+     */
     setScaleX(scaleX) {
         if (this.#scaleX === scaleX) { return this; }
         this.#scaleX = scaleX;
@@ -295,6 +420,12 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Sets the vertical scale factor.
+     *
+     * @param {number} scaleY - New y scale factor.
+     * @returns {Transform} This transform instance.
+     */
     setScaleY(scaleY) {
         if (this.#scaleY === scaleY) { return this; }
         this.#scaleY = scaleY;
@@ -302,20 +433,44 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Sets the scale factors using x and y values.
+     *
+     * @param {number} scaleX - New x scale factor.
+     * @param {number} scaleY - New y scale factor.
+     * @returns {Transform} This transform instance.
+     */
     setScaleXY(scaleX, scaleY) {
-        if (this.#scaleX === scaleX && this.#scaleY === scaleY) { return this; }
+        if (this.#scaleX === scaleX && this.#scaleY === scaleY) {
+            return this;
+        }
         this.#scaleX = scaleX;
         this.#scaleY = scaleY;
         this.#markDirty(LINEAR);
         return this;
     }
 
+    /**
+     * Sets the scale from a scalar or vector value. A scalar sets both
+     * scaleX and scaleY; a vector uses its x and y components.
+     *
+     * @param {number|Vec2} scaleOrVector - A single factor for both axes, or
+     *     a vector whose x/y values set scaleX/scaleY.
+     * @returns {Transform} This transform instance.
+     */
     setScale(scaleOrVector) {
         return (typeof scaleOrVector === 'number')
             ? this.setScaleXY(scaleOrVector, scaleOrVector)
             : this.setScaleXY(scaleOrVector.x, scaleOrVector.y);
     }
 
+    /**
+     * Multiplies the scale by x and y factors.
+     *
+     * @param {number} factorX - Horizontal scale multiplier.
+     * @param {number} factorY - Vertical scale multiplier.
+     * @returns {Transform} This transform instance.
+     */
     scaleXY(factorX, factorY) {
         if (factorX === 1 && factorY === 1) { return this; }
         this.#scaleX *= factorX;
@@ -324,6 +479,14 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Multiplies the scale by a scalar or vector value. A scalar multiplies
+     * both scaleX and scaleY; a vector multiplies by its x and y components.
+     *
+     * @param {number|Vec2} factorOrVector - A single multiplier for both
+     *     axes, or a vector whose x/y values multiply scaleX/scaleY.
+     * @returns {Transform} This transform instance.
+     */
     scale(factorOrVector) {
         return (typeof factorOrVector === 'number')
             ? this.scaleXY(factorOrVector, factorOrVector)
@@ -334,6 +497,12 @@ export class Transform {
     // MARK: - Rotation
     // -------------------------------------------------------------------------
 
+    /**
+     * Sets the rotation in radians, normalized between 0 and 2*PI.
+     *
+     * @param {number} radians - Rotation angle in radians.
+     * @returns {Transform} This transform instance.
+     */
     setRotation(radians) {
         const normalizedRotation = this.#normalizedRotation(radians);
         if (this.#rotation === normalizedRotation) { return this; }
@@ -342,9 +511,14 @@ export class Transform {
         return this;
     }
 
+    /**
+     * Adds a delta rotation in radians, normalizing the resulting
+     * rotation between 0 and 2*PI.
+     *
+     * @param {number} deltaRadians - Rotation delta in radians.
+     * @returns {Transform} This transform instance.
+     */
     rotate(deltaRadians) {
-        // Delegate to setRotation() so equivalent full-turn deltas normalize
-        // correctly and no-op rotations do not dirty the transform.
         return this.setRotation(this.#rotation + deltaRadians);
     }
 
@@ -352,26 +526,76 @@ export class Transform {
     // MARK: - Transformations
     // -------------------------------------------------------------------------
 
+    /**
+     * Transforms a point from local to world space, applying pivot, scale,
+     * rotation, and position translation.
+     *
+     * @param {number} x - Local-space x coordinate.
+     * @param {number} y - Local-space y coordinate.
+     * @param {Vec2} [out=new Vec2()] - Output point.
+     * @returns {Vec2} The transformed point.
+     */
     transformPointXY(x, y, out = new Vec2()) {
         return this.#getCleanMatrix().transformPointXY(x, y, out);
     }
 
+    /**
+     * Transforms a point vector from local to world space, applying pivot,
+     * scale, rotation, and position translation.
+     *
+     * @param {Vec2} point - Local-space point.
+     * @param {Vec2} [out=new Vec2()] - Output point.
+     * @returns {Vec2} The transformed point.
+     */
     transformPoint(point, out = new Vec2()) {
         return this.#getCleanMatrix().transformPoint(point, out);
     }
 
+    /**
+     * Transforms a direction vector from local to world space, applying
+     * scale and rotation without translation.
+     *
+     * @param {number} x - Local-space x component.
+     * @param {number} y - Local-space y component.
+     * @param {Vec2} [out=new Vec2()] - Output vector.
+     * @returns {Vec2} The transformed vector.
+     */
     transformVectorXY(x, y, out = new Vec2()) {
         return this.#getCleanMatrix().transformVectorXY(x, y, out);
     }
 
+    /**
+     * Transforms a direction vector from local to world space, applying
+     * scale and rotation without translation.
+     *
+     * @param {Vec2} vector - Local-space vector.
+     * @param {Vec2} [out=new Vec2()] - Output vector.
+     * @returns {Vec2} The transformed vector.
+     */
     transformVector(vector, out = new Vec2()) {
         return this.#getCleanMatrix().transformVector(vector, out);
     }
 
+    /**
+     * Transforms an axis-aligned bounding box from local space to world
+     * space.
+     *
+     * @param {Bounds} bounds - Local-space bounds.
+     * @param {Bounds} [out=new Bounds()] - Output bounds.
+     * @returns {Bounds} The transformed bounds.
+     */
     transformBounds(bounds, out = new Bounds()) {
         return this.#getCleanMatrix().transformBounds(bounds, out);
     }
 
+    /**
+     * Applies this transform to an input matrix, combining both
+     * transformations into a single matrix.
+     *
+     * @param {Matrix2} inputMatrix - Matrix to transform.
+     * @param {Matrix2} [out=new Matrix2()] - Output matrix.
+     * @returns {Matrix2} The combined matrix.
+     */
     transformMatrix(inputMatrix, out = new Matrix2()) {
         return out.copy(inputMatrix).append(this.#getCleanMatrix());
     }
@@ -380,26 +604,76 @@ export class Transform {
     // MARK: - Inverse Transformations
     // -------------------------------------------------------------------------
 
+    /**
+     * Converts a world-space point back to local space by applying inverse
+     * translation, rotation, scale, and pivot offsets.
+     *
+     * @param {number} x - World-space x coordinate.
+     * @param {number} y - World-space y coordinate.
+     * @param {Vec2} [out=new Vec2()] - Output point.
+     * @returns {Vec2} The inverse-transformed point.
+     */
     inverseTransformPointXY(x, y, out = new Vec2()) {
         return this.#getCleanInverseMatrix().transformPointXY(x, y, out);
     }
 
+    /**
+     * Converts a world-space point vector back to local space by applying
+     * inverse translation, rotation, scale, and pivot offsets.
+     *
+     * @param {Vec2} point - World-space point.
+     * @param {Vec2} [out=new Vec2()] - Output point.
+     * @returns {Vec2} The inverse-transformed point.
+     */
     inverseTransformPoint(point, out = new Vec2()) {
         return this.#getCleanInverseMatrix().transformPoint(point, out);
     }
 
+    /**
+     * Converts a world-space direction vector back to local space by
+     * applying inverse scale and rotation without translation.
+     *
+     * @param {number} x - World-space x component.
+     * @param {number} y - World-space y component.
+     * @param {Vec2} [out=new Vec2()] - Output vector.
+     * @returns {Vec2} The inverse-transformed vector.
+     */
     inverseTransformVectorXY(x, y, out = new Vec2()) {
         return this.#getCleanInverseMatrix().transformVectorXY(x, y, out);
     }
 
+    /**
+     * Converts a world-space direction vector back to local space by
+     * applying inverse scale and rotation without translation.
+     *
+     * @param {Vec2} vector - World-space vector.
+     * @param {Vec2} [out=new Vec2()] - Output vector.
+     * @returns {Vec2} The inverse-transformed vector.
+     */
     inverseTransformVector(vector, out = new Vec2()) {
         return this.#getCleanInverseMatrix().transformVector(vector, out);
     }
 
+    /**
+     * Transforms an axis-aligned bounding box from world space back to
+     * local space.
+     *
+     * @param {Bounds} bounds - World-space bounds.
+     * @param {Bounds} [out=new Bounds()] - Output bounds.
+     * @returns {Bounds} The inverse-transformed bounds.
+     */
     inverseTransformBounds(bounds, out = new Bounds()) {
         return this.#getCleanInverseMatrix().transformBounds(bounds, out);
     }
 
+    /**
+     * Applies the inverse of this transform to an input matrix,
+     * combining both transformations into a single matrix.
+     *
+     * @param {Matrix2} inputMatrix - Matrix to transform.
+     * @param {Matrix2} [out=new Matrix2()] - Output matrix.
+     * @returns {Matrix2} The combined matrix.
+     */
     inverseTransformMatrix(inputMatrix, out = new Matrix2()) {
         return out.copy(inputMatrix).append(this.#getCleanInverseMatrix());
     }
@@ -409,17 +683,10 @@ export class Transform {
     // -------------------------------------------------------------------------
 
     /**
-     * Creates or copies-out a Matrix instance that represents the 
-     * transformation defined by this Transform. The returned matrix will be the
-     * same reference as the `out` parameter if it was provided, or a new Matrix
-     * instance if not.
-     * @param {Matrix} out - Optional Matrix instance to store the result. The 
-     *     values of the output matrix will be manipulated. If this parameter is
-     *     not provided, a new Matrix will be created.
-     * @returns {Matrix} A Matrix instance representing the transformation 
-     *     defined by this Transform. The returned matrix will be the same 
-     *     reference as the `out` parameter if it was provided, or a new Matrix 
-     *     instance if not.
+     * Copies the current 2D affine transform matrix into an output matrix.
+     *
+     * @param {Matrix2} [out=new Matrix2()] - Output matrix.
+     * @returns {Matrix2} The transform matrix instance.
      */
     getMatrix(out = new Matrix2()) {
         return out.copy(this.#getCleanMatrix());
@@ -428,15 +695,15 @@ export class Transform {
     /**
      * Returns a direct reference to this Transform's internal clean matrix.
      *
-     * IMPORTANT: This is a zero-copy escape hatch for performance-critical 
-     * code:
-     * - The returned matrix is owned by this Transform.
-     * - **DO NOT modify** the returned matrix (a, b, c, d, tx, ty).
-     * - **DO NOT store** the returned reference beyond the immediate scope.
-     * - The matrix may become invalid after any transform change on this object
-     *   or its ancestors.
+     * WARNING: This is an unsafe escape hatch that exposes internal state:
+     * - The returned matrix is owned and internally managed by this Transform.
+     * - Mutating the returned object directly affects this Transform and can
+     *   invalidate internal state and cached values.
+     * - The caller becomes responsible for preserving any documented
+     *   invariants.
+     * - DO NOT store the returned reference beyond the immediate scope.
      *
-     * Prefer `getMatrix(out)` unless you have a strong performance reason to 
+     * Prefer `getMatrix(out)` unless you have a strong performance reason to
      * use this method.
      *
      * @returns {Matrix2} Direct reference to the internal clean matrix.
@@ -447,35 +714,28 @@ export class Transform {
     }
 
     /**
-     * Creates or copies-out a Matrix instance that represents the inverse of 
-     * the transformation defined by this Transform. The returned matrix will be 
-     * the same reference as the `out` parameter if it was provided, or a new 
-     * Matrix instance if not.
-     * @param {Matrix2} out - Optional Matrix instance to store the result. The
-     *     values of the output matrix will be manipulated. If this parameter is
-     *     not provided, a new Matrix will be created.
-     * @returns {Matrix2} A Matrix instance representing the inverse of the
-     *     transformation defined by this Transform. The returned matrix will be
-     *     the same reference as the `out` parameter if it was provided, or a 
-     *     new Matrix instance if not.
+     * Copies the current inverse transform matrix into an output matrix.
+     *
+     * @param {Matrix2} [out=new Matrix2()] - Output matrix.
+     * @returns {Matrix2} The inverse transform matrix instance.
      */
     getInverseMatrix(out = new Matrix2()) {
         return out.copy(this.#getCleanInverseMatrix());
     }
 
     /**
-     * Returns a direct reference to this Transform's internal clean inverse 
+     * Returns a direct reference to this Transform's internal clean inverse
      * matrix.
      *
-     * IMPORTANT: This is a zero-copy escape hatch for performance-critical 
-     * code:
-     * - The returned matrix is owned by this Transform.
-     * - **DO NOT modify** the returned matrix (a, b, c, d, tx, ty).
-     * - **DO NOT store** the returned reference beyond the immediate scope.
-     * - The matrix may become invalid after any transform change on this object
-     *   or its ancestors.
+     * WARNING: This is an unsafe escape hatch that exposes internal state:
+     * - The returned matrix is owned and internally managed by this Transform.
+     * - Mutating the returned object directly affects this Transform and can
+     *   invalidate internal state and cached values.
+     * - The caller becomes responsible for preserving any documented
+     *   invariants.
+     * - DO NOT store the returned reference beyond the immediate scope.
      *
-     * Prefer `getInverseMatrix(out)` unless you have a strong performance 
+     * Prefer `getInverseMatrix(out)` unless you have a strong performance
      * reason to use this method.
      *
      * @returns {Matrix2} Direct reference to the internal clean inverse matrix.
@@ -486,9 +746,11 @@ export class Transform {
     }
 
     /**
-     * Copies the values from another Transform instance into this instance.
-     * @param {Transform} other - The Transform instance to copy values from.
-     * @returns {Transform} This Transform instance.
+     * Copies the position, pivot, scale, and rotation values from another
+     * transform into this one.
+     *
+     * @param {Transform} other - Source transform.
+     * @returns {Transform} This transform instance.
      */
     copy(other) {
         return this.set(
@@ -500,9 +762,12 @@ export class Transform {
     }
 
     /**
-     * Creates a new Transform instance that is an unattached copy of this 
-     * transform.
-     * @returns {Transform} An unattached copy of this Transform.
+     * Creates a new transform with the same position, pivot, scale, and
+     * rotation values as this transform.
+     *
+     * @param {Function|null} [onInvalidated=null] - Optional callback
+     *     invoked when the transform is dirtied.
+     * @returns {Transform} A cloned transform instance.
      */
     clone(onInvalidated = null) {
         return new Transform(onInvalidated).copy(this);
@@ -512,6 +777,11 @@ export class Transform {
     // MARK: - Helpers
     // -------------------------------------------------------------------------
 
+    /**
+     * Marks the transform dirty at the provided cascade level.
+     *
+     * @param {number} level - Minimum dirty level to apply.
+     */
     #markDirty(level) {
         if (level <= this.#dirtyLevel) { return; }
 
@@ -524,6 +794,9 @@ export class Transform {
         }
     }
 
+    /**
+     * Rebuilds the current matrix when it is dirty.
+     */
     #updateMatrixIfNeeded() {
         const dirtyLevel = this.#dirtyLevel;
         if (dirtyLevel === CLEAN) { return; }
@@ -548,6 +821,9 @@ export class Transform {
         this.#dirtyLevel = CLEAN;
     }
 
+    /**
+     * Rebuilds the inverse matrix when it is stale.
+     */
     #updateInverseMatrixIfNeeded() {
         if (!this.#isInverseDirty) { return; }
         this.#updateMatrixIfNeeded();
@@ -555,21 +831,37 @@ export class Transform {
         this.#isInverseDirty = false;
     }
 
+    /**
+     * Returns the current clean matrix, recomputing it if necessary.
+     *
+     * @returns {Matrix2} The clean matrix.
+     */
     #getCleanMatrix() {
         this.#updateMatrixIfNeeded();
         return this.#matrix;
     }
 
+    /**
+     * Returns the current clean inverse matrix, recomputing it if necessary.
+     *
+     * @returns {Matrix2} The clean inverse matrix.
+     */
     #getCleanInverseMatrix() {
         this.#updateInverseMatrixIfNeeded();
         return this.#inverseMatrix;
     }
 
+    /**
+     * Normalizes a rotation angle to the range [0, 2*PI).
+     *
+     * @param {number} radians - Rotation angle in radians.
+     * @returns {number} The normalized rotation value.
+     */
     #normalizedRotation(radians) {
         let normalizedRadians = radians % TAU;
         if (normalizedRadians < 0) {
             normalizedRadians += TAU;
         }
-        return normalizedRadians === 0 ? 0 : normalizedRadians; // Avoids -0 weirdness
+        return normalizedRadians === 0 ? 0 : normalizedRadians; // Avoid -0 weirdness
     }
 }
