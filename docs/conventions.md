@@ -20,7 +20,7 @@ Whenever practical, public APIs should expose state using one of the following m
 Direct references to internally managed states may be exposed when doing so provides a significant performance or interoperability benefit. 
 
 The method must:
-- Be clearly identified as unsafe (for example, `unsafeGetRawPoints()`).
+- Be clearly identified as unsafe (for example, `unsafeGetPoints()`).
 - Intentionally return a live reference.
 - Include a JSDoc explicitly warning that:
     - The returned object is owned and internally mananged.
