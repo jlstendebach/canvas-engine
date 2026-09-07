@@ -35,5 +35,5 @@ git commit -m "refactor({ClassName}): rename to .ts"
 - [ ] Method chaining still type-checks without casts, including from subclasses
 - [ ] Existing tests pass with no changes to the test files
 - [ ] No new type errors introduced in already-converted consumers
-- [ ] Conforms to `docs/CONVENTIONS.md`
+- [ ] Conforms to project coding conventions
 - [ ] `git log --follow` shows the file's pre-rename history
