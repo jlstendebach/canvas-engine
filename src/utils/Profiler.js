@@ -21,7 +21,7 @@ export class Profiler {
 	}
 
 	mark() {
-		let time = 0;
+		let time;
 		if (this.accumTime === -1) {
 			time = Profiler.currentTime() - this.lastTime
 
@@ -29,7 +29,6 @@ export class Profiler {
 			time = this.accumTime;
 			this.accumTime = -1;
 		}
-
 
 		// Add the new time, remove the oldest time.
 		this.samples.push(time);
@@ -42,7 +41,7 @@ export class Profiler {
 
 	// --[ static profilers ]---------------------------------------------------
 	static start(name, sampleCount = 10) {
-		if (!Profiler.profilers.hasOwnProperty(name)) {
+		if (!Object.prototype.hasOwnProperty.call(Profiler.profilers, name)) {
 			Profiler.profilers[name] = new Profiler(sampleCount);
 		}
 		Profiler.profilers[name].start();
@@ -65,8 +64,8 @@ export class Profiler {
 		let min = 1000000000; // over 11.5 days should be good enough
 		let max = 0;
 		let start = Profiler.currentTime();
-		let itrStart = 0;
-		let itrTime = 0;
+		let itrStart;
+		let itrTime;
 
 		for (let i = 0; i < iterations; ++i) {
 			itrStart = Profiler.currentTime();
