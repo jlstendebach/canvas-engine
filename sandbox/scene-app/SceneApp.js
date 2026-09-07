@@ -150,7 +150,7 @@ export class SceneApp extends CanvasApp {
     // -------------------------------------------------------------------------
 
     onCanvasResize(type, event) {
-        void type, event;
+        void type; void event;
         this.scene.setSizeWH(this.canvas.width, this.canvas.height);
     }
 

@@ -17,11 +17,27 @@ export default defineConfig([
         },
         rules: {
             "no-unused-vars": "off",
-            "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-            "@typescript-eslint/explicit-member-accessibility": ["warn", { accessibility: "explicit" }]
+            "@typescript-eslint/no-unused-vars": [
+                "warn",
+                {
+                    argsIgnorePattern: "^_"
+                }
+            ]
         }
     },
     {
-        ignores: ["dist/**", "node_modules/**"]
+        files: ["**/*.ts"],
+        rules: {
+            "@typescript-eslint/explicit-module-boundary-types": "warn",
+            "@typescript-eslint/explicit-member-accessibility": [
+                "warn",
+                {
+                    accessibility: "no-public" // Don't force "public" keyword
+                }
+            ]
+        }
+    },
+    {
+        ignores: ["dist/**", "node_modules/**", "coverage/**"]
     }
 ]);

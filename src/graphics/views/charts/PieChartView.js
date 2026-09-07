@@ -232,7 +232,6 @@ export class PieChartView extends View {
             const radius = (slice === this.selectedSlice)
                 ? this.getRadius() + 8
                 : this.getRadius();
-            const color = this.getColorForSlice(i);
 
             // Define the path
             context.moveTo(0, 0);
@@ -278,7 +277,6 @@ export class PieChartView extends View {
     }
 
     drawSurroundLegend(context) {
-        const self = this;
         const lineOffset = 20;
         const textOffset = 2;
         const padding = 4;
@@ -294,11 +292,11 @@ export class PieChartView extends View {
             topRight: []     // 270 <= angle < 360
         };
 
-        const addSorted = function (array, slice) {
-            let midAngle = self.clampAngle((slice.sAngle + slice.eAngle) / 2);
+        const addSorted = (array, slice) => {
+            let midAngle = this.clampAngle((slice.sAngle + slice.eAngle) / 2);
 
             for (let i = 0; i < array.length; ++i) {
-                let arrayMidAngle = self.clampAngle((array[i].sAngle + array[i].eAngle) / 2);
+                let arrayMidAngle = this.clampAngle((array[i].sAngle + array[i].eAngle) / 2);
                 if (midAngle <= arrayMidAngle) {
                     array.splice(i, 0, slice);
                     return;
@@ -578,7 +576,7 @@ export class PieChartView extends View {
             let pickAngle = Vec2.angleTau(startVec, pickVec);
 
             // Find the slice
-            let sAngle = 0;
+            let sAngle;
             let eAngle = 0;
             for (let i = 0; i < this.slices.length; ++i) {
                 let s = this.slices[i];

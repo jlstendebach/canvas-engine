@@ -96,6 +96,8 @@ export class BoundsApp extends CanvasApp {
     
     // MARK: - Lifecycle
     onUpdate(timestamp, deltaTime) {
+        void timestamp;
+        void deltaTime;
     }
 
     // MARK: - Events Handlers

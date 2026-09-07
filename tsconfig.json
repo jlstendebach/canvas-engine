@@ -1,27 +1,33 @@
 {
     "compilerOptions": {
         // MARK: - Target Environments
-        "target": "ES2022", // Modern JS for canvas features
-        "module": "NodeNext", // Handles modern browser ESM module loading smoothly
+        "target": "ES2022",
+        "module": "NodeNext",
         "moduleResolution": "NodeNext",
         "lib": [
             "DOM",
             "DOM.Iterable",
             "ES2022"
-        ], // Native browser dictionaries only (Canvas, DOM, Events)
+        ],
+        "types": [],
 
         // MARK: - Input/Output File Mapping
-        "rootDir": "./src", // Where your source TS files live
-        "outDir": "./dist", // Where the clean JavaScript gets output
+        "rootDir": "./src",
+        "outDir": "./dist",
 
         // MARK: - Autocomplete Generation for Your Users
-        "declaration": true, // Automatically generates .d.ts files
-        "sourceMap": true, // Let's you debug the original TS directly in your browser
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+
+        // MARK: - Type Safety
+        "strict": true,
+        "noImplicitOverride": true,
+        "verbatimModuleSyntax": true,
 
         // MARK: - Gradual Migration Controls
-        "allowJs": true, // Lets you move files in step-by-step
-        "checkJs": false, // Won't throw compiler errors on legacy JS files
-        "strict": false // Keeps things relaxed until the migration is done
+        "allowJs": true,
+        "checkJs": false
     },
     "include": [
         "src/**/*"
