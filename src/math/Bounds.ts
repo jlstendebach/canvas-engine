@@ -1,45 +1,47 @@
 export class Bounds {
-    minX; maxX; minY; maxY;
+    minX: number; 
+    maxX: number; 
+    minY: number; 
+    maxY: number; 
 
     // MARK: - Properties
-    set x(value) { 
+    set x(value: number) { 
         this.maxX = value + this.width;
         this.minX = value; 
     }
-    get x() { 
+    get x(): number { 
         return this.minX; 
     }
 
-    set y(value) { 
+    set y(value: number) { 
         this.maxY = value + this.height;
         this.minY = value; 
     }
-    get y() { 
+    get y(): number { 
         return this.minY; 
     }
 
-    set width(value) { 
+    set width(value: number) { 
         this.maxX = this.minX + value; 
     }
-    get width() { 
+    get width(): number { 
         return this.maxX - this.minX; 
     }
     
-    set height(value) { 
+    set height(value: number) { 
         this.maxY = this.minY + value; 
     }
-    get height() { 
+    get height(): number { 
         return this.maxY - this.minY; 
     }
 
-    get centerX() {
+    get centerX(): number {
         return (this.minX + this.maxX) / 2;
     }
 
-    get centerY() {
+    get centerY(): number {
         return (this.minY + this.maxY) / 2;
     }
-
 
     // MARK: - Initialization
     constructor(
