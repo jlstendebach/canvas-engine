@@ -1,4 +1,4 @@
-import { Point } from "./Point.js";
+import { Vec2 } from "../../math/Vec2.js";
 
 export class PointList {
     #points = [];
@@ -13,7 +13,7 @@ export class PointList {
         return this.#points.length / 2;
     }
 
-    getPoint(index, out = new Point()) {
+    getPoint(index, out = new Vec2()) {
         const actualIndex = index * 2;
         return out.set(this.#points[actualIndex], this.#points[actualIndex + 1]);
     }
