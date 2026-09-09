@@ -34,6 +34,12 @@ export default defineConfig([
                 {
                     accessibility: "no-public" // Don't force "public" keyword
                 }
+            ],
+            "@typescript-eslint/typedef": [
+                "error",
+                {
+                    parameter: true
+                }
             ]
         }
     },
