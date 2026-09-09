@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d')!; // The '!' tells TS this won't be null
 
 let angle = 0;
 
-function draw() {
+function draw(): void {
     // Clear the stage
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 

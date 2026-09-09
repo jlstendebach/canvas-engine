@@ -1,3 +1,5 @@
+import type { Vec2 } from "./Vec2.js";
+
 export class Bounds {
     minX: number;
     maxX: number;
@@ -45,10 +47,10 @@ export class Bounds {
 
     // MARK: - Initialization
     constructor(
-        minX = Infinity,
-        minY = Infinity,
-        maxX = -Infinity,
-        maxY = -Infinity
+        minX: number = Infinity,
+        minY: number = Infinity,
+        maxX: number = -Infinity,
+        maxY: number = -Infinity
     ) {
         this.minX = minX;
         this.minY = minY;
@@ -57,7 +59,7 @@ export class Bounds {
     }
 
     // MARK: - Bounds manipulation
-    set(minX, minY, maxX, maxY) {
+    set(minX: number, minY: number, maxX: number, maxY: number): this {
         this.minX = minX;
         this.minY = minY;
         this.maxX = maxX;
@@ -65,7 +67,7 @@ export class Bounds {
         return this;
     }
 
-    reset() {
+    reset(): this {
         this.minX = Infinity;
         this.maxX = -Infinity;
         this.minY = Infinity;
@@ -73,7 +75,7 @@ export class Bounds {
         return this;
     }
 
-    addPointXY(x, y) {
+    addPointXY(x: number, y: number): this {
         if (x < this.minX) { this.minX = x; }
         if (y < this.minY) { this.minY = y; }
         if (x > this.maxX) { this.maxX = x; }
@@ -81,11 +83,11 @@ export class Bounds {
         return this;
     }
 
-    addPoint(point) {
+    addPoint(point: Vec2): this {
         return this.addPointXY(point.x, point.y);
     }
 
-    addBounds(bounds) {
+    addBounds(bounds: Bounds): this {
         if (bounds.minX < this.minX) { this.minX = bounds.minX; }
         if (bounds.minY < this.minY) { this.minY = bounds.minY; }
         if (bounds.maxX > this.maxX) { this.maxX = bounds.maxX; }
@@ -94,7 +96,7 @@ export class Bounds {
     }
 
     // MARK: - Bounds queries
-    containsPointXY(x, y) {
+    containsPointXY(x: number, y: number): boolean {
         return (
             x >= this.minX &&
             x <= this.maxX &&
@@ -103,11 +105,11 @@ export class Bounds {
         );
     }
 
-    containsPoint(point) {
+    containsPoint(point: Vec2): boolean {
         return this.containsPointXY(point.x, point.y);
     }
 
-    intersects(other) {
+    intersects(other: Bounds): boolean {
         return (
             this.maxX >= other.minX &&
             this.minX <= other.maxX &&
@@ -116,7 +118,7 @@ export class Bounds {
         );
     }
 
-    equals(other) {
+    equals(other: Bounds): boolean {
         return (
             this.minX === other.minX &&
             this.minY === other.minY &&
@@ -125,7 +127,7 @@ export class Bounds {
         );
     }
 
-    isEmpty() {
+    isEmpty(): boolean {
         return (
             this.minX >= this.maxX ||
             this.minY >= this.maxY
@@ -133,11 +135,11 @@ export class Bounds {
     }
 
     // MARK: - Utilities
-    clone() {
+    clone(): Bounds {
         return new Bounds(this.minX, this.minY, this.maxX, this.maxY);
     }
 
-    copy(other) {
+    copy(other: Bounds): this {
         this.minX = other.minX;
         this.minY = other.minY;
         this.maxX = other.maxX;
