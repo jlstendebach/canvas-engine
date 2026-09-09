@@ -1,38 +1,38 @@
 export class Bounds {
-    minX: number; 
-    maxX: number; 
-    minY: number; 
-    maxY: number; 
+    minX: number;
+    maxX: number;
+    minY: number;
+    maxY: number;
 
     // MARK: - Properties
-    set x(value: number) { 
+    set x(value: number) {
         this.maxX = value + this.width;
-        this.minX = value; 
+        this.minX = value;
     }
-    get x(): number { 
-        return this.minX; 
+    get x(): number {
+        return this.minX;
     }
 
-    set y(value: number) { 
+    set y(value: number) {
         this.maxY = value + this.height;
-        this.minY = value; 
+        this.minY = value;
     }
-    get y(): number { 
-        return this.minY; 
+    get y(): number {
+        return this.minY;
     }
 
-    set width(value: number) { 
-        this.maxX = this.minX + value; 
+    set width(value: number) {
+        this.maxX = this.minX + value;
     }
-    get width(): number { 
-        return this.maxX - this.minX; 
+    get width(): number {
+        return this.maxX - this.minX;
     }
-    
-    set height(value: number) { 
-        this.maxY = this.minY + value; 
+
+    set height(value: number) {
+        this.maxY = this.minY + value;
     }
-    get height(): number { 
-        return this.maxY - this.minY; 
+    get height(): number {
+        return this.maxY - this.minY;
     }
 
     get centerX(): number {
@@ -45,9 +45,9 @@ export class Bounds {
 
     // MARK: - Initialization
     constructor(
-        minX = Infinity, 
-        minY = Infinity, 
-        maxX = -Infinity, 
+        minX = Infinity,
+        minY = Infinity,
+        maxX = -Infinity,
         maxY = -Infinity
     ) {
         this.minX = minX;
@@ -96,9 +96,9 @@ export class Bounds {
     // MARK: - Bounds queries
     containsPointXY(x, y) {
         return (
-            x >= this.minX && 
-            x <= this.maxX && 
-            y >= this.minY && 
+            x >= this.minX &&
+            x <= this.maxX &&
+            y >= this.minY &&
             y <= this.maxY
         );
     }
@@ -109,9 +109,9 @@ export class Bounds {
 
     intersects(other) {
         return (
-            this.maxX >= other.minX && 
-            this.minX <= other.maxX && 
-            this.maxY >= other.minY && 
+            this.maxX >= other.minX &&
+            this.minX <= other.maxX &&
+            this.maxY >= other.minY &&
             this.minY <= other.maxY
         );
     }
@@ -127,7 +127,7 @@ export class Bounds {
 
     isEmpty() {
         return (
-            this.minX >= this.maxX || 
+            this.minX >= this.maxX ||
             this.minY >= this.maxY
         );
     }
