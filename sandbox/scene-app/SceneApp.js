@@ -10,7 +10,7 @@ import {
     SceneView,
     Timer,
     Vec2
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 export class SceneApp extends CanvasApp {
     MAX_THROW_SPEED = 3000;
@@ -135,7 +135,7 @@ export class SceneApp extends CanvasApp {
 
         this.keepBallInBounds();
         this.ballLastPosition = this.ball.getPosition();
-        this.ballTimer.start();
+        this.ballTimer.reset();
 
         if (this.isFollowingBall && this.isBallGrabbed == false) {
             this.scene.centerOn(this.ball.x, this.ball.y, CoordinateSpace.CONTENT);
@@ -293,7 +293,7 @@ export class SceneApp extends CanvasApp {
         if (event.target == this.ball) {
             this.ballVelocity = new Vec2(event.parentX, event.parentY)
                 .subtract(this.ballLastPosition)
-                .scale(1000.0 / this.ballTimer.getTime())
+                .scale(1000.0 / this.ballTimer.elapsed())
                 .clampLength(0, this.MAX_THROW_SPEED);
             this.isBallGrabbed = false;
         }

@@ -5,7 +5,7 @@ import {
     Vec2, 
     MouseEvent,
     MouseButton, 
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 export class SimpleApp extends CanvasApp {
     #ball;

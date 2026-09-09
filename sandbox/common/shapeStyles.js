@@ -1,4 +1,4 @@
-import { Color } from "../../src/graphics/utils/Color.js";
+import { Color } from "../../dist/graphics/utils/Color.js";
 
 export const shapeStyles = [
     {

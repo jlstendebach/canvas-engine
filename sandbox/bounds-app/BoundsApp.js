@@ -6,7 +6,7 @@ import {
     MouseButton,
     MouseEvent,
     RectangleView
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 import { BoundsDrawer } from "../common/BoundsDrawer.js";
 import { shapeStyles } from "../common/shapeStyles.js";

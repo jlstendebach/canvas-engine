@@ -6,7 +6,7 @@ import {
     LabelView,
     MouseEvent,
     RectangleView
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 import { Graph } from "./Graph.js";
 

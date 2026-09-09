@@ -5,7 +5,7 @@ import {
     Color,
     LineView,
     MouseEvent
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 export class CanvasSizesApp extends CanvasApp {
     constructor(canvasSelectorOrElement) {

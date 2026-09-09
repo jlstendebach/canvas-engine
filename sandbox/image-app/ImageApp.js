@@ -13,7 +13,7 @@ import {
     SceneView,
     Timer,
     Vec2
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 const Direction = Object.freeze({
     UP: 0,
@@ -193,7 +193,7 @@ export class ImageApp extends CanvasApp {
         const sy = this.#START_Y + this.#STRIDE * this.#direction;
 
         if (this.#isRunning) {
-            const time = this.#runTimer.getTime();
+            const time = this.#runTimer.elapsed();
             const index = 1 + Math.floor(time / 100) % 10
             const sx = this.#START_X + this.#STRIDE * index;
             this.#linkView.setSourcePositionXY(sx, sy);
@@ -227,7 +227,7 @@ export class ImageApp extends CanvasApp {
 
         } else if (!isVelocityZero && !this.#isRunning) {
             this.#isRunning = true;
-            this.#runTimer.start();
+            this.#runTimer.reset();
         }
     }
 

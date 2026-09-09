@@ -5,14 +5,13 @@ import {
     LineView,
     MouseButton,
     MouseEvent,
-    Point,
     PolygonView,
     RectangleView,
     RoundRectangleView,
     SceneView,
     Vec2,
     VectorView
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 import { shapeStyles } from "../common/shapeStyles.js";
 
@@ -98,9 +97,9 @@ export class ShapesApp extends CanvasApp {
 
         const tau = Math.PI * 2;
         triangle.setPoints([
-            Point.fromAngle(tau * 0/3).scale(50),
-            Point.fromAngle(tau * 1/3).scale(50),
-            Point.fromAngle(tau * 2/3).scale(50)
+            Vec2.fromAngle(tau * 0/3).scale(50),
+            Vec2.fromAngle(tau * 1/3).scale(50),
+            Vec2.fromAngle(tau * 2/3).scale(50)
         ]);
 
         this.addEventListeners(triangle);

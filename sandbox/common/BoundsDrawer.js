@@ -1,7 +1,7 @@
 import {
     Color,
     View
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 export class BoundsDrawer extends View {
     rootView;
