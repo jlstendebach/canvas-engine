@@ -1,6 +1,5 @@
-import { View } from './View.js';
-export declare class ContainerView extends View {
-    updateBounds(out: any): void;
+export class ContainerView extends View {
     containsPoint(point: any): boolean;
-    onChildBoundsInvalidated(): void;
 }
+import { View } from './View.js';
+//# sourceMappingURL=ContainerView.d.ts.map

@@ -1,21 +1,21 @@
-import { Vec2 } from "../../../math/Vec2.js";
-import { View } from "../core/View.js";
-export declare class LabelViewOptions {
+export class LabelViewOptions {
 }
-export declare namespace LabelViewOptions {
-    var LEFT: number;
-    var CENTER: number;
-    var RIGHT: number;
-    var GROW_X: number;
-    var GROW_Y: number;
-    var SHRINK_X: number;
-    var SHRINK_Y: number;
-    var WORD_WRAP: number;
-    var CLIP: number;
-    var OVERFLOW_FLAG_MIN: number;
-    var OVERFLOW_FLAG_MAX: number;
+export namespace LabelViewOptions {
+    export let LEFT: number;
+    export let CENTER: number;
+    export let RIGHT: number;
+    export let GROW_X: number;
+    export let GROW_Y: number;
+    export let SHRINK_X: number;
+    export let SHRINK_Y: number;
+    export let WORD_WRAP: number;
+    export let CLIP: number;
+    import OVERFLOW_FLAG_MIN = GROW_X;
+    export { OVERFLOW_FLAG_MIN };
+    export let OVERFLOW_FLAG_MAX: number;
 }
-export declare class LabelView extends View {
+export class LabelView extends View {
+    constructor(text?: string);
     isValid: boolean;
     size: Vec2;
     anchor: Vec2;
@@ -33,8 +33,6 @@ export declare class LabelView extends View {
     fillColor: string;
     strokeColor: any;
     strokeWeight: number;
-    strokeWidth: any;
-    constructor(text?: string);
     containsPoint(point: any): boolean;
     /********/
     /********/
@@ -114,8 +112,12 @@ export declare class LabelView extends View {
     setStrokeColor(color: any): void;
     getStrokeColor(): any;
     setStrokeWidth(width: any): void;
+    strokeWidth: any;
     getStrokeWidth(): any;
     onDraw(context: any): void;
     invalidate(): void;
     validate(): void;
 }
+import { View } from "../core/View.js";
+import { Vec2 } from "../../../math/Vec2.js";
+//# sourceMappingURL=LabelView.d.ts.map

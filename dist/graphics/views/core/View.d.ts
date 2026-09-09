@@ -1,34 +1,29 @@
-import { Bounds } from "../../../math/Bounds.js";
-import { Matrix2 } from "../../../math/Matrix2.js";
-import { Vec2 } from "../../../math/Vec2.js";
-import { Transform } from "../../utils/Transform.js";
 /**
  * Base class for all views in the scene graph.
  */
-export declare class View {
-    #private;
-    get x(): number;
+export class View {
     set x(value: number);
-    get y(): number;
+    get x(): number;
     set y(value: number);
-    get pivotX(): number;
+    get y(): number;
     set pivotX(value: number);
-    get pivotY(): number;
+    get pivotX(): number;
     set pivotY(value: number);
-    get rotation(): number;
+    get pivotY(): number;
     set rotation(value: number);
-    get scaleX(): number;
+    get rotation(): number;
     set scaleX(value: number);
-    get scaleY(): number;
+    get scaleX(): number;
     set scaleY(value: number);
+    get scaleY(): number;
     get transform(): Transform;
     get bounds(): Bounds;
-    get isVisible(): boolean;
     set isVisible(value: boolean);
-    get isPickable(): boolean;
+    get isVisible(): boolean;
     set isPickable(value: boolean);
-    get parent(): any;
-    get events(): any;
+    get isPickable(): boolean;
+    get parent(): null;
+    get events(): null;
     setVisible(isVisible: any): this;
     setPickable(isPickable: any): this;
     getPosition(out?: Vec2): Vec2;
@@ -225,4 +220,10 @@ export declare class View {
     onMouseEnter(event: any): void;
     onMouseExit(event: any): void;
     onMouseWheel(event: any): void;
+    #private;
 }
+import { Transform } from "../../utils/Transform.js";
+import { Bounds } from "../../../math/Bounds.js";
+import { Vec2 } from "../../../math/Vec2.js";
+import { Matrix2 } from "../../../math/Matrix2.js";
+//# sourceMappingURL=View.d.ts.map

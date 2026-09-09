@@ -1,22 +1,25 @@
-import { Bounds } from "../../math/Bounds.js";
-import { Matrix2 } from "../../math/Matrix2.js";
-import { Vec2 } from "../../math/Vec2.js";
-export declare class Transform {
-    #private;
-    get x(): number;
+export class Transform {
+    /**
+     * Creates a new transform instance.
+     *
+     * @param {Function|null} [onInvalidated=null] - Optional callback invoked
+     *     when the transform is dirtied after previously being up to date.
+     */
+    constructor(onInvalidated?: Function | null);
     set x(value: number);
-    get y(): number;
+    get x(): number;
     set y(value: number);
-    get pivotX(): number;
+    get y(): number;
     set pivotX(value: number);
-    get pivotY(): number;
+    get pivotX(): number;
     set pivotY(value: number);
-    get scaleX(): number;
+    get pivotY(): number;
     set scaleX(value: number);
-    get scaleY(): number;
+    get scaleX(): number;
     set scaleY(value: number);
-    get rotation(): number;
+    get scaleY(): number;
     set rotation(value: number);
+    get rotation(): number;
     get a(): any;
     get b(): any;
     get c(): any;
@@ -29,13 +32,6 @@ export declare class Transform {
     get inverseD(): any;
     get inverseTx(): any;
     get inverseTy(): any;
-    /**
-     * Creates a new transform instance.
-     *
-     * @param {Function|null} [onInvalidated=null] - Optional callback invoked
-     *     when the transform is dirtied after previously being up to date.
-     */
-    constructor(onInvalidated?: Function | null);
     /**
      * Sets the position, pivot, scale, and rotation of the transform in a
      * single call. The rotation angle is normalized between 0 and 2*PI.
@@ -400,4 +396,9 @@ export declare class Transform {
      * @returns {Transform} A cloned transform instance.
      */
     clone(onInvalidated?: Function | null): Transform;
+    #private;
 }
+import { Vec2 } from "../../math/Vec2.js";
+import { Bounds } from "../../math/Bounds.js";
+import { Matrix2 } from "../../math/Matrix2.js";
+//# sourceMappingURL=Transform.d.ts.map

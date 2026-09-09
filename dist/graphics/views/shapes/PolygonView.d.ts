@@ -1,9 +1,6 @@
-import { Point } from "../../utils/Point.js";
-import { ShapeView } from "./ShapeView.js";
-export declare class PolygonView extends ShapeView {
-    #private;
+export class PolygonView extends ShapeView {
     getPointCount(): number;
-    getPoint(index: any, out?: Point): import("../../../index.js").Vec2;
+    getPoint(index: any, out?: Vec2): Vec2;
     getPointX(index: any): any;
     getPointY(index: any): any;
     setPointXY(index: any, x: any, y: any): this;
@@ -18,7 +15,9 @@ export declare class PolygonView extends ShapeView {
     insertPoint(index: any, point: any): this;
     removePoint(index: any): this;
     clearPoints(): this;
-    updateBounds(out: any): void;
     containsPoint(point: any): boolean;
-    path(context: any): void;
+    #private;
 }
+import { ShapeView } from "./ShapeView.js";
+import { Vec2 } from "../../../math/Vec2.js";
+//# sourceMappingURL=PolygonView.d.ts.map

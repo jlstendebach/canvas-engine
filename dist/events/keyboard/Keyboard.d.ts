@@ -1,6 +1,9 @@
-import { EventEmitter } from "../EventEmitter.js";
-export declare class Keyboard {
-    #private;
+export class Keyboard {
+    static #down: {};
+    static #capsLock: boolean;
+    static #numLock: boolean;
+    static #scrollLock: boolean;
+    static #eventEmitter: EventEmitter;
     static get events(): EventEmitter;
     static isKeyDown(key: any): boolean;
     static isCapsLock(): boolean;
@@ -8,8 +11,11 @@ export declare class Keyboard {
     static isScrollLock(): boolean;
     static onKeyDown(event: any): void;
     static onKeyUp(event: any): void;
-    static addEventListener(type: any, callback: any, owner?: any): void;
-    static removeEventListener(type: any, callback: any, owner?: any): void;
+    static addEventListener(type: any, callback: any, owner?: null): void;
+    static removeEventListener(type: any, callback: any, owner?: null): void;
+    static #createEventEmitter(): EventEmitter;
     static isValidType(type: any): boolean;
     static updateModifiers(event: any): void;
 }
+import { EventEmitter } from "../EventEmitter.js";
+//# sourceMappingURL=Keyboard.d.ts.map

@@ -1,4 +1,4 @@
-export declare class MouseEvent {
+export class MouseEvent {
     static get DOWN(): string;
     static get UP(): string;
     static get MOVE(): string;
@@ -6,7 +6,7 @@ export declare class MouseEvent {
     static get ENTER(): string;
     static get EXIT(): string;
     static get WHEEL(): string;
-    type: any;
+    type: null;
     canvasX: number;
     canvasY: number;
     canvasMovementX: number;
@@ -24,9 +24,10 @@ export declare class MouseEvent {
     wheelZ: number;
     button: number;
     buttons: number;
-    target: any;
-    related: any;
+    target: null;
+    related: null;
     clone(): MouseEvent;
     copy(other: any): this;
     isPressed(button: any): boolean;
 }
+//# sourceMappingURL=MouseEvent.d.ts.map

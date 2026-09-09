@@ -15,7 +15,8 @@
  *   space is the coordinate space of the children before any transformations
  *   are applied.
  */
-export declare const CoordinateSpace: Readonly<{
+export const CoordinateSpace: Readonly<{
     LOCAL: 0;
     CONTENT: 1;
 }>;
+//# sourceMappingURL=CoordinateSpace.d.ts.map

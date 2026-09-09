@@ -1,12 +1,7 @@
 /**
  * Represents a color with red, green, blue, and alpha components.
  */
-export declare class Color {
-    r: any;
-    g: any;
-    b: any;
-    a: any;
-    constructor(r?: number, g?: number, b?: number, a?: number);
+export class Color {
     /**
      * Creates a Color from a hex string (e.g., "#FF0000" or "F00").
      * Supports 3, 4, 6, or 8 hex digits with optional #.
@@ -28,6 +23,11 @@ export declare class Color {
      * @returns {Color} The interpolated color.
      */
     static lerp(colorA: Color, colorB: Color, t: number): Color;
+    constructor(r?: number, g?: number, b?: number, a?: number);
+    r: any;
+    g: any;
+    b: any;
+    a: any;
     /**
      * Converts the Color to an RGBA string in the format "rgba(r, g, b, a)".
      * @returns {string} The RGBA string representation of the color.
@@ -65,3 +65,4 @@ export declare class Color {
      */
     copy(other: Color): Color;
 }
+//# sourceMappingURL=Color.d.ts.map

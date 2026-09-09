@@ -1,5 +1,4 @@
 import { Vec2 } from "../../../math/Vec2.js";
-import { Point } from "../../utils/Point.js";
 import { PointList } from "../../utils/PointList.js";
 import { ShapeView } from "./ShapeView.js";
 export class LineView extends ShapeView {
@@ -8,7 +7,7 @@ export class LineView extends ShapeView {
     getPointCount() {
         return this.#pointList.getPointCount();
     }
-    getPoint(index, out = new Point()) {
+    getPoint(index, out = new Vec2()) {
         return this.#pointList.getPoint(index, out);
     }
     getPointX(index) {

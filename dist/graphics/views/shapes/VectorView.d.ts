@@ -1,16 +1,13 @@
-import { Vec2 } from "../../../math/Vec2.js";
-import { ShapeView } from "./ShapeView.js";
-export declare class VectorView extends ShapeView {
-    #private;
-    get vectorX(): number;
-    set vectorX(value: number);
-    get vectorY(): number;
-    set vectorY(value: number);
-    get arrowWidth(): number;
-    set arrowWidth(value: number);
-    get arrowHeight(): number;
-    set arrowHeight(value: number);
+export class VectorView extends ShapeView {
     constructor(vectorX?: number, vectorY?: number);
+    set vectorX(value: number);
+    get vectorX(): number;
+    set vectorY(value: number);
+    get vectorY(): number;
+    set arrowWidth(value: number);
+    get arrowWidth(): number;
+    set arrowHeight(value: number);
+    get arrowHeight(): number;
     getVector(out?: Vec2): Vec2;
     setVectorXY(x: any, y: any): this;
     setVectorX(x: any): this;
@@ -19,7 +16,9 @@ export declare class VectorView extends ShapeView {
     setVectorLength(length: any): this;
     setArrowWidth(width: any): this;
     setArrowHeight(height: any): this;
-    updateBounds(out: any): void;
     containsPoint(point: any): boolean;
-    path(context: any): void;
+    #private;
 }
+import { ShapeView } from "./ShapeView.js";
+import { Vec2 } from "../../../math/Vec2.js";
+//# sourceMappingURL=VectorView.d.ts.map

@@ -1,5 +1,4 @@
-export declare class ImageManager {
-    #private;
+export class ImageManager {
     /**
      * Loads an image from the given path, optionally registering an alias for
      * it.
@@ -80,4 +79,6 @@ export declare class ImageManager {
      * Unloads all images and clears all aliases.
      */
     clear(): void;
+    #private;
 }
+//# sourceMappingURL=ImageManager.d.ts.map

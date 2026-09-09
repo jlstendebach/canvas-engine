@@ -1,9 +1,7 @@
-import { Point } from "./Point.js";
-export declare class PointList {
-    #private;
-    constructor(onChange?: any);
+export class PointList {
+    constructor(onChange?: null);
     getPointCount(): number;
-    getPoint(index: any, out?: Point): import("../../index.js").Vec2;
+    getPoint(index: any, out?: Vec2): Vec2;
     getPointX(index: any): any;
     getPointY(index: any): any;
     setPointXY(index: any, x: any, y: any): void;
@@ -24,4 +22,7 @@ export declare class PointList {
      * @returns {readonly number[]}
      */
     unsafeGetPoints(): readonly number[];
+    #private;
 }
+import { Vec2 } from "../../math/Vec2.js";
+//# sourceMappingURL=PointList.d.ts.map

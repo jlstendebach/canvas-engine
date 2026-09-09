@@ -1,25 +1,19 @@
-import { Vec2 } from "../../../math/Vec2.js";
-import { LabelView } from "../ui/LabelView.js";
-import { RectangleView } from "../shapes/RectangleView.js";
-import { View } from "../core/View.js";
-export declare class BarChartTooltip extends RectangleView {
+export class BarChartTooltip extends RectangleView {
+    constructor(w: any, h: any);
     padding: number;
     topLabel: LabelView;
     bottomLabel: LabelView;
     desiredWidth: any;
-    constructor(w: any, h: any);
     initSelf(): void;
     initTopLabel(): void;
     initBottomLabel(): void;
     getPadding(): number;
     setPadding(padding: any): void;
-    onDraw(context: any): void;
     layout(context: any): void;
 }
-export declare class BarChartDataSource {
+export class BarChartDataSource {
     data: any[];
     max: number;
-    constructor();
     add(name: any, value: any, color: any): void;
     remove(i: any): any;
     get(i: any): any;
@@ -28,7 +22,8 @@ export declare class BarChartDataSource {
     calcMax(): void;
     considerForMax(value: any): number;
 }
-export declare class BarChartView extends View {
+export class BarChartView extends View {
+    constructor(w: any, h: any);
     size: Vec2;
     barData: BarChartDataSource;
     barViews: any[];
@@ -36,7 +31,7 @@ export declare class BarChartView extends View {
         index: any;
         data: any;
         view: any;
-    };
+    } | null;
     leftLabels: any[];
     bottomLabels: any[];
     graphArea: {
@@ -52,7 +47,6 @@ export declare class BarChartView extends View {
         bottom: number;
     };
     tooltip: BarChartTooltip;
-    constructor(w: any, h: any);
     initTooltip(w: any, h: any): BarChartTooltip;
     getX(): number;
     getY(): number;
@@ -78,12 +72,14 @@ export declare class BarChartView extends View {
     drawBars(context: any): void;
     drawAxes(context: any): void;
     onDraw(context: any): void;
-    onMouseMove(event: any): void;
-    onMouseExit(event: any): void;
-    onMouseDrag(event: any): void;
     pickBar(x: any, y: any): {
         index: any;
         data: any;
         view: any;
-    };
+    } | null;
 }
+import { RectangleView } from "../shapes/RectangleView.js";
+import { LabelView } from "../ui/LabelView.js";
+import { View } from "../core/View.js";
+import { Vec2 } from "../../../math/Vec2.js";
+//# sourceMappingURL=BarChartView.d.ts.map

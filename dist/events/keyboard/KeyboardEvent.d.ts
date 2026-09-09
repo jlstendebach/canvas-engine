@@ -1,9 +1,10 @@
-export declare class KeyboardEvent {
+export class KeyboardEvent {
     static DOWN: string;
     static REPEAT: string;
     static UP: string;
-    type: any;
+    constructor(type: any, key: any, code: any);
+    type: null;
     key: string;
     code: string;
-    constructor(type: any, key: any, code: any);
 }
+//# sourceMappingURL=KeyboardEvent.d.ts.map

@@ -5,10 +5,11 @@
  * uses more memory, as it stores both the color and the string representation
  * of the color.
  */
-export declare class CachedColor {
-    #private;
+export class CachedColor {
     constructor(color: any);
-    set color(newColor: any);
-    get color(): any;
-    get colorString(): any;
+    set color(newColor: null);
+    get color(): null;
+    get colorString(): null;
+    #private;
 }
+//# sourceMappingURL=CachedColor.d.ts.map

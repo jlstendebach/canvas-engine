@@ -5,7 +5,6 @@ export * from "./utils/CachedColor.js";
 export * from "./utils/Color.js";
 export * from "./utils/CoordinateSpace.js";
 export * from "./utils/ImageManager.js";
-export * from "./utils/Point.js";
 export * from "./utils/PointList.js";
 export * from "./utils/Size.js";
 export * from "./utils/Transform.js";
@@ -23,3 +22,4 @@ export * from "./views/shapes/ShapeView.js";
 export * from "./views/shapes/VectorView.js";
 export * from "./views/ui/ImageView.js";
 export * from "./views/ui/LabelView.js";
+//# sourceMappingURL=index.d.ts.map

@@ -1,14 +1,4 @@
-export declare class Vec3 {
-    x: number;
-    y: number;
-    z: number;
-    constructor(x: any, y: any, z: any);
-    get r(): number;
-    set r(r: number);
-    get g(): number;
-    set g(g: number);
-    get b(): number;
-    set b(b: number);
+export class Vec3 {
     static copy(v: any): Vec3;
     static add(u: any, v: any): Vec3;
     static subtract(u: any, v: any): Vec3;
@@ -19,6 +9,16 @@ export declare class Vec3 {
     static normalize(v: any): void;
     static cross(u: any, v: any): Vec3;
     static interpolate(u: any, v: any, a: any): Vec3;
+    constructor(x: any, y: any, z: any);
+    x: number;
+    y: number;
+    z: number;
+    set r(r: number);
+    get r(): number;
+    set g(g: number);
+    get g(): number;
+    set b(b: number);
+    get b(): number;
     set(x: any, y: any, z: any): this;
     add(v: any): this;
     subtract(v: any): this;
@@ -35,3 +35,4 @@ export declare class Vec3 {
     dotSquared(v: any): number;
     cross(v: any): Vec3;
 }
+//# sourceMappingURL=Vec3.d.ts.map

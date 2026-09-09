@@ -1,13 +1,4 @@
-export declare class Profiler {
-    lastTime: number;
-    accumTime: number;
-    cachedTotal: number;
-    samples: number[];
-    constructor(sampleCount: any);
-    start(): void;
-    accumulate(): void;
-    mark(): void;
-    getTime(): number;
+export class Profiler {
     static start(name: any, sampleCount?: number): void;
     static mark(name: any): void;
     static accumulate(name: any): void;
@@ -19,7 +10,17 @@ export declare class Profiler {
         max: number;
     };
     static currentTime(): number;
+    constructor(sampleCount: any);
+    lastTime: number;
+    accumTime: number;
+    cachedTotal: number;
+    samples: number[];
+    start(): void;
+    accumulate(): void;
+    mark(): void;
+    getTime(): number;
 }
-export declare namespace Profiler {
-    var profilers: {};
+export namespace Profiler {
+    let profilers: {};
 }
+//# sourceMappingURL=Profiler.d.ts.map

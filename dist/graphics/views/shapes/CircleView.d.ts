@@ -1,11 +1,10 @@
-import { ShapeView } from "./ShapeView.js";
-export declare class CircleView extends ShapeView {
-    #private;
-    get radius(): any;
-    set radius(value: any);
+export class CircleView extends ShapeView {
     constructor(radius?: number);
+    set radius(value: any);
+    get radius(): any;
     setRadius(radius: any): this;
-    updateBounds(out: any): void;
     containsPoint(point: any): boolean;
-    path(context: any): void;
+    #private;
 }
+import { ShapeView } from "./ShapeView.js";
+//# sourceMappingURL=CircleView.d.ts.map

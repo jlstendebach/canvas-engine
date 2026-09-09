@@ -2,8 +2,7 @@
  * EventEmitter provides a simple implementation of the observer pattern,
  * allowing you to add, remove, and emit events with associated listeners.
  */
-export declare class EventEmitter {
-    #private;
+export class EventEmitter {
     /**
      * Adds a listener for the specified event type. If the same callback and
      * owner are already registered for the event type, the listener will not be
@@ -82,4 +81,6 @@ export declare class EventEmitter {
      * @throws {AggregateError} Throws an AggregateError if listeners throw errors during event emission.
      */
     emit(type: any, event: any): void;
+    #private;
 }
+//# sourceMappingURL=EventEmitter.d.ts.map

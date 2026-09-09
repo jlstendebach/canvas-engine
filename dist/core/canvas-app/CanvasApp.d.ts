@@ -4,15 +4,14 @@
  * class to coordinate application states, update logic, and render cycles
  * while synchronizing with browser paint and visibility events.
  */
-export declare class CanvasApp {
-    #private;
-    get canvas(): any;
-    get state(): 0;
+export class CanvasApp {
     /**
      * Initializes the `CanvasApp` with a canvas element or selector.
      * @param {string | HTMLCanvasElement} canvasSelectorOrElement - A CSS selector string or an HTMLCanvasElement to be used for rendering.
      */
     constructor(canvasSelectorOrElement: string | HTMLCanvasElement);
+    get canvas(): null;
+    get state(): 0;
     /**
      * Starts the `CanvasApp`, transitioning it to a `RUNNING` state and
      * initiating the main loop. If the app is already running, is destroyed, or
@@ -153,4 +152,6 @@ export declare class CanvasApp {
      * @returns {void}
      */
     onDestroy(): void;
+    #private;
 }
+//# sourceMappingURL=CanvasApp.d.ts.map

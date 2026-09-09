@@ -1,17 +1,13 @@
-import { Vec2 } from "../../math/Vec2.js";
-import { Size } from "../utils/Size.js";
-import { CanvasRootView } from "./CanvasRootView.js";
-export declare class Canvas {
-    #private;
+export class Canvas {
+    constructor(selectorOrElement: any, contextType?: string);
     get rootView(): CanvasRootView;
-    get events(): any;
+    get events(): null;
     get width(): any;
     get height(): any;
-    get fillStyle(): any;
-    set fillStyle(style: any);
-    get isSmoothingEnabled(): boolean;
+    set fillStyle(style: null);
+    get fillStyle(): null;
     set isSmoothingEnabled(value: boolean);
-    constructor(selectorOrElement: any, contextType?: string);
+    get isSmoothingEnabled(): boolean;
     destroy(): void;
     isDestroyed(): boolean;
     getSize(out?: Size): Vec2;
@@ -108,4 +104,9 @@ export declare class Canvas {
     toLocalVectorXY(x: any, y: any, fromView: any, out?: Vec2): Vec2;
     toLocalVector(vector: any, fromView: any, out?: Vec2): Vec2;
     draw(): void;
+    #private;
 }
+import { CanvasRootView } from "./CanvasRootView.js";
+import { Size } from "../utils/Size.js";
+import { Vec2 } from "../../math/Vec2.js";
+//# sourceMappingURL=Canvas.d.ts.map

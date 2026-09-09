@@ -1,10 +1,8 @@
-import { View } from "../core/View.js";
-export declare class ShapeView extends View {
-    #private;
-    set fillStyle(style: any);
-    get fillStyle(): any;
-    set strokeStyle(style: any);
-    get strokeStyle(): any;
+export class ShapeView extends View {
+    set fillStyle(style: null);
+    get fillStyle(): null;
+    set strokeStyle(style: null);
+    get strokeStyle(): null;
     set strokeWidth(width: number);
     get strokeWidth(): number;
     set strokeDash(dash: any[]);
@@ -22,4 +20,7 @@ export declare class ShapeView extends View {
     onDraw(context: any): void;
     isStrokeEnabled(): boolean;
     isFillEnabled(): boolean;
+    #private;
 }
+import { View } from "../core/View.js";
+//# sourceMappingURL=ShapeView.d.ts.map

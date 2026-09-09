@@ -1,9 +1,8 @@
 /**
  * Internal helper used by EventEmitter to store listener metadata.
  */
-export declare class EventListener {
-    #private;
-    constructor(callback: any, owner?: any, once?: boolean);
+export class EventListener {
+    constructor(callback: any, owner?: null, once?: boolean);
     /**
      * Gets a value indicating whether this event listener should be invoked only once.
      * @returns {boolean} Returns true if the listener should be invoked only once, false otherwise.
@@ -22,4 +21,6 @@ export declare class EventListener {
      * @returns {boolean} Returns true if the listener matches, false otherwise.
      */
     matches(callback: Function, owner: any): boolean;
+    #private;
 }
+//# sourceMappingURL=EventListener.d.ts.map

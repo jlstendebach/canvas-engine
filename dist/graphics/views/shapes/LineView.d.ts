@@ -1,10 +1,6 @@
-import { Vec2 } from "../../../math/Vec2.js";
-import { Point } from "../../utils/Point.js";
-import { ShapeView } from "./ShapeView.js";
-export declare class LineView extends ShapeView {
-    #private;
+export class LineView extends ShapeView {
     getPointCount(): number;
-    getPoint(index: any, out?: Point): Vec2;
+    getPoint(index: any, out?: Vec2): Vec2;
     getPointX(index: any): any;
     getPointY(index: any): any;
     setPointXY(index: any, x: any, y: any): this;
@@ -19,8 +15,9 @@ export declare class LineView extends ShapeView {
     insertPoint(index: any, point: any): this;
     removePoint(index: any): this;
     clearPoints(): this;
-    updateBounds(out: any): void;
     containsPoint(point: any): boolean;
-    path(context: any): void;
-    fill(context: any): void;
+    #private;
 }
+import { ShapeView } from "./ShapeView.js";
+import { Vec2 } from "../../../math/Vec2.js";
+//# sourceMappingURL=LineView.d.ts.map

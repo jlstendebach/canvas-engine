@@ -1,13 +1,11 @@
-import { Bounds } from "./Bounds.js";
-import { Vec2 } from "./Vec2.js";
-export declare class Matrix2 {
+export class Matrix2 {
+    constructor(a?: number, b?: number, c?: number, d?: number, tx?: number, ty?: number);
     a: any;
     b: any;
     c: any;
     d: any;
     tx: any;
     ty: any;
-    constructor(a?: number, b?: number, c?: number, d?: number, tx?: number, ty?: number);
     set(a: any, b: any, c: any, d: any, tx: any, ty: any): this;
     zero(): this;
     identity(): this;
@@ -38,3 +36,6 @@ export declare class Matrix2 {
     transformVector(vector: any, out?: Vec2): Vec2;
     transformBounds(bounds: any, out?: Bounds): Bounds;
 }
+import { Vec2 } from "./Vec2.js";
+import { Bounds } from "./Bounds.js";
+//# sourceMappingURL=Matrix2.d.ts.map

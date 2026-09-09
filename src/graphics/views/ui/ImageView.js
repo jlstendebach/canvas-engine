@@ -1,4 +1,4 @@
-import { Point } from "../../utils/Point.js";
+import { Vec2 } from "../../../math/Vec2.js";
 import { Size } from "../../utils/Size.js";
 import { View } from "../core/View.js";
 
@@ -79,7 +79,7 @@ export class ImageView extends View {
     }
 
     // MARK: - Source Position
-    getSourcePosition(out = new Point()) {
+    getSourcePosition(out = new Vec2()) {
         return out.set(this.#sourceX, this.#sourceY);
     }
 

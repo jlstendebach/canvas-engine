@@ -1,7 +1,45 @@
-export declare class Vec2 {
+export class Vec2 {
+    /*********************/
+    /*********************/
+    static fromArray(array: any, offset?: number): Vec2;
+    static fromObject(object: any): Vec2;
+    static fromJson(string: any): Vec2;
+    static fromAngle(radians: any): Vec2;
+    static random(length?: number): Vec2;
+    static unitX(): Vec2;
+    static unitY(): Vec2;
+    static zero(): Vec2;
+    static one(): Vec2;
+    /**************/
+    /**************/
+    static add(v1: any, v2: any): Vec2;
+    static subtract(v1: any, v2: any): Vec2;
+    static multiply(v1: any, v2: any): Vec2;
+    static divide(v1: any, v2: any): Vec2;
+    static multiplyScalar(v: any, s: any): Vec2;
+    static divideScalar(v: any, s: any): Vec2;
+    static scale(v: any, s: any): Vec2;
+    static negate(v: any): Vec2;
+    static floor(v: any): Vec2;
+    static ceil(v: any): Vec2;
+    static round(v: any): Vec2;
+    static rotate(v: any, radians: any): Vec2;
+    static reflect(v: any, normal: any): Vec2;
+    static mirror(v: any, mirror: any): Vec2;
+    static lerp(v1: any, v2: any, a: any): Vec2;
+    static projection(v1: any, v2: any): Vec2;
+    static rejection(v1: any, v2: any): Vec2;
+    static normalize(v: any, length?: any): Vec2;
+    static normal(v: any): Vec2;
+    static unitNormal(v: any, length?: any): Vec2;
+    static dot(v1: any, v2: any): number;
+    static angle(v1: any, v2?: Vec2): number;
+    static angleTau(v1: any, v2?: Vec2): number;
+    static distanceSq(v1: any, v2: any): number;
+    static distance(v1: any, v2: any): number;
+    constructor(x?: number, y?: number);
     x: number;
     y: number;
-    constructor(x?: number, y?: number);
     /**
      * Sets the x and y components of this vector.
      * @param {Number} x The x value.
@@ -178,42 +216,5 @@ export declare class Vec2 {
     toArray(): number[];
     toJson(): string;
     toString(): string;
-    /*********************/
-    /*********************/
-    static fromArray(array: any, offset?: number): Vec2;
-    static fromObject(object: any): Vec2;
-    static fromJson(string: any): Vec2;
-    static fromAngle(radians: any): Vec2;
-    static random(length?: number): Vec2;
-    static unitX(): Vec2;
-    static unitY(): Vec2;
-    static zero(): Vec2;
-    static one(): Vec2;
-    /**************/
-    /**************/
-    static add(v1: any, v2: any): Vec2;
-    static subtract(v1: any, v2: any): Vec2;
-    static multiply(v1: any, v2: any): Vec2;
-    static divide(v1: any, v2: any): Vec2;
-    static multiplyScalar(v: any, s: any): Vec2;
-    static divideScalar(v: any, s: any): Vec2;
-    static scale(v: any, s: any): Vec2;
-    static negate(v: any): Vec2;
-    static floor(v: any): Vec2;
-    static ceil(v: any): Vec2;
-    static round(v: any): Vec2;
-    static rotate(v: any, radians: any): Vec2;
-    static reflect(v: any, normal: any): Vec2;
-    static mirror(v: any, mirror: any): Vec2;
-    static lerp(v1: any, v2: any, a: any): Vec2;
-    static projection(v1: any, v2: any): Vec2;
-    static rejection(v1: any, v2: any): Vec2;
-    static normalize(v: any, length?: any): Vec2;
-    static normal(v: any): Vec2;
-    static unitNormal(v: any, length?: any): Vec2;
-    static dot(v1: any, v2: any): number;
-    static angle(v1: any, v2?: Vec2): number;
-    static angleTau(v1: any, v2?: Vec2): number;
-    static distanceSq(v1: any, v2: any): number;
-    static distance(v1: any, v2: any): number;
 }
+//# sourceMappingURL=Vec2.d.ts.map
