@@ -6,7 +6,7 @@ import {
     MouseButton,
     MouseEvent,
     RectangleView
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 import { BoundsDrawer } from "../common/BoundsDrawer.js";
 import { shapeStyles } from "../common/shapeStyles.js";
@@ -101,7 +101,7 @@ export class BoundsApp extends CanvasApp {
     }
 
     // MARK: - Events Handlers
-    onViewDragged(type, event) {
+    onViewDragged(_type, event) {
         if (event.button === MouseButton.LEFT) {
             event.target.x += event.parentMovementX;
             event.target.y += event.parentMovementY;
@@ -110,7 +110,7 @@ export class BoundsApp extends CanvasApp {
         }
     }
 
-    onViewScrolled(type, event) {
+    onViewScrolled(_type, event) {
         if (event.wheelY === 0) { return; }
         const factor = 1 - Math.sign(event.wheelY) * 0.05;
         event.target.scale(factor);

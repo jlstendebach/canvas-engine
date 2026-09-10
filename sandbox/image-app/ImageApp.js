@@ -13,7 +13,7 @@ import {
     SceneView,
     Timer,
     Vec2
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 const Direction = Object.freeze({
     UP: 0,
@@ -74,16 +74,16 @@ export class ImageApp extends CanvasApp {
         this.#scene = new SceneView(this.canvas.width, this.canvas.height)
             .scaleContent(5)
             .addToParent(this.canvas);
-        this.#scene.events.on(MouseEvent.DRAG, (type, event) => {
+        this.#scene.events.on(MouseEvent.DRAG, (_type, event) => {
             this.#scene.translateContent(event.movementX, event.movementY);
         });
-        this.#scene.events.on(MouseEvent.WHEEL, (type, event) => {
+        this.#scene.events.on(MouseEvent.WHEEL, (_type, event) => {
             if (event.wheelY === 0) { return; }
             const direction = Math.sign(event.wheelY);
             const factor = 1 - direction / 20;
             this.#scene.scaleAround(factor, event.x, event.y);
         });
-        this.#scene.events.on(MouseEvent.DOWN, (type, event) => {
+        this.#scene.events.on(MouseEvent.DOWN, (_type, event) => {
             if (event.button === MouseButton.MIDDLE) {
                 this.#isFollowing = !this.#isFollowing;
             }
@@ -118,7 +118,7 @@ export class ImageApp extends CanvasApp {
     }
 
     // MARK: - Update
-    onUpdate(timestamp, deltaTime) {
+    onUpdate(_timestamp, deltaTime) {
         const timeScale = deltaTime / 1000;
 
         if (this.#velocity.isNotZero()) {
@@ -136,7 +136,7 @@ export class ImageApp extends CanvasApp {
     }
 
     // MARK: - Events
-    onKeyDown(type, event) {
+    onKeyDown(_type, event) {
         switch (event.code) {
             case "KeyW":
                 this.#velocity.y -= 1;
@@ -164,7 +164,7 @@ export class ImageApp extends CanvasApp {
         this.updateRunning();
     }
 
-    onKeyUp(type, event) {
+    onKeyUp(_type, event) {
         switch (event.code) {
             case "KeyW":
                 this.#velocity.y += 1;
@@ -184,7 +184,7 @@ export class ImageApp extends CanvasApp {
         this.updateRunning();
     }
 
-    onCanvasResize(type, event) {
+    onCanvasResize(_type, event) {
         this.#scene.setSizeWH(event.width, event.height);
     }
 
@@ -193,7 +193,7 @@ export class ImageApp extends CanvasApp {
         const sy = this.#START_Y + this.#STRIDE * this.#direction;
 
         if (this.#isRunning) {
-            const time = this.#runTimer.getTime();
+            const time = this.#runTimer.elapsed();
             const index = 1 + Math.floor(time / 100) % 10
             const sx = this.#START_X + this.#STRIDE * index;
             this.#linkView.setSourcePositionXY(sx, sy);
@@ -227,7 +227,7 @@ export class ImageApp extends CanvasApp {
 
         } else if (!isVelocityZero && !this.#isRunning) {
             this.#isRunning = true;
-            this.#runTimer.start();
+            this.#runTimer.reset();
         }
     }
 

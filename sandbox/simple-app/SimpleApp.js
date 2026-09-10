@@ -5,7 +5,7 @@ import {
     Vec2, 
     MouseEvent,
     MouseButton, 
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 export class SimpleApp extends CanvasApp {
     #ball;
@@ -37,24 +37,24 @@ export class SimpleApp extends CanvasApp {
     }
     
     // MARK: - Events Handlers
-    onBallGrab(type, event) {
+    onBallGrab(_type, event) {
         if (event.button === MouseButton.LEFT) {
             this.#isBallGrabbed = true;
             event.target.setPositionXY(event.parentX, event.parentY);
         }
     }
 
-    onBallDrag(type, event) {
+    onBallDrag(_type, event) {
         event.target.setPositionXY(event.parentX, event.parentY);
     }
 
-    onBallDrop(type, event) {
+    onBallDrop(_type, event) {
         event.target.setPositionXY(event.parentX, event.parentY);
         this.#isBallGrabbed = false;
     }
 
     // MARK: - Update
-    onUpdate(timestamp, deltaTime) {
+    onUpdate(_timestamp, deltaTime) {
         if (!this.#isBallGrabbed) {
             this.#ball.x += this.#ballVelocity.x * deltaTime / 1000;
             this.#ball.y += this.#ballVelocity.y * deltaTime / 1000;

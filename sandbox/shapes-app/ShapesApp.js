@@ -5,14 +5,13 @@ import {
     LineView,
     MouseButton,
     MouseEvent,
-    Point,
     PolygonView,
     RectangleView,
     RoundRectangleView,
     SceneView,
     Vec2,
     VectorView
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 import { shapeStyles } from "../common/shapeStyles.js";
 
@@ -98,9 +97,9 @@ export class ShapesApp extends CanvasApp {
 
         const tau = Math.PI * 2;
         triangle.setPoints([
-            Point.fromAngle(tau * 0/3).scale(50),
-            Point.fromAngle(tau * 1/3).scale(50),
-            Point.fromAngle(tau * 2/3).scale(50)
+            Vec2.fromAngle(tau * 0/3).scale(50),
+            Vec2.fromAngle(tau * 1/3).scale(50),
+            Vec2.fromAngle(tau * 2/3).scale(50)
         ]);
 
         this.addEventListeners(triangle);
@@ -184,7 +183,7 @@ export class ShapesApp extends CanvasApp {
     }
     
     // MARK: - Update
-    onUpdate(timestamp, deltaTime) {
+    onUpdate(_timestamp, deltaTime) {
         const rotationSpeed = 2 * Math.PI / 10; // 1 rotation every 10 seconds
         const rotation = rotationSpeed * deltaTime / 1000;
         for (const shape of this.shapes) {
@@ -193,33 +192,33 @@ export class ShapesApp extends CanvasApp {
     }
 
     // MARK: - Events Handlers
-    onMouseDown(type, event) {
+    onMouseDown(_type, event) {
         if (event.button === MouseButton.LEFT) {
             event.target.setPositionXY(event.parentX, event.parentY);
             event.target.fillStyle.a += 0.1;
         }
     }
 
-    onMouseDrag(type, event) {
+    onMouseDrag(_type, event) {
         event.target.setPositionXY(event.parentX, event.parentY);
     }
 
-    onMouseUp(type, event) {
+    onMouseUp(_type, event) {
         event.target.setPositionXY(event.parentX, event.parentY);
         event.target.fillStyle.a -= 0.1;
     }
 
-    onMouseEnter(type, event) {
+    onMouseEnter(_type, event) {
         event.target.strokeDash = [10, 5];
         event.target.fillStyle.a += 0.1;
     }
 
-    onMouseExit(type, event) {
+    onMouseExit(_type, event) {
         event.target.strokeDash = [];
         event.target.fillStyle.a -= 0.1;
     }
 
-    onMouseWheel(type, event) {
+    onMouseWheel(_type, event) {
         if (event.wheelY === 0) { return; }
         const direction = Math.sign(event.wheelY);
         const factor =  1 - direction / 20;

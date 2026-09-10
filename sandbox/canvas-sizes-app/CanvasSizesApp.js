@@ -5,7 +5,7 @@ import {
     Color,
     LineView,
     MouseEvent
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 export class CanvasSizesApp extends CanvasApp {
     constructor(canvasSelectorOrElement) {
@@ -47,7 +47,7 @@ export class CanvasSizesApp extends CanvasApp {
         this.updateBallPositions();
     }
 
-    onCanvasMouseMove(type, event) {
+    onCanvasMouseMove(_type, event) {
         if (this.#mousePath.getPointCount() >= this.#maxMousePathLength) {
             this.#mousePath.removePoint(0);
         }

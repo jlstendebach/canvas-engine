@@ -3,7 +3,7 @@ import {
     LabelView,
     LineView,
     RectangleView
-} from "../../src/index.js";
+} from "../../dist/index.js";
 
 
 export class Graph extends RectangleView {
