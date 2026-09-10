@@ -22,7 +22,8 @@ export default defineConfig([
             "@typescript-eslint/no-unused-vars": [
                 "warn",
                 {
-                    args: "none", // Signatures are often fixed by overrides and callbacks
+                    args: "all",
+                    argsIgnorePattern: "^_", // Prefix a param with _ to mark it intentionally unused
                     varsIgnorePattern: "^_$",
                     caughtErrors: "all",
                     caughtErrorsIgnorePattern: "^_$",
