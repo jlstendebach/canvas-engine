@@ -118,7 +118,7 @@ export class SceneApp extends CanvasApp {
     // MARK: - Lifecycle
     // -------------------------------------------------------------------------
 
-    onUpdate(timestamp, deltaTime) {
+    onUpdate(_timestamp, deltaTime) {
         const timeScale = deltaTime / 1000.0;
 
         if (this.isBallGrabbed == false) {
@@ -158,14 +158,14 @@ export class SceneApp extends CanvasApp {
     // MARK: - Scene Events
     // -------------------------------------------------------------------------
 
-    onSceneZoom(type, event) {
+    onSceneZoom(_type, event) {
         if (event.wheelY === 0) { return; }
         const direction = Math.sign(event.wheelY);
         const factor = 1 - direction / 20;
         this.scene.scaleAround(factor, event.x, event.y, CoordinateSpace.LOCAL);
     }
 
-    onSceneDrag(type, event) {
+    onSceneDrag(_type, event) {
         try {
             if (event.button == MouseButton.LEFT) {
                 this.scene.translateContent(event.movementX, event.movementY, CoordinateSpace.LOCAL);
@@ -193,7 +193,7 @@ export class SceneApp extends CanvasApp {
         }
     }
 
-    onSceneClick(type, event) {
+    onSceneClick(_type, event) {
         if (event.button == MouseButton.MIDDLE) {
             this.isFollowingBall = !this.isFollowingBall;
         }
@@ -205,14 +205,14 @@ export class SceneApp extends CanvasApp {
     // handle events on child views within the scene.
     // -------------------------------------------------------------------------
 
-    onBoxZoom(type, event) {
+    onBoxZoom(_type, event) {
         if (event.wheelY === 0) { return; }
         const direction = Math.sign(event.wheelY);
         const factor = 1 - direction / 20;
         this.scene.scaleAround(factor, event.parentX, event.parentY, CoordinateSpace.CONTENT);
     }
 
-    onBoxDrag(type, event) {
+    onBoxDrag(_type, event) {
         try {
             if (event.button == MouseButton.LEFT) {
                 this.scene.translateContent(event.movementX, event.movementY, CoordinateSpace.CONTENT);
@@ -241,7 +241,7 @@ export class SceneApp extends CanvasApp {
         }
     }
 
-    onBoxClick(type, event) {
+    onBoxClick(_type, event) {
         if (event.button == MouseButton.MIDDLE) {
             this.isFollowingBall = !this.isFollowingBall;
         }
@@ -251,7 +251,7 @@ export class SceneApp extends CanvasApp {
     // MARK: - Ball Events
     // -------------------------------------------------------------------------
 
-    onBallGrab(type, event) {
+    onBallGrab(_type, event) {
         if (event.target == this.ball) {
             this.ballVelocity.set(0, 0);
             this.isBallGrabbed = true;
@@ -260,7 +260,7 @@ export class SceneApp extends CanvasApp {
         event.target.y = event.parentY;
     }
 
-    onBallDrag(type, event) {
+    onBallDrag(_type, event) {
         event.target.x = event.parentX;
         event.target.y = event.parentY;
 
@@ -289,7 +289,7 @@ export class SceneApp extends CanvasApp {
         }
     }
 
-    onBallDrop(type, event) {
+    onBallDrop(_type, event) {
         if (event.target == this.ball) {
             this.ballVelocity = new Vec2(event.parentX, event.parentY)
                 .subtract(this.ballLastPosition)

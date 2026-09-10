@@ -151,7 +151,7 @@ export class EkgMotorApp extends CanvasApp {
     }
 
     // MARK: - Update
-    onUpdate(timestamp, deltaTime) {
+    onUpdate(_timestamp, deltaTime) {
         this.accumulatedTime += deltaTime;
 
         while (this.accumulatedTime > this.updateEvery) {
@@ -214,7 +214,7 @@ export class EkgMotorApp extends CanvasApp {
     }
 
     // MARK: - Events
-    onGraphMouseMove(type, event) {
+    onGraphMouseMove(_type, event) {
         this.dataGraph.setCursor(event.x);
         this.slopeGraph.setCursor(event.x);
         this.activationGraph.setCursor(event.x);
