@@ -12,12 +12,24 @@ export class Matrix2 {
     ty: number;
 
     // MARK: - Constructor
-    constructor(a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0) {
-        this.set(a, b, c, d, tx, ty);
+    constructor(
+        a: number = 1,
+        b: number = 0,
+        c: number = 0,
+        d: number = 1,
+        tx: number = 0,
+        ty: number = 0
+    ) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+        this.d = d;
+        this.tx = tx;
+        this.ty = ty;
     }
 
     // MARK: - Direct Setters
-    set(a, b, c, d, tx, ty) {
+    set(a: number, b: number, c: number, d: number, tx: number, ty: number): this {
         this.a = a;
         this.b = b;
         this.c = c;
@@ -27,25 +39,25 @@ export class Matrix2 {
         return this;
     }
 
-    zero() {
+    zero(): this {
         return this.set(0, 0, 0, 0, 0, 0);
     }
 
-    identity() {
+    identity(): this {
         return this.set(1, 0, 0, 1, 0, 0);
     }
 
     // MARK: - Copying
-    copy(other) {
+    copy(other: Matrix2): this {
         return this.set(other.a, other.b, other.c, other.d, other.tx, other.ty);
     }
 
-    clone() {
+    clone(): Matrix2 {
         return new Matrix2(this.a, this.b, this.c, this.d, this.tx, this.ty);
     }
 
     // MARK: - Queries
-    equals(other) {
+    equals(other: Matrix2): boolean {
         return (
             this.a === other.a &&
             this.b === other.b &&
@@ -56,7 +68,7 @@ export class Matrix2 {
         );
     }
 
-    equalsEpsilon(other, epsilon = EPSILON) {
+    equalsEpsilon(other: Matrix2, epsilon: number = EPSILON): boolean {
         return (
             Math.abs(this.a - other.a) <= epsilon &&
             Math.abs(this.b - other.b) <= epsilon &&
@@ -67,7 +79,7 @@ export class Matrix2 {
         );
     }
 
-    isIdentity() {
+    isIdentity(): boolean {
         return (
             this.a === 1 &&
             this.b === 0 &&
@@ -78,7 +90,7 @@ export class Matrix2 {
         );
     }
 
-    isIdentityEpsilon(epsilon = EPSILON) {
+    isIdentityEpsilon(epsilon: number = EPSILON): boolean {
         return (
             Math.abs(this.a - 1) <= epsilon &&
             Math.abs(this.b) <= epsilon &&
@@ -89,16 +101,16 @@ export class Matrix2 {
         );
     }
 
-    isInvertible() {
+    isInvertible(): boolean {
         return Math.abs(this.determinant()) > EPSILON;
     }
 
-    determinant() {
+    determinant(): number {
         return this.a * this.d - this.b * this.c;
     }
 
     // MARK: - Operations
-    invert() {
+    invert(): this {
         const a = this.a;
         const b = this.b;
         const c = this.c;
@@ -122,7 +134,7 @@ export class Matrix2 {
         return this;
     }
 
-    append(other) {
+    append(other: Matrix2): this {
         const a1 = this.a;
         const b1 = this.b;
         const c1 = this.c;
@@ -140,14 +152,14 @@ export class Matrix2 {
         this.a = (a1 * a2) + (c1 * b2);
         this.b = (b1 * a2) + (d1 * b2);
         this.c = (a1 * c2) + (c1 * d2);
-        this.d = (b1 * c2) + (d1 * d2);        
+        this.d = (b1 * c2) + (d1 * d2);
         this.tx = (a1 * tx2) + (c1 * ty2) + tx1;
         this.ty = (b1 * tx2) + (d1 * ty2) + ty1;
 
         return this;
     }
 
-    prepend(other) {
+    prepend(other: Matrix2): this {
         const a1 = this.a;
         const b1 = this.b;
         const c1 = this.c;
@@ -173,7 +185,15 @@ export class Matrix2 {
     }
 
     // MARK: - Transform Self
-    setTransform(x, y, pivotX, pivotY, scaleX, scaleY, rotation) {
+    setTransform(
+        x: number,
+        y: number,
+        pivotX: number,
+        pivotY: number,
+        scaleX: number,
+        scaleY: number,
+        rotation: number
+    ): this {
         const cos = Math.cos(rotation);
         const sin = Math.sin(rotation);
 
@@ -187,17 +207,17 @@ export class Matrix2 {
         return this;
     }
 
-    translateXY(x, y) {
+    translateXY(x: number, y: number): this {
         this.tx += x;
         this.ty += y;
         return this;
     }
 
-    translate(delta) {
+    translate(delta: Vec2): this {
         return this.translateXY(delta.x, delta.y);
     }
 
-    scaleXY(sx, sy) {
+    scaleXY(sx: number, sy: number): this {
         this.a *= sx;
         this.b *= sx;
         this.c *= sy;
@@ -205,13 +225,13 @@ export class Matrix2 {
         return this;
     }
 
-    scale(factorOrVector) {
+    scale(factorOrVector: number | Vec2): this {
         return (typeof factorOrVector === "number")
             ? this.scaleXY(factorOrVector, factorOrVector)
             : this.scaleXY(factorOrVector.x, factorOrVector.y);
     }
 
-    rotate(radians) {
+    rotate(radians: number): this {
         const cos = Math.cos(radians);
         const sin = Math.sin(radians);
 
@@ -228,21 +248,21 @@ export class Matrix2 {
         return this;
     }
 
-    skewX(radians) {
+    skewX(radians: number): this {
         const tan = Math.tan(radians);
         this.c += this.a * tan;
         this.d += this.b * tan;
         return this;
     }
 
-    skewY(radians) {
+    skewY(radians: number): this {
         const tan = Math.tan(radians);
         this.a += this.c * tan;
         this.b += this.d * tan;
         return this;
     }
 
-    skewXY(skewX, skewY) {
+    skewXY(skewX: number, skewY: number): this {
         const tanX = Math.tan(skewX);
         const tanY = Math.tan(skewY);
 
@@ -259,36 +279,36 @@ export class Matrix2 {
         return this;
     }
 
-    skew(radiansOrVector) {
+    skew(radiansOrVector: number | Vec2): this {
         return (typeof radiansOrVector === "number")
             ? this.skewXY(radiansOrVector, radiansOrVector)
             : this.skewXY(radiansOrVector.x, radiansOrVector.y);
     }
 
     // MARK: - Transform Others
-    transformPointXY(x, y, out = new Vec2()) {
+    transformPointXY(x: number, y: number, out: Vec2 = new Vec2()): Vec2 {
         return out.set(
             this.tx + (x * this.a) + (y * this.c),
             this.ty + (x * this.b) + (y * this.d)
         );
     }
 
-    transformPoint(point, out = new Vec2()) {
+    transformPoint(point: Vec2, out: Vec2 = new Vec2()): Vec2 {
         return this.transformPointXY(point.x, point.y, out);
     }
 
-    transformVectorXY(x, y, out = new Vec2()) {
+    transformVectorXY(x: number, y: number, out: Vec2 = new Vec2()): Vec2 {
         return out.set(
             (x * this.a) + (y * this.c),
             (x * this.b) + (y * this.d)
         );
     }
 
-    transformVector(vector, out = new Vec2()) {
+    transformVector(vector: Vec2, out: Vec2 = new Vec2()): Vec2 {
         return this.transformVectorXY(vector.x, vector.y, out);
     }
 
-    transformBounds(bounds, out = new Bounds()) {
+    transformBounds(bounds: Bounds, out: Bounds = new Bounds()): Bounds {
         const minX = bounds.minX;
         const minY = bounds.minY;
         const maxX = bounds.maxX;
@@ -304,19 +324,19 @@ export class Matrix2 {
         return out
             .reset()
             .addPointXY(
-                (a * minX) + (c * minY) + tx, 
+                (a * minX) + (c * minY) + tx,
                 (b * minX) + (d * minY) + ty
             )
             .addPointXY(
-                (a * maxX) + (c * minY) + tx, 
+                (a * maxX) + (c * minY) + tx,
                 (b * maxX) + (d * minY) + ty
             )
             .addPointXY(
-                (a * maxX) + (c * maxY) + tx, 
+                (a * maxX) + (c * maxY) + tx,
                 (b * maxX) + (d * maxY) + ty
             )
             .addPointXY(
-                (a * minX) + (c * maxY) + tx, 
+                (a * minX) + (c * maxY) + tx,
                 (b * minX) + (d * maxY) + ty
             );
     }
