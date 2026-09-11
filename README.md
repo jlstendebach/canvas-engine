@@ -16,7 +16,7 @@ This library uses [Jest](https://jestjs.io/) for testing. To test, run the follo
 - `npm test`
 
 # Running Locally
-- Run command `npm install http-server`
+- Run command `npm install --global http-server`
 - Navigate to the your project's repo
 - Run command `http-server`
 - Open `http://localhost:8080/` in your browser (port may be different based on config)
