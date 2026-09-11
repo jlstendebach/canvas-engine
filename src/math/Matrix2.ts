@@ -4,12 +4,12 @@ import { Vec2 } from "./Vec2.js";
 const EPSILON = 1e-12;
 
 export class Matrix2 {
-    a;
-    b;
-    c;
-    d;
-    tx;
-    ty;
+    a: number;
+    b: number;
+    c: number;
+    d: number;
+    tx: number;
+    ty: number;
 
     // MARK: - Constructor
     constructor(a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0) {
