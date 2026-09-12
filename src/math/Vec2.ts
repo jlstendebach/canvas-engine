@@ -1,8 +1,8 @@
 const TAU = Math.PI * 2;
 
 export class Vec2 {
-    x = 0;
-    y = 0;
+    x: number = 0;
+    y: number = 0;
 
     // --[ ctor ]---------------------------------------------------------------
     constructor(x = 0, y = 0) {
