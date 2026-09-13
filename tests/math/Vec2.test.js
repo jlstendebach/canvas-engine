@@ -421,8 +421,9 @@ describe("Vec2 Static Factories", () => {
     });
 
     test("Vec2.fromObject(object)", () => {
-        expect(Vec2.fromObject()).toMatchObject(new Vec2(0, 0));
-        expect(Vec2.fromObject(null)).toMatchObject(new Vec2(0, 0));
+        expect(() => Vec2.fromObject()).toThrow();
+        expect(() => Vec2.fromObject(undefined)).toThrow();
+        expect(() => Vec2.fromObject(null)).toThrow();
         expect(Vec2.fromObject({})).toMatchObject(new Vec2(0, 0));
         expect(Vec2.fromObject({x: 1})).toMatchObject(new Vec2(1, 0));
         expect(Vec2.fromObject({y: 1})).toMatchObject(new Vec2(0, 1));
@@ -430,14 +431,14 @@ describe("Vec2 Static Factories", () => {
     });
 
     test("Vec2.fromJson(string)", () => {
-        expect(Vec2.fromJson()).toMatchObject(new Vec2(0, 0));
-        expect(Vec2.fromJson(null)).toMatchObject(new Vec2(0, 0));
-        expect(Vec2.fromJson("asdf")).toMatchObject(new Vec2(0, 0));
+        expect(Vec2.fromJson()).toBeNull();
+        expect(Vec2.fromJson(null)).toBeNull();
+        expect(Vec2.fromJson("asdf")).toBeNull();
         expect(Vec2.fromJson("{}")).toMatchObject(new Vec2(0, 0));
         expect(Vec2.fromJson('{"x": 1}')).toMatchObject(new Vec2(1, 0));
         expect(Vec2.fromJson('{"y": 1}')).toMatchObject(new Vec2(0, 1));
         expect(Vec2.fromJson('{"x": 1, "y": 2}')).toMatchObject(new Vec2(1, 2));
-        expect(Vec2.fromJson('{"x": 1, "y: 2}')).toMatchObject(new Vec2(0, 0));
+        expect(Vec2.fromJson('{"x": 1, "y: 2}')).toBeNull();
     });
 
     test("Vec2.fromAngle(radians)", () => {
