@@ -9,9 +9,9 @@ export class Color {
 
     // MARK: - Initialization
     constructor(
-        r: number = 0, 
-        g: number = 0, 
-        b: number = 0, 
+        r: number = 0,
+        g: number = 0,
+        b: number = 0,
         a: number = 1.0
     ) {
         this.r = r;
@@ -27,11 +27,7 @@ export class Color {
      * @param {string} hexString - The hex color string.
      * @returns {Color|null} A new Color instance or null if invalid.
      */
-    static fromHex(hexString) {
-        if (typeof hexString !== "string") {
-            return null;
-        }
-
+    static fromHex(hexString: string): Color | null {
         // Simple validation: 3, 4, 6, or 8 hex digits (optional #)
         // - #? -> Optional leading '#'
         // - [a-f\d] -> a-f or 0-9 (\d is a digit)
@@ -47,7 +43,10 @@ export class Color {
         // Remove '#' and expand shorthand (e.g. #f53 -> ff5533)
         let cleanHex = hexString.replace('#', '');
         if (cleanHex.length <= 4) {
-            cleanHex = cleanHex.split('').map(char => char + char).join('');
+            cleanHex = cleanHex
+                .split('')
+                .map((char: string): string => char + char)
+                .join('');
         }
 
         // Parse components using substring and parseInt
@@ -64,11 +63,7 @@ export class Color {
      * @param {string} rgbaString - The RGBA/RGB string.
      * @returns {Color|null} A new Color instance or null if invalid.
      */
-    static fromRgba(rgbaString) {
-        if (typeof rgbaString !== "string") {
-            return null;
-        }
-
+    static fromRgba(rgbaString: string): Color | null {
         // Regex to match rgba() or rgb() format
         // - rgba? -> "rgb" followed by optional "a"
         // - \s* -> Optional whitespace (* means zero or more)
@@ -96,7 +91,7 @@ export class Color {
      * @param {number} t - The interpolation factor (0.0 to 1.0).
      * @returns {Color} The interpolated color.
      */
-    static lerp(colorA, colorB, t) {
+    static lerp(colorA: Color, colorB: Color, t: number): Color {
         const u = 1 - t;
         return new Color(
             colorA.r * u + colorB.r * t,
@@ -111,7 +106,7 @@ export class Color {
      * Converts the Color to an RGBA string in the format "rgba(r, g, b, a)".
      * @returns {string} The RGBA string representation of the color.
      */
-    toRgba() {
+    toRgba(): string {
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
 
@@ -119,7 +114,7 @@ export class Color {
      * Converts the Color to a hex string in the format "#RRGGBBAA".
      * @returns {string} The hex string representation of the color.
      */
-    toHex() {
+    toHex(): string {
         const rHex = this.r.toString(16).padStart(2, '0');
         const gHex = this.g.toString(16).padStart(2, '0');
         const bHex = this.b.toString(16).padStart(2, '0');
@@ -136,7 +131,7 @@ export class Color {
      * @param {number} a - Alpha component
      * @returns {Color} The current Color instance.
      */
-    set(r, g, b, a = 1.0) {
+    set(r: number, g: number, b: number, a: number = 1.0): this {
         this.r = r;
         this.g = g;
         this.b = b;
@@ -149,7 +144,7 @@ export class Color {
      * @param {Color} other - The other Color to compare.
      * @returns {boolean} True if equal.
      */
-    equals(other) {
+    equals(other: Color): boolean {
         return other instanceof Color &&
             this.r === other.r &&
             this.g === other.g &&
@@ -161,7 +156,7 @@ export class Color {
      * Creates a clone of this Color instance.
      * @returns {Color} A new Color instance with the same values.
      */
-    clone() {
+    clone(): Color {
         return new Color(this.r, this.g, this.b, this.a);
     }
 
@@ -170,7 +165,7 @@ export class Color {
      * @param {Color} other - The Color to copy from.
      * @returns {Color} The current Color instance.
      */
-    copy(other) {
+    copy(other: Color): this {
         return this.set(other.r, other.g, other.b, other.a);
     }
 }
