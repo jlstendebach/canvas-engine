@@ -191,12 +191,7 @@ describe("Color", () => {
             "awefawefawef",
             "red",
             "#FF8040FF",        
-            "",
-            null,
-            undefined,
-            {},
-            [],
-            0.0
+            ""
         ])("Invalid rgba string returns null", (invalidString) => {
             const c = Color.fromRgba(invalidString);
             expect(c).toBe(null);

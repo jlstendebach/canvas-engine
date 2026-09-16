@@ -2,25 +2,32 @@
  * Represents a color with red, green, blue, and alpha components.
  */
 export class Color {
-    r; g; b; a;
+    r: number;
+    g: number;
+    b: number;
+    a: number;
 
     // MARK: - Initialization
-    constructor(r = 0, g = 0, b = 0, a = 1.0) {
-        this.set(r, g, b, a);
+    constructor(
+        r: number = 0,
+        g: number = 0,
+        b: number = 0,
+        a: number = 1.0
+    ) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
     }
 
     // MARK: - Factory Methods 
     /**
      * Creates a Color from a hex string (e.g., "#FF0000" or "F00").
      * Supports 3, 4, 6, or 8 hex digits with optional #.
-     * @param {string} hexString - The hex color string.
-     * @returns {Color|null} A new Color instance or null if invalid.
+     * @param hexString - The hex color string.
+     * @returns A new Color instance or null if invalid.
      */
-    static fromHex(hexString) {
-        if (typeof hexString !== "string") {
-            return null;
-        }
-
+    static fromHex(hexString: string): Color | null {
         // Simple validation: 3, 4, 6, or 8 hex digits (optional #)
         // - #? -> Optional leading '#'
         // - [a-f\d] -> a-f or 0-9 (\d is a digit)
@@ -36,7 +43,10 @@ export class Color {
         // Remove '#' and expand shorthand (e.g. #f53 -> ff5533)
         let cleanHex = hexString.replace('#', '');
         if (cleanHex.length <= 4) {
-            cleanHex = cleanHex.split('').map(char => char + char).join('');
+            cleanHex = cleanHex
+                .split('')
+                .map((char: string): string => char + char)
+                .join('');
         }
 
         // Parse components using substring and parseInt
@@ -50,14 +60,10 @@ export class Color {
 
     /**
      * Creates a Color from an RGBA/RGB string (e.g., "rgba(255,0,0,1)" or "rgb(255,0,0)").
-     * @param {string} rgbaString - The RGBA/RGB string.
-     * @returns {Color|null} A new Color instance or null if invalid.
+     * @param rgbaString - The RGBA/RGB string.
+     * @returns A new Color instance or null if invalid.
      */
-    static fromRgba(rgbaString) {
-        if (typeof rgbaString !== "string") {
-            return null;
-        }
-
+    static fromRgba(rgbaString: string): Color | null {
         // Regex to match rgba() or rgb() format
         // - rgba? -> "rgb" followed by optional "a"
         // - \s* -> Optional whitespace (* means zero or more)
@@ -80,12 +86,12 @@ export class Color {
 
     /**
      * Linearly interpolates between two colors.
-     * @param {Color} colorA - The starting color.
-     * @param {Color} colorB - The ending color.
-     * @param {number} t - The interpolation factor (0.0 to 1.0).
-     * @returns {Color} The interpolated color.
+     * @param colorA - The starting color.
+     * @param colorB - The ending color.
+     * @param t - The interpolation factor (0.0 to 1.0).
+     * @returns The interpolated color.
      */
-    static lerp(colorA, colorB, t) {
+    static lerp(colorA: Color, colorB: Color, t: number): Color {
         const u = 1 - t;
         return new Color(
             colorA.r * u + colorB.r * t,
@@ -98,17 +104,17 @@ export class Color {
     // MARK: - Conversions
     /**
      * Converts the Color to an RGBA string in the format "rgba(r, g, b, a)".
-     * @returns {string} The RGBA string representation of the color.
+     * @returns The RGBA string representation of the color.
      */
-    toRgba() {
+    toRgba(): string {
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
 
     /**
      * Converts the Color to a hex string in the format "#RRGGBBAA".
-     * @returns {string} The hex string representation of the color.
+     * @returns The hex string representation of the color.
      */
-    toHex() {
+    toHex(): string {
         const rHex = this.r.toString(16).padStart(2, '0');
         const gHex = this.g.toString(16).padStart(2, '0');
         const bHex = this.b.toString(16).padStart(2, '0');
@@ -119,13 +125,13 @@ export class Color {
     // MARK: - Utilities
     /**
      * Sets the color components.
-     * @param {number} r - Red component
-     * @param {number} g - Green component
-     * @param {number} b - Blue component
-     * @param {number} a - Alpha component
-     * @returns {Color} The current Color instance.
+     * @param r - Red component
+     * @param g - Green component
+     * @param b - Blue component
+     * @param a - Alpha component
+     * @returns The current Color instance.
      */
-    set(r, g, b, a = 1.0) {
+    set(r: number, g: number, b: number, a: number = 1.0): this {
         this.r = r;
         this.g = g;
         this.b = b;
@@ -135,12 +141,11 @@ export class Color {
 
     /**
      * Checks if this color equals another.
-     * @param {Color} other - The other Color to compare.
-     * @returns {boolean} True if equal.
+     * @param other - The other Color to compare.
+     * @returns True if equal.
      */
-    equals(other) {
-        return other instanceof Color &&
-            this.r === other.r &&
+    equals(other: Color): boolean {
+        return this.r === other.r &&
             this.g === other.g &&
             this.b === other.b &&
             this.a === other.a;
@@ -148,18 +153,18 @@ export class Color {
 
     /**
      * Creates a clone of this Color instance.
-     * @returns {Color} A new Color instance with the same values.
+     * @returns A new Color instance with the same values.
      */
-    clone() {
+    clone(): Color {
         return new Color(this.r, this.g, this.b, this.a);
     }
 
     /**
      * Copies the values from another Color instance.
-     * @param {Color} other - The Color to copy from.
-     * @returns {Color} The current Color instance.
+     * @param other - The Color to copy from.
+     * @returns The current Color instance.
      */
-    copy(other) {
+    copy(other: Color): this {
         return this.set(other.r, other.g, other.b, other.a);
     }
 }
