@@ -2,11 +2,22 @@
  * Represents a color with red, green, blue, and alpha components.
  */
 export class Color {
-    r; g; b; a;
+    r: number;
+    g: number;
+    b: number;
+    a: number;
 
     // MARK: - Initialization
-    constructor(r = 0, g = 0, b = 0, a = 1.0) {
-        this.set(r, g, b, a);
+    constructor(
+        r: number = 0, 
+        g: number = 0, 
+        b: number = 0, 
+        a: number = 1.0
+    ) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
     }
 
     // MARK: - Factory Methods 
