@@ -15,7 +15,10 @@
  *   space is the coordinate space of the children before any transformations 
  *   are applied.
  */
+
 export const CoordinateSpace = Object.freeze({
     LOCAL: 0,
     CONTENT: 1,
-});
+} as const);
+
+export type CoordinateSpace = typeof CoordinateSpace[keyof typeof CoordinateSpace];
