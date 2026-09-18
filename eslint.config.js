@@ -50,8 +50,8 @@ export default defineConfig([
             "@typescript-eslint/explicit-function-return-type": [
                 "error",
                 {
-                    allowExpressions: false, // Inline callbacks need return types too
-                    allowTypedFunctionExpressions: false,
+                    allowExpressions: true, // Inline callbacks like arr.map(x => x * 2) may infer
+                    allowTypedFunctionExpressions: true, // Contextually typed functions (e.g. `const f: Fn = () => {}`) may infer
                     allowHigherOrderFunctions: true // Outer return type declares the inner one
                 }
             ],
