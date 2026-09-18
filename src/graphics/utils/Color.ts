@@ -45,7 +45,7 @@ export class Color {
         if (cleanHex.length <= 4) {
             cleanHex = cleanHex
                 .split('')
-                .map((char: string): string => char + char)
+                .map((char) => char + char)
                 .join('');
         }
 
