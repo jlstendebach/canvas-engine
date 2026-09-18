@@ -1,6 +1,6 @@
 export class ImageManager {
-    #images = new Map();
-    #aliases = new Map();
+    #images: Map<string, HTMLImageElement> = new Map();
+    #aliases: Map<string, string> = new Map();
 
     // -------------------------------------------------------------------------
     // MARK: - Loading
