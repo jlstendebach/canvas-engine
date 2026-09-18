@@ -111,7 +111,7 @@ export class PointList {
     /**
      * WARNING: For performance reasons, this returns the raw underlying array.
      * Treat this as READ-ONLY. Do not push, pop, or mutate the points.
-     * @returns {readonly number[]}
+     * @returns The raw underlying array of points.
      */
     unsafeGetPoints(): readonly number[] {
         return this.#points;
