@@ -1,8 +1,8 @@
 import { Vec2 } from "../../math/Vec2.js";
 
 export class PointList {
-    #points = [];
-    #onChange;
+    #points: Vec2[] = [];
+    #onChange: (() => void) | null;
 
     constructor(onChange = null) {
         this.#onChange = onChange;
