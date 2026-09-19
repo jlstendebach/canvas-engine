@@ -7,13 +7,13 @@ export class ImageManager {
     // -------------------------------------------------------------------------
 
     /**
-     * Loads an image from the given path, optionally registering an alias for 
+     * Loads an image from the given path, optionally registering an alias for
      * it.
-     * @param {string} path - The path to the image file.
-     * @param {string|null} alias - An optional alias to register for the image.
-     * @returns {Promise<HTMLImageElement>} A promise that resolves to the 
-     *     loaded image.
-     * @throws {Error} - Throws if the image fails to load.
+     * 
+     * @param path - The path to the image file.
+     * @param alias - An optional alias to register for the image.
+     * @returns A promise that resolves to the loaded image.
+     * @throws Throws if the image fails to load.
      */
     async load(path: string, alias?: string): Promise<HTMLImageElement> {
         let image = this.get(path);
@@ -32,12 +32,12 @@ export class ImageManager {
 
     /**
      * Loads multiple images at once, each with an optional alias.
-     * @param {{ path: string, alias?: string|null }[]} imagePaths - An array of
-     *     objects, each containing a path and optional alias.
-     * @returns {Promise<HTMLImageElement[]>} A promise that resolves to an 
-     *     array of loaded images.
-     * @throws {AggregateError} - Throws an AggregateError if one or more images 
-     *     fail to load. Will not stop other images from loading.
+     * 
+     * @param imagePaths - An array of objects, each containing a path and
+     *     optional alias.
+     * @returns A promise that resolves to an array of loaded images.
+     * @throws Throws an `AggregateError` if one or more images fail to load. 
+     *     Will not stop other images from loading.
      */
     async loadAll(imagePaths: { path: string; alias?: string }[]): Promise<HTMLImageElement[]> {
         const results = await Promise.allSettled(
@@ -69,9 +69,10 @@ export class ImageManager {
      * Registers an image with the given path and optional alias. If an existing
      * alias conflicts with the path, the alias will be removed to avoid 
      * confusion and a warning will be logged.
-     * @param {string} path - The path to the image file.
-     * @param {HTMLImageElement} image - The image element to register.
-     * @param {string|null} alias - An optional alias to register for the image.
+     * 
+     * @param path - The path to the image file.
+     * @param image - The image element to register.
+     * @param alias - An optional alias to register for the image.
      */
     register(path: string, image: HTMLImageElement, alias?: string): void {
         this.#images.set(path, image);
@@ -90,9 +91,10 @@ export class ImageManager {
 
     /**
      * Returns the image associated with the given alias or path.
-     * @param {string} aliasOrPath - The alias or path of the image to retrieve.
-     * @returns {HTMLImageElement|undefined} The image element, or undefined if 
-     *     no image is registered under the given path or alias.
+     * 
+     * @param aliasOrPath - The alias or path of the image to retrieve.
+     * @returns The image element, or undefined if no image is registered under
+     *     the given path or alias.
      */
     get(aliasOrPath: string): HTMLImageElement | undefined {
         const path = this.#resolveToPath(aliasOrPath);
@@ -101,8 +103,9 @@ export class ImageManager {
 
     /**
      * Returns true if the given alias or path exists, false otherwise.
-     * @param {string} aliasOrPath - The alias or path of the image to check.
-     * @returns {boolean} True if the image exists, false otherwise.
+     * 
+     * @param aliasOrPath - The alias or path of the image to check.
+     * @returns True if the image exists, false otherwise.
      */
     has(aliasOrPath: string): boolean {
         return this.hasAlias(aliasOrPath) || this.hasPath(aliasOrPath);
@@ -114,10 +117,11 @@ export class ImageManager {
 
     /**
      * Creates an alias for an already-loaded image path.
-     * @param {string} alias - The alias to add.
-     * @param {string} path - The path the alias points to.
-     * @throws {Error} - Throws if the alias matches an existing path, or if the
-     *     path does not exist.
+     * 
+     * @param alias - The alias to add.
+     * @param path - The path the alias points to.
+     * @throws Throws if the alias matches an existing path, or if the path does
+     *     not exist.
      */
     setAlias(alias: string, path: string): void {
         // Paths and aliases should not conflict. If an alias is the same as a
@@ -136,7 +140,8 @@ export class ImageManager {
 
     /**
      * Removes the given alias.
-     * @param {string} alias - The alias to remove.
+     * 
+     * @param alias - The alias to remove.
      */
     removeAlias(alias: string): void {
         this.#aliases.delete(alias);
@@ -144,8 +149,9 @@ export class ImageManager {
 
     /**
      * Returns true if the given alias exists, false otherwise.
-     * @param {string} alias - The alias to check.
-     * @returns {boolean} True if the alias exists, false otherwise.
+     * 
+     * @param alias - The alias to check.
+     * @returns True if the alias exists, false otherwise.
      */
     hasAlias(alias: string): boolean {
         return this.#aliases.has(alias);
@@ -153,8 +159,9 @@ export class ImageManager {
 
     /**
      * Returns true if the given path exists, false otherwise.
-     * @param {string} path - The path to check.
-     * @returns {boolean} True if the path exists, false otherwise.
+     * 
+     * @param path - The path to check.
+     * @returns True if the path exists, false otherwise.
      */
     hasPath(path: string): boolean {
         return this.#images.has(path);
@@ -167,7 +174,8 @@ export class ImageManager {
     /**
      * Unloads the image at the given path and automatically removes any 
      * associated aliases.
-     * @param {string} path - The path of the image to unload. 
+     * 
+     * @param path - The path of the image to unload.
      */
     unload(path: string): void {
         // Remove the image
