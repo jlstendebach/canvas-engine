@@ -9,7 +9,7 @@ import { Color } from "./Color.js";
  */
 export class CachedColor {
     #rawColor: Color | null = null;
-    #colorProxy: Color | null = null;
+    #colorProxy: Proxy | null = null;
 
     #colorString: string | null = null;
     #isColorStringDirty: boolean = true;
@@ -19,7 +19,7 @@ export class CachedColor {
     }
 
     // MARK: - Accessors
-    set color(newColor) {
+    set color(newColor: Color | null) {
         if (newColor === null) {
             this.#rawColor = null;
             this.#colorProxy = null;
@@ -38,11 +38,11 @@ export class CachedColor {
         this.#invalidate();
     }
 
-    get color() {
+    get color(): Proxy | null {
         return this.#colorProxy;
     }
 
-    get colorString() {
+    get colorString(): string | null {
         if (this.#isColorStringDirty) {
             this.#colorString = this.#rawColor ? this.#rawColor.toRgba() : null;
             this.#isColorStringDirty = false;
@@ -51,11 +51,11 @@ export class CachedColor {
     }
 
     // MARK: - Helpers
-    #invalidate() {
+    #invalidate(): void {
         this.#isColorStringDirty = true;
     }
 
-    #updateColorProxy() {
+    #updateColorProxy(): void {
         this.#colorProxy = new Proxy(this.#rawColor, {
             set: (target, prop, value) => {
                 target[prop] = value;
