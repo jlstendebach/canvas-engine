@@ -19,31 +19,31 @@ export class Transform {
     // MARK: - Authored State
     // -------------------------------------------------------------------------
 
-    #x = 0;
-    #y = 0;
-    #pivotX = 0;
-    #pivotY = 0;
-    #scaleX = 1;
-    #scaleY = 1;
-    #rotation = 0;
+    #x: number = 0;
+    #y: number = 0;
+    #pivotX: number = 0;
+    #pivotY: number = 0;
+    #scaleX: number = 1;
+    #scaleY: number = 1;
+    #rotation: number = 0;
 
-    #onInvalidated;
+    #onInvalidated?: () => void;
 
     // -------------------------------------------------------------------------
     // MARK: - Cached Derived State
     // -------------------------------------------------------------------------
 
-    #sin = 0;
-    #cos = 1;
-    #matrix = new Matrix2();
-    #inverseMatrix = new Matrix2();
+    #sin: number = 0;
+    #cos: number = 1;
+    #matrix: Matrix2 = new Matrix2();
+    #inverseMatrix: Matrix2 = new Matrix2();
 
     // -------------------------------------------------------------------------
     // MARK: - Invalidation
     // -------------------------------------------------------------------------
 
-    #dirtyLevel = CLEAN;
-    #isInverseDirty = false;
+    #dirtyLevel: number = CLEAN;
+    #isInverseDirty: boolean = false;
 
     // -------------------------------------------------------------------------
     // MARK: - Position Accessors
