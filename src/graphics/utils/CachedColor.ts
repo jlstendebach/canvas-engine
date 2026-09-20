@@ -8,18 +8,18 @@ import { Color } from "./Color.js";
  * of the color.
  */
 export class CachedColor {
-    #rawColor = null;
-    #colorProxy = null;
+    #rawColor: Color | null = null;
+    #colorProxy: Color | null = null;
 
-    #colorString = null;
-    #isColorStringDirty = true;
+    #colorString: string | null = null;
+    #isColorStringDirty: boolean = true;
 
-    constructor(color) {
+    constructor(color?: Color | null) {
         this.color = color ?? new Color();
     }
 
     // MARK: - Accessors
-    set color(newColor) {
+    set color(newColor: Color | null) {
         if (newColor === null) {
             this.#rawColor = null;
             this.#colorProxy = null;
@@ -38,11 +38,11 @@ export class CachedColor {
         this.#invalidate();
     }
 
-    get color() {
+    get color(): Color | null {
         return this.#colorProxy;
     }
 
-    get colorString() {
+    get colorString(): string | null {
         if (this.#isColorStringDirty) {
             this.#colorString = this.#rawColor ? this.#rawColor.toRgba() : null;
             this.#isColorStringDirty = false;
@@ -51,14 +51,14 @@ export class CachedColor {
     }
 
     // MARK: - Helpers
-    #invalidate() {
+    #invalidate(): void {
         this.#isColorStringDirty = true;
     }
 
-    #updateColorProxy() {
-        this.#colorProxy = new Proxy(this.#rawColor, {
+    #updateColorProxy(): void {
+        this.#colorProxy = new Proxy(this.#rawColor!, {
             set: (target, prop, value) => {
-                target[prop] = value;
+                Reflect.set(target, prop, value);
                 this.#invalidate();
                 return true;
             }
