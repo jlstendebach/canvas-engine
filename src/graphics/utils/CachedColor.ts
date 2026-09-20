@@ -8,13 +8,13 @@ import { Color } from "./Color.js";
  * of the color.
  */
 export class CachedColor {
-    #rawColor = null;
-    #colorProxy = null;
+    #rawColor: Color | null = null;
+    #colorProxy: Color | null = null;
 
-    #colorString = null;
-    #isColorStringDirty = true;
+    #colorString: string | null = null;
+    #isColorStringDirty: boolean = true;
 
-    constructor(color) {
+    constructor(color: Color | null) {
         this.color = color ?? new Color();
     }
 
