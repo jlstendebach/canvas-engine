@@ -49,17 +49,17 @@ export class Transform {
     // MARK: - Position Accessors
     // -------------------------------------------------------------------------
 
-    get x() {
+    get x(): number {
         return this.#x;
     }
-    set x(value) {
+    set x(value: number) {
         this.setX(value);
     }
 
-    get y() {
+    get y(): number {
         return this.#y;
     }
-    set y(value) {
+    set y(value: number) {
         this.setY(value);
     }
 
@@ -67,17 +67,17 @@ export class Transform {
     // MARK: - Pivot Accessors
     // -------------------------------------------------------------------------
 
-    get pivotX() {
+    get pivotX(): number {
         return this.#pivotX;
     }
-    set pivotX(value) {
+    set pivotX(value: number) {
         this.setPivotX(value);
     }
 
-    get pivotY() {
+    get pivotY(): number {
         return this.#pivotY;
     }
-    set pivotY(value) {
+    set pivotY(value: number) {
         this.setPivotY(value);
     }
 
@@ -85,17 +85,17 @@ export class Transform {
     // MARK: - Scale Accessors
     // -------------------------------------------------------------------------
 
-    get scaleX() {
+    get scaleX(): number {
         return this.#scaleX;
     }
-    set scaleX(value) {
+    set scaleX(value: number) {
         this.setScaleX(value);
     }
 
-    get scaleY() {
+    get scaleY(): number {
         return this.#scaleY;
     }
-    set scaleY(value) {
+    set scaleY(value: number) {
         this.setScaleY(value);
     }
 
@@ -103,10 +103,10 @@ export class Transform {
     // MARK: - Rotation Accessors
     // -------------------------------------------------------------------------
 
-    get rotation() {
+    get rotation(): number {
         return this.#rotation;
     }
-    set rotation(value) {
+    set rotation(value: number) {
         this.setRotation(value);
     }
 
@@ -114,22 +114,22 @@ export class Transform {
     // MARK: - Matrix Accessors
     // -------------------------------------------------------------------------
 
-    get a() {
+    get a(): number {
         return this.#getCleanMatrix().a;
     }
-    get b() {
+    get b(): number {
         return this.#getCleanMatrix().b;
     }
-    get c() {
+    get c(): number {
         return this.#getCleanMatrix().c;
     }
-    get d() {
+    get d(): number {
         return this.#getCleanMatrix().d;
     }
-    get tx() {
+    get tx(): number {
         return this.#getCleanMatrix().tx;
     }
-    get ty() {
+    get ty(): number {
         return this.#getCleanMatrix().ty;
     }
 
@@ -137,22 +137,22 @@ export class Transform {
     // MARK: - Inverse Matrix Accessors
     // -------------------------------------------------------------------------
 
-    get inverseA() {
+    get inverseA(): number {
         return this.#getCleanInverseMatrix().a;
     }
-    get inverseB() {
+    get inverseB(): number {
         return this.#getCleanInverseMatrix().b;
     }
-    get inverseC() {
+    get inverseC(): number {
         return this.#getCleanInverseMatrix().c;
     }
-    get inverseD() {
+    get inverseD(): number {
         return this.#getCleanInverseMatrix().d;
     }
-    get inverseTx() {
+    get inverseTx(): number {
         return this.#getCleanInverseMatrix().tx;
     }
-    get inverseTy() {
+    get inverseTy(): number {
         return this.#getCleanInverseMatrix().ty;
     }
 
@@ -166,7 +166,7 @@ export class Transform {
      * @param {Function|null} [onInvalidated=null] - Optional callback invoked
      *     when the transform is dirtied after previously being up to date.
      */
-    constructor(onInvalidated = null) {
+    constructor(onInvalidated?: () => void) {
         this.#onInvalidated = onInvalidated;
     }
 
@@ -183,7 +183,15 @@ export class Transform {
      * @param {number} rotation - Rotation in radians.
      * @returns {Transform} This transform instance.
      */
-    set(x, y, pivotX, pivotY, scaleX, scaleY, rotation) {
+    set(
+        x: number,
+        y: number,
+        pivotX: number,
+        pivotY: number,
+        scaleX: number,
+        scaleY: number,
+        rotation: number
+    ): this {
         const normalizedRotation = this.#normalizedRotation(rotation);
 
         let dirtyLevel = CLEAN;
@@ -220,7 +228,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output vector.
      * @returns {Vec2} The position vector.
      */
-    getPosition(out = new Vec2()) {
+    getPosition(out: Vec2 = new Vec2()): Vec2 {
         return out.set(this.#x, this.#y);
     }
 
@@ -230,7 +238,7 @@ export class Transform {
      * @param {number} x - New x position.
      * @returns {Transform} This transform instance.
      */
-    setX(x) {
+    setX(x: number): this {
         if (this.#x === x) { return this; }
         this.#x = x;
         this.#markDirty(TRANSLATION);
@@ -243,7 +251,7 @@ export class Transform {
      * @param {number} y - New y position.
      * @returns {Transform} This transform instance.
      */
-    setY(y) {
+    setY(y: number): this {
         if (this.#y === y) { return this; }
         this.#y = y;
         this.#markDirty(TRANSLATION);
@@ -257,7 +265,7 @@ export class Transform {
      * @param {number} y - New y position.
      * @returns {Transform} This transform instance.
      */
-    setPositionXY(x, y) {
+    setPositionXY(x: number, y: number): this {
         if (this.#x === x && this.#y === y) { return this; }
         this.#x = x;
         this.#y = y;
@@ -271,7 +279,7 @@ export class Transform {
      * @param {Vec2} position - Position values.
      * @returns {Transform} This transform instance.
      */
-    setPosition(position) {
+    setPosition(position: Vec2): this {
         return this.setPositionXY(position.x, position.y);
     }
 
@@ -282,7 +290,7 @@ export class Transform {
      * @param {number} dy - Vertical translation.
      * @returns {Transform} This transform instance.
      */
-    translateXY(dx, dy) {
+    translateXY(dx: number, dy: number): this {
         if (dx === 0 && dy === 0) { return this; }
         this.#x += dx;
         this.#y += dy;
@@ -296,7 +304,7 @@ export class Transform {
      * @param {Vec2} delta - Translation delta.
      * @returns {Transform} This transform instance.
      */
-    translate(delta) {
+    translate(delta: Vec2): this {
         return this.translateXY(delta.x, delta.y);
     }
 
@@ -310,7 +318,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output vector.
      * @returns {Vec2} The pivot vector.
      */
-    getPivot(out = new Vec2()) {
+    getPivot(out: Vec2 = new Vec2()): Vec2 {
         return out.set(this.#pivotX, this.#pivotY);
     }
 
@@ -320,7 +328,7 @@ export class Transform {
      * @param {number} pivotX - New x pivot value.
      * @returns {Transform} This transform instance.
      */
-    setPivotX(pivotX) {
+    setPivotX(pivotX: number): this {
         if (this.#pivotX === pivotX) { return this; }
         this.#pivotX = pivotX;
         this.#markDirty(TRANSLATION);
@@ -333,7 +341,7 @@ export class Transform {
      * @param {number} pivotY - New y pivot value.
      * @returns {Transform} This transform instance.
      */
-    setPivotY(pivotY) {
+    setPivotY(pivotY: number): this {
         if (this.#pivotY === pivotY) { return this; }
         this.#pivotY = pivotY;
         this.#markDirty(TRANSLATION);
@@ -347,7 +355,7 @@ export class Transform {
      * @param {number} pivotY - New y pivot value.
      * @returns {Transform} This transform instance.
      */
-    setPivotXY(pivotX, pivotY) {
+    setPivotXY(pivotX: number, pivotY: number): this {
         if (this.#pivotX === pivotX && this.#pivotY === pivotY) {
             return this;
         }
@@ -363,7 +371,7 @@ export class Transform {
      * @param {Vec2} pivot - Pivot values.
      * @returns {Transform} This transform instance.
      */
-    setPivot(pivot) {
+    setPivot(pivot: Vec2): this {
         return this.setPivotXY(pivot.x, pivot.y);
     }
 
@@ -374,7 +382,7 @@ export class Transform {
      * @param {number} dy - Vertical pivot delta.
      * @returns {Transform} This transform instance.
      */
-    translatePivotXY(dx, dy) {
+    translatePivotXY(dx: number, dy: number): this {
         if (dx === 0 && dy === 0) { return this; }
         this.#pivotX += dx;
         this.#pivotY += dy;
@@ -388,7 +396,7 @@ export class Transform {
      * @param {Vec2} delta - Pivot delta.
      * @returns {Transform} This transform instance.
      */
-    translatePivot(delta) {
+    translatePivot(delta: Vec2): this {
         return this.translatePivotXY(delta.x, delta.y);
     }
 
@@ -402,7 +410,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output vector.
      * @returns {Vec2} The current scale vector.
      */
-    getScale(out = new Vec2()) {
+    getScale(out: Vec2 = new Vec2()): Vec2 {
         return out.set(this.#scaleX, this.#scaleY);
     }
 
@@ -412,7 +420,7 @@ export class Transform {
      * @param {number} scaleX - New x scale factor.
      * @returns {Transform} This transform instance.
      */
-    setScaleX(scaleX) {
+    setScaleX(scaleX: number): this {
         if (this.#scaleX === scaleX) { return this; }
         this.#scaleX = scaleX;
         this.#markDirty(LINEAR);
@@ -425,7 +433,7 @@ export class Transform {
      * @param {number} scaleY - New y scale factor.
      * @returns {Transform} This transform instance.
      */
-    setScaleY(scaleY) {
+    setScaleY(scaleY: number): this {
         if (this.#scaleY === scaleY) { return this; }
         this.#scaleY = scaleY;
         this.#markDirty(LINEAR);
@@ -439,7 +447,7 @@ export class Transform {
      * @param {number} scaleY - New y scale factor.
      * @returns {Transform} This transform instance.
      */
-    setScaleXY(scaleX, scaleY) {
+    setScaleXY(scaleX: number, scaleY: number): this {
         if (this.#scaleX === scaleX && this.#scaleY === scaleY) {
             return this;
         }
@@ -457,7 +465,7 @@ export class Transform {
      *     a vector whose x/y values set scaleX/scaleY.
      * @returns {Transform} This transform instance.
      */
-    setScale(scaleOrVector) {
+    setScale(scaleOrVector: number | Vec2): this {
         return (typeof scaleOrVector === 'number')
             ? this.setScaleXY(scaleOrVector, scaleOrVector)
             : this.setScaleXY(scaleOrVector.x, scaleOrVector.y);
@@ -470,7 +478,7 @@ export class Transform {
      * @param {number} factorY - Vertical scale multiplier.
      * @returns {Transform} This transform instance.
      */
-    scaleXY(factorX, factorY) {
+    scaleXY(factorX: number, factorY: number): this {
         if (factorX === 1 && factorY === 1) { return this; }
         this.#scaleX *= factorX;
         this.#scaleY *= factorY;
@@ -486,7 +494,7 @@ export class Transform {
      *     axes, or a vector whose x/y values multiply scaleX/scaleY.
      * @returns {Transform} This transform instance.
      */
-    scale(factorOrVector) {
+    scale(factorOrVector: number | Vec2): this {
         return (typeof factorOrVector === 'number')
             ? this.scaleXY(factorOrVector, factorOrVector)
             : this.scaleXY(factorOrVector.x, factorOrVector.y);
@@ -502,7 +510,7 @@ export class Transform {
      * @param {number} radians - Rotation angle in radians.
      * @returns {Transform} This transform instance.
      */
-    setRotation(radians) {
+    setRotation(radians: number): this {
         const normalizedRotation = this.#normalizedRotation(radians);
         if (this.#rotation === normalizedRotation) { return this; }
         this.#rotation = normalizedRotation;
@@ -517,7 +525,7 @@ export class Transform {
      * @param {number} deltaRadians - Rotation delta in radians.
      * @returns {Transform} This transform instance.
      */
-    rotate(deltaRadians) {
+    rotate(deltaRadians: number): this {
         return this.setRotation(this.#rotation + deltaRadians);
     }
 
@@ -534,7 +542,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output point.
      * @returns {Vec2} The transformed point.
      */
-    transformPointXY(x, y, out = new Vec2()) {
+    transformPointXY(x: number, y: number, out: Vec2 = new Vec2()): Vec2 {
         return this.#getCleanMatrix().transformPointXY(x, y, out);
     }
 
@@ -546,7 +554,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output point.
      * @returns {Vec2} The transformed point.
      */
-    transformPoint(point, out = new Vec2()) {
+    transformPoint(point: Vec2, out: Vec2 = new Vec2()): Vec2 {
         return this.#getCleanMatrix().transformPoint(point, out);
     }
 
@@ -559,7 +567,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output vector.
      * @returns {Vec2} The transformed vector.
      */
-    transformVectorXY(x, y, out = new Vec2()) {
+    transformVectorXY(x: number, y: number, out: Vec2 = new Vec2()): Vec2 {
         return this.#getCleanMatrix().transformVectorXY(x, y, out);
     }
 
@@ -571,7 +579,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output vector.
      * @returns {Vec2} The transformed vector.
      */
-    transformVector(vector, out = new Vec2()) {
+    transformVector(vector: Vec2, out: Vec2 = new Vec2()): Vec2 {
         return this.#getCleanMatrix().transformVector(vector, out);
     }
 
@@ -583,7 +591,7 @@ export class Transform {
      * @param {Bounds} [out=new Bounds()] - Output bounds.
      * @returns {Bounds} The transformed bounds.
      */
-    transformBounds(bounds, out = new Bounds()) {
+    transformBounds(bounds: Bounds, out: Bounds = new Bounds()): Bounds {
         return this.#getCleanMatrix().transformBounds(bounds, out);
     }
 
@@ -595,7 +603,7 @@ export class Transform {
      * @param {Matrix2} [out=new Matrix2()] - Output matrix.
      * @returns {Matrix2} The combined matrix.
      */
-    transformMatrix(inputMatrix, out = new Matrix2()) {
+    transformMatrix(inputMatrix: Matrix2, out: Matrix2 = new Matrix2()): Matrix2 {
         return out.copy(inputMatrix).append(this.#getCleanMatrix());
     }
 
@@ -612,7 +620,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output point.
      * @returns {Vec2} The inverse-transformed point.
      */
-    inverseTransformPointXY(x, y, out = new Vec2()) {
+    inverseTransformPointXY(x: number, y: number, out: Vec2 = new Vec2()): Vec2 {
         return this.#getCleanInverseMatrix().transformPointXY(x, y, out);
     }
 
@@ -624,7 +632,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output point.
      * @returns {Vec2} The inverse-transformed point.
      */
-    inverseTransformPoint(point, out = new Vec2()) {
+    inverseTransformPoint(point: Vec2, out: Vec2 = new Vec2()): Vec2 {
         return this.#getCleanInverseMatrix().transformPoint(point, out);
     }
 
@@ -637,7 +645,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output vector.
      * @returns {Vec2} The inverse-transformed vector.
      */
-    inverseTransformVectorXY(x, y, out = new Vec2()) {
+    inverseTransformVectorXY(x: number, y: number, out: Vec2 = new Vec2()): Vec2 {
         return this.#getCleanInverseMatrix().transformVectorXY(x, y, out);
     }
 
@@ -649,7 +657,7 @@ export class Transform {
      * @param {Vec2} [out=new Vec2()] - Output vector.
      * @returns {Vec2} The inverse-transformed vector.
      */
-    inverseTransformVector(vector, out = new Vec2()) {
+    inverseTransformVector(vector: Vec2, out: Vec2 = new Vec2()): Vec2 {
         return this.#getCleanInverseMatrix().transformVector(vector, out);
     }
 
@@ -661,7 +669,7 @@ export class Transform {
      * @param {Bounds} [out=new Bounds()] - Output bounds.
      * @returns {Bounds} The inverse-transformed bounds.
      */
-    inverseTransformBounds(bounds, out = new Bounds()) {
+    inverseTransformBounds(bounds: Bounds, out: Bounds = new Bounds()): Bounds {
         return this.#getCleanInverseMatrix().transformBounds(bounds, out);
     }
 
@@ -673,7 +681,7 @@ export class Transform {
      * @param {Matrix2} [out=new Matrix2()] - Output matrix.
      * @returns {Matrix2} The combined matrix.
      */
-    inverseTransformMatrix(inputMatrix, out = new Matrix2()) {
+    inverseTransformMatrix(inputMatrix: Matrix2, out: Matrix2 = new Matrix2()): Matrix2 {
         return out.copy(inputMatrix).append(this.#getCleanInverseMatrix());
     }
 
@@ -687,7 +695,7 @@ export class Transform {
      * @param {Matrix2} [out=new Matrix2()] - Output matrix.
      * @returns {Matrix2} The transform matrix instance.
      */
-    getMatrix(out = new Matrix2()) {
+    getMatrix(out: Matrix2 = new Matrix2()): Matrix2 {
         return out.copy(this.#getCleanMatrix());
     }
 
@@ -707,7 +715,7 @@ export class Transform {
      *
      * @returns {Matrix2} Direct reference to the internal clean matrix.
      */
-    unsafeGetMatrix() {
+    unsafeGetMatrix(): Matrix2 {
         this.#updateMatrixIfNeeded();
         return this.#matrix;
     }
@@ -718,7 +726,7 @@ export class Transform {
      * @param {Matrix2} [out=new Matrix2()] - Output matrix.
      * @returns {Matrix2} The inverse transform matrix instance.
      */
-    getInverseMatrix(out = new Matrix2()) {
+    getInverseMatrix(out: Matrix2 = new Matrix2()): Matrix2 {
         return out.copy(this.#getCleanInverseMatrix());
     }
 
@@ -739,7 +747,7 @@ export class Transform {
      *
      * @returns {Matrix2} Direct reference to the internal clean inverse matrix.
      */
-    unsafeGetInverseMatrix() {
+    unsafeGetInverseMatrix(): Readonly<Matrix2> {
         this.#updateInverseMatrixIfNeeded();
         return this.#inverseMatrix;
     }
@@ -751,7 +759,7 @@ export class Transform {
      * @param {Transform} other - Source transform.
      * @returns {Transform} This transform instance.
      */
-    copy(other) {
+    copy(other: Transform): this {
         return this.set(
             other.#x, other.#y,
             other.#pivotX, other.#pivotY,
@@ -768,7 +776,7 @@ export class Transform {
      *     invoked when the transform is dirtied.
      * @returns {Transform} A cloned transform instance.
      */
-    clone(onInvalidated = null) {
+    clone(onInvalidated?: () => void): Transform {
         return new Transform(onInvalidated).copy(this);
     }
 
@@ -781,7 +789,7 @@ export class Transform {
      *
      * @param {number} level - Minimum dirty level to apply.
      */
-    #markDirty(level) {
+    #markDirty(level: number): void {
         if (level <= this.#dirtyLevel) { return; }
 
         const wasClean = this.#dirtyLevel === CLEAN;
@@ -796,7 +804,7 @@ export class Transform {
     /**
      * Rebuilds the current matrix when it is dirty.
      */
-    #updateMatrixIfNeeded() {
+    #updateMatrixIfNeeded(): void {
         const dirtyLevel = this.#dirtyLevel;
         if (dirtyLevel === CLEAN) { return; }
 
@@ -823,7 +831,7 @@ export class Transform {
     /**
      * Rebuilds the inverse matrix when it is stale.
      */
-    #updateInverseMatrixIfNeeded() {
+    #updateInverseMatrixIfNeeded(): void {
         if (!this.#isInverseDirty) { return; }
         this.#updateMatrixIfNeeded();
         this.#inverseMatrix.copy(this.#matrix).invert();
@@ -835,7 +843,7 @@ export class Transform {
      *
      * @returns {Matrix2} The clean matrix.
      */
-    #getCleanMatrix() {
+    #getCleanMatrix(): Matrix2 {
         this.#updateMatrixIfNeeded();
         return this.#matrix;
     }
@@ -845,7 +853,7 @@ export class Transform {
      *
      * @returns {Matrix2} The clean inverse matrix.
      */
-    #getCleanInverseMatrix() {
+    #getCleanInverseMatrix(): Matrix2 {
         this.#updateInverseMatrixIfNeeded();
         return this.#inverseMatrix;
     }
@@ -856,7 +864,7 @@ export class Transform {
      * @param {number} radians - Rotation angle in radians.
      * @returns {number} The normalized rotation value.
      */
-    #normalizedRotation(radians) {
+    #normalizedRotation(radians: number): number {
         let normalizedRadians = radians % TAU;
         if (normalizedRadians < 0) {
             normalizedRadians += TAU;
