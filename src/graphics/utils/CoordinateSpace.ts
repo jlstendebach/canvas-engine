@@ -21,4 +21,4 @@ export const CoordinateSpace = Object.freeze({
     CONTENT: 1,
 } as const);
 
-export type CoordinateSpace = typeof CoordinateSpace[keyof typeof CoordinateSpace];
+export type CoordinateSpace = (typeof CoordinateSpace)[keyof typeof CoordinateSpace];
