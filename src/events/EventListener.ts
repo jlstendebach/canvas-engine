@@ -1,13 +1,25 @@
 /**
+ * Signature for event callbacks. Parameters are `any` rather than `unknown`
+ * so that callbacks with narrower parameter types (e.g. `(type: string, e: PointerEvent) => void`)
+ * remain assignable under `strictFunctionTypes`.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type EventCallback = (type: any, event: any) => void;
+
+/**
  * Internal helper used by EventEmitter to store listener metadata.
  */
 export class EventListener {
-    #callback = null;
-    #owner = null;
-    #boundCallback = null;
-    #once = false;
+    readonly #callback: EventCallback;
+    readonly #owner: object | null;
+    readonly #boundCallback: EventCallback;
+    readonly #once: boolean;
 
-    constructor(callback, owner = null, once = false) {
+    constructor(
+        callback: EventCallback, 
+        owner: object | null = null, 
+        once: boolean = false
+    ) {
         if (typeof callback !== "function") {
             throw new TypeError("Callback must be a function");
         }
@@ -35,7 +47,7 @@ export class EventListener {
     onEvent(type, event) {
         this.#boundCallback(type, event);
     }
-    
+
     /**
      * Checks if this event listener matches the given callback and owner.
      * @param {Function} callback - The callback function.
