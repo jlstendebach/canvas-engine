@@ -31,8 +31,10 @@ export class EventListener {
     }
 
     /** 
-     * Gets a value indicating whether this event listener should be invoked only once.
-     * @returns {boolean} Returns true if the listener should be invoked only once, false otherwise.
+     * Gets a value indicating whether this event listener should be invoked 
+     * only once.
+     * 
+     * @returns Returns true if the listener should be invoked only once, false otherwise.
      */
     get once(): boolean {
         return this.#once;
@@ -40,9 +42,10 @@ export class EventListener {
 
     // MARK: - Methods
     /**
-     * Invokes the callback function for this event listener.
-     * @param {*} type - The event type.
-     * @param {*} event - The event object.
+     * Invokes the callback function for this event listener.+
+     * 
+     * @param type - The event type.
+     * @param event - The event object.
      */
     onEvent(type: unknown, event: unknown): void {
         this.#boundCallback(type, event);
@@ -50,9 +53,10 @@ export class EventListener {
 
     /**
      * Checks if this event listener matches the given callback and owner.
-     * @param {Function} callback - The callback function.
-     * @param {*} owner - The owner object.
-     * @returns {boolean} Returns true if the listener matches, false otherwise.
+     * 
+     * @param callback - The callback function.
+     * @param owner - The owner object.
+     * @returns Returns true if the listener matches, false otherwise.
      */
     matches(callback: EventCallback, owner: object | null): boolean {
         return this.#callback === callback && this.#owner === owner;
