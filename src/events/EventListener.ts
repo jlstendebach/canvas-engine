@@ -16,8 +16,8 @@ export class EventListener {
     readonly #once: boolean;
 
     constructor(
-        callback: EventCallback, 
-        owner: object | null = null, 
+        callback: EventCallback,
+        owner: object | null = null,
         once: boolean = false
     ) {
         if (typeof callback !== "function") {
@@ -34,7 +34,7 @@ export class EventListener {
      * Gets a value indicating whether this event listener should be invoked only once.
      * @returns {boolean} Returns true if the listener should be invoked only once, false otherwise.
      */
-    get once() {
+    get once(): boolean {
         return this.#once;
     }
 
@@ -44,7 +44,7 @@ export class EventListener {
      * @param {*} type - The event type.
      * @param {*} event - The event object.
      */
-    onEvent(type, event) {
+    onEvent(type: unknown, event: unknown): void {
         this.#boundCallback(type, event);
     }
 
@@ -54,7 +54,7 @@ export class EventListener {
      * @param {*} owner - The owner object.
      * @returns {boolean} Returns true if the listener matches, false otherwise.
      */
-    matches(callback, owner) {
+    matches(callback: EventCallback, owner: object | null): boolean {
         return this.#callback === callback && this.#owner === owner;
     }
 }
