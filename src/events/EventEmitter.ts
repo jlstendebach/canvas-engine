@@ -1,3 +1,4 @@
+import type { EventCallback } from "./EventCallback.js";
 import { EventListener } from "./EventListener.js";
 
 /**
@@ -19,7 +20,12 @@ export class EventEmitter {
      * @returns {boolean} Returns true if the listener was added, false if it already existed.
      * @throws {TypeError} Throws if the event type is not defined or the callback is not a function.
      */
-    addListener(type, callback, owner = null, once = false) {
+    addListener(
+        type: unknown, 
+        callback: EventCallback, 
+        owner: object | null = null, 
+        once: boolean = false
+    ): boolean {
         if (type === undefined || type === null) {
             throw new TypeError("Event type cannot be undefined or null");
         }
@@ -49,7 +55,11 @@ export class EventEmitter {
      * @param {*} owner - The owner object.
      * @returns {boolean} Returns true if the listener was found and removed, false otherwise.
      */
-    removeListener(type, callback, owner = null) {
+    removeListener(
+        type: unknown, 
+        callback: EventCallback, 
+        owner: object | null = null
+    ): boolean {
         const listenerList = this.#listeners.get(type);
         if (listenerList === undefined) {
             return false;
@@ -73,8 +83,8 @@ export class EventEmitter {
      * @param {*} type - The event type. If omitted, removes all listeners for all event types.
      * @returns {boolean} Returns true if listeners were removed, false otherwise.
      */
-    removeAllListeners(type) {
-        if (type === undefined || type === null) {
+    removeAllListeners(type?: unknown): boolean {
+        if (!type) {
             this.#listeners.clear();
             return true;
         } 
@@ -88,7 +98,11 @@ export class EventEmitter {
      * @param {*} owner - The owner object.
      * @returns {boolean} Returns true if the listener is registered, false otherwise.
      */
-    hasListener(type, callback, owner = null) {
+    hasListener(
+        type: unknown, 
+        callback: EventCallback, 
+        owner: object | null = null
+    ): boolean {
         const listenerList = this.#listeners.get(type);
         if (listenerList === undefined) {
             return false;
@@ -101,7 +115,7 @@ export class EventEmitter {
      * @param {*} type - The event type.
      * @returns {number} Returns the number of listeners.
      */
-    getListenerCount(type) {
+    getListenerCount(type: unknown): number {
         const listenerList = this.#listeners.get(type);
         if (listenerList === undefined) {
             return 0;
@@ -113,7 +127,7 @@ export class EventEmitter {
      * Gets an array of all event types that have registered listeners.
      * @returns {Array} Returns an array of event types with registered listeners.
      */
-    getListenerTypes() {
+    getListenerTypes(): unknown[] {
         return Array.from(this.#listeners.keys());
     }
 
@@ -125,7 +139,11 @@ export class EventEmitter {
      * @param {*} owner - The owner object.
      * @returns {boolean} Returns true if the listener was added, false if it already existed.
      */
-    on(type, callback, owner = null) {
+    on(
+        type: unknown, 
+        callback: EventCallback, 
+        owner: object | null = null
+    ): boolean {
         return this.addListener(type, callback, owner, false);
     }
 
