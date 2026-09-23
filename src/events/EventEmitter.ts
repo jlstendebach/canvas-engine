@@ -213,8 +213,9 @@ export class EventEmitter {
                 // Remove before callback invocation so 'once' remains correct
                 // for re-entrant emits.
                 const liveIndex = listenerList.indexOf(listener);
-                if (liveIndex === -1) { continue; }
-                listenerList.splice(liveIndex, 1);
+                if (liveIndex !== -1) { 
+                    listenerList.splice(liveIndex, 1);
+                }
             }
 
             try {
