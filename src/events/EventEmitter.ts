@@ -5,7 +5,7 @@ import { EventListener } from "./EventListener.js";
  * allowing you to add, remove, and emit events with associated listeners. 
  */
 export class EventEmitter {
-    #listeners = new Map(); // type => [EventListener]
+    #listeners: Map<unknown, EventListener[]> = new Map(); // type => [EventListener]
 
     // MARK: - Listener Management ---------------------------------------------
     /**
