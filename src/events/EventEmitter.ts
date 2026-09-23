@@ -2,23 +2,24 @@ import type { EventCallback } from "./EventCallback.js";
 import { EventListener } from "./EventListener.js";
 
 /**
- * EventEmitter provides a simple implementation of the observer pattern, 
- * allowing you to add, remove, and emit events with associated listeners. 
+ * EventEmitter provides a simple implementation of the observer pattern,
+ * allowing you to add, remove, and emit events with associated listeners.
  */
 export class EventEmitter {
     #listeners: Map<unknown, EventListener[]> = new Map(); // type => [EventListener]
 
     // MARK: - Listener Management ---------------------------------------------
     /**
-     * Adds a listener for the specified event type. If the same callback and 
-     * owner are already registered for the event type, the listener will not be 
+     * Adds a listener for the specified event type. If the same callback and
+     * owner are already registered for the event type, the listener will not be
      * added again.
-     * @param {*} type - The event type.
-     * @param {Function} callback - The callback function.
-     * @param {*} owner - The owner object.
-     * @param {boolean} once - Whether the listener should be invoked only once.
-     * @returns {boolean} Returns true if the listener was added, false if it already existed.
-     * @throws {TypeError} Throws if the event type is not defined or the callback is not a function.
+     *
+     * @param type - The event type.
+     * @param callback - The callback function.
+     * @param owner - The owner object.
+     * @param once - Whether the listener should be invoked only once.
+     * @returns Returns true if the listener was added, false if it already existed.
+     * @throws Throws if the event type is not defined or the callback is not a function.
      */
     addListener(
         type: unknown,
@@ -50,10 +51,11 @@ export class EventEmitter {
 
     /**
      * Removes a listener for the specified event type.
-     * @param {*} type - The event type.
-     * @param {Function} callback - The callback function.
-     * @param {*} owner - The owner object.
-     * @returns {boolean} Returns true if the listener was found and removed, false otherwise.
+     *
+     * @param type - The event type.
+     * @param callback - The callback function.
+     * @param owner - The owner object.
+     * @returns Returns true if the listener was found and removed, false otherwise.
      */
     removeListener(
         type: unknown,
@@ -80,8 +82,9 @@ export class EventEmitter {
 
     /**
      * Removes all listeners for the specified event type.
-     * @param {*} type - The event type. If omitted, removes all listeners for all event types.
-     * @returns {boolean} Returns true if listeners were removed, false otherwise.
+     *
+     * @param type - The event type. If omitted, removes all listeners for all event types.
+     * @returns Returns true if listeners were removed, false otherwise.
      */
     removeAllListeners(type?: unknown): boolean {
         if (!type) {
@@ -93,10 +96,11 @@ export class EventEmitter {
 
     /**
      * Checks if a listener is registered for the specified event type.
-     * @param {*} type - The event type.
-     * @param {Function} callback - The callback function.
-     * @param {*} owner - The owner object.
-     * @returns {boolean} Returns true if the listener is registered, false otherwise.
+     *
+     * @param type - The event type.
+     * @param callback - The callback function.
+     * @param owner - The owner object.
+     * @returns Returns true if the listener is registered, false otherwise.
      */
     hasListener(
         type: unknown,
@@ -112,8 +116,9 @@ export class EventEmitter {
 
     /**
      * Gets the number of listeners for the specified event type.
-     * @param {*} type - The event type.
-     * @returns {number} Returns the number of listeners.
+     *
+     * @param type - The event type.
+     * @returns Returns the number of listeners.
      */
     getListenerCount(type: unknown): number {
         const listenerList = this.#listeners.get(type);
@@ -125,7 +130,8 @@ export class EventEmitter {
 
     /**
      * Gets an array of all event types that have registered listeners.
-     * @returns {Array} Returns an array of event types with registered listeners.
+     *
+     * @returns Returns an array of event types with registered listeners.
      */
     getListenerTypes(): unknown[] {
         return Array.from(this.#listeners.keys());
@@ -134,10 +140,11 @@ export class EventEmitter {
     // MARK: - Aliases ---------------------------------------------------------
     /**
      * Adds a listener for the specified event type. Alias for addListener with once=false.
-     * @param {*} type - The event type.
-     * @param {Function} callback - The callback function.
-     * @param {*} owner - The owner object.
-     * @returns {boolean} Returns true if the listener was added, false if it already existed.
+     *
+     * @param type - The event type.
+     * @param callback - The callback function.
+     * @param owner - The owner object.
+     * @returns Returns true if the listener was added, false if it already existed.
      */
     on(
         type: unknown,
@@ -148,12 +155,13 @@ export class EventEmitter {
     }
 
     /**
-     * Adds a listener for the specified event type that will be invoked only 
+     * Adds a listener for the specified event type that will be invoked only
      * once. Alias for addListener with once=true.
-     * @param {*} type - The event type.
-     * @param {Function} callback - The callback function.
-     * @param {*} owner - The owner object.
-     * @returns {boolean} Returns true if the listener was added, false if it already existed.
+     *
+     * @param type - The event type.
+     * @param callback - The callback function.
+     * @param owner - The owner object.
+     * @returns Returns true if the listener was added, false if it already existed.
      */
     once(
         type: unknown,
@@ -165,10 +173,11 @@ export class EventEmitter {
 
     /**
      * Removes a listener for the specified event type. Alias for removeListener.
-     * @param {*} type - The event type.
-     * @param {Function} callback - The callback function.
-     * @param {*} owner - The owner object.
-     * @returns {boolean} Returns true if the listener was found and removed, false otherwise.
+     *
+     * @param type - The event type.
+     * @param callback - The callback function.
+     * @param owner - The owner object.
+     * @returns Returns true if the listener was found and removed, false otherwise.
      */
     off(
         type: unknown,
@@ -182,9 +191,10 @@ export class EventEmitter {
     /**
      * Emits an event of the specified type, invoking all associated listeners
      * with the given event object.
-     * @param {*} type - The event type.
-     * @param {*} event - The event object to pass to listeners.
-     * @throws {AggregateError} Throws an AggregateError if listeners throw errors during event emission.
+     *
+     * @param type - The event type.
+     * @param event - The event object to pass to listeners.
+     * @throws Throws an AggregateError if listeners throw errors during event emission.
      */
     emit(type: unknown, event: unknown): void {
         const listenerList = this.#listeners.get(type);
@@ -192,7 +202,7 @@ export class EventEmitter {
             return;
         }
 
-        // Use a shallow copy of the listener list to allow listeners to 
+        // Use a shallow copy of the listener list to allow listeners to
         // manipulate the list during event emission without affecting iteration.
         const snapshot = listenerList.slice();
         const errors = [];
@@ -215,15 +225,15 @@ export class EventEmitter {
             }
         }
 
-        // If removeListener was called during event emission, this event type 
-        // may have already been removed, then readded to the map as a new 
-        // array. Double-check before deleting the listener list to avoid 
+        // If removeListener was called during event emission, this event type
+        // may have already been removed, then readded to the map as a new
+        // array. Double-check before deleting the listener list to avoid
         // accidental deletion of a new listener list.
         if (listenerList.length === 0 && this.#listeners.get(type) === listenerList) {
             this.#listeners.delete(type);
         }
 
-        // Throw an aggregate error after all listeners have been invoked. This 
+        // Throw an aggregate error after all listeners have been invoked. This
         // also ensures that the listener list is properly cleaned up.
         if (errors.length > 0) {
             throw new AggregateError(errors, `Errors occurred while emitting event: ${type}`);
@@ -232,13 +242,14 @@ export class EventEmitter {
 
     // MARK: - Helpers ---------------------------------------------------------
     /**
-     * Finds the index of a listener in the listener list using callback and 
-     * owner for comparison. Should be better performance than using 
+     * Finds the index of a listener in the listener list using callback and
+     * owner for comparison. Should be better performance than using
      * Array.findIndex with a callback function.
-     * @param {Array} listenerList - The list of listeners.
-     * @param {Function} callback - The callback function.
-     * @param {*} owner - The owner object.
-     * @returns {number} Returns the index of the listener, or -1 if not found.
+     *
+     * @param listenerList - The list of listeners.
+     * @param callback - The callback function.
+     * @param owner - The owner object.
+     * @returns Returns the index of the listener, or -1 if not found.
      */
     #indexOfListener(
         listenerList: EventListener[],
