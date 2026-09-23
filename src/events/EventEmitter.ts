@@ -87,7 +87,7 @@ export class EventEmitter {
      * @returns Returns true if listeners were removed, false otherwise.
      */
     removeAllListeners(type?: unknown): boolean {
-        if (!type) {
+        if (type === undefined || type === null) {
             this.#listeners.clear();
             return true;
         }
@@ -213,9 +213,8 @@ export class EventEmitter {
                 // Remove before callback invocation so 'once' remains correct
                 // for re-entrant emits.
                 const liveIndex = listenerList.indexOf(listener);
-                if (liveIndex !== -1) {
-                    listenerList.splice(liveIndex, 1);
-                }
+                if (liveIndex === -1) { continue; }
+                listenerList.splice(liveIndex, 1);
             }
 
             try {
