@@ -67,7 +67,17 @@ export default defineConfig([
                     prefer: "type-imports",
                     fixStyle: "separate-type-imports" // Distinct `import type` line, not inline
                 }
-            ]
+            ],
+            "no-restricted-syntax": ["error",
+                {
+                    selector: "VariableDeclarator[init.type='ArrayExpression'][init.elements.length=0]:not([id.typeAnnotation])",
+                    message: "Annotate empty array declarations: `const x: T[] = []`.",
+                },
+                {
+                    selector: "VariableDeclarator[init.type='NewExpression'][init.callee.name=/^(Map|Set|WeakMap|WeakSet)$/]:not([init.typeArguments]):not([id.typeAnnotation])",
+                    message: "Give collections type arguments: `new Map<K, V>()`.",
+                },
+            ],
         }
     },
 
