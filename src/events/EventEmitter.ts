@@ -21,9 +21,9 @@ export class EventEmitter {
      * @throws {TypeError} Throws if the event type is not defined or the callback is not a function.
      */
     addListener(
-        type: unknown, 
-        callback: EventCallback, 
-        owner: object | null = null, 
+        type: unknown,
+        callback: EventCallback,
+        owner: object | null = null,
         once: boolean = false
     ): boolean {
         if (type === undefined || type === null) {
@@ -41,7 +41,7 @@ export class EventEmitter {
 
         } else if (this.#indexOfListener(listenerList, callback, owner) >= 0) {
             // Listener already exists, do not add again
-            return false; 
+            return false;
         }
 
         listenerList.push(new EventListener(callback, owner, once));
@@ -56,8 +56,8 @@ export class EventEmitter {
      * @returns {boolean} Returns true if the listener was found and removed, false otherwise.
      */
     removeListener(
-        type: unknown, 
-        callback: EventCallback, 
+        type: unknown,
+        callback: EventCallback,
         owner: object | null = null
     ): boolean {
         const listenerList = this.#listeners.get(type);
@@ -87,7 +87,7 @@ export class EventEmitter {
         if (!type) {
             this.#listeners.clear();
             return true;
-        } 
+        }
         return this.#listeners.delete(type);
     }
 
@@ -99,8 +99,8 @@ export class EventEmitter {
      * @returns {boolean} Returns true if the listener is registered, false otherwise.
      */
     hasListener(
-        type: unknown, 
-        callback: EventCallback, 
+        type: unknown,
+        callback: EventCallback,
         owner: object | null = null
     ): boolean {
         const listenerList = this.#listeners.get(type);
@@ -140,8 +140,8 @@ export class EventEmitter {
      * @returns {boolean} Returns true if the listener was added, false if it already existed.
      */
     on(
-        type: unknown, 
-        callback: EventCallback, 
+        type: unknown,
+        callback: EventCallback,
         owner: object | null = null
     ): boolean {
         return this.addListener(type, callback, owner, false);
@@ -155,7 +155,11 @@ export class EventEmitter {
      * @param {*} owner - The owner object.
      * @returns {boolean} Returns true if the listener was added, false if it already existed.
      */
-    once(type, callback, owner = null) {
+    once(
+        type: unknown,
+        callback: EventCallback,
+        owner: object | null = null
+    ): boolean {
         return this.addListener(type, callback, owner, true);
     }
 
@@ -166,7 +170,11 @@ export class EventEmitter {
      * @param {*} owner - The owner object.
      * @returns {boolean} Returns true if the listener was found and removed, false otherwise.
      */
-    off(type, callback, owner = null) {
+    off(
+        type: unknown,
+        callback: EventCallback,
+        owner: object | null = null
+    ): boolean {
         return this.removeListener(type, callback, owner);
     }
 
@@ -178,7 +186,7 @@ export class EventEmitter {
      * @param {*} event - The event object to pass to listeners.
      * @throws {AggregateError} Throws an AggregateError if listeners throw errors during event emission.
      */
-    emit(type, event) {
+    emit(type: unknown, event: unknown): void {
         const listenerList = this.#listeners.get(type);
         if (listenerList === undefined) {
             return;
@@ -213,7 +221,7 @@ export class EventEmitter {
         // accidental deletion of a new listener list.
         if (listenerList.length === 0 && this.#listeners.get(type) === listenerList) {
             this.#listeners.delete(type);
-        }                    
+        }
 
         // Throw an aggregate error after all listeners have been invoked. This 
         // also ensures that the listener list is properly cleaned up.
@@ -232,7 +240,11 @@ export class EventEmitter {
      * @param {*} owner - The owner object.
      * @returns {number} Returns the index of the listener, or -1 if not found.
      */
-    #indexOfListener(listenerList, callback, owner) {
+    #indexOfListener(
+        listenerList: EventListener[],
+        callback: EventCallback,
+        owner: object | null
+    ): number {
         for (let i = 0; i < listenerList.length; i++) {
             if (listenerList[i].matches(callback, owner)) {
                 return i;
