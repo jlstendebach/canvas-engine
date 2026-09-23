@@ -182,7 +182,7 @@ export class ImageManager {
         this.#images.delete(path);
 
         // Remove all aliases for this path
-        const aliasesToRemove = [];
+        const aliasesToRemove: string[] = [];
         for (const [alias, aliasedPath] of this.#aliases.entries()) {
             if (aliasedPath === path) {
                 aliasesToRemove.push(alias);

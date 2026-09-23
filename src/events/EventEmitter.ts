@@ -205,7 +205,7 @@ export class EventEmitter {
         // Use a shallow copy of the listener list to allow listeners to
         // manipulate the list during event emission without affecting iteration.
         const snapshot = listenerList.slice();
-        const errors = [];
+        const errors: unknown[] = [];
         for (let i = 0; i < snapshot.length; i++) {
             const listener = snapshot[i];
 
@@ -235,7 +235,7 @@ export class EventEmitter {
         // Throw an aggregate error after all listeners have been invoked. This
         // also ensures that the listener list is properly cleaned up.
         if (errors.length > 0) {
-            throw new AggregateError(errors, `Errors occurred while emitting event: ${type}`);
+            throw new AggregateError(errors, `Errors occurred while emitting event: ${String(type)}`);
         }
     }
 
