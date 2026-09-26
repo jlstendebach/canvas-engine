@@ -1,37 +1,42 @@
+
+const MouseEventType = Object.freeze({
+    DOWN: "MouseDownEvent",
+    UP: "MouseUpEvent",
+    MOVE: "MouseMoveEvent",
+    DRAG: "MouseDragEvent",
+    ENTER: "MouseEnterEvent",
+    EXIT: "MouseExitEvent",
+    WHEEL: "MouseWheelEvent"
+} as const);
+
+export type MouseEventType = (typeof MouseEventType)[keyof typeof MouseEventType];
+
 export class MouseEvent {
-    static get DOWN() { return "MouseDownEvent"; }
-    static get UP() { return "MouseUpEvent"; }
-    static get MOVE() { return "MouseMoveEvent"; }
-    static get DRAG() { return "MouseDragEvent"; }
-    static get ENTER() { return "MouseEnterEvent"; }
-    static get EXIT() { return "MouseExitEvent"; }
-    static get WHEEL() { return "MouseWheelEvent"; }
+    type: MouseEventType;
 
-    type = null;
+    canvasX: number = 0;
+    canvasY: number = 0;
+    canvasMovementX: number = 0;
+    canvasMovementY: number = 0;
 
-    canvasX = 0;
-    canvasY = 0;
-    canvasMovementX = 0;
-    canvasMovementY = 0;
+    parentX: number = 0;
+    parentY: number = 0;
+    parentMovementX: number = 0;
+    parentMovementY: number = 0;
 
-    parentX = 0;
-    parentY = 0;
-    parentMovementX = 0;
-    parentMovementY = 0;
+    x: number = 0;
+    y: number = 0;
+    movementX: number = 0;
+    movementY: number = 0;
 
-    x = 0;
-    y = 0;
-    movementX = 0;
-    movementY = 0;
+    wheelX: number = 0;
+    wheelY: number = 0;
+    wheelZ: number = 0;
 
-    wheelX = 0;
-    wheelY = 0;
-    wheelZ = 0;
-
-    button = 0;
-    buttons = 0;
-    target = null;
-    related = null;
+    button: number = 0;
+    buttons: number = 0;
+    target: unknown = null;
+    related: unknown = null;
 
     // MARK: - Utilities
     clone() {
