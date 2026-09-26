@@ -1,4 +1,6 @@
 
+import type { View } from "../../graphics/views/core/View.js";
+
 const MouseEventType = Object.freeze({
     DOWN: "MouseDownEvent",
     UP: "MouseUpEvent",
@@ -12,7 +14,7 @@ const MouseEventType = Object.freeze({
 export type MouseEventType = (typeof MouseEventType)[keyof typeof MouseEventType];
 
 export class MouseEvent {
-    type: MouseEventType;
+    type: MouseEventType | null = null;
 
     canvasX: number = 0;
     canvasY: number = 0;
@@ -35,8 +37,8 @@ export class MouseEvent {
 
     button: number = 0;
     buttons: number = 0;
-    target: unknown = null;
-    related: unknown = null;
+    target: View | null = null;
+    related: View | null = null;
 
     // MARK: - Utilities
     clone() {
