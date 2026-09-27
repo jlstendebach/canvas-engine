@@ -1,18 +1,7 @@
 
 import type { View } from "../../graphics/views/core/View.js";
 import type { MouseButton } from "./MouseButton.js";
-
-const MouseEventType = Object.freeze({
-    DOWN: "MouseDownEvent",
-    UP: "MouseUpEvent",
-    MOVE: "MouseMoveEvent",
-    DRAG: "MouseDragEvent",
-    ENTER: "MouseEnterEvent",
-    EXIT: "MouseExitEvent",
-    WHEEL: "MouseWheelEvent"
-} as const);
-
-export type MouseEventType = (typeof MouseEventType)[keyof typeof MouseEventType];
+import type { MouseEventType } from "./MouseEventType.js";
 
 export class MouseEvent {
     type: MouseEventType;
