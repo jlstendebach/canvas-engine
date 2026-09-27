@@ -8,7 +8,7 @@ import {
     Keyboard,
     KeyboardEvent,
     MouseButton,
-    MouseEvent,
+    MouseEventType,
     RectangleView,
     SceneView,
     Timer,
@@ -74,16 +74,16 @@ export class ImageApp extends CanvasApp {
         this.#scene = new SceneView(this.canvas.width, this.canvas.height)
             .scaleContent(5)
             .addToParent(this.canvas);
-        this.#scene.events.on(MouseEvent.DRAG, (_type, event) => {
+        this.#scene.events.on(MouseEventType.DRAG, (_type, event) => {
             this.#scene.translateContent(event.movementX, event.movementY);
         });
-        this.#scene.events.on(MouseEvent.WHEEL, (_type, event) => {
+        this.#scene.events.on(MouseEventType.WHEEL, (_type, event) => {
             if (event.wheelY === 0) { return; }
             const direction = Math.sign(event.wheelY);
             const factor = 1 - direction / 20;
             this.#scene.scaleAround(factor, event.x, event.y);
         });
-        this.#scene.events.on(MouseEvent.DOWN, (_type, event) => {
+        this.#scene.events.on(MouseEventType.DOWN, (_type, event) => {
             if (event.button === MouseButton.MIDDLE) {
                 this.#isFollowing = !this.#isFollowing;
             }

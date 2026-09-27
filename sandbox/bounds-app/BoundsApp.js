@@ -4,7 +4,7 @@ import {
     Color,
     ContainerView,
     MouseButton,
-    MouseEvent,
+    MouseEventType,
     RectangleView
 } from "../../dist/index.js";
 
@@ -71,8 +71,8 @@ export class BoundsApp extends CanvasApp {
                 });
             }
 
-            subcontainer.events.on(MouseEvent.DRAG, this.onViewDragged, this);
-            subcontainer.events.on(MouseEvent.WHEEL, this.onViewScrolled, this);
+            subcontainer.events.on(MouseEventType.DRAG, this.onViewDragged, this);
+            subcontainer.events.on(MouseEventType.WHEEL, this.onViewScrolled, this);
 
             parent.addView(subcontainer);
             parent = subcontainer;
@@ -84,16 +84,16 @@ export class BoundsApp extends CanvasApp {
         }
 
         this.#container.setPivotXY(
-            this.#container.bounds.centerX, 
+            this.#container.bounds.centerX,
             this.#container.bounds.centerY
         );
         this.#container.setPositionXY(
-            this.canvas.width/2, 
-            this.canvas.height/2
+            this.canvas.width / 2,
+            this.canvas.height / 2
         );
 
     }
-    
+
     // MARK: - Lifecycle
     onUpdate(timestamp, deltaTime) {
         void timestamp;
@@ -124,15 +124,15 @@ export class BoundsApp extends CanvasApp {
         const height = this.canvas.height * sizePercent;
 
         const ball = new CircleView(30)
-            .setX(width*margin + Math.random()*width*sizePercent)
-            .setY(height*margin + Math.random()*height*sizePercent)
+            .setX(width * margin + Math.random() * width * sizePercent)
+            .setY(height * margin + Math.random() * height * sizePercent)
             .setFillStyle(fillStyle ?? new Color(0, 0, 200))
             .setStrokeStyle(strokeStyle ?? new Color(100, 100, 100))
             .setStrokeWidth(2)
             .addToParent(parent);
-            
-        ball.events.on(MouseEvent.DRAG, this.onViewDragged, this);
-        ball.events.on(MouseEvent.WHEEL, this.onViewScrolled, this);
+
+        ball.events.on(MouseEventType.DRAG, this.onViewDragged, this);
+        ball.events.on(MouseEventType.WHEEL, this.onViewScrolled, this);
 
         return ball;
     }
@@ -144,16 +144,16 @@ export class BoundsApp extends CanvasApp {
         const height = this.canvas.height * sizePercent;
 
         const rect = new RectangleView(100, 50)
-            .setX(width*margin + Math.random()*width*sizePercent)
-            .setY(height*margin + Math.random()*height*sizePercent)
+            .setX(width * margin + Math.random() * width * sizePercent)
+            .setY(height * margin + Math.random() * height * sizePercent)
             .setFillStyle(fillStyle ?? new Color(0, 0, 200))
             .setStrokeStyle(strokeStyle ?? new Color(100, 100, 100))
             .setStrokeWidth(2)
             .setPivotXY(50, 25)
             .addToParent(parent);
 
-        rect.events.on(MouseEvent.DRAG, this.onViewDragged, this);
-        rect.events.on(MouseEvent.WHEEL, this.onViewScrolled, this);
+        rect.events.on(MouseEventType.DRAG, this.onViewDragged, this);
+        rect.events.on(MouseEventType.WHEEL, this.onViewScrolled, this);
 
         return rect;
     }

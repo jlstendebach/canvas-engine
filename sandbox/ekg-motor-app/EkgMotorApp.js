@@ -4,7 +4,7 @@ import {
     CircleView,
     Color,
     LabelView,
-    MouseEvent,
+    MouseEventType,
     RectangleView
 } from "../../dist/index.js";
 
@@ -90,20 +90,20 @@ export class EkgMotorApp extends CanvasApp {
         const scaledData = data.slice(0, this.DATA_POINTS).map(value => value * this.DATA_SCALE);
 
         this.dataGraph = new Graph(scaledData);
-        this.dataGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
+        this.dataGraph.events.on(MouseEventType.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.dataGraph);
     }
 
     initSlopeGraph() {
         this.slopeGraph = new Graph(this.calculateSlopeData(), true);
-        this.slopeGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
+        this.slopeGraph.events.on(MouseEventType.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.slopeGraph);
     }
 
     initActivationGraph() {
         this.activationGraph = new Graph(this.calculateActivationData(), true);
         this.activationGraph.setDataRange(-this.MOTOR_COUNT, 0);
-        this.activationGraph.events.on(MouseEvent.MOVE, this.onGraphMouseMove, this);
+        this.activationGraph.events.on(MouseEventType.MOVE, this.onGraphMouseMove, this);
         this.canvas.addView(this.activationGraph);
     }
 

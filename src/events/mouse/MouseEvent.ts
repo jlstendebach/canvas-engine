@@ -1,54 +1,53 @@
+
+import type { View } from "../../graphics/views/core/View.js";
+import type { MouseButton } from "./MouseButton.js";
+import { MouseEventType } from "./MouseEventType.js";
+
 export class MouseEvent {
-    static get DOWN() { return "MouseDownEvent"; }
-    static get UP() { return "MouseUpEvent"; }
-    static get MOVE() { return "MouseMoveEvent"; }
-    static get DRAG() { return "MouseDragEvent"; }
-    static get ENTER() { return "MouseEnterEvent"; }
-    static get EXIT() { return "MouseExitEvent"; }
-    static get WHEEL() { return "MouseWheelEvent"; }
+    type: MouseEventType;
 
-    type = null;
+    canvasX: number = 0;
+    canvasY: number = 0;
+    canvasMovementX: number = 0;
+    canvasMovementY: number = 0;
 
-    canvasX = 0;
-    canvasY = 0;
-    canvasMovementX = 0;
-    canvasMovementY = 0;
+    parentX: number = 0;
+    parentY: number = 0;
+    parentMovementX: number = 0;
+    parentMovementY: number = 0;
 
-    parentX = 0;
-    parentY = 0;
-    parentMovementX = 0;
-    parentMovementY = 0;
+    x: number = 0;
+    y: number = 0;
+    movementX: number = 0;
+    movementY: number = 0;
 
-    x = 0;
-    y = 0;
-    movementX = 0;
-    movementY = 0;
+    wheelX: number = 0;
+    wheelY: number = 0;
+    wheelZ: number = 0;
 
-    wheelX = 0;
-    wheelY = 0;
-    wheelZ = 0;
+    button: MouseButton | null = null;
+    buttons: number = 0;
+    target: View | null = null;
+    related: View | null = null;
 
-    button = 0;
-    buttons = 0;
-    target = null;
-    related = null;
+    constructor(type: MouseEventType = MouseEventType.MOVE) {
+        this.type = type;
+    }
 
     // MARK: - Utilities
-    clone() {
-        const event = new MouseEvent();
-
-        event.type = this.type;
+    clone(): MouseEvent {
+        const event = new MouseEvent(this.type);
 
         event.canvasX = this.canvasX;
         event.canvasY = this.canvasY;
         event.canvasMovementX = this.canvasMovementX;
         event.canvasMovementY = this.canvasMovementY;
-        
+
         event.parentX = this.parentX;
         event.parentY = this.parentY;
         event.parentMovementX = this.parentMovementX;
         event.parentMovementY = this.parentMovementY;
-        
+
         event.x = this.x;
         event.y = this.y;
         event.movementX = this.movementX;
@@ -66,7 +65,7 @@ export class MouseEvent {
         return event;
     }
 
-    copy(other) {
+    copy(other: MouseEvent): this {
         this.type = other.type;
 
         this.canvasX = other.canvasX;
@@ -83,7 +82,7 @@ export class MouseEvent {
         this.y = other.y;
         this.movementX = other.movementX;
         this.movementY = other.movementY;
-        
+
         this.wheelX = other.wheelX;
         this.wheelY = other.wheelY;
         this.wheelZ = other.wheelZ;
@@ -92,11 +91,11 @@ export class MouseEvent {
         this.buttons = other.buttons;
         this.target = other.target;
         this.related = other.related;
-        
+
         return this;
     }
 
-    isPressed(button) {
+    isPressed(button: MouseButton): boolean {
         return (this.buttons & button) !== 0;
     }
 

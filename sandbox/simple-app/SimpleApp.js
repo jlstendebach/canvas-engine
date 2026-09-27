@@ -3,7 +3,7 @@ import {
     CircleView, 
     Color, 
     Vec2, 
-    MouseEvent,
+    MouseEventType,
     MouseButton, 
 } from "../../dist/index.js";
 
@@ -29,9 +29,9 @@ export class SimpleApp extends CanvasApp {
             .setFillStyle(new Color(0, 0, 200))
             .setStrokeStyle(new Color(100, 100, 100))
             .setStrokeWidth(2);
-        ball.events.on(MouseEvent.DOWN, this.onBallGrab, this);
-        ball.events.on(MouseEvent.DRAG, this.onBallDrag, this);
-        ball.events.on(MouseEvent.UP, this.onBallDrop, this);
+        ball.events.on(MouseEventType.DOWN, this.onBallGrab, this);
+        ball.events.on(MouseEventType.DRAG, this.onBallDrag, this);
+        ball.events.on(MouseEventType.UP, this.onBallDrop, this);
         this.canvas.addView(ball);
         this.#ball = ball;
     }

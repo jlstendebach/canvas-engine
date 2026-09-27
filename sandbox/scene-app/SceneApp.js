@@ -5,7 +5,7 @@ import {
     Color,
     CoordinateSpace,
     MouseButton,
-    MouseEvent,
+    MouseEventType,
     RectangleView,
     SceneView,
     Timer,
@@ -51,9 +51,9 @@ export class SceneApp extends CanvasApp {
     initScene() {
         const scene = new SceneView(this.canvas.width, this.canvas.height)
             .addToParent(this.canvas);
-        scene.events.on(MouseEvent.WHEEL, this.onSceneZoom, this);
-        scene.events.on(MouseEvent.DRAG, this.onSceneDrag, this);
-        scene.events.on(MouseEvent.DOWN, this.onSceneClick, this);
+        scene.events.on(MouseEventType.WHEEL, this.onSceneZoom, this);
+        scene.events.on(MouseEventType.DRAG, this.onSceneDrag, this);
+        scene.events.on(MouseEventType.DOWN, this.onSceneClick, this);
 
         this.scene = scene;
     }
@@ -67,9 +67,9 @@ export class SceneApp extends CanvasApp {
             .setStrokeWidth(2)
             .setPickable(true)
             .addToParent(this.scene);
-        this.box.events.on(MouseEvent.WHEEL, this.onBoxZoom, this);
-        this.box.events.on(MouseEvent.DRAG, this.onBoxDrag, this);
-        this.box.events.on(MouseEvent.DOWN, this.onBoxClick, this);
+        this.box.events.on(MouseEventType.WHEEL, this.onBoxZoom, this);
+        this.box.events.on(MouseEventType.DRAG, this.onBoxDrag, this);
+        this.box.events.on(MouseEventType.DOWN, this.onBoxClick, this);
 
         this.boxCorner1 = new CircleView()
             .setPosition(this.box.getPosition())
@@ -79,7 +79,7 @@ export class SceneApp extends CanvasApp {
             .setStrokeWidth(2)
             .setPickable(true)
             .addToParent(this.canvas);
-        this.boxCorner1.events.on(MouseEvent.DRAG, this.onBallDrag, this);
+        this.boxCorner1.events.on(MouseEventType.DRAG, this.onBallDrag, this);
 
         this.boxCorner2 = new CircleView()
             .setPosition(this.box.getPosition().add(this.box.getSize()))
@@ -89,7 +89,7 @@ export class SceneApp extends CanvasApp {
             .setStrokeWidth(2)
             .setPickable(true)
             .addToParent(this.canvas);
-        this.boxCorner2.events.on(MouseEvent.DRAG, this.onBallDrag, this);
+        this.boxCorner2.events.on(MouseEventType.DRAG, this.onBallDrag, this);
 
         this.pivotBall = new CircleView()
             .setRadius(5)
@@ -109,9 +109,9 @@ export class SceneApp extends CanvasApp {
             .setStrokeWidth(2)
             .setPickable(true)
             .addToParent(this.scene);
-        this.ball.events.on(MouseEvent.DOWN, this.onBallGrab, this);
-        this.ball.events.on(MouseEvent.DRAG, this.onBallDrag, this);
-        this.ball.events.on(MouseEvent.UP, this.onBallDrop, this);
+        this.ball.events.on(MouseEventType.DOWN, this.onBallGrab, this);
+        this.ball.events.on(MouseEventType.DRAG, this.onBallDrag, this);
+        this.ball.events.on(MouseEventType.UP, this.onBallDrop, this);
     }
 
     // -------------------------------------------------------------------------
