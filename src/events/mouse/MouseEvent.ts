@@ -1,11 +1,10 @@
 
 import type { View } from "../../graphics/views/core/View.js";
 import type { MouseButton } from "./MouseButton.js";
-import type { MouseEventType } from "./MouseEventType.js";
+import { MouseEventType } from "./MouseEventType.js";
 
 export class MouseEvent {
     type: MouseEventType;
-    button: MouseButton;
 
     canvasX: number = 0;
     canvasY: number = 0;
@@ -26,18 +25,18 @@ export class MouseEvent {
     wheelY: number = 0;
     wheelZ: number = 0;
 
+    button: MouseButton | null = null;
     buttons: number = 0;
     target: View | null = null;
     related: View | null = null;
 
-    constructor(type: MouseEventType, button: MouseButton) {
+    constructor(type: MouseEventType = MouseEventType.MOVE) {
         this.type = type;
-        this.button = button;
     }
 
     // MARK: - Utilities
     clone(): MouseEvent {
-        const event = new MouseEvent(this.type, this.button);
+        const event = new MouseEvent(this.type);
 
         event.canvasX = this.canvasX;
         event.canvasY = this.canvasY;
@@ -58,6 +57,7 @@ export class MouseEvent {
         event.wheelY = this.wheelY;
         event.wheelZ = this.wheelZ;
 
+        event.button = this.button;
         event.buttons = this.buttons;
         event.target = this.target;
         event.related = this.related;
