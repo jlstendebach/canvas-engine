@@ -4,7 +4,7 @@ import {
     Color,
     LineView,
     MouseButton,
-    MouseEvent,
+    MouseEventType,
     PolygonView,
     RectangleView,
     RoundRectangleView,
@@ -228,12 +228,12 @@ export class ShapesApp extends CanvasApp {
 
     // MARK: - Helpers
     addEventListeners(shape) {
-        shape.events.on(MouseEvent.DOWN, this.onMouseDown, this);
-        shape.events.on(MouseEvent.DRAG, this.onMouseDrag, this);
-        shape.events.on(MouseEvent.UP, this.onMouseUp, this);
-        shape.events.on(MouseEvent.ENTER, this.onMouseEnter, this);
-        shape.events.on(MouseEvent.EXIT, this.onMouseExit, this);
-        shape.events.on(MouseEvent.WHEEL, this.onMouseWheel, this);
+        shape.events.on(MouseEventType.DOWN, this.onMouseDown, this);
+        shape.events.on(MouseEventType.DRAG, this.onMouseDrag, this);
+        shape.events.on(MouseEventType.UP, this.onMouseUp, this);
+        shape.events.on(MouseEventType.ENTER, this.onMouseEnter, this);
+        shape.events.on(MouseEventType.EXIT, this.onMouseExit, this);
+        shape.events.on(MouseEventType.WHEEL, this.onMouseWheel, this);
     }
 
     setPivotToCenter(shape) {

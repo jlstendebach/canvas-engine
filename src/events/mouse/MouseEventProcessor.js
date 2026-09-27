@@ -1,6 +1,7 @@
 import { Vec2 } from "../../math/Vec2.js";
 import { MouseButton } from "./MouseButton.js"
 import { MouseEvent } from "./MouseEvent.js"
+import { MouseEventType } from "./MouseEventType.js"
 
 export class MouseEventProcessor {
     #canvasElement = null;
@@ -147,7 +148,7 @@ export class MouseEventProcessor {
             this.#mouseDownViews.set(button, null);
 
             const upEvent = this.#tempEvent.copy(event);
-            upEvent.type = MouseEvent.UP;
+            upEvent.type = MouseEventType.UP;
             upEvent.button = button;
             upEvent.target = view;
             upEvent.related = null;
@@ -160,7 +161,7 @@ export class MouseEventProcessor {
         /***************/
         if (this.#mouseOverView != null) {
             const exitEvent = this.#tempEvent.copy(event);
-            exitEvent.type = MouseEvent.EXIT;
+            exitEvent.type = MouseEventType.EXIT;
             exitEvent.target = this.#mouseOverView;
             exitEvent.related = null;
             this.#updateRelativePositions(exitEvent);
@@ -173,7 +174,7 @@ export class MouseEventProcessor {
 
     #onMouseDown(event) {
         const downEvent = this.#tempEvent.copy(event);
-        downEvent.type = MouseEvent.DOWN;
+        downEvent.type = MouseEventType.DOWN;
         downEvent.target = this.#findView(downEvent);
         downEvent.related = null;
         this.#updateRelativePositions(downEvent);
@@ -190,7 +191,7 @@ export class MouseEventProcessor {
         const mouseDownView = this.#mouseDownViews.get(event.button);
         if (mouseDownView != null) {
             const upEvent = this.#tempEvent.copy(event);
-            upEvent.type = MouseEvent.UP;
+            upEvent.type = MouseEventType.UP;
             upEvent.target = mouseDownView;
             upEvent.related = this.#findView(upEvent);
             this.#updateRelativePositions(upEvent);
@@ -213,7 +214,7 @@ export class MouseEventProcessor {
         const mouseDragView = this.#mouseDownViews.get(this.#mouseDragButton);
         if (mouseDragView != null) {
             const dragEvent = this.#tempEvent.copy(event);
-            dragEvent.type = MouseEvent.DRAG;
+            dragEvent.type = MouseEventType.DRAG;
             dragEvent.target = mouseDragView;
             dragEvent.related = view;
             dragEvent.button = this.#mouseDragButton;
@@ -227,7 +228,7 @@ export class MouseEventProcessor {
         if (this.#mouseOverView === view) {
             if (view !== mouseDragView) {
                 const moveEvent = this.#tempEvent.copy(event);
-                moveEvent.type = MouseEvent.MOVE;
+                moveEvent.type = MouseEventType.MOVE;
                 moveEvent.target = view;
                 moveEvent.related = null;
                 this.#updateRelativePositions(moveEvent);
@@ -244,7 +245,7 @@ export class MouseEventProcessor {
         /***************/
         if (exitView != null) {
             const exitEvent = this.#tempEvent.copy(event);
-            exitEvent.type = MouseEvent.EXIT;
+            exitEvent.type = MouseEventType.EXIT;
             exitEvent.target = exitView;
             exitEvent.related = enterView;
             this.#updateRelativePositions(exitEvent);
@@ -255,7 +256,7 @@ export class MouseEventProcessor {
         /* onMouseEnter */
         /****************/
         const enterEvent = this.#tempEvent.copy(event);
-        enterEvent.type = MouseEvent.ENTER;
+        enterEvent.type = MouseEventType.ENTER;
         enterEvent.target = enterView;
         enterEvent.related = exitView;
         this.#updateRelativePositions(enterEvent);
@@ -267,7 +268,7 @@ export class MouseEventProcessor {
 
     #onMouseWheel(event) {
         const wheelEvent = this.#tempEvent.copy(event);
-        wheelEvent.type = MouseEvent.WHEEL;
+        wheelEvent.type = MouseEventType.WHEEL;
         wheelEvent.target = this.#findView(wheelEvent);
         wheelEvent.related = null;
         this.#updateRelativePositions(wheelEvent);

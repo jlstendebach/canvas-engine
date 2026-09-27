@@ -43,12 +43,12 @@ export class MouseEvent {
         event.canvasY = this.canvasY;
         event.canvasMovementX = this.canvasMovementX;
         event.canvasMovementY = this.canvasMovementY;
-        
+
         event.parentX = this.parentX;
         event.parentY = this.parentY;
         event.parentMovementX = this.parentMovementX;
         event.parentMovementY = this.parentMovementY;
-        
+
         event.x = this.x;
         event.y = this.y;
         event.movementX = this.movementX;
@@ -82,7 +82,7 @@ export class MouseEvent {
         this.y = other.y;
         this.movementX = other.movementX;
         this.movementY = other.movementY;
-        
+
         this.wheelX = other.wheelX;
         this.wheelY = other.wheelY;
         this.wheelZ = other.wheelZ;
@@ -91,7 +91,7 @@ export class MouseEvent {
         this.buttons = other.buttons;
         this.target = other.target;
         this.related = other.related;
-        
+
         return this;
     }
 
