@@ -1,5 +1,6 @@
 
 import type { View } from "../../graphics/views/core/View.js";
+import type { MouseButton } from "./MouseButton.js";
 
 const MouseEventType = Object.freeze({
     DOWN: "MouseDownEvent",
@@ -14,7 +15,8 @@ const MouseEventType = Object.freeze({
 export type MouseEventType = (typeof MouseEventType)[keyof typeof MouseEventType];
 
 export class MouseEvent {
-    type: MouseEventType | null = null;
+    type: MouseEventType;
+    button: MouseButton;
 
     canvasX: number = 0;
     canvasY: number = 0;
@@ -35,16 +37,18 @@ export class MouseEvent {
     wheelY: number = 0;
     wheelZ: number = 0;
 
-    button: number = 0;
     buttons: number = 0;
     target: View | null = null;
     related: View | null = null;
 
-    // MARK: - Utilities
-    clone() {
-        const event = new MouseEvent();
+    constructor(type: MouseEventType, button: MouseButton) {
+        this.type = type;
+        this.button = button;
+    }
 
-        event.type = this.type;
+    // MARK: - Utilities
+    clone(): MouseEvent {
+        const event = new MouseEvent(this.type, this.button);
 
         event.canvasX = this.canvasX;
         event.canvasY = this.canvasY;
@@ -65,7 +69,6 @@ export class MouseEvent {
         event.wheelY = this.wheelY;
         event.wheelZ = this.wheelZ;
 
-        event.button = this.button;
         event.buttons = this.buttons;
         event.target = this.target;
         event.related = this.related;
@@ -73,7 +76,7 @@ export class MouseEvent {
         return event;
     }
 
-    copy(other) {
+    copy(other: MouseEvent): this {
         this.type = other.type;
 
         this.canvasX = other.canvasX;
@@ -103,7 +106,7 @@ export class MouseEvent {
         return this;
     }
 
-    isPressed(button) {
+    isPressed(button: MouseButton): boolean {
         return (this.buttons & button) !== 0;
     }
 
