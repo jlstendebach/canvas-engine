@@ -2,42 +2,42 @@ import { Vec2 } from "../../math/Vec2.js";
 import { MouseButton } from "./MouseButton.js"
 import { MouseEvent } from "./MouseEvent.js"
 import { MouseEventType } from "./MouseEventType.js"
+import type { View } from "../../graphics/views/core/View.js";
 
 export class MouseEventProcessor {
-    #canvasElement = null;
-    #rootView = null;
+    #canvasElement: HTMLCanvasElement;
+    #rootView: View;
 
-
-    #mouseDownViews = new Map([
+    #mouseDownViews: Map<MouseButton, View | null> = new Map([
         [MouseButton.LEFT, null],
         [MouseButton.RIGHT, null],
         [MouseButton.MIDDLE, null],
         [MouseButton.MOUSE4, null],
         [MouseButton.MOUSE5, null]
     ]);
-    #mouseDragButton = null;
-    #mouseOverView = null;
+    #mouseDragButton: MouseButton | null = null;
+    #mouseOverView: View | null = null;
 
-    #mouseX = -1;
-    #mouseY = -1;
+    #mouseX: number = -1;
+    #mouseY: number = -1;
 
     // Event tracking management
-    #domAbortController = null;
-    #mutationObserver = null;
+    #domAbortController: AbortController | null = null;
+    #mutationObserver: MutationObserver | null = null;
 
     // Cached objects for performance
-    #computedStyle = null;
-    #isComputedStyleDirty = true;
+    #computedStyle: CSSStyleDeclaration | null = null;
+    #isComputedStyleDirty: boolean = true;
 
     // Temporary objects to avoid creating new objects for every event.
-    #baseEvent = new MouseEvent();
-    #tempEvent = new MouseEvent();
-    #tempPosition = new Vec2();
-    #tempMovement = new Vec2();
-    #tempViewList = [];
+    #baseEvent: MouseEvent = new MouseEvent();
+    #tempEvent: MouseEvent = new MouseEvent();
+    #tempPosition: Vec2 = new Vec2();
+    #tempMovement: Vec2 = new Vec2();
+    #tempViewList: View[] = [];
 
     // MARK: - Initialization
-    constructor(canvasElement, rootView) {
+    constructor(canvasElement: HTMLCanvasElement, rootView: View) {
         this.#canvasElement = canvasElement;
         this.#rootView = rootView;
     }
