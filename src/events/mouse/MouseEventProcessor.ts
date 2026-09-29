@@ -342,7 +342,7 @@ export class MouseEventProcessor {
     }
 
     #findView(event: MouseEvent): View {
-        const view = event.target;
+        const view = event.target ?? this.#rootView;
         this.#tempPosition.set(event.canvasX, event.canvasY);
         return view?.pickView(this.#tempPosition) ?? view;
     }
