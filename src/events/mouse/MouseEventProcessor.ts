@@ -219,7 +219,7 @@ export class MouseEventProcessor {
         /***************/
         /* onMouseDrag */
         /***************/
-        const mouseDragView = this.#mouseDragButton !== null 
+        const mouseDragView = this.#mouseDragButton !== null
             ? this.#mouseDownViews.get(this.#mouseDragButton)
             : null;
         if (mouseDragView != null) {
@@ -344,7 +344,7 @@ export class MouseEventProcessor {
     #findView(event: MouseEvent): View {
         const view = event.target ?? this.#rootView;
         this.#tempPosition.set(event.canvasX, event.canvasY);
-        return view?.pickView(this.#tempPosition) ?? view;
+        return view.pickView(this.#tempPosition) ?? view;
     }
 
     #updateRelativePositions(event: MouseEvent): void {

@@ -572,6 +572,13 @@ export class View {
     // MARK: - Hit Testing
     // -------------------------------------------------------------------------
 
+    /**
+     * Performs hit testing to determine which view, if any, contains the 
+     * specified point.
+     * 
+     * @param {Vec2} point - The point to test for picking.
+     * @returns {View | null} The picked view or null if none.
+     */
     pickView(point) {
         if (this.#isVisible === false || this.#isPickable === false) {
             return null;
