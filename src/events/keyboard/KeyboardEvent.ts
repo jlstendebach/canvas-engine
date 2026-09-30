@@ -1,9 +1,11 @@
-export class KeyboardEvent {
-    type = null;
-    key = "";
-    code = "";
+import type { KeyboardEventType } from "./KeyboardEventType.js";
 
-    constructor(type, key, code) {
+export class KeyboardEvent {
+    type: KeyboardEventType | null = null;
+    key: string = "";
+    code: string = "";
+
+    constructor(type: KeyboardEventType | null, key: string, code: string) {
         this.type = type;
         this.key = key;
         this.code = code;
