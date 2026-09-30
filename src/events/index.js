@@ -4,6 +4,7 @@ export * from "./EventListener.js"
 // MARK: - keyboard
 export * from "./keyboard/Keyboard.js"
 export * from "./keyboard/KeyboardEvent.js"
+export * from "./keyboard/KeyboardEventType.js"
 
 // MARK: - mouse
 export * from "./mouse/MouseButton.js"

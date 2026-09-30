@@ -1,8 +1,4 @@
 export class KeyboardEvent {
-    static DOWN   = "KeyboardEventDown";
-    static REPEAT = "KeyboardEventRepeat";
-    static UP     = "KeyboardEventUp";
-
     type = null;
     key = "";
     code = "";
