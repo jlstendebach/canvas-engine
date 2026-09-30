@@ -1,5 +1,6 @@
 import { EventEmitter } from "../EventEmitter.js"
 import { KeyboardEvent } from "./KeyboardEvent.js"
+import { KeyboardEventType } from "./KeyboardEventType.js"
 
 export class Keyboard {
     static #down = {};
@@ -30,8 +31,8 @@ export class Keyboard {
             /* REPEAT */
             /**********/
             Keyboard.#eventEmitter.emit(
-                KeyboardEvent.REPEAT,
-                new KeyboardEvent(KeyboardEvent.REPEAT, event.key, event.code)
+                KeyboardEventType.REPEAT,
+                new KeyboardEvent(KeyboardEventType.REPEAT, event.key, event.code)
             );
 
         } else {
@@ -42,8 +43,8 @@ export class Keyboard {
             /* DOWN */
             /********/
             Keyboard.#eventEmitter.emit(
-                KeyboardEvent.DOWN,
-                new KeyboardEvent(KeyboardEvent.DOWN, event.key, event.code)
+                KeyboardEventType.DOWN,
+                new KeyboardEvent(KeyboardEventType.DOWN, event.key, event.code)
             );
         }
     }
@@ -57,8 +58,8 @@ export class Keyboard {
         /* UP */
         /******/
         Keyboard.#eventEmitter.emit(
-            KeyboardEvent.UP,
-            new KeyboardEvent(KeyboardEvent.UP, event.key, event.code)
+            KeyboardEventType.UP,
+            new KeyboardEvent(KeyboardEventType.UP, event.key, event.code)
         );
     }
 
@@ -83,9 +84,9 @@ export class Keyboard {
 
     static isValidType(type) {
         switch (type) {
-            case KeyboardEvent.DOWN:
-            case KeyboardEvent.REPEAT:
-            case KeyboardEvent.UP:
+            case KeyboardEventType.DOWN:
+            case KeyboardEventType.REPEAT:
+            case KeyboardEventType.UP:
                 return true;
 
             default:

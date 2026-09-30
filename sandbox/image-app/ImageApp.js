@@ -6,7 +6,7 @@ import {
     ImageManager,
     ImageView,
     Keyboard,
-    KeyboardEvent,
+    KeyboardEventType,
     MouseButton,
     MouseEventType,
     RectangleView,
@@ -113,8 +113,8 @@ export class ImageApp extends CanvasApp {
 
 
     initKeyboard() {
-        Keyboard.events.on(KeyboardEvent.DOWN, this.onKeyDown, this);
-        Keyboard.events.on(KeyboardEvent.UP, this.onKeyUp, this);
+        Keyboard.events.on(KeyboardEventType.DOWN, this.onKeyDown, this);
+        Keyboard.events.on(KeyboardEventType.UP, this.onKeyUp, this);
     }
 
     // MARK: - Update
