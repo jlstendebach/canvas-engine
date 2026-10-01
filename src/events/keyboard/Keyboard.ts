@@ -3,11 +3,11 @@ import { KeyboardEvent } from "./KeyboardEvent.js"
 import { KeyboardEventType } from "./KeyboardEventType.js"
 
 export class Keyboard {
-    static #down = {};
-    static #capsLock = false
-    static #numLock = false
-    static #scrollLock = false
-    static #eventEmitter = Keyboard.#createEventEmitter();
+    static #down: Record<string, boolean> = {};
+    static #capsLock: boolean = false
+    static #numLock: boolean = false
+    static #scrollLock: boolean = false
+    static #eventEmitter: EventEmitter = Keyboard.#createEventEmitter();
 
     static get events() {
         return this.#eventEmitter;
