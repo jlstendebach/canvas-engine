@@ -2,29 +2,39 @@ import { EventEmitter } from "../EventEmitter.js"
 import { KeyboardEvent } from "./KeyboardEvent.js"
 import { KeyboardEventType } from "./KeyboardEventType.js"
 
-export class Keyboard {
-    static #down = {};
-    static #capsLock = false
-    static #numLock = false
-    static #scrollLock = false
-    static #eventEmitter = Keyboard.#createEventEmitter();
+type DomKeyboardEvent = globalThis.KeyboardEvent;
 
-    static get events() {
+export class Keyboard {
+    static #down: Record<string, boolean> = {};
+    static #capsLock: boolean = false
+    static #numLock: boolean = false
+    static #scrollLock: boolean = false
+    static #eventEmitter: EventEmitter = Keyboard.#createEventEmitter();
+
+    static get events(): EventEmitter {
         return this.#eventEmitter;
     }
 
     // --[ polling ]------------------------------------------------------------
-    static isKeyDown(key) {
+    static isKeyDown(key: string): boolean {
         return Keyboard.#down[key] != null;
     }
 
-    static isCapsLock() { return Keyboard.#capsLock; }
-    static isNumLock() { return Keyboard.#numLock; }
-    static isScrollLock() { return Keyboard.#scrollLock; }
+    static isCapsLock(): boolean {
+        return Keyboard.#capsLock;
+    }
+
+    static isNumLock(): boolean {
+        return Keyboard.#numLock;
+    }
+
+    static isScrollLock(): boolean {
+        return Keyboard.#scrollLock;
+    }
 
     // --[ events ]-------------------------------------------------------------
-    static onKeyDown(event) {
-        Keyboard.updateModifiers(event);
+    static onKeyDown(event: DomKeyboardEvent): void {
+        Keyboard.#updateModifiers(event);
 
         if (Keyboard.isKeyDown(event.code)) {
             /**********/
@@ -49,8 +59,8 @@ export class Keyboard {
         }
     }
 
-    static onKeyUp(event) {
-        Keyboard.updateModifiers(event);
+    static onKeyUp(event: DomKeyboardEvent): void {
+        Keyboard.#updateModifiers(event);
         delete Keyboard.#down[event.key];
         delete Keyboard.#down[event.code];
 
@@ -63,38 +73,14 @@ export class Keyboard {
         );
     }
 
-    static addEventListener(type, callback, owner = null) {
-        if (Keyboard.isValidType(type)) {
-            Keyboard.#eventEmitter.addListener(type, callback, owner);
-        }
-    }
-
-    static removeEventListener(type, callback, owner = null) {
-        if (Keyboard.isValidType(type)) {
-            Keyboard.#eventEmitter.removeListener(type, callback, owner);
-        }
-    }
-
     // --[ helpers ]------------------------------------------------------------
-    static #createEventEmitter() {
+    static #createEventEmitter(): EventEmitter {
         document.addEventListener("keydown", Keyboard.onKeyDown);
         document.addEventListener("keyup", Keyboard.onKeyUp);
         return new EventEmitter();
     }
 
-    static isValidType(type) {
-        switch (type) {
-            case KeyboardEventType.DOWN:
-            case KeyboardEventType.REPEAT:
-            case KeyboardEventType.UP:
-                return true;
-
-            default:
-                return false;
-        }
-    }
-
-    static updateModifiers(event) {
+    static #updateModifiers(event: DomKeyboardEvent): void {
         Keyboard.#capsLock = event.getModifierState("CapsLock");
         Keyboard.#numLock = event.getModifierState("NumLock");
         Keyboard.#scrollLock = event.getModifierState("ScrollLock");
