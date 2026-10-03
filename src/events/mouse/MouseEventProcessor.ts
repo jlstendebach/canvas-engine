@@ -1,8 +1,8 @@
-import { Vec2 } from "../../math/Vec2.js";
-import { MouseButton } from "./MouseButton.js"
-import { CanvasMouseEvent } from "./CanvasMouseEvent.js"
-import { MouseEventType } from "./MouseEventType.js"
 import type { View } from "../../graphics/views/core/View.js";
+import { Vec2 } from "../../math/Vec2.js";
+import { CanvasMouseEvent } from "./CanvasMouseEvent.js";
+import { MouseButton } from "./MouseButton.js";
+import { MouseEventType } from "./MouseEventType.js";
 
 export class MouseEventProcessor {
     #canvasElement: HTMLCanvasElement;
