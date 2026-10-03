@@ -3,7 +3,7 @@ import type { View } from "../../graphics/views/core/View.js";
 import type { MouseButton } from "./MouseButton.js";
 import { MouseEventType } from "./MouseEventType.js";
 
-export class MouseEvent {
+export class CanvasMouseEvent {
     type: MouseEventType;
 
     canvasX: number = 0;
@@ -35,8 +35,8 @@ export class MouseEvent {
     }
 
     // MARK: - Utilities
-    clone(): MouseEvent {
-        const event = new MouseEvent(this.type);
+    clone(): CanvasMouseEvent {
+        const event = new CanvasMouseEvent(this.type);
 
         event.canvasX = this.canvasX;
         event.canvasY = this.canvasY;
@@ -65,7 +65,7 @@ export class MouseEvent {
         return event;
     }
 
-    copy(other: MouseEvent): this {
+    copy(other: CanvasMouseEvent): this {
         this.type = other.type;
 
         this.canvasX = other.canvasX;
