@@ -37,6 +37,7 @@ export class CanvasMouseEvent {
     // MARK: - Utilities
     clone(): CanvasMouseEvent {
         const event = new CanvasMouseEvent();
+        event.type = this.type;
 
         event.canvasX = this.canvasX;
         event.canvasY = this.canvasY;
