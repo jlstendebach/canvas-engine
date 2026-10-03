@@ -6,6 +6,10 @@ import type { MouseEventType } from "./MouseEventType.js";
 export class CanvasMouseEvent {
     type: MouseEventType | null = null;
 
+    constructor(type: MouseEventType | null = null) {
+        this.type = type;
+    }
+
     canvasX: number = 0;
     canvasY: number = 0;
     canvasMovementX: number = 0;
