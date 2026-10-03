@@ -1,10 +1,14 @@
 
 import type { View } from "../../graphics/views/core/View.js";
 import type { MouseButton } from "./MouseButton.js";
-import { MouseEventType } from "./MouseEventType.js";
+import type { MouseEventType } from "./MouseEventType.js";
 
 export class CanvasMouseEvent {
-    type: MouseEventType;
+    type: MouseEventType | null = null;
+
+    constructor(type: MouseEventType | null = null) {
+        this.type = type;
+    }
 
     canvasX: number = 0;
     canvasY: number = 0;
@@ -30,13 +34,10 @@ export class CanvasMouseEvent {
     target: View | null = null;
     related: View | null = null;
 
-    constructor(type: MouseEventType = MouseEventType.MOVE) {
-        this.type = type;
-    }
-
     // MARK: - Utilities
     clone(): CanvasMouseEvent {
-        const event = new CanvasMouseEvent(this.type);
+        const event = new CanvasMouseEvent();
+        event.type = this.type;
 
         event.canvasX = this.canvasX;
         event.canvasY = this.canvasY;
