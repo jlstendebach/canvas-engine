@@ -4,9 +4,6 @@ import { CanvasMouseEvent } from "./CanvasMouseEvent.js"
 import { MouseEventType } from "./MouseEventType.js"
 import type { View } from "../../graphics/views/core/View.js";
 
-type DomMouseEvent = globalThis.MouseEvent;
-type DomWheelEvent = globalThis.WheelEvent;
-
 export class MouseEventProcessor {
     #canvasElement: HTMLCanvasElement;
     #rootView: View;
@@ -102,7 +99,7 @@ export class MouseEventProcessor {
     // MARK: - Event Forwarding
     // -------------------------------------------------------------------------
 
-    #handleMouseEvent(type: string, domEvent: DomMouseEvent): void {
+    #handleMouseEvent(type: string, domEvent: MouseEvent): void {
         const mouseEvent = this.#getMouseEvent(domEvent);
         const isInsideCanvas = this.#isInsideCanvas(mouseEvent.canvasX, mouseEvent.canvasY);
         const wasInsideCanvas = this.#isInsideCanvas(this.#mouseX, this.#mouseY);
@@ -289,7 +286,7 @@ export class MouseEventProcessor {
     // MARK: - Event Helpers
     // -------------------------------------------------------------------------
 
-    #getMouseEvent(domEvent: DomMouseEvent): CanvasMouseEvent {
+    #getMouseEvent(domEvent: MouseEvent): CanvasMouseEvent {
         if (this.#isComputedStyleDirty || this.#computedStyle === null) {
             this.#computedStyle = getComputedStyle(this.#canvasElement);
             this.#isComputedStyleDirty = false;
@@ -324,7 +321,7 @@ export class MouseEventProcessor {
         this.#baseEvent.wheelY = 0;
         this.#baseEvent.wheelZ = 0;
         if (domEvent.type === "wheel") {
-            const domWheelEvent = domEvent as DomWheelEvent;
+            const domWheelEvent = domEvent as WheelEvent;
             this.#baseEvent.wheelX = domWheelEvent.deltaX;
             this.#baseEvent.wheelY = domWheelEvent.deltaY;
             this.#baseEvent.wheelZ = domWheelEvent.deltaZ;
