@@ -298,12 +298,12 @@ export class View {
     // -------------------------------------------------------------------------
 
     /**
-     * Convenience method that calls the parent view's addView method.
-     * If the provided parent is already the current parent, this method does
-     * nothing.
-     * @param {View} parent - The parent view to add this view to.
-     * @returns {View} This.
-     * @throws {Error} If the parent is null or undefined.
+     * Convenience method that calls the parent view's addView method. If the
+     * provided parent is already the current parent, this method does nothing.
+     *
+     * @param parent - The parent view to add this view to.
+     * @returns This view.
+     * @throws If the parent is null or undefined.
      */
     addToParent(parent: View): this {
         if (!parent) {
@@ -315,10 +315,11 @@ export class View {
     }
 
     /**
-     * Convenience method that calls the parent view's removeView method to 
+     * Convenience method that calls the parent view's removeView method to
      * remove this view from its parent. If this view has no parent, this method
      * does nothing.
-     * @returns {View} This.
+     *
+     * @returns This view.
      */
     removeFromParent(): this {
         if (!this.parent) { return this; }
@@ -328,7 +329,8 @@ export class View {
 
     /**
      * Sends this view to the back of its parent's child list.
-     * @returns {View} This.
+     *
+     * @returns This view.
      */
     sendToBack(): this {
         if (!this.parent) { return this; }
@@ -338,7 +340,8 @@ export class View {
 
     /**
      * Brings this view to the front of its parent's child list.
-     * @returns {View} This.
+     *
+     * @returns This view.
      */
     bringToFront(): this {
         if (!this.parent) { return this; }
@@ -351,31 +354,30 @@ export class View {
     // -------------------------------------------------------------------------
 
     /**
-     * Adds a child view to this view if it is not already a child of this view. 
-     * If it is, this method does nothing. If the view already has a parent that
-     * is not this view, it is removed from that parent first.
-     * @param {View} view - The child view to add.
-     * @returns {View} This.
-     * @throws {Error} If adding self or an ancestor view.
+     * Adds a child view to this view if it is not already a child of this view.
+     * If it is, this method does nothing. If the view already has a parent
+     * that is not this view, it is removed from that parent first.
+     *
+     * @param view - The child view to add.
+     * @returns This view.
+     * @throws If adding self or an ancestor view.
      */
     addView(view: View): this {
         return this.addViewAt(view, Infinity);
     }
 
     /**
-     * Adds a child view to this view at the specified index if it is not 
-     * already a child of this view. If it is, this method does nothing. If the 
-     * view already has a parent that is not this view, it is removed from that 
-     * parent first.
-     * @param {View} view - The child view to add.
-     * @param {number} index - The index at which to add the child view. Index
-     *     handling follows `Array.prototype.splice` semantics (for example,
-     *     negative indices are offset from the end and large positive values
-     *     append).
-     * @returns {View} This.
-     * @throws {Error} If view is null/undefined, if view is this view, if view is
-     *     an ancestor of this view, or if the view cannot be removed from its
-     *     previous parent.
+     * Adds a child view at the specified index if it is not already a child.
+     * If it is, this method does nothing. A view with another parent is
+     * removed from that parent first.
+     *
+     * @param view - The child view to add.
+     * @param index - The insertion index, following `Array.prototype.splice`
+     *     semantics. Negative indices are offset from the end; large positive
+     *     values append.
+     * @returns This view.
+     * @throws If view is null, undefined, this view, or an ancestor, or if it
+     *     cannot be removed from its previous parent.
      */
     addViewAt(view: View, index: number): this {
         if (!view) {
@@ -406,10 +408,11 @@ export class View {
     }
 
     /**
-     * Removes a child view from this view if it is a child. If the view is not 
-     * a child, this method does nothing.
-     * @param {View} view - The child view to remove.
-     * @returns {View} This.
+     * Removes a child view if it is a child of this view. Otherwise, this
+     * method does nothing.
+     *
+     * @param view - The child view to remove.
+     * @returns This view.
      */
     removeView(view: View): this {
         if (!view || view === this || view.parent !== this) {
@@ -430,11 +433,11 @@ export class View {
 
     /**
      * Removes the child view at the specified index.
-     * @param {number} index - The index of the child view to remove. Index
-     *     handling follows `Array.prototype.splice` semantics (for example,
-     *     negative indices are offset from the end). If no child exists at the
-     *     resolved index, this is a no-op.
-     * @returns {View} This.
+     *
+     * @param index - The removal index, following `Array.prototype.splice`
+     *     semantics. Negative indices are offset from the end. If no child
+     *     exists at the resolved index, this is a no-op.
+     * @returns This view.
      */
     removeViewAt(index: number): this {
         const view = this.#views.splice(index, 1)[0];
@@ -448,7 +451,8 @@ export class View {
 
     /**
      * Removes all child views from this view.
-     * @returns {View} This.
+     *
+     * @returns This view.
      */
     removeAllViews(): this {
         for (let i = 0; i < this.#views.length; i++) {
@@ -461,7 +465,8 @@ export class View {
 
     /**
      * Gets a shallow copy of this view's children.
-     * @returns {View[]} A copy of the child view array.
+     *
+     * @returns A copy of the child view array.
      */
     getViews(): View[] {
         return this.#views.slice();
@@ -469,19 +474,20 @@ export class View {
 
     /**
      * Gets the child view at the specified index.
-     * @param {number} index - The index of the child view to get.
-     * @returns {View|null} The child view at the specified index, or null if it 
-     *     does not exist.
+     *
+     * @param index - The index of the child view to get.
+     * @returns The child view at the specified index, or null if it does not
+     *     exist.
      */
     getViewAt(index: number): View | null {
         return this.#views[index] ?? null;
     }
 
     /**
-     * Gets the number of child views. This is the preferred method for getting 
-     * the number of child views as it does not create a copy of the views 
-     * array.
-     * @returns {number} The number of child views.
+     * Gets the number of child views without creating a copy of the views
+     * array. This is the preferred way to get the child count.
+     *
+     * @returns The number of child views.
      */
     getViewCount(): number {
         return this.#views.length;
@@ -489,9 +495,9 @@ export class View {
 
     /**
      * Gets the index of the specified child view.
-     * @param {View} view - The child view to get the index of.
-     * @returns {number} The index of the child view, or -1 if it is not a child
-     *     of this view.
+     *
+     * @param view - The child view to get the index of.
+     * @returns The child view's index, or -1 if it is not a child of this view.
      */
     getViewIndex(view: View): number {
         return this.#views.indexOf(view);
@@ -499,12 +505,13 @@ export class View {
 
     /**
      * Sets the index of the specified child view.
-     * @param {View} view - The child view to set the index of.
-     * @param {number} index - The new index of the child view. Index handling 
-     *     follows `Array.prototype.splice` semantics (for example, negative 
-     *     indices are offset from the end and large positive values append).
-     * @returns {View} This.
-     * @throws {Error} If the view is not a child of this view.
+     *
+     * @param view - The child view to reorder.
+     * @param index - The new index, following `Array.prototype.splice`
+     *     semantics. Negative indices are offset from the end; large positive
+     *     values append.
+     * @returns This view.
+     * @throws If the view is not a child of this view.
      */
     setViewIndex(view: View, index: number): this {
         if (!view) {
@@ -529,9 +536,9 @@ export class View {
 
     /**
      * Checks if the specified view is a child of this view.
-     * @param {View} view - The view to check.
-     * @returns {boolean} True if the view is a child of this view, false 
-     *     otherwise.
+     *
+     * @param view - The view to check.
+     * @returns True if the view is a child of this view, false otherwise.
      */
     hasView(view: View): boolean {
         return this.#views.indexOf(view) !== -1;
@@ -543,9 +550,10 @@ export class View {
 
     /**
      * Checks if this view is a descendant of the given view.
-     * @param {View} view - The view to check.
-     * @returns {boolean} True if this view is a descendant of the given view, 
-     *     false otherwise.
+     *
+     * @param view - The view to check.
+     * @returns True if this view is a descendant of the given view, false
+     *     otherwise.
      */
     isDescendantOf(view: View): boolean {
         if (!view || view === this) { return false; }
@@ -560,9 +568,10 @@ export class View {
 
     /**
      * Checks if this view is an ancestor of the given view.
-     * @param {View} view - The view to check.
-     * @returns {boolean} True if this view is an ancestor of the given view, 
-     *     false otherwise.
+     *
+     * @param view - The view to check.
+     * @returns True if this view is an ancestor of the given view, false
+     *     otherwise.
      */
     isAncestorOf(view: View): boolean {
         if (!view || view === this) { return false; }
@@ -574,11 +583,11 @@ export class View {
     // -------------------------------------------------------------------------
 
     /**
-     * Performs hit testing to determine which view, if any, contains the 
-     * specified point.
-     * 
-     * @param {Vec2} point - The point to test for picking.
-     * @returns {View | null} The picked view or null if none.
+     * Performs hit testing to find which view, if any, contains the specified
+     * point.
+     *
+     * @param point - The point to test for picking.
+     * @returns The picked view, or null if none.
      */
     pickView(point: Vec2): View | null {
         if (this.#isVisible === false || this.#isPickable === false) {
@@ -695,10 +704,10 @@ export class View {
     // -------------------------------------------------------------------------
 
     /**
-     * Checks if a point in local space is contained within this view. 
-     * @param {Vec2} point - The point in local space.
-     * @returns {boolean} True if the point is inside this view, false 
-     *     otherwise.
+     * Checks if a point in local space is contained within this view.
+     *
+     * @param point - The point in local space.
+     * @returns True if the point is inside this view, false otherwise.
      */
     containsPoint(point: Vec2): boolean {
         void point;
@@ -766,7 +775,8 @@ export class View {
 
     /**
      * Draws this view and its descendants when visible.
-     * @param {CanvasRenderingContext2D} context - The canvas drawing context.
+     *
+     * @param context - The canvas drawing context.
      */
     draw(context: CanvasRenderingContext2D): void {
         if (this.#isVisible === false) { return; }
@@ -784,9 +794,10 @@ export class View {
     }
 
     /**
-     * Draws this view's own content in parent space.
-     * Subclasses should override this method.
-     * @param {CanvasRenderingContext2D} context - The canvas drawing context.
+     * Draws this view's own content in parent space. Subclasses should
+     * override this method.
+     *
+     * @param context - The canvas drawing context.
      */
     onDraw(context: CanvasRenderingContext2D): void {
         // Base view does not draw anything. Subclasses should override this 
@@ -796,7 +807,8 @@ export class View {
 
     /**
      * Draws all child views in insertion order.
-     * @param {CanvasRenderingContext2D} context - The canvas drawing context.
+     *
+     * @param context - The canvas drawing context.
      */
     drawChildren(context: CanvasRenderingContext2D): void {
         for (let i = 0; i < this.#views.length; i++) {
@@ -859,4 +871,5 @@ export class View {
         this.#parent = parent;
         this.#parentWorldMatrixVersion = -1;
     }
+
 }
