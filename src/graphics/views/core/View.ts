@@ -1,4 +1,5 @@
 import { EventEmitter } from "../../../events/EventEmitter.js";
+import type { CanvasMouseEvent } from "../../../events/mouse/CanvasMouseEvent.js";
 import { Bounds } from "../../../math/Bounds.js";
 import { Matrix2 } from "../../../math/Matrix2.js";
 import { Vec2 } from "../../../math/Vec2.js";
@@ -9,44 +10,44 @@ import { Transform } from "../../utils/Transform.js";
  */
 export class View {
     // Authored states
-    #isVisible = true;
-    #isPickable = true;
-    #transform = new Transform(this.onTransformInvalidated.bind(this));
+    #isVisible: boolean = true;
+    #isPickable: boolean = true;
+    #transform: Transform = new Transform(this.onTransformInvalidated.bind(this));
 
     // Scene graph hierarchy
-    #parent = null;
-    #views = [];
+    #parent: View | null = null;
+    #views: View[] = [];
 
     // Derived states
-    #bounds = new Bounds();
-    #isBoundsDirty = true;
+    #bounds: Bounds = new Bounds();
+    #isBoundsDirty: boolean = true;
 
-    #worldMatrix = new Matrix2();
-    #isWorldMatrixDirty = true;
-    #worldMatrixVersion = 0;
-    #parentWorldMatrixVersion = -1;
+    #worldMatrix: Matrix2 = new Matrix2();
+    #isWorldMatrixDirty: boolean = true;
+    #worldMatrixVersion: number = 0;
+    #parentWorldMatrixVersion: number = -1;
 
-    #inverseWorldMatrix = new Matrix2();
-    #isInverseWorldMatrixDirty = true;
+    #inverseWorldMatrix: Matrix2 = new Matrix2();
+    #isInverseWorldMatrixDirty: boolean = true;
 
     // Services
-    #eventEmitter = null;
+    #eventEmitter: EventEmitter | null = null;
 
     // -------------------------------------------------------------------------
     // MARK: - Position Accessors
     // -------------------------------------------------------------------------
 
-    get x() {
+    get x(): number {
         return this.#transform.x;
     }
-    set x(value) {
+    set x(value: number) {
         this.setX(value);
     }
 
-    get y() {
+    get y(): number {
         return this.#transform.y;
     }
-    set y(value) {
+    set y(value: number) {
         this.setY(value);
     }
 
@@ -54,17 +55,17 @@ export class View {
     // MARK: - Pivot Accessors
     // -------------------------------------------------------------------------
 
-    get pivotX() {
+    get pivotX(): number {
         return this.#transform.pivotX;
     }
-    set pivotX(value) {
+    set pivotX(value: number) {
         this.setPivotX(value);
     }
 
-    get pivotY() {
+    get pivotY(): number {
         return this.#transform.pivotY;
     }
-    set pivotY(value) {
+    set pivotY(value: number) {
         this.setPivotY(value);
     }
 
@@ -72,10 +73,10 @@ export class View {
     // MARK: - Rotation Accessors
     // -------------------------------------------------------------------------
 
-    get rotation() {
+    get rotation(): number {
         return this.#transform.rotation;
     }
-    set rotation(value) {
+    set rotation(value: number) {
         this.setRotation(value);
     }
 
@@ -83,17 +84,17 @@ export class View {
     // MARK: - Scale Accessors
     // -------------------------------------------------------------------------
 
-    get scaleX() {
+    get scaleX(): number {
         return this.#transform.scaleX;
     }
-    set scaleX(value) {
+    set scaleX(value: number) {
         this.setScaleX(value);
     }
 
-    get scaleY() {
+    get scaleY(): number {
         return this.#transform.scaleY;
     }
-    set scaleY(value) {
+    set scaleY(value: number) {
         this.setScaleY(value);
     }
 
@@ -101,7 +102,7 @@ export class View {
     // MARK: - Transform Accessors
     // -------------------------------------------------------------------------
 
-    get transform() {
+    get transform(): Transform {
         return this.#transform;
     }
 
@@ -109,7 +110,7 @@ export class View {
     // MARK: - Bounds Accessors
     // -------------------------------------------------------------------------
 
-    get bounds() {
+    get bounds(): Bounds {
         if (this.#isBoundsDirty) {
             this.updateBounds(this.#bounds);
             this.#isBoundsDirty = false;
@@ -121,25 +122,25 @@ export class View {
     // MARK: - Other Accessors
     // -------------------------------------------------------------------------
 
-    get isVisible() {
+    get isVisible(): boolean {
         return this.#isVisible;
     }
-    set isVisible(value) {
+    set isVisible(value: boolean) {
         this.setVisible(value);
     }
 
-    get isPickable() {
+    get isPickable(): boolean {
         return this.#isPickable;
     }
-    set isPickable(value) {
+    set isPickable(value: boolean) {
         this.setPickable(value);
     }
 
-    get parent() {
+    get parent(): View | null {
         return this.#parent;
     }
 
-    get events() {
+    get events(): EventEmitter {
         if (!this.#eventEmitter) {
             this.#eventEmitter = new EventEmitter();
         }
@@ -150,7 +151,7 @@ export class View {
     // MARK: - Visibility and Pickability
     // -------------------------------------------------------------------------
 
-    setVisible(isVisible) {
+    setVisible(isVisible: boolean): this {
         if (typeof isVisible !== "boolean") { return this; }
         if (this.#isVisible === isVisible) { return this; }
         this.#isVisible = isVisible;
@@ -158,7 +159,7 @@ export class View {
         return this;
     }
 
-    setPickable(isPickable) {
+    setPickable(isPickable: boolean): this {
         if (typeof isPickable !== "boolean") { return this; }
         this.#isPickable = isPickable;
         return this;
@@ -168,36 +169,36 @@ export class View {
     // MARK: - Position
     // -------------------------------------------------------------------------
 
-    getPosition(out = new Vec2()) {
+    getPosition(out: Vec2 = new Vec2()): Vec2 {
         return this.#transform.getPosition(out);
     }
 
-    setX(x) {
+    setX(x: number): this {
         this.#transform.setX(x);
         return this;
     }
 
-    setY(y) {
+    setY(y: number): this {
         this.#transform.setY(y);
         return this;
     }
 
-    setPositionXY(x, y) {
+    setPositionXY(x: number, y: number): this {
         this.#transform.setPositionXY(x, y);
         return this;
     }
 
-    setPosition(position) {
+    setPosition(position: Vec2): this {
         this.#transform.setPosition(position);
         return this;
     }
 
-    translateXY(dx, dy) {
+    translateXY(dx: number, dy: number): this {
         this.#transform.translateXY(dx, dy);
         return this;
     }
 
-    translate(delta) {
+    translate(delta: Vec2): this {
         this.#transform.translate(delta);
         return this;
     }
@@ -206,36 +207,36 @@ export class View {
     // MARK: - Pivot
     // -------------------------------------------------------------------------
 
-    getPivot(out = new Vec2()) {
+    getPivot(out: Vec2 = new Vec2()): Vec2 {
         return this.#transform.getPivot(out);
     }
 
-    setPivotX(pivotX) {
+    setPivotX(pivotX: number): this {
         this.#transform.setPivotX(pivotX);
         return this;
     }
 
-    setPivotY(pivotY) {
+    setPivotY(pivotY: number): this {
         this.#transform.setPivotY(pivotY);
         return this;
     }
 
-    setPivotXY(pivotX, pivotY) {
+    setPivotXY(pivotX: number, pivotY: number): this {
         this.#transform.setPivotXY(pivotX, pivotY);
         return this;
     }
 
-    setPivot(pivot) {
+    setPivot(pivot: Vec2): this {
         this.#transform.setPivot(pivot);
         return this;
     }
 
-    translatePivotXY(dx, dy) {
+    translatePivotXY(dx: number, dy: number): this {
         this.#transform.translatePivotXY(dx, dy);
         return this;
     }
 
-    translatePivot(delta) {
+    translatePivot(delta: Vec2): this {
         this.#transform.translatePivot(delta);
         return this;
     }
@@ -244,36 +245,36 @@ export class View {
     // MARK: - Scale
     // -------------------------------------------------------------------------
 
-    getScale(out = new Vec2()) {
+    getScale(out: Vec2 = new Vec2()): Vec2 {
         return this.#transform.getScale(out);
     }
 
-    setScaleX(scaleX) {
+    setScaleX(scaleX: number): this {
         this.#transform.setScaleX(scaleX);
         return this;
     }
 
-    setScaleY(scaleY) {
+    setScaleY(scaleY: number): this {
         this.#transform.setScaleY(scaleY);
         return this;
     }
 
-    setScale(scaleOrVector) {
+    setScale(scaleOrVector: number | Vec2): this {
         this.#transform.setScale(scaleOrVector);
         return this;
     }
 
-    setScaleXY(scaleX, scaleY) {
+    setScaleXY(scaleX: number, scaleY: number): this {
         this.#transform.setScaleXY(scaleX, scaleY);
         return this;
     }
 
-    scaleXY(factorX, factorY) {
+    scaleXY(factorX: number, factorY: number): this {
         this.#transform.scaleXY(factorX, factorY);
         return this;
     }
 
-    scale(factorOrVector) {
+    scale(factorOrVector: number | Vec2): this {
         this.#transform.scale(factorOrVector);
         return this;
     }
@@ -282,12 +283,12 @@ export class View {
     // MARK: - Rotation
     // -------------------------------------------------------------------------
 
-    setRotation(radians) {
+    setRotation(radians: number): this {
         this.#transform.setRotation(radians);
         return this;
     }
 
-    rotate(deltaRadians) {
+    rotate(deltaRadians: number): this {
         this.#transform.rotate(deltaRadians);
         return this;
     }
@@ -297,14 +298,14 @@ export class View {
     // -------------------------------------------------------------------------
 
     /**
-     * Convenience method that calls the parent view's addView method.
-     * If the provided parent is already the current parent, this method does
-     * nothing.
-     * @param {View} parent - The parent view to add this view to.
-     * @returns {View} This.
-     * @throws {Error} If the parent is null or undefined.
+     * Convenience method that calls the parent view's addView method. If the
+     * provided parent is already the current parent, this method does nothing.
+     *
+     * @param parent - The parent view to add this view to.
+     * @returns This view.
+     * @throws If the parent is null or undefined.
      */
-    addToParent(parent) {
+    addToParent(parent: View): this {
         if (!parent) {
             throw new Error("Parent view cannot be null or undefined.");
         }
@@ -314,12 +315,13 @@ export class View {
     }
 
     /**
-     * Convenience method that calls the parent view's removeView method to 
+     * Convenience method that calls the parent view's removeView method to
      * remove this view from its parent. If this view has no parent, this method
      * does nothing.
-     * @returns {View} This.
+     *
+     * @returns This view.
      */
-    removeFromParent() {
+    removeFromParent(): this {
         if (!this.parent) { return this; }
         this.parent.removeView(this);
         return this;
@@ -327,9 +329,10 @@ export class View {
 
     /**
      * Sends this view to the back of its parent's child list.
-     * @returns {View} This.
+     *
+     * @returns This view.
      */
-    sendToBack() {
+    sendToBack(): this {
         if (!this.parent) { return this; }
         this.parent.setViewIndex(this, 0);
         return this;
@@ -337,9 +340,10 @@ export class View {
 
     /**
      * Brings this view to the front of its parent's child list.
-     * @returns {View} This.
+     *
+     * @returns This view.
      */
-    bringToFront() {
+    bringToFront(): this {
         if (!this.parent) { return this; }
         this.parent.setViewIndex(this, this.parent.getViewCount() - 1);
         return this;
@@ -350,33 +354,32 @@ export class View {
     // -------------------------------------------------------------------------
 
     /**
-     * Adds a child view to this view if it is not already a child of this view. 
-     * If it is, this method does nothing. If the view already has a parent that
-     * is not this view, it is removed from that parent first.
-     * @param {View} view - The child view to add.
-     * @returns {View} This.
-     * @throws {Error} If adding self or an ancestor view.
+     * Adds a child view to this view if it is not already a child of this view.
+     * If it is, this method does nothing. If the view already has a parent
+     * that is not this view, it is removed from that parent first.
+     *
+     * @param view - The child view to add.
+     * @returns This view.
+     * @throws If adding self or an ancestor view.
      */
-    addView(view) {
+    addView(view: View): this {
         return this.addViewAt(view, Infinity);
     }
 
     /**
-     * Adds a child view to this view at the specified index if it is not 
-     * already a child of this view. If it is, this method does nothing. If the 
-     * view already has a parent that is not this view, it is removed from that 
-     * parent first.
-     * @param {View} view - The child view to add.
-     * @param {number} index - The index at which to add the child view. Index
-     *     handling follows `Array.prototype.splice` semantics (for example,
-     *     negative indices are offset from the end and large positive values
-     *     append).
-     * @returns {View} This.
-     * @throws {Error} If view is null/undefined, if view is this view, if view is
-     *     an ancestor of this view, or if the view cannot be removed from its
-     *     previous parent.
+     * Adds a child view at the specified index if it is not already a child.
+     * If it is, this method does nothing. A view with another parent is
+     * removed from that parent first.
+     *
+     * @param view - The child view to add.
+     * @param index - The insertion index, following `Array.prototype.splice`
+     *     semantics. Negative indices are offset from the end; large positive
+     *     values append.
+     * @returns This view.
+     * @throws If view is null, undefined, this view, or an ancestor, or if it
+     *     cannot be removed from its previous parent.
      */
-    addViewAt(view, index) {
+    addViewAt(view: View, index: number): this {
         if (!view) {
             throw new Error("Cannot add null or undefined view");
         }
@@ -405,12 +408,13 @@ export class View {
     }
 
     /**
-     * Removes a child view from this view if it is a child. If the view is not 
-     * a child, this method does nothing.
-     * @param {View} view - The child view to remove.
-     * @returns {View} This.
+     * Removes a child view if it is a child of this view. Otherwise, this
+     * method does nothing.
+     *
+     * @param view - The child view to remove.
+     * @returns This view.
      */
-    removeView(view) {
+    removeView(view: View): this {
         if (!view || view === this || view.parent !== this) {
             return this;
         }
@@ -429,13 +433,13 @@ export class View {
 
     /**
      * Removes the child view at the specified index.
-     * @param {number} index - The index of the child view to remove. Index
-     *     handling follows `Array.prototype.splice` semantics (for example,
-     *     negative indices are offset from the end). If no child exists at the
-     *     resolved index, this is a no-op.
-     * @returns {View} This.
+     *
+     * @param index - The removal index, following `Array.prototype.splice`
+     *     semantics. Negative indices are offset from the end. If no child
+     *     exists at the resolved index, this is a no-op.
+     * @returns This view.
      */
-    removeViewAt(index) {
+    removeViewAt(index: number): this {
         const view = this.#views.splice(index, 1)[0];
         if (!view) { return this; }
 
@@ -447,9 +451,10 @@ export class View {
 
     /**
      * Removes all child views from this view.
-     * @returns {View} This.
+     *
+     * @returns This view.
      */
-    removeAllViews() {
+    removeAllViews(): this {
         for (let i = 0; i < this.#views.length; i++) {
             this.#views[i].#setParent(null);
         }
@@ -460,52 +465,55 @@ export class View {
 
     /**
      * Gets a shallow copy of this view's children.
-     * @returns {View[]} A copy of the child view array.
+     *
+     * @returns A copy of the child view array.
      */
-    getViews() {
+    getViews(): View[] {
         return this.#views.slice();
     }
 
     /**
      * Gets the child view at the specified index.
-     * @param {number} index - The index of the child view to get.
-     * @returns {View|null} The child view at the specified index, or null if it 
-     *     does not exist.
+     *
+     * @param index - The index of the child view to get.
+     * @returns The child view at the specified index, or null if it does not
+     *     exist.
      */
-    getViewAt(index) {
+    getViewAt(index: number): View | null {
         return this.#views[index] ?? null;
     }
 
     /**
-     * Gets the number of child views. This is the preferred method for getting 
-     * the number of child views as it does not create a copy of the views 
-     * array.
-     * @returns {number} The number of child views.
+     * Gets the number of child views without creating a copy of the views
+     * array. This is the preferred way to get the child count.
+     *
+     * @returns The number of child views.
      */
-    getViewCount() {
+    getViewCount(): number {
         return this.#views.length;
     }
 
     /**
      * Gets the index of the specified child view.
-     * @param {View} view - The child view to get the index of.
-     * @returns {number} The index of the child view, or -1 if it is not a child
-     *     of this view.
+     *
+     * @param view - The child view to get the index of.
+     * @returns The child view's index, or -1 if it is not a child of this view.
      */
-    getViewIndex(view) {
+    getViewIndex(view: View): number {
         return this.#views.indexOf(view);
     }
 
     /**
      * Sets the index of the specified child view.
-     * @param {View} view - The child view to set the index of.
-     * @param {number} index - The new index of the child view. Index handling 
-     *     follows `Array.prototype.splice` semantics (for example, negative 
-     *     indices are offset from the end and large positive values append).
-     * @returns {View} This.
-     * @throws {Error} If the view is not a child of this view.
+     *
+     * @param view - The child view to reorder.
+     * @param index - The new index, following `Array.prototype.splice`
+     *     semantics. Negative indices are offset from the end; large positive
+     *     values append.
+     * @returns This view.
+     * @throws If the view is not a child of this view.
      */
-    setViewIndex(view, index) {
+    setViewIndex(view: View, index: number): this {
         if (!view) {
             throw new Error("Cannot set index of null or undefined view");
         }
@@ -528,11 +536,11 @@ export class View {
 
     /**
      * Checks if the specified view is a child of this view.
-     * @param {View} view - The view to check.
-     * @returns {boolean} True if the view is a child of this view, false 
-     *     otherwise.
+     *
+     * @param view - The view to check.
+     * @returns True if the view is a child of this view, false otherwise.
      */
-    hasView(view) {
+    hasView(view: View): boolean {
         return this.#views.indexOf(view) !== -1;
     }
 
@@ -542,11 +550,12 @@ export class View {
 
     /**
      * Checks if this view is a descendant of the given view.
-     * @param {View} view - The view to check.
-     * @returns {boolean} True if this view is a descendant of the given view, 
-     *     false otherwise.
+     *
+     * @param view - The view to check.
+     * @returns True if this view is a descendant of the given view, false
+     *     otherwise.
      */
-    isDescendantOf(view) {
+    isDescendantOf(view: View): boolean {
         if (!view || view === this) { return false; }
 
         let current = this.parent;
@@ -559,11 +568,12 @@ export class View {
 
     /**
      * Checks if this view is an ancestor of the given view.
-     * @param {View} view - The view to check.
-     * @returns {boolean} True if this view is an ancestor of the given view, 
-     *     false otherwise.
+     *
+     * @param view - The view to check.
+     * @returns True if this view is an ancestor of the given view, false
+     *     otherwise.
      */
-    isAncestorOf(view) {
+    isAncestorOf(view: View): boolean {
         if (!view || view === this) { return false; }
         return view.isDescendantOf(this);
     }
@@ -573,13 +583,13 @@ export class View {
     // -------------------------------------------------------------------------
 
     /**
-     * Performs hit testing to determine which view, if any, contains the 
-     * specified point.
-     * 
-     * @param {Vec2} point - The point to test for picking.
-     * @returns {View | null} The picked view or null if none.
+     * Performs hit testing to find which view, if any, contains the specified
+     * point.
+     *
+     * @param point - The point to test for picking.
+     * @returns The picked view, or null if none.
      */
-    pickView(point) {
+    pickView(point: Vec2): View | null {
         if (this.#isVisible === false || this.#isPickable === false) {
             return null;
         }
@@ -610,7 +620,12 @@ export class View {
     // MARK: - Conversions
     // -------------------------------------------------------------------------
 
-    toLocalPointXY(x, y, fromView, out = new Vec2()) {
+    toLocalPointXY(
+        x: number,
+        y: number,
+        fromView: View | null,
+        out: Vec2 = new Vec2()
+    ): Vec2 {
         if (fromView) {
             if (fromView === this) {
                 return out.set(x, y);
@@ -634,11 +649,20 @@ export class View {
         return out;
     }
 
-    toLocalPoint(point, fromView, out = new Vec2()) {
+    toLocalPoint(
+        point: Vec2,
+        fromView: View | null,
+        out: Vec2 = new Vec2()
+    ): Vec2 {
         return this.toLocalPointXY(point.x, point.y, fromView, out);
     }
 
-    toLocalVectorXY(x, y, fromView, out = new Vec2()) {
+    toLocalVectorXY(
+        x: number,
+        y: number,
+        fromView: View | null,
+        out: Vec2 = new Vec2()
+    ): Vec2 {
         if (fromView) {
             if (fromView === this) {
                 return out.set(x, y);
@@ -662,12 +686,16 @@ export class View {
         return out;
     }
 
-    toLocalVector(vector, fromView, out = new Vec2()) {
+    toLocalVector(
+        vector: Vec2,
+        fromView: View | null,
+        out: Vec2 = new Vec2()
+    ): Vec2 {
         return this.toLocalVectorXY(vector.x, vector.y, fromView, out);
     }
 
 
-    localToParentBounds(bounds, out = new Bounds()) {
+    localToParentBounds(bounds: Bounds, out: Bounds = new Bounds()): Bounds {
         return this.#transform.transformBounds(bounds, out);
     }
 
@@ -676,21 +704,21 @@ export class View {
     // -------------------------------------------------------------------------
 
     /**
-     * Checks if a point in local space is contained within this view. 
-     * @param {Vec2} point - The point in local space.
-     * @returns {boolean} True if the point is inside this view, false 
-     *     otherwise.
+     * Checks if a point in local space is contained within this view.
+     *
+     * @param point - The point in local space.
+     * @returns True if the point is inside this view, false otherwise.
      */
-    containsPoint(point) {
+    containsPoint(point: Vec2): boolean {
         void point;
         return true;
     }
 
-    updateBounds(out) {
+    updateBounds(out: Bounds): void {
         out.reset();
     }
 
-    invalidateBounds() {
+    invalidateBounds(): this {
         if (this.#isBoundsDirty) { return this; }
         this.#isBoundsDirty = true;
         this.parent?.onChildBoundsInvalidated();
@@ -701,7 +729,7 @@ export class View {
     // MARK: - World Matrix
     // -------------------------------------------------------------------------
 
-    getWorldMatrix(out = new Matrix2()) {
+    getWorldMatrix(out: Matrix2 = new Matrix2()): Matrix2 {
         if (!this.parent) {
             if (!this.#isWorldMatrixDirty) {
                 this.#transform.getMatrix(this.#worldMatrix);
@@ -731,7 +759,7 @@ export class View {
         return out.copy(this.#worldMatrix);
     }
 
-    getInverseWorldMatrix(out = new Matrix2()) {
+    getInverseWorldMatrix(out: Matrix2 = new Matrix2()): Matrix2 {
         if (this.#isInverseWorldMatrixDirty) {
             this.getWorldMatrix();
             this.#inverseWorldMatrix.copy(this.#worldMatrix).invert();
@@ -747,14 +775,15 @@ export class View {
 
     /**
      * Draws this view and its descendants when visible.
-     * @param {CanvasRenderingContext2D} context - The canvas drawing context.
+     *
+     * @param context - The canvas drawing context.
      */
-    draw(context) {
+    draw(context: CanvasRenderingContext2D): void {
         if (this.#isVisible === false) { return; }
 
         context.save();
         try {
-            let matrix = this.#transform.unsafeGetMatrix();
+            let matrix: Matrix2 | null = this.#transform.unsafeGetMatrix();
             context.transform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
             matrix = null; // Clear reference to matrix to avoid accidental usage.
             this.onDraw(context);
@@ -765,11 +794,12 @@ export class View {
     }
 
     /**
-     * Draws this view's own content in parent space.
-     * Subclasses should override this method.
-     * @param {CanvasRenderingContext2D} context - The canvas drawing context.
+     * Draws this view's own content in parent space. Subclasses should
+     * override this method.
+     *
+     * @param context - The canvas drawing context.
      */
-    onDraw(context) {
+    onDraw(context: CanvasRenderingContext2D): void {
         // Base view does not draw anything. Subclasses should override this 
         // method.
         void context;
@@ -777,9 +807,10 @@ export class View {
 
     /**
      * Draws all child views in insertion order.
-     * @param {CanvasRenderingContext2D} context - The canvas drawing context.
+     *
+     * @param context - The canvas drawing context.
      */
-    drawChildren(context) {
+    drawChildren(context: CanvasRenderingContext2D): void {
         for (let i = 0; i < this.#views.length; i++) {
             this.#views[i].draw(context);
         }
@@ -789,12 +820,12 @@ export class View {
     // MARK: - Event Handlers
     // -------------------------------------------------------------------------
 
-    onChildBoundsInvalidated() {
+    onChildBoundsInvalidated(): void {
         // Subclasses can override this method to respond to child bounds 
         // changes.
     }
 
-    onTransformInvalidated() {
+    onTransformInvalidated(): void {
         this.#isWorldMatrixDirty = true;
         this.#isInverseWorldMatrixDirty = true;
         this.parent?.onChildBoundsInvalidated();
@@ -804,19 +835,41 @@ export class View {
     // MARK: - Mouse Events
     // -------------------------------------------------------------------------
 
-    onMouseDown(event) { this.events.emit(event.type, event); }
-    onMouseUp(event) { this.events.emit(event.type, event); }
-    onMouseMove(event) { this.events.emit(event.type, event); }
-    onMouseDrag(event) { this.events.emit(event.type, event); }
-    onMouseEnter(event) { this.events.emit(event.type, event); }
-    onMouseExit(event) { this.events.emit(event.type, event); }
-    onMouseWheel(event) { this.events.emit(event.type, event); }
+    onMouseDown(event: CanvasMouseEvent): void {
+        this.events.emit(event.type, event);
+    }
+
+    onMouseUp(event: CanvasMouseEvent): void {
+        this.events.emit(event.type, event);
+    }
+
+    onMouseMove(event: CanvasMouseEvent): void {
+        this.events.emit(event.type, event);
+    }
+
+    onMouseDrag(event: CanvasMouseEvent): void {
+        this.events.emit(event.type, event);
+    }
+
+    onMouseEnter(event: CanvasMouseEvent): void {
+        this.events.emit(event.type, event);
+    }
+
+    onMouseExit(event: CanvasMouseEvent): void {
+        this.events.emit(event.type, event);
+    }
+
+    onMouseWheel(event: CanvasMouseEvent): void {
+        this.events.emit(event.type, event);
+    }
 
     // -------------------------------------------------------------------------
     // MARK: - Helpers
     // -------------------------------------------------------------------------
-    #setParent(parent) {
+
+    #setParent(parent: View | null): void {
         this.#parent = parent;
         this.#parentWorldMatrixVersion = -1;
     }
+
 }
