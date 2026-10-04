@@ -9,28 +9,28 @@ import { Transform } from "../../utils/Transform.js";
  */
 export class View {
     // Authored states
-    #isVisible = true;
-    #isPickable = true;
-    #transform = new Transform(this.onTransformInvalidated.bind(this));
+    #isVisible: boolean = true;
+    #isPickable: boolean = true;
+    #transform: Transform = new Transform(this.onTransformInvalidated.bind(this));
 
     // Scene graph hierarchy
-    #parent = null;
-    #views = [];
+    #parent: View | null = null;
+    #views: View[] = [];
 
     // Derived states
-    #bounds = new Bounds();
-    #isBoundsDirty = true;
+    #bounds: Bounds = new Bounds();
+    #isBoundsDirty: boolean = true;
 
-    #worldMatrix = new Matrix2();
-    #isWorldMatrixDirty = true;
-    #worldMatrixVersion = 0;
-    #parentWorldMatrixVersion = -1;
+    #worldMatrix: Matrix2 = new Matrix2();
+    #isWorldMatrixDirty: boolean = true;
+    #worldMatrixVersion: number = 0;
+    #parentWorldMatrixVersion: number = -1;
 
-    #inverseWorldMatrix = new Matrix2();
-    #isInverseWorldMatrixDirty = true;
+    #inverseWorldMatrix: Matrix2 = new Matrix2();
+    #isInverseWorldMatrixDirty: boolean = true;
 
     // Services
-    #eventEmitter = null;
+    #eventEmitter: EventEmitter | null = null;
 
     // -------------------------------------------------------------------------
     // MARK: - Position Accessors
