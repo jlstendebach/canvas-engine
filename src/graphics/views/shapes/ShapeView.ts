@@ -10,93 +10,93 @@ export class ShapeView extends View {
     #strokeDashOffset: number = 0;
 
     // MARK: - Accessors
-    set fillStyle(style) { 
+    set fillStyle(style: Color) {
         this.setFillStyle(style);
     }
-    get fillStyle() { 
-        return this.#fillStyle.color; 
+    get fillStyle(): Color | null {
+        return this.#fillStyle.color;
     }
 
-    set strokeStyle(style) { 
+    set strokeStyle(style: Color) {
         this.setStrokeStyle(style);
     }
-    get strokeStyle() { 
-        return this.#strokeStyle.color; 
+    get strokeStyle(): Color | null {
+        return this.#strokeStyle.color;
     }
 
-    set strokeWidth(width) { 
+    set strokeWidth(width: number) {
         this.setStrokeWidth(width);
     }
-    get strokeWidth() { 
-        return this.#strokeWidth; 
+    get strokeWidth(): number {
+        return this.#strokeWidth;
     }
 
-    set strokeDash(dash) { 
+    set strokeDash(dash: number[]) {
         this.setStrokeDash(dash);
     }
-    get strokeDash() { 
-        return this.#strokeDash; 
+    get strokeDash(): number[] {
+        return this.#strokeDash;
     }
 
-    set strokeDashOffset(offset) { 
+    set strokeDashOffset(offset: number) {
         this.setStrokeDashOffset(offset);
     }
-    get strokeDashOffset() { 
-        return this.#strokeDashOffset; 
+    get strokeDashOffset(): number {
+        return this.#strokeDashOffset;
     }
 
     // MARK: - Style
-    setFillStyle(style) {
+    setFillStyle(style: Color): this {
         this.#fillStyle.color = style;
         return this;
     }
 
-    setStrokeStyle(style) {
+    setStrokeStyle(style: Color): this {
         this.#strokeStyle.color = style;
         return this;
     }
 
-    setStrokeWidth(width) {
+    setStrokeWidth(width: number): this {
         this.#strokeWidth = width;
         return this;
     }
 
-    setStrokeDash(dash) {
+    setStrokeDash(dash: number[]): this {
         this.#strokeDash = dash;
         return this;
     }
 
-    setStrokeDashOffset(offset) {
+    setStrokeDashOffset(offset: number): this {
         this.#strokeDashOffset = offset;
         return this;
     }
 
     // MARK: - Drawing
-    path(context) { 
+    path(context: CanvasRenderingContext2D): void {
         // To be implemented by subclasses.
         void context;
     }
 
-    fill(context) {
+    fill(context: CanvasRenderingContext2D): void {
         if (!this.isFillEnabled()) {
             return;
         }
-        context.fillStyle = this.#fillStyle.colorString;
+        context.fillStyle = this.#fillStyle.colorString ?? "";
         context.fill();
     }
 
-    stroke(context) {
+    stroke(context: CanvasRenderingContext2D): void {
         if (!this.isStrokeEnabled()) {
             return;
         }
         context.lineWidth = this.#strokeWidth;
-        context.strokeStyle = this.#strokeStyle.colorString;
+        context.strokeStyle = this.#strokeStyle.colorString ?? "";
         context.setLineDash(this.#strokeDash);
         context.lineDashOffset = this.#strokeDashOffset;
         context.stroke();
     }
 
-    onDraw(context) {
+    override onDraw(context: CanvasRenderingContext2D): void {
         context.beginPath();
         this.path(context);
         this.fill(context);
@@ -104,11 +104,11 @@ export class ShapeView extends View {
     }
 
     // MARK: - Helpers
-    isStrokeEnabled() {
+    isStrokeEnabled(): boolean {
         return this.#strokeStyle.colorString != null && this.#strokeWidth > 0;
     }
 
-    isFillEnabled() {
+    isFillEnabled(): boolean {
         return this.#fillStyle.colorString != null;
     }
 }
