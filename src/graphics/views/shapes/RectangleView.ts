@@ -1,3 +1,5 @@
+import type { Bounds } from "../../../math/Bounds.js";
+import type { Vec2 } from "../../../math/Vec2.js";
 import { Size } from "../../utils/Size.js";
 import { ShapeView } from "./ShapeView.js";
 
@@ -6,33 +8,33 @@ export class RectangleView extends ShapeView {
     #height: number;
 
     // MARK: - Accessors 
-    get width() {
+    get width(): number {
         return this.#width;
-    }    
-    set width(value) {
+    }
+    set width(value: number) {
         this.setWidth(value);
     }
 
-    get height() {
+    get height(): number {
         return this.#height;
     }
-    set height(value) {
+    set height(value: number) {
         this.setHeight(value);
     }
 
     // MARK: - Initialization 
-    constructor(width = 10, height = 10) {
+    constructor(width: number = 10, height: number = 10) {
         super();
         this.#width = width;
         this.#height = height;
     }
 
     // MARK: - Size
-    getSize(out = new Size()) {
+    getSize(out: Size = new Size()): Size {
         return out.set(this.#width, this.#height);
     }
 
-    setSizeWH(width, height) {
+    setSizeWH(width: number, height: number): this {
         if (this.#width === width && this.#height === height) { return this; }
         this.#width = width;
         this.#height = height;
@@ -41,11 +43,11 @@ export class RectangleView extends ShapeView {
         return this;
     }
 
-    setSize(size) {
+    setSize(size: Size): this {
         return this.setSizeWH(size.width, size.height);
     }
 
-    setWidth(width) {
+    setWidth(width: number): this {
         if (this.#width === width) { return this; }
         this.#width = width;
         this.invalidateBounds();
@@ -53,7 +55,7 @@ export class RectangleView extends ShapeView {
         return this;
     }
 
-    setHeight(height) {
+    setHeight(height: number): this {
         if (this.#height === height) { return this; }
         this.#height = height;
         this.invalidateBounds();
@@ -62,20 +64,20 @@ export class RectangleView extends ShapeView {
     }
 
     // MARK: - Hit Testing
-    updateBounds(out) {
+    override updateBounds(out: Bounds): void {
         out.set(0, 0, this.#width, this.#height);
     }
 
-    containsPoint(point) {
+    override containsPoint(point: Vec2): boolean {
         return this.bounds.containsPoint(point);
     }
 
     // MARK: - Drawing
-    path(context) {
+    override path(context: CanvasRenderingContext2D): void {
         context.rect(0, 0, this.#width, this.#height);
     }
 
     // MARK: - Events
-    onSizeChanged() {}
+    onSizeChanged(): void { }
 
 }
