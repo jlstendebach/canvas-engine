@@ -2,8 +2,8 @@ import { Size } from "../../utils/Size.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class RectangleView extends ShapeView {
-    #width = 10;
-    #height = 10;
+    #width: number;
+    #height: number;
 
     // MARK: - Accessors 
     get width() {
