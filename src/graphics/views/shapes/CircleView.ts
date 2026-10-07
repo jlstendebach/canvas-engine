@@ -1,26 +1,28 @@
+import type { Bounds } from "../../../math/Bounds.js";
+import type { Vec2 } from "../../../math/Vec2.js";
 import { ShapeView } from "./ShapeView.js";
 
 const TAU = Math.PI * 2;
 
 export class CircleView extends ShapeView {
-    #radius;
+    #radius: number = 0;
 
     // MARK: - Accessors
-    get radius() {
+    get radius(): number {
         return this.#radius;
     }
-    set radius(value) {
+    set radius(value: number) {
         this.setRadius(value);
     }
 
     // MARK: - Initialization
-    constructor(radius = 10) {
+    constructor(radius: number = 10) {
         super();
         this.radius = radius;
     }
 
     // MARK: - Radius
-    setRadius(radius) {
+    setRadius(radius: number): this {
         if (radius === this.#radius) { return this; }
         this.#radius = radius;
         this.invalidateBounds();
@@ -28,11 +30,11 @@ export class CircleView extends ShapeView {
     }
 
     // MARK: - Hit Testing
-    updateBounds(out) {
+    override updateBounds(out: Bounds): void {
         out.set(-this.#radius, -this.#radius, this.#radius, this.#radius);
     }
 
-    containsPoint(point) {
+    override containsPoint(point: Vec2): boolean {
         if (!this.bounds.containsPoint(point)) {
             return false;
         }
@@ -40,7 +42,7 @@ export class CircleView extends ShapeView {
     }
 
     // MARK: - Drawing
-    path(context) {
+    override path(context: CanvasRenderingContext2D): void {
         context.arc(0, 0, this.#radius, 0, TAU);
     }
 
