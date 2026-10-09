@@ -1,57 +1,62 @@
+import type { Vec2 } from "../../../math/Vec2.js";
 import { RectangleView } from "./RectangleView.js";
 
 export class RoundRectangleView extends RectangleView {
-    #cornerRadii = [
+    #cornerRadii: number[] = [
         0, // top-left
         0, // top-right
         0, // bottom-right
         0  // bottom-left
-    ]; 
+    ];
 
     // MARK: - Accessors
-    get cornerRadius() {
+    get cornerRadius(): number {
         return this.#cornerRadii[0];
     }
-    set cornerRadius(value) {
+    set cornerRadius(value: number) {
         this.setCornerRadius(value);
     }
 
-    get topLeftRadius() {
+    get topLeftRadius(): number {
         return this.#cornerRadii[0];
     }
-    set topLeftRadius(value) {
+    set topLeftRadius(value: number) {
         this.setTopLeftRadius(value);
     }
 
-    get topRightRadius() {
+    get topRightRadius(): number {
         return this.#cornerRadii[1];
     }
-    set topRightRadius(value) {
+    set topRightRadius(value: number) {
         this.setTopRightRadius(value);
     }
 
-    get bottomRightRadius() {
+    get bottomRightRadius(): number {
         return this.#cornerRadii[2];
     }
-    set bottomRightRadius(value) {
+    set bottomRightRadius(value: number) {
         this.setBottomRightRadius(value);
     }
 
-    get bottomLeftRadius() {
+    get bottomLeftRadius(): number {
         return this.#cornerRadii[3];
     }
-    set bottomLeftRadius(value) {
+    set bottomLeftRadius(value: number) {
         this.setBottomLeftRadius(value);
     }
 
     // MARK: - Initialization
-    constructor(width = 10, height = 10, cornerRadius = 0) {
+    constructor(
+        width: number = 10,
+        height: number = 10,
+        cornerRadius: number = 0
+    ) {
         super(width, height);
         this.setCornerRadius(cornerRadius);
     }
 
     // MARK: - Corner Radius
-    getCornerRadii(out = []) {
+    getCornerRadii(out: number[] = []): number[] {
         out[0] = this.#cornerRadii[0];
         out[1] = this.#cornerRadii[1];
         out[2] = this.#cornerRadii[2];
@@ -59,7 +64,12 @@ export class RoundRectangleView extends RectangleView {
         return out;
     }
 
-    setCornerRadii(topLeft, topRight, bottomRight, bottomLeft) {
+    setCornerRadii(
+        topLeft: number,
+        topRight: number,
+        bottomRight: number,
+        bottomLeft: number
+    ): this {
         this.#cornerRadii[0] = topLeft;
         this.#cornerRadii[1] = topRight;
         this.#cornerRadii[2] = bottomRight;
@@ -67,33 +77,33 @@ export class RoundRectangleView extends RectangleView {
         return this;
     }
 
-    setCornerRadius(cornerRadius) {
+    setCornerRadius(cornerRadius: number): this {
         this.#cornerRadii.fill(cornerRadius);
         return this;
     }
 
-    setTopLeftRadius(value) {
+    setTopLeftRadius(value: number): this {
         this.#cornerRadii[0] = value;
         return this;
     }
 
-    setTopRightRadius(value) {
+    setTopRightRadius(value: number): this {
         this.#cornerRadii[1] = value;
         return this;
     }
 
-    setBottomRightRadius(value) {
+    setBottomRightRadius(value: number): this {
         this.#cornerRadii[2] = value;
         return this;
     }
 
-    setBottomLeftRadius(value) {
+    setBottomLeftRadius(value: number): this {
         this.#cornerRadii[3] = value;
         return this;
     }
 
     // MARK: - Hit Testing
-    containsPoint(point) {
+    override containsPoint(point: Vec2): boolean {
         if (!this.bounds.containsPoint(point)) { return false; }
 
         const [tl, tr, br, bl] = this.#cornerRadii;
@@ -130,7 +140,7 @@ export class RoundRectangleView extends RectangleView {
     }
 
     // MARK: - Drawing
-    path(context) {
+    override path(context: CanvasRenderingContext2D): void {
         context.roundRect(0, 0, this.width, this.height, this.#cornerRadii);
     }
 
