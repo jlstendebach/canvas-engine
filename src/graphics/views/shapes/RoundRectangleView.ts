@@ -1,7 +1,7 @@
 import { RectangleView } from "./RectangleView.js";
 
 export class RoundRectangleView extends RectangleView {
-    #cornerRadii = [
+    #cornerRadii: number[] = [
         0, // top-left
         0, // top-right
         0, // bottom-right
