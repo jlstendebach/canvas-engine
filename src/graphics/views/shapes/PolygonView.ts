@@ -1,3 +1,4 @@
+import type { Bounds } from "../../../math/Bounds.js";
 import { Vec2 } from "../../../math/Vec2.js";
 import { PointList } from "../../utils/PointList.js";
 import { ShapeView } from "./ShapeView.js";
