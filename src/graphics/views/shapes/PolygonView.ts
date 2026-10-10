@@ -3,7 +3,7 @@ import { PointList } from "../../utils/PointList.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class PolygonView extends ShapeView {
-    #pointList = new PointList(this.invalidateBounds.bind(this));
+    #pointList: PointList = new PointList(this.invalidateBounds.bind(this));
 
     // MARK: - Getters
     getPointCount() {
@@ -51,7 +51,7 @@ export class PolygonView extends ShapeView {
     setPoints(points) {
         this.#pointList.setPoints(points);
         return this;
-    }    
+    }
 
     // MARK: - Modifiers
     addPointXY(x, y) {
