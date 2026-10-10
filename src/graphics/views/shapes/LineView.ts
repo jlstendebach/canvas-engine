@@ -3,7 +3,7 @@ import { PointList } from "../../utils/PointList.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class LineView extends ShapeView {
-    #pointList = new PointList(this.invalidateBounds.bind(this));
+    #pointList: PointList = new PointList(this.invalidateBounds.bind(this));
 
     // MARK: - Getters
     getPointCount() {
