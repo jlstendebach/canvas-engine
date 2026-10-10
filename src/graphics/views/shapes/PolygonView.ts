@@ -1,91 +1,92 @@
+import type { Bounds } from "../../../math/Bounds.js";
 import { Vec2 } from "../../../math/Vec2.js";
 import { PointList } from "../../utils/PointList.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class PolygonView extends ShapeView {
-    #pointList = new PointList(this.invalidateBounds.bind(this));
+    #pointList: PointList = new PointList(this.invalidateBounds.bind(this));
 
     // MARK: - Getters
-    getPointCount() {
+    getPointCount(): number {
         return this.#pointList.getPointCount();
     }
 
-    getPoint(index, out = new Vec2()) {
+    getPoint(index: number, out: Vec2 = new Vec2()): Vec2 {
         return this.#pointList.getPoint(index, out);
     }
 
-    getPointX(index) {
+    getPointX(index: number): number {
         return this.#pointList.getPointX(index);
     }
 
-    getPointY(index) {
+    getPointY(index: number): number {
         return this.#pointList.getPointY(index);
     }
 
     // MARK: - Setters
-    setPointXY(index, x, y) {
+    setPointXY(index: number, x: number, y: number): this {
         this.#pointList.setPointXY(index, x, y);
         return this;
     }
 
-    setPointX(index, x) {
+    setPointX(index: number, x: number): this {
         this.#pointList.setPointX(index, x);
         return this;
     }
 
-    setPointY(index, y) {
+    setPointY(index: number, y: number): this {
         this.#pointList.setPointY(index, y);
         return this;
     }
 
-    setPoint(index, point) {
+    setPoint(index: number, point: Vec2): this {
         this.#pointList.setPoint(index, point);
         return this;
     }
 
-    setPointsXY(points) {
+    setPointsXY(points: number[]): this {
         this.#pointList.setPointsXY(points);
         return this;
     }
 
-    setPoints(points) {
+    setPoints(points: Vec2[]): this {
         this.#pointList.setPoints(points);
         return this;
-    }    
+    }
 
     // MARK: - Modifiers
-    addPointXY(x, y) {
+    addPointXY(x: number, y: number): this {
         this.#pointList.addPointXY(x, y);
         return this;
     }
 
-    addPoint(point) {
+    addPoint(point: Vec2): this {
         this.#pointList.addPoint(point);
         return this;
     }
 
-    insertPointXY(index, x, y) {
+    insertPointXY(index: number, x: number, y: number): this {
         this.#pointList.insertPointXY(index, x, y);
         return this;
     }
 
-    insertPoint(index, point) {
+    insertPoint(index: number, point: Vec2): this {
         this.#pointList.insertPoint(index, point);
         return this;
     }
 
-    removePoint(index) {
+    removePoint(index: number): this {
         this.#pointList.removePoint(index);
         return this;
     }
 
-    clearPoints() {
+    clearPoints(): this {
         this.#pointList.clearPoints();
         return this;
     }
 
     // MARK: - Hit Testing
-    updateBounds(out) {
+    override updateBounds(out: Bounds): void {
         const rawPoints = this.#pointList.unsafeGetPoints();
         const length = rawPoints.length;
         out.reset();
@@ -96,7 +97,7 @@ export class PolygonView extends ShapeView {
         }
     }
 
-    containsPoint(point) {
+    override containsPoint(point: Vec2): boolean {
         const rawPoints = this.#pointList.unsafeGetPoints();
         const length = rawPoints.length;
         if (length < 6) { return false; }
@@ -138,7 +139,7 @@ export class PolygonView extends ShapeView {
     }
 
     // MARK: - Drawing
-    path(context) {
+    override path(context: CanvasRenderingContext2D): void {
         const rawPoints = this.#pointList.unsafeGetPoints();
         const length = rawPoints.length;
         if (length < 6) { return; }
