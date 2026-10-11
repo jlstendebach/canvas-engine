@@ -1,95 +1,96 @@
+import type { Bounds } from "../../../math/Bounds.js";
 import { Vec2 } from "../../../math/Vec2.js";
 import { PolygonView } from "./PolygonView.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class VectorView extends ShapeView {
-    #vector = new Vec2();
-    #arrowWidth = 8;
-    #arrowHeight = 10;
+    #vector: Vec2 = new Vec2();
+    #arrowWidth: number = 8;
+    #arrowHeight: number = 10;
 
-    #polygon = new PolygonView();
-    #isPathDirty = true;
+    #polygon: PolygonView = new PolygonView();
+    #isPathDirty: boolean = true;
 
     // MARK: - Accessors
-    get vectorX() {
+    get vectorX(): number {
         return this.#vector.x;
     }
-    set vectorX(value) {
+    set vectorX(value: number) {
         this.setVectorX(value);
     }
 
-    get vectorY() {
+    get vectorY(): number {
         return this.#vector.y;
     }
-    set vectorY(value) {
+    set vectorY(value: number) {
         this.setVectorY(value);
     }
 
-    get arrowWidth() {
+    get arrowWidth(): number {
         return this.#arrowWidth;
     }
-    set arrowWidth(value) {
+    set arrowWidth(value: number) {
         this.setArrowWidth(value);
     }
 
-    get arrowHeight() {
+    get arrowHeight(): number {
         return this.#arrowHeight;
     }
-    set arrowHeight(value) {
+    set arrowHeight(value: number) {
         this.setArrowHeight(value);
     }
 
     // MARK: - Initialization
-    constructor(vectorX = 1, vectorY = 0) {
+    constructor(vectorX: number = 1, vectorY: number = 0) {
         super();
         this.setVectorXY(vectorX, vectorY);
     }
 
     // MARK: - Vector
-    getVector(out = new Vec2()) {
+    getVector(out: Vec2 = new Vec2()): Vec2 {
         return out.copy(this.#vector);
     }
 
-    setVectorXY(x, y) {
+    setVectorXY(x: number, y: number): this {
         if (this.#vector.x === x && this.#vector.y === y) { return this; }
         this.#vector.set(x, y);
         this.#invalidatePath();
         return this;
     }
 
-    setVectorX(x) {
+    setVectorX(x: number): this {
         if (this.#vector.x === x) { return this; }
         this.#vector.x = x;
         this.#invalidatePath();
         return this;
     }
 
-    setVectorY(y) {
+    setVectorY(y: number): this {
         if (this.#vector.y === y) { return this; }
         this.#vector.y = y;
         this.#invalidatePath();
         return this;
     }
 
-    setVector(vector) {
+    setVector(vector: Vec2): this {
         return this.setVectorXY(vector.x, vector.y);
     }
 
-    setVectorLength(length) {
+    setVectorLength(length: number): this {
         this.#vector.setLength(length);
         this.#invalidatePath();
         return this;
     }
 
     // MARK: - Arrow
-    setArrowWidth(width) {
+    setArrowWidth(width: number): this {
         if (this.#arrowWidth === width) { return this; }
         this.#arrowWidth = width;
         this.#invalidatePath();
         return this;
     }
 
-    setArrowHeight(height) {
+    setArrowHeight(height: number): this {
         if (this.#arrowHeight === height) { return this; }
         this.#arrowHeight = height;
         this.#invalidatePath();
@@ -97,45 +98,45 @@ export class VectorView extends ShapeView {
     }
 
     // MARK: - Hit Testing
-    updateBounds(out) {
+    override updateBounds(out: Bounds): void {
         this.#updatePathIfDirty();
         this.#polygon.updateBounds(out);
     }
 
-    containsPoint(point) { 
+    override containsPoint(point: Vec2): boolean {
         this.#polygon.transform.copy(this.transform);
         return this.#polygon.containsPoint(point);
     }
 
     // MARK: - Drawing
-    path(context) {
+    override path(context: CanvasRenderingContext2D): void {
         this.#updatePathIfDirty();
         this.#polygon.path(context);
     }
 
     // MARK: - Helpers
-    #invalidatePath() {
+    #invalidatePath(): void {
         this.#isPathDirty = true;
         this.invalidateBounds();
     }
 
-    #updatePathIfDirty() {
+    #updatePathIfDirty(): void {
         if (!this.#isPathDirty) { return; }
         this.#isPathDirty = false;
 
         const vector = this.#vector.clone();
         const vectorLength = vector.length();
         if (vectorLength < 1) {
-            this.#polygon.points = [];
+            this.#polygon.setPoints([]);
             return;
         }
-        
+
         const arrowHeight = Math.min(vectorLength, this.#arrowHeight);
         const arrowWidth = (this.#arrowWidth * arrowHeight) / this.#arrowHeight;
         const normal = Vec2.normal(vector).scale(arrowWidth / (2 * vectorLength));
         const lineLength = vectorLength - arrowHeight;
         const point = vector.clone().setLength(lineLength);
-        
+
         const points = [
             new Vec2(),
             point.clone(),
