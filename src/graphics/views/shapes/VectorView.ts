@@ -3,12 +3,12 @@ import { PolygonView } from "./PolygonView.js";
 import { ShapeView } from "./ShapeView.js";
 
 export class VectorView extends ShapeView {
-    #vector = new Vec2();
-    #arrowWidth = 8;
-    #arrowHeight = 10;
+    #vector: Vec2 = new Vec2();
+    #arrowWidth: number = 8;
+    #arrowHeight: number = 10;
 
-    #polygon = new PolygonView();
-    #isPathDirty = true;
+    #polygon: PolygonView = new PolygonView();
+    #isPathDirty: boolean = true;
 
     // MARK: - Accessors
     get vectorX() {
