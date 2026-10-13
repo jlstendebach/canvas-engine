@@ -3,12 +3,12 @@ import { Size } from "../../utils/Size.js";
 import { View } from "../core/View.js";
 
 export class ImageView extends View {
-    #image = null;
-    #sourceX = 0;
-    #sourceY = 0;
-    #sourceWidth = 0;
-    #sourceHeight = 0;
-    #opacity = 1;
+    #image: HTMLImageElement | null = null;
+    #sourceX: number = 0;
+    #sourceY: number = 0;
+    #sourceWidth: number = 0;
+    #sourceHeight: number = 0;
+    #opacity: number = 1;
 
     // MARK: - Accessors
     get width() {
