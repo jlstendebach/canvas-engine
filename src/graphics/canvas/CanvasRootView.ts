@@ -1,4 +1,4 @@
-import { Bounds } from "../../math/Bounds.js";
+import type { Bounds } from "../../math/Bounds.js";
 import type { Vec2 } from "../../math/Vec2.js";
 import { View } from "../views/core/View.js";
 import { Canvas } from "./Canvas.js";
@@ -21,7 +21,7 @@ export class CanvasRootView extends View {
     }
 
     // MARK: - Bounds
-    override updateBounds(out: Bounds = new Bounds()): void {
+    override updateBounds(out: Bounds): void {
         out.set(-Infinity, -Infinity, Infinity, Infinity);
     }
 
