@@ -1,11 +1,26 @@
+import type { Canvas } from "./Canvas.js";
+
 export class CanvasEvent {
-    constructor(canvas) {
+    canvas: Canvas;
+
+    constructor(canvas: Canvas) {
         this.canvas = canvas;
     }
 }
 
 export class CanvasResizeEvent extends CanvasEvent {
-    constructor(canvas, oldWidth, oldHeight, width, height) {
+    oldWidth: number;
+    oldHeight: number;
+    width: number;
+    height: number;
+
+    constructor(
+        canvas: Canvas,
+        oldWidth: number,
+        oldHeight: number,
+        width: number,
+        height: number
+    ) {
         super(canvas);
         this.oldWidth = oldWidth;
         this.oldHeight = oldHeight;
