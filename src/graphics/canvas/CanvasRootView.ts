@@ -2,7 +2,7 @@ import { Canvas } from "./Canvas.js";
 import { View } from "../views/core/View.js";
 
 export class CanvasRootView extends View {
-    #canvas;
+    #canvas: Canvas;
 
     // MARK: - Properties
     get canvas() {
