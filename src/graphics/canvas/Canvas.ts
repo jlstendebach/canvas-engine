@@ -5,18 +5,20 @@ import { Size } from "../utils/Size.js";
 import { CanvasResizeEvent } from "./CanvasEvents.js";
 import { CanvasRootView } from "./CanvasRootView.js";
 
+type CanvasContext = CanvasRenderingContext2D | WebGLRenderingContext | WebGL2RenderingContext | GPUCanvasContext | ImageBitmapRenderingContext;
+
 export class Canvas {
-    #element = null;
-    #context = null;
-    #contextType = null;
-    #rootView = new CanvasRootView(this);
-    #fillStyle = new CachedColor();
-    #isSmoothingEnabled = false;
+    #element: HTMLCanvasElement | null = null;
+    #context: CanvasContext | null = null;
+    #contextType: string | null = null;
+    #rootView: CanvasRootView = new CanvasRootView(this);
+    #fillStyle: CachedColor = new CachedColor();
+    #isSmoothingEnabled: boolean = false;
 
-    #mouseProcessor;
+    #mouseProcessor: MouseEventProcessor | null = null;
 
-    #resizeObserver = null;
-    #mutationObserver = null;
+    #resizeObserver: ResizeObserver | null = null;
+    #mutationObserver: MutationObserver | null = null;
 
     // -------------------------------------------------------------------------
     // MARK: - Accessors 
@@ -44,7 +46,7 @@ export class Canvas {
     set fillStyle(style) {
         this.setFillStyle(style);
     }
-    
+
     get isSmoothingEnabled() {
         return this.#isSmoothingEnabled;
     }
