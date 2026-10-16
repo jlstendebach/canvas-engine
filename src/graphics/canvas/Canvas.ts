@@ -1,54 +1,57 @@
+import type { EventEmitter } from "../../events/EventEmitter.js";
 import { MouseEventProcessor } from "../../events/mouse/MouseEventProcessor.js";
 import { Vec2 } from "../../math/Vec2.js";
 import { CachedColor } from "../utils/CachedColor.js";
+import type { Color } from "../utils/Color.js";
 import { Size } from "../utils/Size.js";
+import type { View } from "../views/core/View.js";
 import { CanvasResizeEvent } from "./CanvasEvents.js";
 import { CanvasRootView } from "./CanvasRootView.js";
 
 export class Canvas {
-    #element = null;
-    #context = null;
-    #contextType = null;
-    #rootView = new CanvasRootView(this);
-    #fillStyle = new CachedColor();
-    #isSmoothingEnabled = false;
+    #element!: HTMLCanvasElement;
+    #context!: CanvasRenderingContext2D;
+    #contextType: string = "";
+    #rootView: CanvasRootView | null = new CanvasRootView(this);
+    #fillStyle: CachedColor = new CachedColor();
+    #isSmoothingEnabled: boolean = false;
 
-    #mouseProcessor;
+    #mouseProcessor: MouseEventProcessor | null = null;
 
-    #resizeObserver = null;
-    #mutationObserver = null;
+    #resizeObserver: ResizeObserver | null = null;
+    #mutationObserver: MutationObserver | null = null;
 
     // -------------------------------------------------------------------------
     // MARK: - Accessors 
     // -------------------------------------------------------------------------
 
-    get rootView() {
+    get rootView(): CanvasRootView | null {
         return this.#rootView;
     }
 
-    get events() {
-        return this.#rootView.events;
+    get events(): EventEmitter | null {
+        return this.#rootView?.events ?? null;
     }
 
-    get width() {
+    get width(): number {
         return this.#element.width;
     }
 
-    get height() {
+    get height(): number {
         return this.#element.height;
     }
 
-    get fillStyle() {
+    get fillStyle(): Color | null {
         return this.#fillStyle.color;
     }
-    set fillStyle(style) {
+    set fillStyle(style: Color | null) {
         this.setFillStyle(style);
     }
-    
-    get isSmoothingEnabled() {
+
+    get isSmoothingEnabled(): boolean {
         return this.#isSmoothingEnabled;
     }
-    set isSmoothingEnabled(value) {
+    set isSmoothingEnabled(value: boolean) {
         this.setSmoothingEnabled(value);
     }
 
@@ -56,22 +59,23 @@ export class Canvas {
     // MARK: - Initialization
     // -------------------------------------------------------------------------
 
-    constructor(selectorOrElement, contextType = "2d") {
+    constructor(selectorOrElement: string | HTMLCanvasElement, contextType: string = "2d") {
         this.#initCanvas(selectorOrElement);
         this.#initContext(contextType);
         this.#attachDomEvents();
         this.#updateSize();
     }
 
-    #initCanvas(selectorOrElement) {
+    #initCanvas(selectorOrElement: string | HTMLCanvasElement): void {
         if (this.#element) {
             return;
         }
         if (typeof selectorOrElement === "string") {
-            this.#element = document.querySelector(selectorOrElement);
-            if (!this.#element) {
+            const element: HTMLCanvasElement | null = document.querySelector(selectorOrElement);
+            if (!element) {
                 throw new Error(`No canvas element found for selector: ${selectorOrElement}`);
             }
+            this.#element = element;
 
         } else if (selectorOrElement instanceof HTMLCanvasElement) {
             this.#element = selectorOrElement;
@@ -81,7 +85,7 @@ export class Canvas {
         }
     }
 
-    #initContext(contextType) {
+    #initContext(contextType: string): void {
         if (this.#context) {
             return;
         }
@@ -89,16 +93,17 @@ export class Canvas {
             throw new TypeError("Context type must be a string.");
         }
 
-        const validContextTypes = ["2d", "webgl", "webgl2", "webgpu", "bitmaprenderer"];
+        const validContextTypes = ["2d"/*, "webgl", "webgl2", "webgpu", "bitmaprenderer"*/];
         if (!validContextTypes.includes(contextType)) {
             throw new Error(`Invalid context type: ${contextType}`);
         }
 
-        this.#context = this.#element.getContext(contextType);
-        if (!this.#context) {
+        const context = this.#element.getContext(contextType) as CanvasRenderingContext2D | null;
+        if (!context) {
             throw new Error(`Failed to get context of type: ${contextType}`);
         }
 
+        this.#context = context;
         this.#contextType = contextType;
     }
 
@@ -106,26 +111,25 @@ export class Canvas {
     // MARK: - Destruction
     // -------------------------------------------------------------------------
 
-    destroy() {
+    destroy(): void {
         if (this.isDestroyed()) { return; }
 
         try {
             this.#detachDomEvents();
-            this.#rootView.removeAllViews();
-            this.#rootView.events.removeAllListeners();
+            this.#rootView?.removeAllViews();
+            this.#rootView?.events.removeAllListeners();
         } catch (error) {
             console.error(error);
         } finally {
-            this.#element = null;
-            this.#context = null;
-            this.#contextType = null;
+            // this.#element = null;
+            // this.#context = null;
+            this.#contextType = "";
             this.#rootView = null;
-            this.#fillStyle = null;
             this.#mouseProcessor = null;
         }
     }
 
-    isDestroyed() {
+    isDestroyed(): boolean {
         return this.#rootView === null;
     }
 
@@ -133,18 +137,20 @@ export class Canvas {
     // MARK: - Getters / Setters
     // -------------------------------------------------------------------------
 
-    getSize(out = new Size()) {
+    getSize(out: Size = new Size()): Size {
         return out.set(this.#element.width, this.#element.height);
     }
 
-    setFillStyle(color) {
-        this.#fillStyle.color.copy(color);
+    setFillStyle(color: Color | null): this {
+        this.#fillStyle.color = color?.clone() ?? null;
         return this;
     }
 
-    setSmoothingEnabled(value) {
+    setSmoothingEnabled(value: boolean): this {
         this.#isSmoothingEnabled = value;
-        this.#context.imageSmoothingEnabled = value;
+        if (this.#context instanceof CanvasRenderingContext2D) {
+            this.#context.imageSmoothingEnabled = value;
+        }
         return this;
     }
 
@@ -160,8 +166,8 @@ export class Canvas {
      * @returns {Canvas} This.
      * @throws {Error} If adding self or an ancestor view.
      */
-    addView(view) {
-        this.#rootView.addView(view);
+    addView(view: View): this {
+        this.#rootView?.addView(view);
         return this;
     }
 
@@ -177,8 +183,8 @@ export class Canvas {
      *     append).
      * @returns {Canvas} This.
      */
-    addViewAt(view, index) {
-        this.#rootView.addViewAt(view, index);
+    addViewAt(view: View, index: number): this {
+        this.#rootView?.addViewAt(view, index);
         return this;
     }
 
@@ -188,8 +194,8 @@ export class Canvas {
      * @param {View} view - The child view to remove.
      * @returns {Canvas} This.
      */
-    removeView(view) {
-        this.#rootView.removeView(view);
+    removeView(view: View): this {
+        this.#rootView?.removeView(view);
         return this;
     }
 
@@ -201,8 +207,8 @@ export class Canvas {
      *     resolved index, this is a no-op.
      * @returns {Canvas} This.
      */
-    removeViewAt(index) {
-        this.#rootView.removeViewAt(index);
+    removeViewAt(index: number): this {
+        this.#rootView?.removeViewAt(index);
         return this;
     }
 
@@ -210,8 +216,8 @@ export class Canvas {
      * Removes all child views from this canvas.
      * @returns {Canvas} This.
      */
-    removeAllViews() {
-        this.#rootView.removeAllViews();
+    removeAllViews(): this {
+        this.#rootView?.removeAllViews();
         return this;
     }
 
@@ -219,8 +225,8 @@ export class Canvas {
      * Gets a shallow copy of this canvas's children.
      * @returns {View[]} A copy of the child view array.
      */
-    getViews() {
-        return this.#rootView.getViews();
+    getViews(): View[] {
+        return this.#rootView?.getViews() ?? [];
     }
 
     /**
@@ -229,8 +235,8 @@ export class Canvas {
      * @returns {View|null} The child view at the specified index, or null if it
      *     does not exist.
      */
-    getViewAt(index) {
-        return this.#rootView.getViewAt(index);
+    getViewAt(index: number): View | null {
+        return this.#rootView?.getViewAt(index) ?? null;
     }
 
     /**
@@ -239,8 +245,8 @@ export class Canvas {
      * views array.
      * @returns {number} The number of child views.
      */
-    getViewCount() {
-        return this.#rootView.getViewCount();
+    getViewCount(): number {
+        return this.#rootView?.getViewCount() ?? 0;
     }
 
     /**
@@ -249,8 +255,8 @@ export class Canvas {
      * @returns {number} The index of the child view, or -1 if it is not a child
      *     of this canvas.
      */
-    getViewIndex(view) {
-        return this.#rootView.getViewIndex(view);
+    getViewIndex(view: View): number {
+        return this.#rootView?.getViewIndex(view) ?? -1;
     }
 
     /**
@@ -262,8 +268,8 @@ export class Canvas {
      * @returns {Canvas} This.
      * @throws {Error} If the view is not a child of this canvas.
      */
-    setViewIndex(view, index) {
-        this.#rootView.setViewIndex(view, index);
+    setViewIndex(view: View, index: number): this {
+        this.#rootView?.setViewIndex(view, index);
         return this;
     }
 
@@ -273,15 +279,17 @@ export class Canvas {
      * @returns {boolean} True if the view is a child of this canvas, false 
      *     otherwise.
      */
-    hasView(view) {
-        return this.#rootView.hasView(view);
+    hasView(view: View): boolean {
+        return this.#rootView?.hasView(view) ?? false;
     }
 
     // -------------------------------------------------------------------------
     // MARK: - Conversions
     // -------------------------------------------------------------------------
 
-    toLocalPointXY(x, y, fromView, out = new Vec2()) {
+    toLocalPointXY(
+        x: number, y: number, fromView: View | null, out: Vec2 = new Vec2()
+    ): Vec2 {
         if (fromView) {
             fromView.getWorldMatrix().transformPointXY(x, y, out);
         } else {
@@ -290,11 +298,15 @@ export class Canvas {
         return out;
     }
 
-    toLocalPoint(point, fromView, out = new Vec2()) {
+    toLocalPoint(
+        point: Vec2, fromView: View | null, out: Vec2 = new Vec2()
+    ): Vec2 {
         return this.toLocalPointXY(point.x, point.y, fromView, out);
     }
 
-    toLocalVectorXY(x, y, fromView, out = new Vec2()) {
+    toLocalVectorXY(
+        x: number, y: number, fromView: View | null, out: Vec2 = new Vec2()
+    ): Vec2 {
         if (fromView) {
             fromView.getWorldMatrix().transformVectorXY(x, y, out);
         } else {
@@ -304,7 +316,9 @@ export class Canvas {
 
     }
 
-    toLocalVector(vector, fromView, out = new Vec2()) {
+    toLocalVector(
+        vector: Vec2, fromView: View | null, out: Vec2 = new Vec2()
+    ): Vec2 {
         return this.toLocalVectorXY(vector.x, vector.y, fromView, out);
     }
 
@@ -312,7 +326,7 @@ export class Canvas {
     // MARK: - Drawing
     // -------------------------------------------------------------------------
 
-    draw() {
+    draw(): void {
         this.#context.save();
         this.#context.imageSmoothingEnabled = this.#isSmoothingEnabled;
         try {
@@ -320,7 +334,7 @@ export class Canvas {
                 this.#context.fillStyle = this.#fillStyle.colorString;
                 this.#context.fillRect(0, 0, this.#element.width, this.#element.height);
             }
-            this.#rootView.draw(this.#context);
+            this.#rootView?.draw(this.#context);
 
         } finally {
             this.#context.restore();
@@ -331,8 +345,8 @@ export class Canvas {
     // MARK: - Event Binding
     // -------------------------------------------------------------------------
 
-    #attachDomEvents() {
-        if (!this.#mouseProcessor) {
+    #attachDomEvents(): void {
+        if (!this.#mouseProcessor && this.#rootView) {
             this.#mouseProcessor = new MouseEventProcessor(this.#element, this.#rootView);
             this.#mouseProcessor.attachDomEvents();
         }
@@ -353,7 +367,7 @@ export class Canvas {
         }
     }
 
-    #detachDomEvents() {
+    #detachDomEvents(): void {
         if (this.#mouseProcessor) {
             this.#mouseProcessor.detachDomEvents();
             this.#mouseProcessor = null;
@@ -374,9 +388,11 @@ export class Canvas {
     // MARK: - Size Helpers
     // -------------------------------------------------------------------------
 
-    #getComputedSize() {
+    #getComputedSize(): Size {
         const style = getComputedStyle(this.#element)
-        const getStyleFloat = (property) => parseFloat(style.getPropertyValue(property)) || 0;
+        const getStyleFloat = (property: string): number => {
+            return parseFloat(style.getPropertyValue(property)) || 0;
+        }
         const size = new Size(getStyleFloat("width"), getStyleFloat("height"));
 
         // A box-sizing of border-box includes the padding and border in the 
@@ -396,7 +412,7 @@ export class Canvas {
         return size.round();
     }
 
-    #updateSize() {
+    #updateSize(): void {
         const size = this.#getComputedSize();
 
         if (this.#element.width === size.width && this.#element.height === size.height) {
@@ -410,8 +426,8 @@ export class Canvas {
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = this.#element.width;
         tempCanvas.height = this.#element.height;
-        const tempContext = tempCanvas.getContext(this.#contextType);
-        tempContext.drawImage(this.#element, 0, 0);
+        const tempContext = tempCanvas.getContext(this.#contextType) as CanvasRenderingContext2D | null;
+        tempContext?.drawImage(this.#element, 0, 0);
 
         // Create the event before setting the size so that we still have access
         // to the old width and height values.
@@ -436,7 +452,7 @@ export class Canvas {
         this.#context.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height);
 
         // Inform any listeners about the resize event.
-        this.events.emit(CanvasResizeEvent, event);
+        this.events?.emit(CanvasResizeEvent, event);
     }
 
 }
