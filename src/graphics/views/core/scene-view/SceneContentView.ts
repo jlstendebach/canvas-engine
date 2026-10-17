@@ -1,7 +1,8 @@
 import { View } from "../View.js";
+import type { SceneView } from "./SceneView.js";
 
 export class SceneContentView extends View {
-    #sceneView;
+    #sceneView: SceneView;
 
     // MARK: - Accessors
     get sceneView() {
