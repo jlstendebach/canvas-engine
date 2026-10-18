@@ -1,8 +1,10 @@
+import type { Bounds } from "../../../../math/Bounds.js";
 import { Vec2 } from "../../../../math/Vec2.js";
 import { CoordinateSpace } from "../../../utils/CoordinateSpace.js";
 import { Size } from "../../../utils/Size.js";
 import { View } from "../View.js";
 import { SceneContentView } from "./SceneContentView.js";
+
 
 export class SceneView extends View {
     #width: number;
@@ -25,21 +27,21 @@ export class SceneView extends View {
     // MARK: - Accessors
     // -------------------------------------------------------------------------
 
-    get width() {
+    get width(): number {
         return this.#width;
     }
-    set width(value) {
+    set width(value: number) {
         this.setWidth(value);
     }
 
-    get height() {
+    get height(): number {
         return this.#height;
     }
-    set height(value) {
+    set height(value: number) {
         this.setHeight(value);
     }
 
-    get content() {
+    get content(): SceneContentView {
         return this.#contentView;
     }
 
@@ -47,11 +49,11 @@ export class SceneView extends View {
     // MARK: - Size
     // -------------------------------------------------------------------------
 
-    getSize(out = new Size()) {
+    getSize(out: Size = new Size()): Size {
         return out.set(this.#width, this.#height);
     }
 
-    setSizeWH(width, height) {
+    setSizeWH(width: number, height: number): this {
         if (this.#width === width && this.#height === height) { return this; }
         this.#width = width;
         this.#height = height;
@@ -59,18 +61,18 @@ export class SceneView extends View {
         return this;
     }
 
-    setSize(size) {
+    setSize(size: Size): this {
         return this.setSizeWH(size.width, size.height);
     }
 
-    setWidth(width) {
+    setWidth(width: number): this {
         if (this.#width === width) { return this; }
         this.#width = width;
         this.invalidateBounds();
         return this;
     }
 
-    setHeight(height) {
+    setHeight(height: number): this {
         if (this.#height === height) { return this; }
         this.#height = height;
         this.invalidateBounds();
@@ -81,30 +83,30 @@ export class SceneView extends View {
     // MARK: - Children
     // -------------------------------------------------------------------------
 
-    addView(view) {
+    override addView(view: View): this {
         this.#contentView.addView(view);
         return this;
     }
 
-    removeView(view) {
+    override removeView(view: View): this {
         this.#contentView.removeView(view);
         return this;
     }
 
-    removeAllViews() {
+    override removeAllViews(): this {
         this.#contentView.removeAllViews();
         return this;
     }
 
-    getViews() {
+    override getViews(): View[] {
         return this.#contentView.getViews();
     }
 
-    getViewCount() {
+    override getViewCount(): number {
         return this.#contentView.getViewCount();
     }
 
-    pickView(point) {
+    override pickView(point: Vec2): View | null {
         if (this.isVisible === false || this.isPickable === false) {
             return null;
         }
@@ -120,7 +122,11 @@ export class SceneView extends View {
     // MARK: - Child Transformations
     // -------------------------------------------------------------------------    
 
-    translateContent(dx, dy, coordinateSpace = CoordinateSpace.LOCAL) {
+    translateContent(
+        dx: number,
+        dy: number,
+        coordinateSpace: CoordinateSpace = CoordinateSpace.LOCAL
+    ): this {
         if (coordinateSpace === CoordinateSpace.CONTENT) {
             const localDelta = this.toLocalVectorXY(dx, dy, this.#contentView);
             this.#contentView.translate(localDelta);
@@ -132,12 +138,17 @@ export class SceneView extends View {
         return this;
     }
 
-    scaleContent(factorOrVector) {
+    scaleContent(factorOrVector: number | Vec2): this {
         this.#contentView.scale(factorOrVector);
         return this;
     }
 
-    scaleAround(factor, anchorX, anchorY, coordinateSpace = CoordinateSpace.LOCAL) {
+    scaleAround(
+        factor: number,
+        anchorX: number,
+        anchorY: number,
+        coordinateSpace: CoordinateSpace = CoordinateSpace.LOCAL
+    ): this {
         let dx = this.#contentView.transform.x;
         let dy = this.#contentView.transform.y;
 
@@ -164,7 +175,12 @@ export class SceneView extends View {
         return this;
     }
 
-    rotateAround(radians, pivotX, pivotY, coordinateSpace = CoordinateSpace.LOCAL) {
+    rotateAround(
+        radians: number,
+        pivotX: number,
+        pivotY: number,
+        coordinateSpace: CoordinateSpace = CoordinateSpace.LOCAL
+    ): this {
         let dx = this.#contentView.transform.x;
         let dy = this.#contentView.transform.y;
         const cos = Math.cos(radians);
@@ -193,7 +209,11 @@ export class SceneView extends View {
         return this;
     }
 
-    centerOn(x, y, coordinateSpace = CoordinateSpace.LOCAL) {
+    centerOn(
+        x: number,
+        y: number,
+        coordinateSpace: CoordinateSpace = CoordinateSpace.LOCAL
+    ): this {
         this.#contentView.setPositionXY(this.#width / 2, this.#height / 2);
 
         if (coordinateSpace === CoordinateSpace.CONTENT) {
@@ -212,11 +232,11 @@ export class SceneView extends View {
     // MARK: - Bounds
     // -------------------------------------------------------------------------
 
-    updateBounds(out) {
+    override updateBounds(out: Bounds): void {
         out.set(0, 0, this.#width, this.#height);
     }
 
-    containsPoint(point) {
+    override containsPoint(point: Vec2): boolean {
         return this.bounds.containsPoint(point);
     }
 
@@ -224,13 +244,13 @@ export class SceneView extends View {
     // MARK: - Drawing
     // -------------------------------------------------------------------------
 
-    onDraw(context) {
+    override onDraw(context: CanvasRenderingContext2D): void {
         context.beginPath();
         context.rect(0, 0, this.#width, this.#height);
         context.clip();
     }
 
-    drawChildren(context) {
+    override drawChildren(context: CanvasRenderingContext2D): void {
         this.#contentView.draw(context);
     }
 
