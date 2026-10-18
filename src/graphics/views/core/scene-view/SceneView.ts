@@ -5,19 +5,20 @@ import { View } from "../View.js";
 import { SceneContentView } from "./SceneContentView.js";
 
 export class SceneView extends View {
-    #width = 0;
-    #height = 0;
+    #width: number;
+    #height: number;
 
-    #contentView = new SceneContentView(this);
+    #contentView: SceneContentView;
 
     // -------------------------------------------------------------------------
     // MARK: - Initialization
     // -------------------------------------------------------------------------
 
-    constructor(width = 100, height = 100) {
+    constructor(width: number = 100, height: number = 100) {
         super();
         this.#width = width;
         this.#height = height;
+        this.#contentView = new SceneContentView(this);
     }
 
     // -------------------------------------------------------------------------
