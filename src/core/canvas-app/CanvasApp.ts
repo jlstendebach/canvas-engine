@@ -8,22 +8,22 @@ import { CanvasAppState } from "./CanvasAppState.js";
  * while synchronizing with browser paint and visibility events.
  */
 export class CanvasApp {
-    #canvas = null;
+    #canvas: Canvas | null = null;
 
-    #lastFrameTime = null;
-    #animationFrameId = null;
+    #lastFrameTime: number = 0;
+    #animationFrameId: number | null = null;
 
-    #state = CanvasAppState.STOPPED;
-    #isPaused = false;
+    #state: CanvasAppState = CanvasAppState.STOPPED;
+    #isPaused: boolean = false;
 
-    #domAbortController = null;
+    #domAbortController: AbortController | null = null;
 
     // MARK: - properties
-    get canvas() {
+    get canvas(): Canvas | null {
         return this.#canvas;
     }
 
-    get state() {
+    get state(): CanvasAppState {
         return this.#state;
     }
 
@@ -32,7 +32,7 @@ export class CanvasApp {
      * Initializes the `CanvasApp` with a canvas element or selector.
      * @param {string | HTMLCanvasElement} canvasSelectorOrElement - A CSS selector string or an HTMLCanvasElement to be used for rendering.
      */
-    constructor(canvasSelectorOrElement) {
+    constructor(canvasSelectorOrElement: string | HTMLCanvasElement) {
         this.#canvas = new Canvas(canvasSelectorOrElement);
         this.#attachDomEvents();
     }
@@ -42,9 +42,8 @@ export class CanvasApp {
      * Starts the `CanvasApp`, transitioning it to a `RUNNING` state and 
      * initiating the main loop. If the app is already running, is destroyed, or
      * is being destroyed, this method has no effect.
-     * @returns {void}
      */
-    start() {
+    start(): void {
         if (!this.isStopped()) {
             return;
         }
@@ -61,9 +60,8 @@ export class CanvasApp {
      * preventing more frames from being requested. Will not interrupt a frame 
      * that is currently being processed. If the app is not running, is 
      * destroyed, or is being destroyed, this method has no effect.
-     * @returns {void}
      */
-    stop() {
+    stop(): void {
         if (!this.isRunning()) {
             return;
         }
@@ -78,9 +76,8 @@ export class CanvasApp {
      * Pauses the `CanvasApp`, halting updates but still rendering frames. If 
      * the app is not running, is already paused, is destroyed, or is being 
      * destroyed, this method has no effect.
-     * @returns {void}
      */
-    pause() { 
+    pause(): void {
         if (!this.isRunning() || this.isPaused()) {
             return;
         }
@@ -92,9 +89,8 @@ export class CanvasApp {
      * Resumes the `CanvasApp` from a paused state, allowing updates to 
      * continue. If the app is not running, is not paused, is destroyed, or is 
      * being destroyed, this method has no effect.
-     * @returns {void}
      */
-    resume() {
+    resume(): void {
         if (!this.isRunning() || !this.isPaused()) {
             return;
         }
@@ -108,9 +104,8 @@ export class CanvasApp {
      * frames. If the app is running, is destroyed, or is being destroyed, this 
      * method has no effect. If a frame is already requested or the document is
      * hidden, this method also has no effect.
-     * @returns {void}
      */
-    refresh() {
+    refresh(): void {
         const isNotStopped = !this.isStopped();
         const isFrameRequested = this.#isFrameRequested();
         const isDocumentHidden = document.hidden;
@@ -131,9 +126,8 @@ export class CanvasApp {
      * 
      * **WARNING**: This method is irreversible and will permanently disable the
      * `CanvasApp` instance. Use with caution.
-     * @returns {void}
      */
-    destroy() {
+    destroy(): void {
         if (this.isDestroying() || this.isDestroyed()) {
             return;
         }
@@ -149,13 +143,13 @@ export class CanvasApp {
             this.#reportError(error);
 
         } finally {
-            this.#canvas.destroy();
+            this.#canvas?.destroy();
             this.#canvas = null;
-            this.#lastFrameTime = null;
+            this.#lastFrameTime = 0;
             this.#animationFrameId = null;
-            this.#isPaused = null;
+            this.#isPaused = false;
             this.#domAbortController = null;
-            this.#tick = null;   
+            this.#tick = (): void => { };
             this.#state = CanvasAppState.DESTROYED;
         }
     }
@@ -163,41 +157,41 @@ export class CanvasApp {
     // MARK: - state queries
     /**
      * Checks if the `CanvasApp` is currently stopped.
-     * @returns {boolean} True if the app is stopped, false otherwise.
+     * @returns True if the app is stopped, false otherwise.
      */
-    isStopped() {
+    isStopped(): boolean {
         return this.#state === CanvasAppState.STOPPED;
     }
 
     /**
      * Checks if the `CanvasApp` is currently running.
-     * @returns {boolean} True if the app is running, false otherwise.
+     * @returns True if the app is running, false otherwise.
      */
-    isRunning() {
+    isRunning(): boolean {
         return this.#state === CanvasAppState.RUNNING;
     }
 
     /**
      * Checks if the `CanvasApp` is currently paused.
-     * @returns {boolean} True if the app is paused, false otherwise.
+     * @returns True if the app is paused, false otherwise.
      */
-    isPaused() {
+    isPaused(): boolean {
         return this.#isPaused === true;
     }
 
     /**
      * Checks if the `CanvasApp` is currently being destroyed.
-     * @returns {boolean} True if the app is being destroyed, false otherwise.
+     * @returns True if the app is being destroyed, false otherwise.
      */
-    isDestroying() {
+    isDestroying(): boolean {
         return this.#state === CanvasAppState.DESTROYING;
     }
 
     /**
      * Checks if the `CanvasApp` is currently destroyed.
-     * @returns {boolean} True if the app is destroyed, false otherwise.
+     * @returns True if the app is destroyed, false otherwise.
      */
-    isDestroyed() {
+    isDestroyed(): boolean {
         return this.#state === CanvasAppState.DESTROYED;
     }
 
@@ -209,10 +203,9 @@ export class CanvasApp {
      * 
      * Errors thrown from this method will be caught and reported, but will not 
      * prevent the app from starting.
-     * @returns {void}
      */
-    onStart() {}
-    
+    onStart(): void { }
+
     /**
      * Lifecycle hook called when the `CanvasApp` stops. Will be called after 
      * the app's state is set to `STOPPED` and after we have requested the 
@@ -225,10 +218,9 @@ export class CanvasApp {
      * **NOTE**: If a frame is currently being processed when {@link CanvasApp.prototype.onStop onStop()} 
      * is called, that frame will still complete its execution, including any 
      * calls to {@link CanvasApp.prototype.onUpdate onUpdate()}.
-     * @returns {void}
      */
-    onStop() {}
-    
+    onStop(): void { }
+
     /**
      * Lifecycle hook called when the `CanvasApp` is paused. Will be called just 
      * after the app's paused state is set to `true`. Override this method to 
@@ -236,10 +228,9 @@ export class CanvasApp {
      * 
      * Errors thrown from this method will be caught and reported, but will not 
      * prevent the app from pausing.
-     * @returns {void}
      */
-    onPause() {}
-    
+    onPause(): void { }
+
     /**
      * Lifecycle hook called when the `CanvasApp` is resumed from a paused 
      * state. Will be called just after the app's paused state is set to 
@@ -247,22 +238,20 @@ export class CanvasApp {
      * 
      * Errors thrown from this method will be caught and reported, but will not 
      * prevent the app from resuming.
-     * @returns {void}
      */
-    onResume() {}
-    
+    onResume(): void { }
+
     /**
      * Lifecycle hook called on each frame update. Override this method to 
      * implement custom update logic.
      * 
      * Errors thrown from this method will be caught and reported, and the app
      * will attempt to stop gracefully by calling {@link CanvasApp.prototype.stop stop()}.
-     * @param {number} timestamp - The current timestamp in milliseconds.
-     * @param {number} deltaTime - The time elapsed since the last frame in milliseconds.
-     * @returns {void}
+     * @param timestamp - The current timestamp in milliseconds.
+     * @param deltaTime - The time elapsed since the last frame in milliseconds.
      */
-    onUpdate(timestamp, deltaTime) { void timestamp; void deltaTime; }
-    
+    onUpdate(timestamp: number, deltaTime: number): void { void timestamp; void deltaTime; }
+
     /**
      * Lifecycle hook called when the `CanvasApp` is being destroyed. 
      * Will be called just after the app's state is set to `DESTROYING`. 
@@ -270,12 +259,11 @@ export class CanvasApp {
      * 
      * Errors thrown from this method will be caught and reported, but will not 
      * prevent the app from being destroyed.
-     * @returns {void}
      */
-    onDestroy() {}
+    onDestroy(): void { }
 
     // MARK: - main loop
-    #tick = (timestamp) => {
+    #tick: (timestamp: number) => void = (timestamp) => {
         // Clearing this here allows another frame to be requested from 
         // anywhere, even from DOM events like our 'visibilitychange' handler. 
         // JavaScript ensures that the current tick will finish before 
@@ -287,11 +275,11 @@ export class CanvasApp {
 
         this.#update(timestamp, deltaTime);
         this.#draw();
-        
+
         this.#requestFrame();
     }
 
-    #update(timestamp, deltaTime) {
+    #update(timestamp: number, deltaTime: number): void {
         if (this.isPaused()) {
             return;
         }
@@ -303,9 +291,9 @@ export class CanvasApp {
         }
     }
 
-    #draw() {
-        if (!this.#canvas) { 
-            return; 
+    #draw(): void {
+        if (!this.#canvas) {
+            return;
         }
 
         try {
@@ -316,11 +304,11 @@ export class CanvasApp {
     }
 
     // MARK: - events
-    #onDocumentHidden() {
+    #onDocumentHidden(): void {
         this.#cancelFrame();
     }
 
-    #onDocumentVisible() {
+    #onDocumentVisible(): void {
         if (!this.isRunning()) {
             return;
         }
@@ -328,13 +316,13 @@ export class CanvasApp {
         this.#requestFrame();
     }
 
-    #attachDomEvents() {
+    #attachDomEvents(): void {
         if (this.#domAbortController) {
             return;
         }
         this.#domAbortController = new AbortController();
         const options = { signal: this.#domAbortController.signal };
-        const listener = () => {
+        const listener = (): void => {
             if (document.hidden) {
                 this.#onDocumentHidden();
             } else {
@@ -344,7 +332,7 @@ export class CanvasApp {
         document.addEventListener("visibilitychange", listener, options);
     }
 
-    #detachDomEvents() {
+    #detachDomEvents(): void {
         if (!this.#domAbortController) {
             return;
         }
@@ -353,11 +341,11 @@ export class CanvasApp {
     }
 
     // MARK: - frame management
-    #isFrameRequested() {
+    #isFrameRequested(): boolean {
         return this.#animationFrameId !== null;
     }
 
-    #requestFrame() {
+    #requestFrame(): void {
         const isNotRunning = !this.isRunning();
         const isFrameRequested = this.#isFrameRequested();
         const isDocumentHidden = document.hidden;
@@ -369,13 +357,14 @@ export class CanvasApp {
         this.#animationFrameId = requestAnimationFrame(this.#tick);
     }
 
-    #cancelFrame() {
+    #cancelFrame(): void {
+        if (!this.#animationFrameId) { return; }
         cancelAnimationFrame(this.#animationFrameId);
         this.#animationFrameId = null;
     }
 
     // MARK: - error helpers
-    #safeCall(callback) {
+    #safeCall(callback: () => void): void {
         try {
             callback();
         } catch (error) {
@@ -383,11 +372,11 @@ export class CanvasApp {
         }
     }
 
-    #reportError(error) {
+    #reportError(error: unknown): void {
         console.error(error);
     }
 
-    #handleErrorAndStop(error, source) {
+    #handleErrorAndStop(error: unknown, source: string): void {
         this.#reportError({ source, error });
         this.stop();
     }
