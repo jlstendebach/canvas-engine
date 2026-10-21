@@ -42,7 +42,6 @@ export class CanvasApp {
      * Starts the `CanvasApp`, transitioning it to a `RUNNING` state and 
      * initiating the main loop. If the app is already running, is destroyed, or
      * is being destroyed, this method has no effect.
-     * @returns {void}
      */
     start(): void {
         if (!this.isStopped()) {
@@ -61,7 +60,6 @@ export class CanvasApp {
      * preventing more frames from being requested. Will not interrupt a frame 
      * that is currently being processed. If the app is not running, is 
      * destroyed, or is being destroyed, this method has no effect.
-     * @returns {void}
      */
     stop(): void {
         if (!this.isRunning()) {
@@ -78,7 +76,6 @@ export class CanvasApp {
      * Pauses the `CanvasApp`, halting updates but still rendering frames. If 
      * the app is not running, is already paused, is destroyed, or is being 
      * destroyed, this method has no effect.
-     * @returns {void}
      */
     pause(): void {
         if (!this.isRunning() || this.isPaused()) {
@@ -92,7 +89,6 @@ export class CanvasApp {
      * Resumes the `CanvasApp` from a paused state, allowing updates to 
      * continue. If the app is not running, is not paused, is destroyed, or is 
      * being destroyed, this method has no effect.
-     * @returns {void}
      */
     resume(): void {
         if (!this.isRunning() || !this.isPaused()) {
@@ -108,7 +104,6 @@ export class CanvasApp {
      * frames. If the app is running, is destroyed, or is being destroyed, this 
      * method has no effect. If a frame is already requested or the document is
      * hidden, this method also has no effect.
-     * @returns {void}
      */
     refresh(): void {
         const isNotStopped = !this.isStopped();
@@ -131,7 +126,6 @@ export class CanvasApp {
      * 
      * **WARNING**: This method is irreversible and will permanently disable the
      * `CanvasApp` instance. Use with caution.
-     * @returns {void}
      */
     destroy(): void {
         if (this.isDestroying() || this.isDestroyed()) {
@@ -163,7 +157,7 @@ export class CanvasApp {
     // MARK: - state queries
     /**
      * Checks if the `CanvasApp` is currently stopped.
-     * @returns {boolean} True if the app is stopped, false otherwise.
+     * @returns True if the app is stopped, false otherwise.
      */
     isStopped(): boolean {
         return this.#state === CanvasAppState.STOPPED;
@@ -171,7 +165,7 @@ export class CanvasApp {
 
     /**
      * Checks if the `CanvasApp` is currently running.
-     * @returns {boolean} True if the app is running, false otherwise.
+     * @returns True if the app is running, false otherwise.
      */
     isRunning(): boolean {
         return this.#state === CanvasAppState.RUNNING;
@@ -179,7 +173,7 @@ export class CanvasApp {
 
     /**
      * Checks if the `CanvasApp` is currently paused.
-     * @returns {boolean} True if the app is paused, false otherwise.
+     * @returns True if the app is paused, false otherwise.
      */
     isPaused(): boolean {
         return this.#isPaused === true;
@@ -187,7 +181,7 @@ export class CanvasApp {
 
     /**
      * Checks if the `CanvasApp` is currently being destroyed.
-     * @returns {boolean} True if the app is being destroyed, false otherwise.
+     * @returns True if the app is being destroyed, false otherwise.
      */
     isDestroying(): boolean {
         return this.#state === CanvasAppState.DESTROYING;
@@ -195,7 +189,7 @@ export class CanvasApp {
 
     /**
      * Checks if the `CanvasApp` is currently destroyed.
-     * @returns {boolean} True if the app is destroyed, false otherwise.
+     * @returns True if the app is destroyed, false otherwise.
      */
     isDestroyed(): boolean {
         return this.#state === CanvasAppState.DESTROYED;
@@ -209,7 +203,6 @@ export class CanvasApp {
      * 
      * Errors thrown from this method will be caught and reported, but will not 
      * prevent the app from starting.
-     * @returns {void}
      */
     onStart(): void { }
 
@@ -225,7 +218,6 @@ export class CanvasApp {
      * **NOTE**: If a frame is currently being processed when {@link CanvasApp.prototype.onStop onStop()} 
      * is called, that frame will still complete its execution, including any 
      * calls to {@link CanvasApp.prototype.onUpdate onUpdate()}.
-     * @returns {void}
      */
     onStop(): void { }
 
@@ -236,7 +228,6 @@ export class CanvasApp {
      * 
      * Errors thrown from this method will be caught and reported, but will not 
      * prevent the app from pausing.
-     * @returns {void}
      */
     onPause(): void { }
 
@@ -247,7 +238,6 @@ export class CanvasApp {
      * 
      * Errors thrown from this method will be caught and reported, but will not 
      * prevent the app from resuming.
-     * @returns {void}
      */
     onResume(): void { }
 
@@ -257,9 +247,8 @@ export class CanvasApp {
      * 
      * Errors thrown from this method will be caught and reported, and the app
      * will attempt to stop gracefully by calling {@link CanvasApp.prototype.stop stop()}.
-     * @param {number} timestamp - The current timestamp in milliseconds.
-     * @param {number} deltaTime - The time elapsed since the last frame in milliseconds.
-     * @returns {void}
+     * @param timestamp - The current timestamp in milliseconds.
+     * @param deltaTime - The time elapsed since the last frame in milliseconds.
      */
     onUpdate(timestamp: number, deltaTime: number): void { void timestamp; void deltaTime; }
 
@@ -270,7 +259,6 @@ export class CanvasApp {
      * 
      * Errors thrown from this method will be caught and reported, but will not 
      * prevent the app from being destroyed.
-     * @returns {void}
      */
     onDestroy(): void { }
 
