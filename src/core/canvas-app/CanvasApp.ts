@@ -8,15 +8,15 @@ import { CanvasAppState } from "./CanvasAppState.js";
  * while synchronizing with browser paint and visibility events.
  */
 export class CanvasApp {
-    #canvas = null;
+    #canvas: Canvas | null = null;
 
-    #lastFrameTime = null;
-    #animationFrameId = null;
+    #lastFrameTime: number | null = null;
+    #animationFrameId: number | null = null;
 
-    #state = CanvasAppState.STOPPED;
-    #isPaused = false;
+    #state: CanvasAppState = CanvasAppState.STOPPED;
+    #isPaused: boolean = false;
 
-    #domAbortController = null;
+    #domAbortController: AbortController | null = null;
 
     // MARK: - properties
     get canvas() {
@@ -80,7 +80,7 @@ export class CanvasApp {
      * destroyed, this method has no effect.
      * @returns {void}
      */
-    pause() { 
+    pause() {
         if (!this.isRunning() || this.isPaused()) {
             return;
         }
@@ -155,7 +155,7 @@ export class CanvasApp {
             this.#animationFrameId = null;
             this.#isPaused = null;
             this.#domAbortController = null;
-            this.#tick = null;   
+            this.#tick = null;
             this.#state = CanvasAppState.DESTROYED;
         }
     }
@@ -211,8 +211,8 @@ export class CanvasApp {
      * prevent the app from starting.
      * @returns {void}
      */
-    onStart() {}
-    
+    onStart() { }
+
     /**
      * Lifecycle hook called when the `CanvasApp` stops. Will be called after 
      * the app's state is set to `STOPPED` and after we have requested the 
@@ -227,8 +227,8 @@ export class CanvasApp {
      * calls to {@link CanvasApp.prototype.onUpdate onUpdate()}.
      * @returns {void}
      */
-    onStop() {}
-    
+    onStop() { }
+
     /**
      * Lifecycle hook called when the `CanvasApp` is paused. Will be called just 
      * after the app's paused state is set to `true`. Override this method to 
@@ -238,8 +238,8 @@ export class CanvasApp {
      * prevent the app from pausing.
      * @returns {void}
      */
-    onPause() {}
-    
+    onPause() { }
+
     /**
      * Lifecycle hook called when the `CanvasApp` is resumed from a paused 
      * state. Will be called just after the app's paused state is set to 
@@ -249,8 +249,8 @@ export class CanvasApp {
      * prevent the app from resuming.
      * @returns {void}
      */
-    onResume() {}
-    
+    onResume() { }
+
     /**
      * Lifecycle hook called on each frame update. Override this method to 
      * implement custom update logic.
@@ -262,7 +262,7 @@ export class CanvasApp {
      * @returns {void}
      */
     onUpdate(timestamp, deltaTime) { void timestamp; void deltaTime; }
-    
+
     /**
      * Lifecycle hook called when the `CanvasApp` is being destroyed. 
      * Will be called just after the app's state is set to `DESTROYING`. 
@@ -272,7 +272,7 @@ export class CanvasApp {
      * prevent the app from being destroyed.
      * @returns {void}
      */
-    onDestroy() {}
+    onDestroy() { }
 
     // MARK: - main loop
     #tick = (timestamp) => {
@@ -287,7 +287,7 @@ export class CanvasApp {
 
         this.#update(timestamp, deltaTime);
         this.#draw();
-        
+
         this.#requestFrame();
     }
 
@@ -304,8 +304,8 @@ export class CanvasApp {
     }
 
     #draw() {
-        if (!this.#canvas) { 
-            return; 
+        if (!this.#canvas) {
+            return;
         }
 
         try {
