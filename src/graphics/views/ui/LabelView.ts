@@ -1,22 +1,27 @@
 import { Vec2 } from "../../../math/Vec2.js";
 import { View } from "../core/View.js";
 
-export class LabelViewOptions { }
+// MARK: - LabelViewOptions
+export const LabelViewOptions = Object.freeze({
+    LEFT   : 1,
+    CENTER : 2,
+    RIGHT  : 3,
 
-LabelViewOptions.LEFT   = 1;
-LabelViewOptions.CENTER = 2;
-LabelViewOptions.RIGHT  = 3;
+    GROW_X    : 0x00000001 | 0, // 1 
+    GROW_Y    : 0x00000002 | 0, // 2
+    SHRINK_X  : 0x00000004 | 0, // 4
+    SHRINK_Y  : 0x00000008 | 0, // 8
+    WORD_WRAP : 0x00000010 | 0, // 16
+    CLIP      : 0x00000020 | 0, // 32
 
-LabelViewOptions.GROW_X    = 0x00000001 | 0; // 1 
-LabelViewOptions.GROW_Y    = 0x00000002 | 0; // 2
-LabelViewOptions.SHRINK_X  = 0x00000004 | 0; // 4
-LabelViewOptions.SHRINK_Y  = 0x00000008 | 0; // 8
-LabelViewOptions.WORD_WRAP = 0x00000010 | 0; // 16
-LabelViewOptions.CLIP      = 0x00000020 | 0; // 32
+    OVERFLOW_FLAG_MIN : 1,
+    OVERFLOW_FLAG_MAX : 63
+} as const);
 
-LabelViewOptions.OVERFLOW_FLAG_MIN = LabelViewOptions.GROW_X;     // 1
-LabelViewOptions.OVERFLOW_FLAG_MAX = LabelViewOptions.CLIP * 2 - 1; // 63
+export type LabelViewOptions = (typeof LabelViewOptions)[keyof typeof LabelViewOptions];
 
+
+// MARK: - LabelView
 export class LabelView extends View {
     // --[ ctor ]---------------------------------------------------------------
     constructor(text = "") {
