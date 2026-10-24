@@ -1,7 +1,9 @@
-import { View } from './View.js';
+import type { Bounds } from "../../../math/Bounds.js";
+import type { Vec2 } from "../../../math/Vec2.js";
+import { View } from "./View.js";
 
 export class ContainerView extends View {
-    updateBounds(out) {
+    override updateBounds(out: Bounds): void {
         out.reset();
         const views = this.getViews();
         for (let i = 0; i < views.length; i++) {
@@ -11,11 +13,11 @@ export class ContainerView extends View {
         }
     }
 
-    containsPoint(point) {
+    override containsPoint(point: Vec2): boolean {
         return this.bounds.containsPoint(point);
     }
 
-    onChildBoundsInvalidated() {
+    override onChildBoundsInvalidated(): void {
         this.invalidateBounds();
     }
 }
