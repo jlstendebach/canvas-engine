@@ -3,19 +3,19 @@ import { View } from "../core/View.js";
 
 // MARK: - LabelViewOptions
 export const LabelViewOptions = Object.freeze({
-    LEFT   : 1,
-    CENTER : 2,
-    RIGHT  : 3,
+    LEFT: 1,
+    CENTER: 2,
+    RIGHT: 3,
 
-    GROW_X    : 0x00000001 | 0, // 1 
-    GROW_Y    : 0x00000002 | 0, // 2
-    SHRINK_X  : 0x00000004 | 0, // 4
-    SHRINK_Y  : 0x00000008 | 0, // 8
-    WORD_WRAP : 0x00000010 | 0, // 16
-    CLIP      : 0x00000020 | 0, // 32
+    GROW_X: 0x00000001 | 0, // 1 
+    GROW_Y: 0x00000002 | 0, // 2
+    SHRINK_X: 0x00000004 | 0, // 4
+    SHRINK_Y: 0x00000008 | 0, // 8
+    WORD_WRAP: 0x00000010 | 0, // 16
+    CLIP: 0x00000020 | 0, // 32
 
-    OVERFLOW_FLAG_MIN : 1,
-    OVERFLOW_FLAG_MAX : 63
+    OVERFLOW_FLAG_MIN: 1,
+    OVERFLOW_FLAG_MAX: 63
 } as const);
 
 export type LabelViewOptions = (typeof LabelViewOptions)[keyof typeof LabelViewOptions];
@@ -23,60 +23,40 @@ export type LabelViewOptions = (typeof LabelViewOptions)[keyof typeof LabelViewO
 
 // MARK: - LabelView
 export class LabelView extends View {
-    #isValid: boolean;
+    #isValid: boolean = false;
 
-    #size: Vec2;
-    #anchor: Vec2;
-    #angle: number;
+    #size: Vec2 = new Vec2();
+    #anchor: Vec2 = new Vec2();
+    #angle: number = 0;
 
-    #text: string;
-    #lines: string[];
+    #text: string = "";
+    #lines: string[] = [];
 
-    #fontFamily: string;
-    #fontSize: number;
-    #fontBold: boolean;
-    #fontItalic: boolean;
-    #fontCached: string;
-    #lineHeight: number;
-    #textAlign: LabelViewOptions;
-    #overflowFlags: LabelViewOptions;
-    #fillColor: string;
-    #strokeColor: string | null;
-    #strokeWeight: number;
+    #fontFamily: string = "Arial";
+    #fontSize: number = 12;
+    #fontBold: boolean = false;
+    #fontItalic: boolean = false;
+    #fontCached: string = "";
+
+    #lineHeight: number = 0;
+    #textAlign: LabelViewOptions = LabelViewOptions.LEFT;
+    #overflowFlags: LabelViewOptions = LabelViewOptions.GROW_X | LabelViewOptions.GROW_Y;
+
+    #fillColor: string = "black";
+    #strokeColor: string | null = null;
+    #strokeWidth: number = 1;
 
     // --[ ctor ]---------------------------------------------------------------
-    constructor(text = "") {
+    constructor(text: string = "") {
         super();
-        this.#isValid = false;
-
-        this.#size = new Vec2(0, 0);
-        this.#anchor = new Vec2(0, 0);
-        this.#angle = 0;
-
         this.#text = text;
-        this.#lines = [];
-
-        this.#fontFamily = "Arial";
-        this.#fontSize = 12;
-        this.#fontBold = false;
-        this.#fontItalic = false;
-        this.#fontCached = "";
-
-        this.#lineHeight = 0;
-        this.#textAlign = LabelViewOptions.LEFT;
-        this.#overflowFlags = LabelViewOptions.GROW_X | LabelViewOptions.GROW_Y;
-
-        this.#fillColor = "black";
-        this.#strokeColor = null;
-        this.#strokeWeight = 1;
-
         this.updateFont();
     }
 
     // --[ bounds ]-------------------------------------------------------------
-    containsPoint(point) {
-        let labelX = this.x - this.getAnchorX() * this.getWidth();
-        let labelY = this.y - this.getAnchorY() * this.getHeight();
+    override containsPoint(point: Vec2): boolean {
+        const labelX = this.x - this.getAnchorX() * this.getWidth();
+        const labelY = this.y - this.getAnchorY() * this.getHeight();
 
         return (
             point.x >= labelX
@@ -89,55 +69,55 @@ export class LabelView extends View {
     /********/
     /* size */
     /********/
-    setWidth(w) {
+    setWidth(w: number): void {
         if (this.#size.x !== w && w >= 0) {
             this.#size.x = w;
             this.invalidate();
         }
     }
 
-    getWidth() {
+    getWidth(): number {
         return this.#size.x;
     }
 
-    getHeight() {
+    getHeight(): number {
         return this.#size.y;
     }
 
-    setHeight(h) {
+    setHeight(h: number): void {
         if (this.#size.y !== h && h >= 0) {
             this.#size.y = h;
             this.invalidate();
         }
     }
 
-    setLineHeight(h) {
+    setLineHeight(h: number): void {
         if (h != this.#lineHeight) {
             this.#lineHeight = h;
             this.invalidate();
         }
     }
 
-    getLineHeight() {
+    getLineHeight(): number {
         return this.#lineHeight <= 0 ? this.#fontSize : this.#lineHeight;
     }
 
     /**********/
     /* anchor */
     /**********/
-    setAnchorX(x) {
+    setAnchorX(x: number): void {
         this.#anchor.x = x;
     }
 
-    getAnchorX() {
+    getAnchorX(): number {
         return this.#anchor.x;
     }
 
-    setAnchorY(y) {
+    setAnchorY(y: number): void {
         this.#anchor.y = y;
     }
 
-    getAnchorY() {
+    getAnchorY(): number {
         return this.#anchor.y;
     }
 
@@ -145,16 +125,16 @@ export class LabelView extends View {
     /*********/
     /* angle */
     /*********/
-    setAngle(a) {
+    setAngle(a: number): void {
         this.#angle = a;
     }
 
-    getAngle() {
+    getAngle(): number {
         return this.#angle;
     }
 
 
-    measure(context) {
+    measure(context: CanvasRenderingContext2D): void {
         context.font = this.getFont();
 
         // Reset lines. 
@@ -166,23 +146,22 @@ export class LabelView extends View {
         let width = context.measureText(this.getText()).width;
 
         if (this.isWordWrapping() && width > this.getWidth()) {
-            let words = this.getText().split(" ");
+            const words = this.getText().split(" ");
 
             if (words.length > 0) {
                 // ---- Measure each word ----
-                let wordWidths = [];
-                let spaceWidth = context.measureText(" ").width;
+                const wordWidths: number[] = [];
+                const spaceWidth = context.measureText(" ").width;
                 let maxWordWidth = 0;
 
                 for (let i = 0; i < words.length; ++i) {
                     // Add current word width
-                    let wordWidth = context.measureText(words[i]).width;
+                    const wordWidth = context.measureText(words[i]).width;
                     wordWidths.push(wordWidth);
 
                     // Calculate max word width
                     maxWordWidth = Math.max(maxWordWidth, wordWidth);
                 }
-
 
                 // ---- Construct each line ----
                 let line = words[0];
@@ -197,7 +176,7 @@ export class LabelView extends View {
                 // should be able to exist instead of being split into lines "hack" and 
                 // "the". The latter should only happen if the label doesn't want to 
                 // grow.
-                let testWidth = (this.isGrowingX() && maxWordWidth > this.getWidth()
+                const testWidth = (this.isGrowingX() && maxWordWidth > this.getWidth()
                     ? maxWordWidth
                     : this.getWidth()
                 );
@@ -207,8 +186,8 @@ export class LabelView extends View {
 
                 // Add words until the line is too long, then move to the next.
                 for (let i = 1; i < words.length; ++i) {
-                    let word = words[i];
-                    let wordWidth = wordWidths[i];
+                    const word = words[i];
+                    const wordWidth = wordWidths[i];
 
                     if (lineWidth + spaceWidth + wordWidth > testWidth) { // Add line...
                         this.#lines.push(line);
@@ -232,7 +211,6 @@ export class LabelView extends View {
                 // one last time.
                 this.#lines.push(line);
                 width = Math.max(width, lineWidth);
-
             }
         }
 
@@ -250,7 +228,7 @@ export class LabelView extends View {
         /*********************/
         /* SHRINK_Y / GROW_Y */
         /*********************/
-        let height = this.#lines.length * this.getLineHeight();
+        const height = this.#lines.length * this.getLineHeight();
 
         if (
             (height > this.getHeight() && this.isGrowingY())
@@ -263,7 +241,7 @@ export class LabelView extends View {
         this.validate();
     }
 
-    measureIfNeeded(context) {
+    measureIfNeeded(context: CanvasRenderingContext2D): void {
         if (!this.#isValid) {
             this.measure(context);
         }
@@ -274,96 +252,96 @@ export class LabelView extends View {
     /**********/
     /* GROW_X */
     /**********/
-    setGrowX(g) {
+    setGrowX(g: boolean): void {
         if (g) {
             this.addOverflowFlags(LabelViewOptions.GROW_X);
         } else { this.removeOverflowFlags(LabelViewOptions.GROW_X); }
     }
 
-    isGrowingX() {
+    isGrowingX(): boolean {
         return this.hasOverflowFlags(LabelViewOptions.GROW_X);
     }
 
     /**********/
     /* GROW_Y */
     /**********/
-    setGrowY(g) {
+    setGrowY(g: boolean): void {
         if (g) {
             this.addOverflowFlags(LabelViewOptions.GROW_Y);
         } else { this.removeOverflowFlags(LabelViewOptions.GROW_Y); }
     }
 
-    isGrowingY() {
+    isGrowingY(): boolean {
         return this.hasOverflowFlags(LabelViewOptions.GROW_Y);
     }
 
     /************/
     /* SHRINK_X */
     /************/
-    setShrinkX(s) {
+    setShrinkX(s: boolean): void {
         if (s) {
             this.addOverflowFlags(LabelViewOptions.SHRINK_X);
         } else { this.removeOverflowFlags(LabelViewOptions.SHRINK_X); }
     }
 
-    isShrinkingX() {
+    isShrinkingX(): boolean {
         return this.hasOverflowFlags(LabelViewOptions.SHRINK_X);
     }
 
     /************/
     /* SHRINK_Y */
     /************/
-    setShrinkY(s) {
+    setShrinkY(s: boolean): void {
         if (s) {
             this.addOverflowFlags(LabelViewOptions.SHRINK_Y);
         } else { this.removeOverflowFlags(LabelViewOptions.SHRINK_Y); }
     }
 
-    isShrinkingY() {
+    isShrinkingY(): boolean {
         return this.hasOverflowFlags(LabelViewOptions.SHRINK_Y);
     }
 
     /*************/
     /* WORD_WRAP */
     /*************/
-    setWordWrap(w) {
+    setWordWrap(w: boolean): void {
         if (w) {
             this.addOverflowFlags(LabelViewOptions.WORD_WRAP);
         } else { this.removeOverflowFlags(LabelViewOptions.WORD_WRAP); }
     }
 
-    isWordWrapping() {
+    isWordWrapping(): boolean {
         return this.hasOverflowFlags(LabelViewOptions.WORD_WRAP);
     }
 
     /********/
     /* CLIP */
     /********/
-    setClip(c) {
+    setClip(c: boolean): void {
         if (c) {
             this.addOverflowFlags(LabelViewOptions.CLIP);
         } else { this.removeOverflowFlags(LabelViewOptions.CLIP); }
     }
 
-    isClipping() {
+    isClipping(): boolean {
         return this.hasOverflowFlags(LabelViewOptions.CLIP);
     }
 
     /********************/
     /* overflow helpers */
     /********************/
-    isValidOverflowFlag(flag) {
+    isValidOverflowFlag(flag: number): boolean {
         return (
             flag >= LabelViewOptions.OVERFLOW_FLAG_MIN
             && flag <= LabelViewOptions.OVERFLOW_FLAG_MAX
         );
     }
 
-    hasOverflowFlags(flags) {
+    hasOverflowFlags(flags: number): boolean {
         return (this.#overflowFlags & flags) === flags;
     }
 
-    addOverflowFlags(flags) {
+    addOverflowFlags(flags: number): void {
         const newOverflowFlags = this.#overflowFlags | flags;
 
         if (this.#overflowFlags !== newOverflowFlags) {
@@ -372,7 +350,7 @@ export class LabelView extends View {
         }
     }
 
-    removeOverflowFlags(flags) {
+    removeOverflowFlags(flags: number): void {
         const newOverflowFlags = this.#overflowFlags & ~flags;
 
         if (this.#overflowFlags !== newOverflowFlags) {
@@ -385,20 +363,20 @@ export class LabelView extends View {
     /*************/
     /* textAlign */
     /*************/
-    setAlignment(align) {
+    setAlignment(align: number): void {
         this.#textAlign = align;
     }
 
 
     // --[ text ]---------------------------------------------------------------
-    setText(text) {
+    setText(text: string): void {
         if (this.#text !== text) {
             this.#text = text;
             this.invalidate();
         }
     }
 
-    getText() {
+    getText(): string {
         return this.#text;
     }
 
@@ -407,14 +385,14 @@ export class LabelView extends View {
     /***************/
     /* font family */
     /***************/
-    setFontFamily(family) {
+    setFontFamily(family: string): void {
         if (this.#fontFamily !== family) {
             this.#fontFamily = family;
             this.updateFont();
         }
     }
 
-    getFontFamily() {
+    getFontFamily(): string {
         return this.#fontFamily;
     }
 
@@ -422,14 +400,14 @@ export class LabelView extends View {
     /*************/
     /* font size */
     /*************/
-    setFontSize(size) {
+    setFontSize(size: number): void {
         if (this.#fontSize !== size) {
             this.#fontSize = size;
             this.updateFont();
         }
     }
 
-    getFontSize() {
+    getFontSize(): number {
         return this.#fontSize;
     }
 
@@ -437,25 +415,25 @@ export class LabelView extends View {
     /****************/
     /* font options */
     /****************/
-    setBold(bold) {
+    setBold(bold: boolean): void {
         if (bold !== this.#fontBold) {
             this.#fontBold = bold;
             this.updateFont();
         }
     }
 
-    isBold() {
+    isBold(): boolean {
         return this.#fontBold;
     }
 
-    setItalic(italic) {
+    setItalic(italic: boolean): void {
         if (italic != this.#fontItalic) {
             this.#fontItalic = italic;
             this.updateFont();
         }
     }
 
-    isItalic() {
+    isItalic(): boolean {
         return this.#fontItalic;
     }
 
@@ -463,11 +441,11 @@ export class LabelView extends View {
     /***************/
     /* cached font */
     /***************/
-    getFont() {
+    getFont(): string {
         return this.#fontCached;
     }
 
-    updateFont() {
+    updateFont(): void {
         this.#fontCached = "";
         if (this.isBold()) { this.#fontCached = "bold "; }
         if (this.isItalic()) { this.#fontCached += "italic "; }
@@ -478,33 +456,33 @@ export class LabelView extends View {
 
 
     // --[ color ]--------------------------------------------------------------
-    setFillColor(color) {
+    setFillColor(color: string): void {
         this.#fillColor = color;
     }
 
-    getFillColor() {
+    getFillColor(): string {
         return this.#fillColor;
     }
 
-    setStrokeColor(color) {
+    setStrokeColor(color: string): void {
         this.#strokeColor = color;
     }
 
-    getStrokeColor() {
+    getStrokeColor(): string | null {
         return this.#strokeColor;
     }
 
-    setStrokeWidth(width) {
-        this.strokeWidth = width;
+    setStrokeWidth(width: number): void {
+        this.#strokeWidth = width;
     }
 
-    getStrokeWidth() {
-        return this.strokeWidth;
+    getStrokeWidth(): number {
+        return this.#strokeWidth;
     }
 
 
     // --[ drawing ]------------------------------------------------------------
-    onDraw(context) {
+    override onDraw(context: CanvasRenderingContext2D): void {
         context.save();
 
         // Measurement must happen first! Widths or heights referenced prior to 
@@ -522,7 +500,7 @@ export class LabelView extends View {
 
         // Determine the position of the text
         let textX = 0;
-        let textY = 0;
+        const textY = 0;
 
         if (this.#textAlign === LabelViewOptions.RIGHT) {
             textX += this.getWidth();
@@ -557,12 +535,13 @@ export class LabelView extends View {
         context.miterLimit = 2;
         context.textBaseline = "top";
 
-        let lineHeight = this.getLineHeight();
+        const lineHeight = this.getLineHeight();
 
         // Stroke 
-        if (this.getStrokeColor() !== null && this.getStrokeWidth() > 0) {
+        const strokeColor = this.getStrokeColor();
+        if (strokeColor !== null && this.getStrokeWidth() > 0) {
             context.lineWidth = this.getStrokeWidth() * 2;
-            context.strokeStyle = this.getStrokeColor();
+            context.strokeStyle = strokeColor;
             for (let i = 0; i < this.#lines.length; ++i) {
                 context.strokeText(this.#lines[i], textX, textY + i * lineHeight);
             }
@@ -582,11 +561,11 @@ export class LabelView extends View {
 
 
     // --[ helpers ]------------------------------------------------------------
-    invalidate() {
+    invalidate(): void {
         this.#isValid = false;
     }
 
-    validate() {
+    validate(): void {
         this.#isValid = true;
     }
 
