@@ -12,15 +12,9 @@ export class CachedColor {
     #snapshot: Color;
     #colorString: string;
 
-    constructor(color: Color = new Color()) {
-        this.#color = color;
-        this.#snapshot = this.#color.clone();
-        this.#colorString = this.#color.toRgba();
-    }
-
     // MARK: - Accessors
     set color(value: Color) {
-        this.#color = value;
+        this.#color.copy(value);
     }
 
     get color(): Color {
@@ -34,4 +28,24 @@ export class CachedColor {
         }
         return this.#colorString;
     }
+    
+    // MARK: - Initialization
+    constructor(color: Color = new Color()) {
+        this.#color = color.clone();
+        this.#snapshot = this.#color.clone();
+        this.#colorString = this.#color.toRgba();
+    }
+
+    // MARK: - Statics
+    static assign(target: CachedColor | null, color: Color | null): CachedColor | null {
+        if (!color) {
+            return null;
+        }
+        if (!target) {
+            return new CachedColor(color);
+        }
+        target.color = color;
+        return target;
+    }
+
 }
