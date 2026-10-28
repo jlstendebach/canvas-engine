@@ -1,27 +1,28 @@
 import { CachedColor } from "../../utils/CachedColor.js";
 import { Color } from "../../utils/Color.js";
+import type { ReadonlyColor } from "../../utils/ReadonlyColor.js";
 import { View } from "../core/View.js";
 
-export class ShapeView extends View {
-    #fillStyle: CachedColor = new CachedColor(new Color(255, 255, 255));
-    #strokeStyle: CachedColor = new CachedColor(new Color(0, 0, 0));
+export abstract class ShapeView extends View {
+    #fillStyle: CachedColor | null = new CachedColor(new Color(255, 255, 255));
+    #strokeStyle: CachedColor | null = new CachedColor(new Color(0, 0, 0));
     #strokeWidth: number = 1;
     #strokeDash: number[] = [];
     #strokeDashOffset: number = 0;
 
     // MARK: - Accessors
-    set fillStyle(style: Color) {
+    set fillStyle(style: ReadonlyColor | null) {
         this.setFillStyle(style);
     }
-    get fillStyle(): Color | null {
-        return this.#fillStyle.color;
+    get fillStyle(): ReadonlyColor | null {
+        return this.#fillStyle?.color ?? null;
     }
 
-    set strokeStyle(style: Color) {
+    set strokeStyle(style: ReadonlyColor | null) {
         this.setStrokeStyle(style);
     }
-    get strokeStyle(): Color | null {
-        return this.#strokeStyle.color;
+    get strokeStyle(): ReadonlyColor | null {
+        return this.#strokeStyle?.color ?? null;
     }
 
     set strokeWidth(width: number) {
@@ -45,14 +46,19 @@ export class ShapeView extends View {
         return this.#strokeDashOffset;
     }
 
-    // MARK: - Style
-    setFillStyle(style: Color): this {
-        this.#fillStyle.color = style;
+    // MARK: - Fill Style
+    setFillStyle(style: ReadonlyColor | null): this {
+        this.#fillStyle = CachedColor.assign(this.#fillStyle, style);
         return this;
     }
 
-    setStrokeStyle(style: Color): this {
-        this.#strokeStyle.color = style;
+    isFillEnabled(): boolean {
+        return this.#fillStyle != null;
+    }
+
+    // MARK: - Stroke Style
+    setStrokeStyle(style: ReadonlyColor | null): this {
+        this.#strokeStyle = CachedColor.assign(this.#strokeStyle, style);
         return this;
     }
 
@@ -71,26 +77,29 @@ export class ShapeView extends View {
         return this;
     }
 
-    // MARK: - Drawing
-    path(context: CanvasRenderingContext2D): void {
-        // To be implemented by subclasses.
-        void context;
+    isStrokeEnabled(): boolean {
+        return this.#strokeStyle != null && this.#strokeWidth > 0;
     }
 
+    // MARK: - Drawing
+    abstract path(context: CanvasRenderingContext2D): void;
+
     fill(context: CanvasRenderingContext2D): void {
-        if (!this.isFillEnabled()) {
+        const fillStyle = this.#fillStyle;
+        if (!fillStyle) {
             return;
         }
-        context.fillStyle = this.#fillStyle.colorString ?? "";
+        context.fillStyle = fillStyle.colorString;
         context.fill();
     }
 
     stroke(context: CanvasRenderingContext2D): void {
-        if (!this.isStrokeEnabled()) {
+        const strokeStyle = this.#strokeStyle;
+        if (!strokeStyle || this.#strokeWidth <= 0) {
             return;
         }
         context.lineWidth = this.#strokeWidth;
-        context.strokeStyle = this.#strokeStyle.colorString ?? "";
+        context.strokeStyle = strokeStyle.colorString;
         context.setLineDash(this.#strokeDash);
         context.lineDashOffset = this.#strokeDashOffset;
         context.stroke();
@@ -103,12 +112,4 @@ export class ShapeView extends View {
         this.stroke(context);
     }
 
-    // MARK: - Helpers
-    isStrokeEnabled(): boolean {
-        return this.#strokeStyle.colorString != null && this.#strokeWidth > 0;
-    }
-
-    isFillEnabled(): boolean {
-        return this.#fillStyle.colorString != null;
-    }
 }
