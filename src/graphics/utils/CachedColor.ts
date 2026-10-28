@@ -30,8 +30,8 @@ export class CachedColor {
     }
     
     // MARK: - Initialization
-    constructor(color: Color = new Color()) {
-        this.#color = color.clone();
+    constructor(color?: Color) {
+        this.#color = color ? color.clone() : new Color();
         this.#snapshot = this.#color.clone();
         this.#colorString = this.#color.toRgba();
     }
