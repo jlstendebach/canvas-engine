@@ -45,7 +45,7 @@ export class CachedColor {
      * Creates a new CachedColor.
      * @param color - The initial color, copied. Defaults to opaque black.
      */
-    constructor(color?: Color) {
+    constructor(color?: ReadonlyColor) {
         this.#color = color ? color.clone() : new Color();
         this.#snapshot = this.#color.clone();
         this.#colorString = this.#color.toRgba();
@@ -62,7 +62,7 @@ export class CachedColor {
      */
     static assign(
         target: CachedColor | null,
-        color: Color | null
+        color: ReadonlyColor | null
     ): CachedColor | null {
         if (!color) {
             return null;
@@ -73,5 +73,4 @@ export class CachedColor {
         target.color = color;
         return target;
     }
-
 }
