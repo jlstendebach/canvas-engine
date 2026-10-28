@@ -14,7 +14,8 @@ export class Canvas {
     #context!: CanvasRenderingContext2D;
     #contextType: string = "";
     #rootView: CanvasRootView | null = new CanvasRootView(this);
-    #fillStyle: CachedColor | null = new CachedColor();
+    #fillStyle: CachedColor = new CachedColor();
+    #isFillEnabled: boolean = true;
     #isSmoothingEnabled: boolean = false;
 
     #mouseProcessor: MouseEventProcessor | null = null;
@@ -42,11 +43,18 @@ export class Canvas {
         return this.#element.height;
     }
 
-    get fillStyle(): Color | null {
-        return this.#fillStyle?.color ?? null;
+    get fillStyle(): Color {
+        return this.#fillStyle.color;
     }
-    set fillStyle(style: ReadonlyColor | null) {
+    set fillStyle(style: ReadonlyColor) {
         this.setFillStyle(style);
+    }
+
+    get isFillEnabled(): boolean {
+        return this.#isFillEnabled;
+    }
+    set isFillEnabled(value: boolean) {
+        this.setFillEnabled(value);
     }
 
     get isSmoothingEnabled(): boolean {
@@ -142,8 +150,13 @@ export class Canvas {
         return out.set(this.#element.width, this.#element.height);
     }
 
-    setFillStyle(color: ReadonlyColor | null): this {
-        this.#fillStyle = CachedColor.assign(this.#fillStyle, color);
+    setFillStyle(color: ReadonlyColor): this {
+        this.#fillStyle.color = color;
+        return this;
+    }
+
+    setFillEnabled(value: boolean): this {
+        this.#isFillEnabled = value;
         return this;
     }
 
@@ -331,7 +344,7 @@ export class Canvas {
         this.#context.save();
         this.#context.imageSmoothingEnabled = this.#isSmoothingEnabled;
         try {
-            if (this.#fillStyle) {
+            if (this.#isFillEnabled) {
                 this.#context.fillStyle = this.#fillStyle.colorString;
                 this.#context.fillRect(0, 0, this.#element.width, this.#element.height);
             }
