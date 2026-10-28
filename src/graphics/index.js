@@ -9,6 +9,7 @@ export * from "./utils/Color.js";
 export * from "./utils/CoordinateSpace.js";
 export * from "./utils/ImageManager.js";
 export * from "./utils/PointList.js";
+export * from "./utils/ReadonlyColor.js";
 export * from "./utils/Size.js";
 export * from "./utils/Transform.js";
 

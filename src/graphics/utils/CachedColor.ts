@@ -1,67 +1,54 @@
 import { Color } from "./Color.js";
+import type { ReadonlyColor } from "./ReadonlyColor.js";
 
 /**
- * A simple wrapper for a color that caches the string representation of the 
- * color. This is useful for performance reasons, as it avoids having to call 
- * toRgba() on the color every time it is used. The tradeoff is that it 
- * uses more memory, as it stores both the color and the string representation 
- * of the color.
+ * Wraps a color and caches its `rgba()` string, so hot paths like
+ * `fillStyle` assignment don't rebuild the string every frame.
+ *
+ * The string is rebuilt lazily: `colorString` compares the color against a
+ * snapshot taken at the last rebuild and only regenerates on a change. The
+ * tradeoff is memory, since each instance holds two colors and a string.
  */
 export class CachedColor {
-    #rawColor: Color | null = null;
-    #colorProxy: Color | null = null;
-
-    #colorString: string | null = null;
-    #isColorStringDirty: boolean = true;
-
-    constructor(color?: Color | null) {
-        this.color = color ?? new Color();
-    }
+    #color: Color;
+    #snapshot: Color;
+    #colorString: string;
 
     // MARK: - Accessors
-    set color(newColor: Color | null) {
-        if (newColor === null) {
-            this.#rawColor = null;
-            this.#colorProxy = null;
-            return;
-        }
-        if (!(newColor instanceof Color)) {
-            throw new TypeError("color must be an instance of Color or null");
-        }
-        if (this.#rawColor === null) {
-            this.#rawColor = newColor.clone();
-            this.#updateColorProxy();
-        } else {
-            this.#rawColor.copy(newColor);
-        }
-
-        this.#invalidate();
+    /**
+     * The current color, as a live reference. Mutate it in place to change the
+     * color; `colorString` picks up the change on its next read. Clone it to
+     * keep a fixed value.
+     */
+    get color(): Color {
+        return this.#color;
     }
 
-    get color(): Color | null {
-        return this.#colorProxy;
+    /** Copies the given color's components into this instance. */
+    set color(value: ReadonlyColor) {
+        this.#color.copy(value);
     }
 
-    get colorString(): string | null {
-        if (this.#isColorStringDirty) {
-            this.#colorString = this.#rawColor ? this.#rawColor.toRgba() : null;
-            this.#isColorStringDirty = false;
+    /**
+     * The color as an `rgba()` string. Rebuilt only when the color has changed 
+     * since the last read.
+     */
+    get colorString(): string {
+        if (!this.#color.equals(this.#snapshot)) {
+            this.#colorString = this.#color.toRgba();
+            this.#snapshot.copy(this.#color);
         }
         return this.#colorString;
     }
 
-    // MARK: - Helpers
-    #invalidate(): void {
-        this.#isColorStringDirty = true;
-    }
-
-    #updateColorProxy(): void {
-        this.#colorProxy = new Proxy(this.#rawColor!, {
-            set: (target, prop, value) => {
-                Reflect.set(target, prop, value);
-                this.#invalidate();
-                return true;
-            }
-        });
+    // MARK: - Initialization
+    /**
+     * Creates a new CachedColor.
+     * @param color - The initial color, copied. Defaults to opaque black.
+     */
+    constructor(color?: ReadonlyColor) {
+        this.#color = color ? color.clone() : new Color();
+        this.#snapshot = this.#color.clone();
+        this.#colorString = this.#color.toRgba();
     }
 }

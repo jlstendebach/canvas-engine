@@ -3,6 +3,7 @@ import { MouseEventProcessor } from "../../events/mouse/MouseEventProcessor.js";
 import { Vec2 } from "../../math/Vec2.js";
 import { CachedColor } from "../utils/CachedColor.js";
 import type { Color } from "../utils/Color.js";
+import type { ReadonlyColor } from "../utils/ReadonlyColor.js";
 import { Size } from "../utils/Size.js";
 import type { View } from "../views/core/View.js";
 import { CanvasResizeEvent } from "./CanvasEvents.js";
@@ -14,6 +15,7 @@ export class Canvas {
     #contextType: string = "";
     #rootView: CanvasRootView | null = new CanvasRootView(this);
     #fillStyle: CachedColor = new CachedColor();
+    #isFillEnabled: boolean = true;
     #isSmoothingEnabled: boolean = false;
 
     #mouseProcessor: MouseEventProcessor | null = null;
@@ -41,11 +43,18 @@ export class Canvas {
         return this.#element.height;
     }
 
-    get fillStyle(): Color | null {
+    get fillStyle(): Color {
         return this.#fillStyle.color;
     }
-    set fillStyle(style: Color | null) {
+    set fillStyle(style: ReadonlyColor) {
         this.setFillStyle(style);
+    }
+
+    get isFillEnabled(): boolean {
+        return this.#isFillEnabled;
+    }
+    set isFillEnabled(value: boolean) {
+        this.setFillEnabled(value);
     }
 
     get isSmoothingEnabled(): boolean {
@@ -141,8 +150,13 @@ export class Canvas {
         return out.set(this.#element.width, this.#element.height);
     }
 
-    setFillStyle(color: Color | null): this {
-        this.#fillStyle.color = color?.clone() ?? null;
+    setFillStyle(color: ReadonlyColor): this {
+        this.#fillStyle.color = color;
+        return this;
+    }
+
+    setFillEnabled(value: boolean): this {
+        this.#isFillEnabled = value;
         return this;
     }
 
@@ -330,7 +344,7 @@ export class Canvas {
         this.#context.save();
         this.#context.imageSmoothingEnabled = this.#isSmoothingEnabled;
         try {
-            if (this.#fillStyle.colorString) {
+            if (this.#isFillEnabled) {
                 this.#context.fillStyle = this.#fillStyle.colorString;
                 this.#context.fillRect(0, 0, this.#element.width, this.#element.height);
             }

@@ -1,13 +1,30 @@
+import type { ReadonlyColor } from "./ReadonlyColor.js";
+
 /**
  * Represents a color with red, green, blue, and alpha components.
+ *
+ * RGB components range from 0 to 255 and alpha ranges from 0 to 1.
+ * Components may be fractional (e.g., after `lerp`) and are not
+ * clamped on assignment.
  */
-export class Color {
+export class Color implements ReadonlyColor {
+    /** Red component, from 0 to 255. */
     r: number;
+    /** Green component, from 0 to 255. */
     g: number;
+    /** Blue component, from 0 to 255. */
     b: number;
+    /** Alpha component, from 0 (transparent) to 1 (opaque). */
     a: number;
 
     // MARK: - Initialization
+    /**
+     * Creates a new Color. Defaults to opaque black.
+     * @param r - Red component, from 0 to 255.
+     * @param g - Green component, from 0 to 255.
+     * @param b - Blue component, from 0 to 255.
+     * @param a - Alpha component, from 0 to 1.
+     */
     constructor(
         r: number = 0,
         g: number = 0,
@@ -20,9 +37,10 @@ export class Color {
         this.a = a;
     }
 
-    // MARK: - Factory Methods 
+    // MARK: - Static Methods 
     /**
      * Creates a Color from a hex string (e.g., "#FF0000" or "F00").
+     * 
      * Supports 3, 4, 6, or 8 hex digits with optional #.
      * @param hexString - The hex color string.
      * @returns A new Color instance or null if invalid.
@@ -60,6 +78,7 @@ export class Color {
 
     /**
      * Creates a Color from an RGBA/RGB string (e.g., "rgba(255,0,0,1)" or "rgb(255,0,0)").
+     * 
      * @param rgbaString - The RGBA/RGB string.
      * @returns A new Color instance or null if invalid.
      */
@@ -86,14 +105,20 @@ export class Color {
 
     /**
      * Linearly interpolates between two colors.
+     * 
      * @param colorA - The starting color.
      * @param colorB - The ending color.
      * @param t - The interpolation factor (0.0 to 1.0).
      * @returns The interpolated color.
      */
-    static lerp(colorA: Color, colorB: Color, t: number): Color {
+    static lerp(
+        colorA: ReadonlyColor,
+        colorB: ReadonlyColor,
+        t: number,
+        out: Color = new Color()
+    ): Color {
         const u = 1 - t;
-        return new Color(
+        return out.set(
             colorA.r * u + colorB.r * t,
             colorA.g * u + colorB.g * t,
             colorA.b * u + colorB.b * t,
@@ -104,6 +129,7 @@ export class Color {
     // MARK: - Conversions
     /**
      * Converts the Color to an RGBA string in the format "rgba(r, g, b, a)".
+     * 
      * @returns The RGBA string representation of the color.
      */
     toRgba(): string {
@@ -111,14 +137,16 @@ export class Color {
     }
 
     /**
-     * Converts the Color to a hex string in the format "#RRGGBBAA".
+     * Converts the Color to a hex string in the format "#RRGGBBAA". Components 
+     * are rounded and clamped to the valid range.
+     * 
      * @returns The hex string representation of the color.
      */
     toHex(): string {
-        const rHex = this.r.toString(16).padStart(2, '0');
-        const gHex = this.g.toString(16).padStart(2, '0');
-        const bHex = this.b.toString(16).padStart(2, '0');
-        const aHex = Math.round(this.a * 255).toString(16).padStart(2, '0');
+        const rHex = toHexByte(this.r);
+        const gHex = toHexByte(this.g);
+        const bHex = toHexByte(this.b);
+        const aHex = toHexByte(this.a * 255);
         return `#${rHex}${gHex}${bHex}${aHex}`;
     }
 
@@ -144,7 +172,7 @@ export class Color {
      * @param other - The other Color to compare.
      * @returns True if equal.
      */
-    equals(other: Color): boolean {
+    equals(other: ReadonlyColor): boolean {
         return this.r === other.r &&
             this.g === other.g &&
             this.b === other.b &&
@@ -153,6 +181,7 @@ export class Color {
 
     /**
      * Creates a clone of this Color instance.
+     * 
      * @returns A new Color instance with the same values.
      */
     clone(): Color {
@@ -160,11 +189,19 @@ export class Color {
     }
 
     /**
-     * Copies the values from another Color instance.
-     * @param other - The Color to copy from.
+     * Copies the values from another color.
+     * 
+     * @param other - The color to copy from.
      * @returns The current Color instance.
      */
-    copy(other: Color): this {
+    copy(other: ReadonlyColor): this {
         return this.set(other.r, other.g, other.b, other.a);
     }
+}
+
+// MARK: - toHexByte
+function toHexByte(value: number): string {
+    return Math.max(0, Math.min(255, Math.round(value)))
+        .toString(16)
+        .padStart(2, '0');
 }
