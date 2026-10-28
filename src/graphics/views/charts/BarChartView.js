@@ -423,7 +423,7 @@ export class BarChartView extends View {
 
             let bar = new RectangleView(w, barHeight);
             bar.setFillStyle(data.color);
-            bar.setStrokeStyle(null);
+            bar.setStrokeEnabled(false);
             bar.setStrokeWidth(1);
             bar.setX(barLeft);
             bar.setY(y);

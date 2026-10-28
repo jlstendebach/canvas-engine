@@ -105,7 +105,7 @@ export class ImageApp extends CanvasApp {
             .addToParent(this.canvas);
 
         this.#sourceRectView = new RectangleView()
-            .setFillStyle(null)
+            .setFillEnabled(false)
             .setStrokeStyle(new Color(255, 0, 0))
             .setStrokeWidth(2)
             .addToParent(this.#spriteSheetView);
