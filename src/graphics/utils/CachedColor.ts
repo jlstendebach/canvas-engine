@@ -15,11 +15,6 @@ export class CachedColor {
     #colorString: string;
 
     // MARK: - Accessors
-    /** Copies the given color's components into this instance. */
-    set color(value: ReadonlyColor) {
-        this.#color.copy(value);
-    }
-
     /**
      * The current color, as a live reference. Mutate it in place to change the
      * color; `colorString` picks up the change on its next read. Clone it to
@@ -27,6 +22,11 @@ export class CachedColor {
      */
     get color(): Color {
         return this.#color;
+    }
+
+    /** Copies the given color's components into this instance. */
+    set color(value: ReadonlyColor) {
+        this.#color.copy(value);
     }
 
     /**
@@ -50,28 +50,5 @@ export class CachedColor {
         this.#color = color ? color.clone() : new Color();
         this.#snapshot = this.#color.clone();
         this.#colorString = this.#color.toRgba();
-    }
-
-    // MARK: - Static Methods
-    /**
-     * Assigns a color to an optional CachedColor, reusing the existing instance
-     * when possible.
-     * @param target - The current CachedColor, or null.
-     * @param color - The color to assign, or null to clear.
-     * @returns `null` if `color` is null; otherwise `target` updated in place,
-     * or a new CachedColor if `target` was null.
-     */
-    static assign(
-        target: CachedColor | null,
-        color: ReadonlyColor | null
-    ): CachedColor | null {
-        if (!color) {
-            return null;
-        }
-        if (!target) {
-            return new CachedColor(color);
-        }
-        target.color = color;
-        return target;
     }
 }

@@ -109,35 +109,4 @@ describe("CachedColor", () => {
             expect(spy).not.toHaveBeenCalled();
         });
     });
-
-    // MARK: - assign
-    describe("assign", () => {
-        test("returns null when color is null", () => {
-            const target = new CachedColor(new Color(255, 0, 0));
-            expect(CachedColor.assign(target, null)).toBe(null);
-            expect(CachedColor.assign(null, null)).toBe(null);
-        });
-
-        test("creates a new instance when target is null", () => {
-            const color = new Color(255, 0, 0, 0.5);
-            const result = CachedColor.assign(null, color);
-            expect(result).toBeInstanceOf(CachedColor);
-            expect(result.color.equals(color)).toBe(true);
-            expect(result.colorString).toBe("rgba(255, 0, 0, 0.5)");
-        });
-
-        test("reuses and updates an existing target", () => {
-            const target = new CachedColor(new Color(255, 0, 0));
-            const result = CachedColor.assign(target, new Color(0, 255, 0, 0.5));
-            expect(result).toBe(target);
-            expect(target.colorString).toBe("rgba(0, 255, 0, 0.5)");
-        });
-
-        test("copies the provided color", () => {
-            const source = new Color(255, 0, 0, 0.5);
-            const result = CachedColor.assign(null, source);
-            source.r = 0;
-            expect(result.color.r).toBe(255);
-        });
-    });
 });
