@@ -8,60 +8,30 @@ import { Color } from "./Color.js";
  * of the color.
  */
 export class CachedColor {
-    #rawColor: Color | null = null;
-    #colorProxy: Color | null = null;
+    #color: Color;
+    #snapshot: Color;
+    #colorString: string;
 
-    #colorString: string | null = null;
-    #isColorStringDirty: boolean = true;
-
-    constructor(color?: Color | null) {
-        this.color = color ?? new Color();
+    constructor(color: Color = new Color()) {
+        this.#color = color;
+        this.#snapshot = this.#color.clone();
+        this.#colorString = this.#color.toRgba();
     }
 
     // MARK: - Accessors
-    set color(newColor: Color | null) {
-        if (newColor === null) {
-            this.#rawColor = null;
-            this.#colorProxy = null;
-            return;
-        }
-        if (!(newColor instanceof Color)) {
-            throw new TypeError("color must be an instance of Color or null");
-        }
-        if (this.#rawColor === null) {
-            this.#rawColor = newColor.clone();
-            this.#updateColorProxy();
-        } else {
-            this.#rawColor.copy(newColor);
-        }
-
-        this.#invalidate();
+    set color(value: Color) {
+        this.#color = value;
     }
 
-    get color(): Color | null {
-        return this.#colorProxy;
+    get color(): Color {
+        return this.#color;
     }
 
-    get colorString(): string | null {
-        if (this.#isColorStringDirty) {
-            this.#colorString = this.#rawColor ? this.#rawColor.toRgba() : null;
-            this.#isColorStringDirty = false;
+    get colorString(): string {
+        if (!this.#color.equals(this.#snapshot)) {
+            this.#colorString = this.#color.toRgba();
+            this.#snapshot.copy(this.#color);
         }
         return this.#colorString;
-    }
-
-    // MARK: - Helpers
-    #invalidate(): void {
-        this.#isColorStringDirty = true;
-    }
-
-    #updateColorProxy(): void {
-        this.#colorProxy = new Proxy(this.#rawColor!, {
-            set: (target, prop, value) => {
-                Reflect.set(target, prop, value);
-                this.#invalidate();
-                return true;
-            }
-        });
     }
 }
