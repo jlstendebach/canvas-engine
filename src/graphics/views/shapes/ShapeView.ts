@@ -14,14 +14,14 @@ export abstract class ShapeView extends View {
     set fillStyle(style: ReadonlyColor | null) {
         this.setFillStyle(style);
     }
-    get fillStyle(): ReadonlyColor | null {
+    get fillStyle(): Color | null {
         return this.#fillStyle?.color ?? null;
     }
 
     set strokeStyle(style: ReadonlyColor | null) {
         this.setStrokeStyle(style);
     }
-    get strokeStyle(): ReadonlyColor | null {
+    get strokeStyle(): Color | null {
         return this.#strokeStyle?.color ?? null;
     }
 

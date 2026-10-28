@@ -21,10 +21,11 @@ export class CachedColor {
     }
 
     /**
-     * A live, read-only view of the current color. It reflects later changes. 
-     * Clone it to keep a fixed value.
+     * The current color, as a live reference. Mutate it in place to change the
+     * color; `colorString` picks up the change on its next read. Clone it to
+     * keep a fixed value.
      */
-    get color(): ReadonlyColor {
+    get color(): Color {
         return this.#color;
     }
 

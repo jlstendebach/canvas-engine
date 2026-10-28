@@ -2,6 +2,7 @@ import type { EventEmitter } from "../../events/EventEmitter.js";
 import { MouseEventProcessor } from "../../events/mouse/MouseEventProcessor.js";
 import { Vec2 } from "../../math/Vec2.js";
 import { CachedColor } from "../utils/CachedColor.js";
+import type { Color } from "../utils/Color.js";
 import type { ReadonlyColor } from "../utils/ReadonlyColor.js";
 import { Size } from "../utils/Size.js";
 import type { View } from "../views/core/View.js";
@@ -41,7 +42,7 @@ export class Canvas {
         return this.#element.height;
     }
 
-    get fillStyle(): ReadonlyColor | null {
+    get fillStyle(): Color | null {
         return this.#fillStyle?.color ?? null;
     }
     set fillStyle(style: ReadonlyColor | null) {
