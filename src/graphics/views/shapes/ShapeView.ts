@@ -4,61 +4,79 @@ import type { ReadonlyColor } from "../../utils/ReadonlyColor.js";
 import { View } from "../core/View.js";
 
 export abstract class ShapeView extends View {
-    #fillStyle: CachedColor | null = new CachedColor(new Color(255, 255, 255));
-    #strokeStyle: CachedColor | null = new CachedColor(new Color(0, 0, 0));
+    #fillStyle: CachedColor = new CachedColor(new Color(255, 255, 255));
+    #isFillEnabled: boolean = true;
+
+    #strokeStyle: CachedColor = new CachedColor(new Color(0, 0, 0));
     #strokeWidth: number = 1;
     #strokeDash: number[] = [];
     #strokeDashOffset: number = 0;
+    #isStrokeEnabled: boolean = true;
 
     // MARK: - Accessors
-    set fillStyle(style: ReadonlyColor | null) {
+    get fillStyle(): Color {
+        return this.#fillStyle.color;
+    }
+    set fillStyle(style: ReadonlyColor) {
         this.setFillStyle(style);
     }
-    get fillStyle(): Color | null {
-        return this.#fillStyle?.color ?? null;
+
+    get isFillEnabled(): boolean {
+        return this.#isFillEnabled;
+    }
+    set isFillEnabled(enabled: boolean) {
+        this.setFillEnabled(enabled);
     }
 
-    set strokeStyle(style: ReadonlyColor | null) {
+    get strokeStyle(): Color {
+        return this.#strokeStyle.color;
+    }
+    set strokeStyle(style: ReadonlyColor) {
         this.setStrokeStyle(style);
     }
-    get strokeStyle(): Color | null {
-        return this.#strokeStyle?.color ?? null;
-    }
 
-    set strokeWidth(width: number) {
-        this.setStrokeWidth(width);
-    }
     get strokeWidth(): number {
         return this.#strokeWidth;
     }
-
-    set strokeDash(dash: number[]) {
-        this.setStrokeDash(dash);
+    set strokeWidth(width: number) {
+        this.setStrokeWidth(width);
     }
+
     get strokeDash(): number[] {
         return this.#strokeDash;
     }
-
-    set strokeDashOffset(offset: number) {
-        this.setStrokeDashOffset(offset);
+    set strokeDash(dash: number[]) {
+        this.setStrokeDash(dash);
     }
+
     get strokeDashOffset(): number {
         return this.#strokeDashOffset;
     }
+    set strokeDashOffset(offset: number) {
+        this.setStrokeDashOffset(offset);
+    }
+
+    get isStrokeEnabled(): boolean {
+        return this.#isStrokeEnabled;
+    }
+    set isStrokeEnabled(enabled: boolean) {
+        this.setStrokeEnabled(enabled);
+    }
 
     // MARK: - Fill Style
-    setFillStyle(style: ReadonlyColor | null): this {
-        this.#fillStyle = CachedColor.assign(this.#fillStyle, style);
+    setFillStyle(style: ReadonlyColor): this {
+        this.#fillStyle.color = style;
         return this;
     }
 
-    isFillEnabled(): boolean {
-        return this.#fillStyle != null;
+    setFillEnabled(enabled: boolean): this {
+        this.#isFillEnabled = enabled;
+        return this;
     }
 
     // MARK: - Stroke Style
-    setStrokeStyle(style: ReadonlyColor | null): this {
-        this.#strokeStyle = CachedColor.assign(this.#strokeStyle, style);
+    setStrokeStyle(style: ReadonlyColor): this {
+        this.#strokeStyle.color = style;
         return this;
     }
 
@@ -77,29 +95,28 @@ export abstract class ShapeView extends View {
         return this;
     }
 
-    isStrokeEnabled(): boolean {
-        return this.#strokeStyle != null && this.#strokeWidth > 0;
+    setStrokeEnabled(enabled: boolean): this {
+        this.#isStrokeEnabled = enabled;
+        return this;
     }
 
     // MARK: - Drawing
     abstract path(context: CanvasRenderingContext2D): void;
 
     fill(context: CanvasRenderingContext2D): void {
-        const fillStyle = this.#fillStyle;
-        if (!fillStyle) {
+        if (!this.#isFillEnabled) {
             return;
         }
-        context.fillStyle = fillStyle.colorString;
+        context.fillStyle = this.#fillStyle.colorString;
         context.fill();
     }
 
     stroke(context: CanvasRenderingContext2D): void {
-        const strokeStyle = this.#strokeStyle;
-        if (!strokeStyle || this.#strokeWidth <= 0) {
+        if (!this.#isStrokeEnabled || this.#strokeWidth <= 0) {
             return;
         }
         context.lineWidth = this.#strokeWidth;
-        context.strokeStyle = strokeStyle.colorString;
+        context.strokeStyle = this.#strokeStyle.colorString;
         context.setLineDash(this.#strokeDash);
         context.lineDashOffset = this.#strokeDashOffset;
         context.stroke();
