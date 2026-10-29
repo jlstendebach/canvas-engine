@@ -1,8 +1,5 @@
-import { EventEmitter } from "../EventEmitter.js"
-import { KeyboardEvent } from "./KeyboardEvent.js"
-import { KeyboardEventType } from "./KeyboardEventType.js"
-
-type DomKeyboardEvent = globalThis.KeyboardEvent;
+import { EventEmitter } from "../EventEmitter.js";
+import { KeyboardEventType } from "./KeyboardEventType.js";
 
 export class Keyboard {
     static #down: Record<string, boolean> = {};
@@ -33,17 +30,14 @@ export class Keyboard {
     }
 
     // --[ events ]-------------------------------------------------------------
-    static onKeyDown(event: DomKeyboardEvent): void {
+    static onKeyDown(event: KeyboardEvent): void {
         Keyboard.#updateModifiers(event);
 
         if (Keyboard.isKeyDown(event.code)) {
             /**********/
             /* REPEAT */
             /**********/
-            Keyboard.#eventEmitter.emit(
-                KeyboardEventType.REPEAT,
-                new KeyboardEvent(KeyboardEventType.REPEAT, event.key, event.code)
-            );
+            Keyboard.#eventEmitter.emit(KeyboardEventType.REPEAT, event);
 
         } else {
             Keyboard.#down[event.key] = true;
@@ -52,14 +46,11 @@ export class Keyboard {
             /********/
             /* DOWN */
             /********/
-            Keyboard.#eventEmitter.emit(
-                KeyboardEventType.DOWN,
-                new KeyboardEvent(KeyboardEventType.DOWN, event.key, event.code)
-            );
+            Keyboard.#eventEmitter.emit(KeyboardEventType.DOWN, event);
         }
     }
 
-    static onKeyUp(event: DomKeyboardEvent): void {
+    static onKeyUp(event: KeyboardEvent): void {
         Keyboard.#updateModifiers(event);
         delete Keyboard.#down[event.key];
         delete Keyboard.#down[event.code];
@@ -67,10 +58,7 @@ export class Keyboard {
         /******/
         /* UP */
         /******/
-        Keyboard.#eventEmitter.emit(
-            KeyboardEventType.UP,
-            new KeyboardEvent(KeyboardEventType.UP, event.key, event.code)
-        );
+        Keyboard.#eventEmitter.emit(KeyboardEventType.UP, event);
     }
 
     // --[ helpers ]------------------------------------------------------------
@@ -80,7 +68,7 @@ export class Keyboard {
         return new EventEmitter();
     }
 
-    static #updateModifiers(event: DomKeyboardEvent): void {
+    static #updateModifiers(event: KeyboardEvent): void {
         Keyboard.#capsLock = event.getModifierState("CapsLock");
         Keyboard.#numLock = event.getModifierState("NumLock");
         Keyboard.#scrollLock = event.getModifierState("ScrollLock");
